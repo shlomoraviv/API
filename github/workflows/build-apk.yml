@@ -1,0 +1,38 @@
+name: Build APK
+
+on:
+  push:
+    paths:
+      - "generated_app/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # aapt2 8.2.0 / R8 / kotlinc 1.9.22 all expect a JDK 17-class runtime —
+      # this matches what the equivalent AGP 8.2 toolchain would use.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Make build.sh executable
+        run: chmod +x build.sh
+
+      - name: Build APK
+        run: ./build.sh
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: build_out/app-release.apk
+          if-no-files-found: error
+          retention-days: 7

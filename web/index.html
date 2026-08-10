@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI App Maker — prompt to APK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+  :root {
+    --bg: #14161a;
+    --surface: #1b1e24;
+    --surface-2: #21252c;
+    --border: #2b3039;
+    --text: #e9e7e2;
+    --text-muted: #8b8f98;
+    --accent: #dd9c52;
+    --accent-soft: #4a3c26;
+    --success: #6fb89a;
+    --success-soft: #2a3934;
+    --error: #d97a63;
+    --error-soft: #3c2c28;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --display: 'Space Grotesk', var(--sans);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(221,156,82,0.07), transparent 45%),
+      radial-gradient(circle at 85% 100%, rgba(111,184,154,0.05), transparent 45%);
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 20px 80px;
+  }
+
+  header.page-head {
+    margin-bottom: 40px;
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 38px);
+    line-height: 1.15;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .lede {
+    color: var(--text-muted);
+    font-size: 15.5px;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 58ch;
+  }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card h2 {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  .card .hint {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field-row.three {
+    grid-template-columns: 1.4fr 1.4fr 0.9fr;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  label .req { color: var(--accent); }
+
+  input[type="text"],
+  input[type="password"],
+  textarea {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    width: 100%;
+    transition: border-color 0.15s ease;
+  }
+
+  input::placeholder, textarea::placeholder { color: #565b64; }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  input:focus-visible, textarea:focus-visible, button:focus-visible, .toggle-keys:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 92px;
+    line-height: 1.5;
+  }
+
+  .toggle-keys {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+    margin-top: 2px;
+  }
+  .toggle-keys:hover { color: var(--text); }
+
+  button.primary {
+    width: 100%;
+    background: var(--accent);
+    color: #201404;
+    border: none;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.05s ease;
+  }
+  button.primary:hover:not(:disabled) { filter: brightness(1.08); }
+  button.primary:active:not(:disabled) { transform: scale(0.99); }
+  button.primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* --- pipeline rail --- */
+  .rail {
+    display: flex;
+    align-items: center;
+    margin: 6px 0 22px;
+  }
+
+  .rail-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    width: 84px;
+  }
+
+  .rail-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  .rail-node[data-state="active"] .rail-dot {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .rail-node[data-state="done"] .rail-dot {
+    border-color: var(--success);
+    color: var(--success);
+    background: var(--success-soft);
+  }
+  .rail-node[data-state="error"] .rail-dot {
+    border-color: var(--error);
+    color: var(--error);
+    background: var(--error-soft);
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(221,156,82,0.35); }
+    50% { box-shadow: 0 0 0 5px rgba(221,156,82,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rail-node[data-state="active"] .rail-dot { animation: none; }
+  }
+
+  .rail-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .rail-node[data-state="active"] .rail-label { color: var(--accent); }
+  .rail-node[data-state="done"] .rail-label { color: var(--success); }
+  .rail-node[data-state="error"] .rail-label { color: var(--error); }
+
+  .rail-line {
+    flex: 1 1 auto;
+    height: 2px;
+    background: var(--border);
+    margin: 0 -2px;
+    transform: translateY(-14px);
+  }
+  .rail-line[data-state="done"] { background: var(--success); }
+  .rail-line[data-state="active"] { background: linear-gradient(90deg, var(--success), var(--border)); }
+
+  /* --- log panel --- */
+  .log {
+    background: #0e0f12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: #b7bac1;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .log p { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  .log p.error { color: var(--error); }
+  .log p.ok { color: var(--success); }
+  .log .muted { color: #565b64; }
+
+  .download-box {
+    display: none;
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid var(--success);
+    background: var(--success-soft);
+    border-radius: 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .download-box.show { display: flex; }
+  .download-box .msg {
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  .download-box .msg strong { font-family: var(--mono); }
+  a.download-btn {
+    background: var(--success);
+    color: #0d1f18;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+
+  footer.note {
+    color: #565b64;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 28px;
+  }
+
+  @media (max-width: 560px) {
+    .field-row, .field-row.three { grid-template-columns: 1fr; }
+    .rail { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <p class="kicker">$ prompt → kotlin → dex → apk</p>
+    <h1>AI App Maker</h1>
+    <p class="lede">
+      תארו אפליקציית אנדרואיד במילים. Gemini כותב את הקוד, GitHub Actions מקמפל,
+      ממיין ל-DEX וחותם APK אמיתי — והאתר הזה מוריד אותו אליכם, בלי לגעת ב-GitHub בעצמכם.
+    </p>
+  </header>
+
+  <section class="card">
+    <h2>חיבורים</h2>
+    <p class="hint">שני המפתחות נשארים בזיכרון הדפדפן בלבד ונשלחים ישירות ל-Google ול-GitHub — הם לא נשמרים ולא עוברים דרך שרת שלישי.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="geminiKey">Gemini API Key <span class="req">*</span></label>
+        <input type="password" id="geminiKey" placeholder="AIza…" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="githubToken">GitHub Token <span class="req">*</span></label>
+        <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
+      </div>
+    </div>
+    <button type="button" class="toggle-keys" id="toggleKeys">הצג מפתחות</button>
+
+    <div class="field-row three" style="margin-top:16px;">
+      <div class="field">
+        <label for="owner">בעל הריפו <span class="req">*</span></label>
+        <input type="text" id="owner" placeholder="my-username">
+      </div>
+      <div class="field">
+        <label for="repo">שם הריפו <span class="req">*</span></label>
+        <input type="text" id="repo" placeholder="ai-app-maker">
+      </div>
+      <div class="field">
+        <label for="branch">ברנץ'</label>
+        <input type="text" id="branch" value="main">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>מה בונים?</h2>
+    <p class="hint">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — כדי שהצנרת תישאר פשוטה ואמינה.</p>
+    <div class="field">
+      <label for="idea">תיאור האפליקציה <span class="req">*</span></label>
+      <textarea id="idea" placeholder="לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה"></textarea>
+    </div>
+    <button type="button" class="primary" id="goBtn">Generate &amp; Build</button>
+  </section>
+
+  <section class="card">
+    <h2>צנרת הבנייה</h2>
+    <div class="rail" id="rail">
+      <div class="rail-node" data-key="gemini" data-state="pending">
+        <div class="rail-dot">1</div>
+        <div class="rail-label">generate</div>
+      </div>
+      <div class="rail-line" data-key="line-1" data-state="pending"></div>
+      <div class="rail-node" data-key="commit" data-state="pending">
+        <div class="rail-dot">2</div>
+        <div class="rail-label">commit</div>
+      </div>
+      <div class="rail-line" data-key="line-2" data-state="pending"></div>
+      <div class="rail-node" data-key="actions" data-state="pending">
+        <div class="rail-dot">3</div>
+        <div class="rail-label">build</div>
+      </div>
+      <div class="rail-line" data-key="line-3" data-state="pending"></div>
+      <div class="rail-node" data-key="apk" data-state="pending">
+        <div class="rail-dot">4</div>
+        <div class="rail-label">ready</div>
+      </div>
+    </div>
+
+    <div class="log" id="log">
+      <p class="muted">ממתין להתחלה…</p>
+    </div>
+
+    <div class="download-box" id="downloadBox">
+      <div class="msg">האפליקציה מוכנה: <strong>app-release.apk</strong></div>
+      <a href="#" class="download-btn" id="downloadLink" download="app-release.apk">הורד אפליקציה מוכנה</a>
+    </div>
+  </section>
+
+  <footer class="note">
+    הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד, ללא AndroidX וללא משאבי XML — זה מה שמאפשר build בלי Gradle.
+    ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Update this if Google renames/deprecates the model — check ai.google.dev/api/models.
+  const GEMINI_MODEL = "gemini-3.5-flash";
+  const WORKFLOW_FILE = "build-apk.yml";
+  const POLL_INTERVAL_MS = 5000;
+  const POLL_TIMEOUT_MS = 10 * 60 * 1000;
+
+  const SYSTEM_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build pipeline
+(no Gradle, no AndroidX, no external dependencies, no XML resources). Output ONLY a raw JSON
+object - no markdown fences, no commentary - with exactly two string fields: "manifest" and "kotlin".
+
+Hard constraints:
+- Package name must be exactly: com.aiapp.generated
+- The Kotlin file must start with "package com.aiapp.generated" and define a single class
+  "MainActivity" that extends android.app.Activity (NOT AppCompatActivity, NOT anything from
+  androidx.* or com.google.android.material.* - those libraries are not available in this build).
+- Build the entire UI programmatically inside onCreate() via setContentView(...) using plain
+  android.widget views (LinearLayout, TextView, Button, etc). Do NOT reference any @layout/@id/
+  @string/@drawable resource and do NOT assume a res/ folder exists - there isn't one.
+- The manifest must declare xmlns:android, must NOT include a <uses-sdk> element (the build
+  script sets min/target SDK itself), and must declare MainActivity with an intent-filter
+  containing action MAIN and category LAUNCHER so the app appears on the home screen.
+- Give <application> a short, human-friendly android:label (a literal string, not a @string
+  reference) that reflects the app idea.
+- Keep it to this single Activity/screen. No network calls, no permissions beyond what the
+  requested feature strictly needs, no third-party libraries.`;
+
+  // ---------- small DOM helpers ----------
+  const $ = (id) => document.getElementById(id);
+  const geminiKeyEl = $("geminiKey"), githubTokenEl = $("githubToken");
+  const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch"), ideaEl = $("idea");
+  const goBtn = $("goBtn"), logEl = $("log"), railEl = $("rail");
+  const downloadBox = $("downloadBox"), downloadLink = $("downloadLink");
+
+  $("toggleKeys").addEventListener("click", () => {
+    const showing = geminiKeyEl.type === "text";
+    geminiKeyEl.type = githubTokenEl.type = showing ? "password" : "text";
+    $("toggleKeys").textContent = showing ? "הצג מפתחות" : "הסתר מפתחות";
+  });
+
+  function log(msg, cls) {
+    const p = document.createElement("p");
+    if (cls) p.className = cls;
+    p.textContent = msg;
+    logEl.appendChild(p);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function resetPipeline() {
+    logEl.innerHTML = "";
+    downloadBox.classList.remove("show");
+    railEl.querySelectorAll("[data-state]").forEach(el => (el.dataset.state = "pending"));
+  }
+
+  const STAGE_ORDER = ["gemini", "commit", "actions", "apk"];
+  function setStage(key, state) {
+    const node = railEl.querySelector(`.rail-node[data-key="${key}"]`);
+    if (node) node.dataset.state = state;
+    const idx = STAGE_ORDER.indexOf(key);
+    if (state === "done" && idx >= 0 && idx < STAGE_ORDER.length - 1) {
+      const line = railEl.querySelector(`[data-key="line-${idx + 1}"]`);
+      if (line) line.dataset.state = "done";
+    }
+  }
+
+  function markCurrentStageError() {
+    const active = railEl.querySelector('.rail-node[data-state="active"]');
+    if (active) active.dataset.state = "error";
+  }
+
+  function setBusy(isBusy) {
+    goBtn.disabled = isBusy;
+    goBtn.textContent = isBusy ? "בונה…" : "Generate & Build";
+  }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // ---------- GitHub REST helper ----------
+  async function gh(path, token, options = {}) {
+    const res = await fetch(`https://api.github.com${path}`, {
+      ...options,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.headers || {}),
+      },
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      const err = new Error(`GitHub API ${res.status} on ${path} — ${text.slice(0, 300)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.status === 204 ? null : res.json();
+  }
+
+  // ---------- 1. Gemini ----------
+  async function generateAppCode(geminiKey, idea) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: 0.4 },
+        }),
+      }
+    );
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
+    }
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!raw) throw new Error("Gemini returned no content — try a shorter or clearer prompt.");
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      throw new Error("Could not parse Gemini's reply as JSON. Try again.");
+    }
+    if (!parsed.manifest || !parsed.kotlin) {
+      throw new Error('Gemini\'s reply is missing "manifest" or "kotlin".');
+    }
+    return parsed;
+  }
+
+  // ---------- 2. Commit (atomic, via the Git Data API) ----------
+  async function commitGeneratedApp({ owner, repo, branch, token, manifestXml, kotlinSource }) {
+    let refData;
+    try {
+      refData = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`, token);
+    } catch (e) {
+      if (e.status === 404) {
+        throw new Error(`Branch "${branch}" has no commits yet — push at least one commit (e.g. a README) before generating.`);
+      }
+      throw e;
+    }
+    const latestSha = refData.object.sha;
+    const commitData = await gh(`/repos/${owner}/${repo}/git/commits/${latestSha}`, token);
+
+    const tree = await gh(`/repos/${owner}/${repo}/git/trees`, token, {
+      method: "POST",
+      body: JSON.stringify({
+        base_tree: commitData.tree.sha,
+        tree: [
+          { path: "generated_app/AndroidManifest.xml", mode: "100644", type: "blob", content: manifestXml },
+          { path: "generated_app/src/MainActivity.kt", mode: "100644", type: "blob", content: kotlinSource },
+        ],
+      }),
+    });
+
+    const newCommit = await gh(`/repos/${owner}/${repo}/git/commits`, token, {
+      method: "POST",
+      body: JSON.stringify({
+        message: "AI App Maker: update generated_app/",
+        tree: tree.sha,
+        parents: [latestSha],
+      }),
+    });
+
+    await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, token, {
+      method: "PATCH",
+      body: JSON.stringify({ sha: newCommit.sha, force: false }),
+    });
+
+    return newCommit.sha;
+  }
+
+  // ---------- 3. Poll the workflow run tied to this exact commit ----------
+  async function waitForWorkflowRun({ owner, repo, token, commitSha }) {
+    const start = Date.now();
+    let runId = null, runUrl = null, runNumber = null;
+
+    while (Date.now() - start < POLL_TIMEOUT_MS) {
+      if (!runId) {
+        const runs = await gh(
+          `/repos/${owner}/${repo}/actions/workflows/${WORKFLOW_FILE}/runs?head_sha=${commitSha}&per_page=5`,
+          token
+        );
+        if (runs.workflow_runs && runs.workflow_runs.length > 0) {
+          runId = runs.workflow_runs[0].id;
+          runUrl = runs.workflow_runs[0].html_url;
+          runNumber = runs.workflow_runs[0].run_number;
+          log(`נמצא Workflow Run #${runNumber}`, "actions");
+        } else {
+          log("ממתין ש-GitHub Actions יתפוס את ה-commit…");
+          await sleep(POLL_INTERVAL_MS);
+          continue;
+        }
+      }
+
+      const run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
+      log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`);
+
+      if (run.status === "completed") {
+        if (run.conclusion === "success") return run;
+        const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
+        err.runUrl = runUrl;
+        throw err;
+      }
+      await sleep(POLL_INTERVAL_MS);
+    }
+    const timeoutErr = new Error("עברו 10 דקות בלי שה-build הסתיים.");
+    timeoutErr.runUrl = runUrl;
+    throw timeoutErr;
+  }
+
+  // ---------- 4. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
+  async function downloadApk({ owner, repo, token, runId }) {
+    const artifactsData = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}/artifacts`, token);
+    const artifact = (artifactsData.artifacts || []).find((a) => a.name === "app-release.apk");
+    if (!artifact) throw new Error('לא נמצא artifact בשם "app-release.apk" בריצה הזו.');
+
+    log("מוריד את ה-artifact…");
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`,
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      }
+    );
+    if (!res.ok) {
+      throw new Error(
+        `לא הצלחתי להוריד את ה-artifact (HTTP ${res.status}). אם ב-console זו שגיאת CORS, ` +
+        `הפתרון הנפוץ הוא להוריד דרך פרוקסי קטן (למשל Cloudflare Worker) שמצרף את ה-Authorization header.`
+      );
+    }
+    const zipBlob = await res.blob();
+
+    log("מחלץ את ה-APK מתוך ה-zip…");
+    const zip = await JSZip.loadAsync(zipBlob);
+    const apkName = Object.keys(zip.files).find((n) => n.toLowerCase().endsWith(".apk"));
+    if (!apkName) throw new Error("קובץ ה-zip של ה-artifact לא הכיל קובץ .apk.");
+    const apkBlob = await zip.files[apkName].async("blob");
+
+    return URL.createObjectURL(new Blob([apkBlob], { type: "application/vnd.android.package-archive" }));
+  }
+
+  // ---------- orchestration ----------
+  async function runPipeline() {
+    const geminiKey = geminiKeyEl.value.trim();
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+    const idea = ideaEl.value.trim();
+
+    if (!geminiKey || !token || !owner || !repo || !idea) {
+      resetPipeline();
+      log("חסר שדה — צריך Gemini key, GitHub token, בעל ריפו, שם ריפו, ותיאור אפליקציה.", "error");
+      return;
+    }
+
+    resetPipeline();
+    setBusy(true);
+    try {
+      setStage("gemini", "active");
+      log("שולח את הפרומפט ל-Gemini…");
+      const { manifest, kotlin } = await generateAppCode(geminiKey, idea);
+      setStage("gemini", "done");
+
+      setStage("commit", "active");
+      log(`מבצע commit ל-${owner}/${repo} (${branch})…`);
+      const commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin });
+      log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok");
+      setStage("commit", "done");
+
+      setStage("actions", "active");
+      const run = await waitForWorkflowRun({ owner, repo, token, commitSha });
+      log("ה-build הצליח ✓", "ok");
+      setStage("actions", "done");
+
+      setStage("apk", "active");
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id });
+      setStage("apk", "done");
+
+      downloadLink.href = apkUrl;
+      downloadBox.classList.add("show");
+      log("מוכן — האפליקציה שלך מחכה להורדה.", "ok");
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error");
+      markCurrentStageError();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  goBtn.addEventListener("click", runPipeline);
+})();
+</script>
+</body>
+</html>
