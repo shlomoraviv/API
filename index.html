@@ -537,7 +537,7 @@ Hard constraints:
         headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.4 },
+          generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 8192 },
         }),
       }
     );
@@ -546,16 +546,32 @@ Hard constraints:
       throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
     }
     const data = await res.json();
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!raw) throw new Error("Gemini returned no content — try a shorter or clearer prompt.");
+    const candidate = data?.candidates?.[0];
+    const finishReason = candidate?.finishReason || "unknown";
+    // Join ALL parts (not just the first) — some responses split text across
+    // more than one part, and grabbing only parts[0] silently drops the rest.
+    const raw = (candidate?.content?.parts || []).map((p) => p.text || "").join("");
+    if (!raw) {
+      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}). Try again or simplify the prompt.`);
+    }
+    // JSON mode should prevent this, but strip ```json fences defensively —
+    // models occasionally add them anyway.
+    const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
     let parsed;
     try {
-      parsed = JSON.parse(raw);
+      parsed = JSON.parse(cleaned);
     } catch {
-      throw new Error("Could not parse Gemini's reply as JSON. Try again.");
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) { try { parsed = JSON.parse(match[0]); } catch { /* fall through */ } }
+    }
+    if (!parsed) {
+      throw new Error(
+        `Could not parse Gemini's reply as JSON (finishReason: ${finishReason}). ` +
+        `First 200 chars received: ${cleaned.slice(0, 200) || "(empty)"}`
+      );
     }
     if (!parsed.manifest || !parsed.kotlin) {
-      throw new Error('Gemini\'s reply is missing "manifest" or "kotlin".');
+      throw new Error(`Gemini's reply is missing "manifest" or "kotlin". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
     }
     return parsed;
   }
