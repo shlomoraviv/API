@@ -24,9 +24,9 @@ jobs:
         run: |
           mkdir -p bin
           # הורדת R8/D8
-          curl -L https://storage.googleapis.com/r8-releases/raw/8.2.42/r8lib.jar -o bin/r8lib.jar
+          curl -fL https://storage.googleapis.com/r8-releases/raw/8.2.42/r8lib.jar -o bin/r8lib.jar
           # הורדת Kotlin Compiler וסידור ה-JARים בתיקיית bin
-          curl -L https://github.com/JetBrains/kotlin/releases/download/v1.9.22/kotlin-compiler-1.9.22.zip -o kotlin.zip
+          curl -fL https://github.com/JetBrains/kotlin/releases/download/v1.9.22/kotlin-compiler-1.9.22.zip -o kotlin.zip
           unzip -q kotlin.zip
           cp kotlinc/lib/*.jar bin/
           ls -F bin/
