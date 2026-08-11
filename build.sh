@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# build.sh — compiles generated_app/ into a signed, installable APK using only
-# the tools in bin/ (aapt2, R8/D8, kotlinc, android.jar, kotlin-stdlib) plus
-# keytool/jarsigner, which ship with any JDK. No Gradle, no Android SDK install.
 set -euo pipefail
 
 log() { echo "-- $*"; }
@@ -11,83 +8,44 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_DIR="$ROOT_DIR/bin"
 SRC_DIR="$ROOT_DIR/generated_app"
 OUT_DIR="$ROOT_DIR/build_out"
-TOOLS_DIR="$OUT_DIR/tools"
 
-MIN_SDK=24
-TARGET_SDK=34
-KEYSTORE_PASS="android"
-KEYSTORE_ALIAS="androiddebugkey"
+# איתור אוטומטי של כלי אנדרואיד בשרת גיטהאב
+ANDROID_JAR=$(find $ANDROID_HOME/platforms -name "android.jar" | sort -r | head -n1)
+AAPT2_BIN=$(find $ANDROID_HOME/build-tools -name "aapt2" | sort -r | head -n1)
 
-# שמות הקבצים המעודכנים לפי מה שמופיע אצלך במחשב:
-ANDROID_JAR="$BIN_DIR/android.jar"
-KOTLIN_STDLIB="$BIN_DIR/kotlin-stdlib-1.9.22.jar"
-KOTLIN_COMPILER="$BIN_DIR/kotlin-compiler-1_9_22.jar"
+# שימוש ב-JAR-ים שהורדנו ב-Workflow
+KOTLIN_COMPILER="$BIN_DIR/kotlin-compiler.jar"
+# אם השם שונה בגלל ה-unzip, נמצא אותו
+KOTLIN_COMPILER_JAR=$(find bin -name "kotlin-compiler-*" | head -n1 || echo "bin/kotlin-compiler.jar")
+KOTLIN_STDLIB=$(find bin -name "kotlin-stdlib-*" | head -n1)
 R8_JAR="$BIN_DIR/r8lib.jar"
-AAPT2_JAR="$BIN_DIR/aapt2-8.2.0-10154469-linux.jar"
 
-for f in "$ANDROID_JAR" "$KOTLIN_STDLIB" "$KOTLIN_COMPILER" "$R8_JAR" "$AAPT2_JAR"; do
-  [ -f "$f" ] || die "expected tool not found: $f"
-done
-[ -f "$SRC_DIR/AndroidManifest.xml" ] || die "missing $SRC_DIR/AndroidManifest.xml"
+log "Using Android Jar: $ANDROID_JAR"
+log "Using AAPT2: $AAPT2_BIN"
 
 rm -rf "$OUT_DIR"
-mkdir -p "$TOOLS_DIR" "$OUT_DIR/classes" "$OUT_DIR/dex"
+mkdir -p "$OUT_DIR/classes" "$OUT_DIR/dex"
 
-APK_UNSIGNED="$OUT_DIR/app-unsigned.apk"
-APK_FINAL="$OUT_DIR/app-release.apk"
-KEYSTORE="$OUT_DIR/debug.keystore"
-
-# 1) חילוץ aapt2
-log "Extracting aapt2 from its jar wrapper"
-unzip -oq "$AAPT2_JAR" -d "$TOOLS_DIR/aapt2"
-AAPT2_BIN="$(find "$TOOLS_DIR/aapt2" -maxdepth 2 -type f -name 'aapt2' | head -n1)"
-[ -n "$AAPT2_BIN" ] || die "could not find an 'aapt2' binary inside $AAPT2_JAR"
-chmod +x "$AAPT2_BIN"
-
-# 2) aapt2 link
+# 1) aapt2 link
 log "Running aapt2 link"
-"$AAPT2_BIN" link \
-  -I "$ANDROID_JAR" \
-  --manifest "$SRC_DIR/AndroidManifest.xml" \
-  --min-sdk-version "$MIN_SDK" \
-  --target-sdk-version "$TARGET_SDK" \
-  -o "$APK_UNSIGNED"
+"$AAPT2_BIN" link -I "$ANDROID_JAR" --manifest "$SRC_DIR/AndroidManifest.xml" --min-sdk-version 24 --target-sdk-version 34 -o "$OUT_DIR/app-unsigned.apk"
 
-# 3) קומפילציה של Kotlin
-log "Compiling Kotlin sources"
-[ -n "$(find "$SRC_DIR/src" -name '*.kt' 2>/dev/null)" ] || die "no .kt files found under $SRC_DIR/src"
-java -cp "$KOTLIN_COMPILER" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler \
-  -no-stdlib -no-reflect \
-  -jvm-target 1.8 \
-  -cp "$ANDROID_JAR:$KOTLIN_STDLIB" \
-  -d "$OUT_DIR/classes" \
-  "$SRC_DIR/src"
+# 2) Compile Kotlin
+log "Compiling Kotlin"
+java -cp "$KOTLIN_COMPILER_JAR" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -jvm-target 1.8 -cp "$ANDROID_JAR:$KOTLIN_STDLIB" -d "$OUT_DIR/classes" "$SRC_DIR/src"
 
-# 4) Dex עם D8
-log "Dexing with R8 (D8 mode)"
-java -cp "$R8_JAR" com.android.tools.r8.D8 \
-  --release \
-  --min-api "$MIN_SDK" \
-  --lib "$ANDROID_JAR" \
-  --output "$OUT_DIR/dex" \
-  "$OUT_DIR/classes" \
-  "$KOTLIN_STDLIB"
+# 3) Dexing (D8)
+log "Dexing"
+java -cp "$R8_JAR" com.android.tools.r8.D8 --release --min-api 24 --lib "$ANDROID_JAR" --output "$OUT_DIR/dex" "$OUT_DIR/classes" "$KOTLIN_STDLIB"
 
-# 5) מיזוג ל-APK
-log "Merging dex into the APK"
-cp "$APK_UNSIGNED" "$APK_FINAL"
-( cd "$OUT_DIR/dex" && zip -q "$APK_FINAL" ./*.dex )
+# 4) Finalize APK
+log "Finalizing APK"
+cp "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-release.apk"
+( cd "$OUT_DIR/dex" && zip -q -u "$OUT_DIR/app-release.apk" ./*.dex )
 
-# 6) חתימה
-log "Generating a throwaway debug keystore"
-keytool -genkeypair -v \
-  -keystore "$KEYSTORE" -storepass "$KEYSTORE_PASS" -keypass "$KEYSTORE_PASS" \
-  -alias "$KEYSTORE_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
-  -dname "CN=AI App Maker Debug,O=AI App Maker,C=US" >/dev/null
+# 5) Sign (Debug key)
+log "Signing"
+keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+jarsigner -keystore debug.keystore -storepass android -keypass android "$OUT_DIR/app-release.apk" androiddebugkey
 
-log "Signing app-release.apk"
-jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-  -keystore "$KEYSTORE" -storepass "$KEYSTORE_PASS" -keypass "$KEYSTORE_PASS" \
-  "$APK_FINAL" "$KEYSTORE_ALIAS" >/dev/null
-
-log "Done: $APK_FINAL"
+log "Done!"
