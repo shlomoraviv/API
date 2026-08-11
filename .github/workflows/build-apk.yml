@@ -1,12 +1,11 @@
 name: Build APK
-
 on:
   push:
     paths:
       - "generated_app/**"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -15,24 +14,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # aapt2 8.2.0 / R8 / kotlinc 1.9.22 all expect a JDK 17-class runtime —
-      # this matches what the equivalent AGP 8.2 toolchain would use.
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "17"
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Make build.sh executable
-        run: chmod +x build.sh
+      - name: Install Kotlin Compiler & R8
+        run: |
+          mkdir -p bin
+          # Download Kotlin Compiler 1.9.22
+          curl -L https://github.com/JetBrains/kotlin/releases/download/v1.9.22/kotlin-compiler-1.9.22.zip -o kotlin.zip
+          unzip -q kotlin.zip
+          mv kotlinc/lib/*.jar bin/
+          # Download R8
+          curl -L https://storage.googleapis.com/r8-releases/raw/8.2.42/r8lib.jar -o bin/r8lib.jar
 
       - name: Build APK
-        run: ./build.sh
+        run: |
+          chmod +x build.sh
+          ./build.sh
+        env:
+          ANDROID_HOME: ${{ echo $ANDROID_HOME }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
           path: build_out/app-release.apk
-          if-no-files-found: error
-          retention-days: 7
