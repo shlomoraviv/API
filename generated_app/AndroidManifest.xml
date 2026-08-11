@@ -1,16 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aiapp.generated">
-
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.flash" />
-
-    <application
-        android:label="פנס מהיר"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.aiapp.generated">
+    <application android:label="מאיץ ומנקה מערכת" android:icon="@drawable/ic_launcher" android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
