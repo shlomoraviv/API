@@ -42,16 +42,24 @@ log "Running aapt2 link"
 log "Compiling Kotlin"
 java -cp "$KOTLIN_COMPILER_JAR" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -jvm-target 1.8 -cp "$ANDROID_JAR:$KOTLIN_STDLIB" -d "$OUT_DIR/classes" "$SRC_DIR/src"
 
-# 3) Dexing (D8)
-log "Dexing"
-java -cp "$R8_JAR" com.android.tools.r8.D8 --release --min-api 24 --lib "$ANDROID_JAR" --output "$OUT_DIR/dex" "$OUT_DIR/classes" "$KOTLIN_STDLIB"
+# 3) Package the compiled .class files into a jar. Feeding D8 the raw
+#    classes/ directory produces "Unsupported source file type" — jars are
+#    the well-trodden input path (this is also how kotlin-stdlib.jar itself
+#    is packaged, and D8 already handles that one fine below).
+log "Packaging compiled classes into a jar"
+CLASSES_JAR="$OUT_DIR/classes.jar"
+jar cf "$CLASSES_JAR" -C "$OUT_DIR/classes" .
 
-# 4) Finalize APK
+# 4) Dexing (D8)
+log "Dexing"
+java -cp "$R8_JAR" com.android.tools.r8.D8 --release --min-api 24 --lib "$ANDROID_JAR" --output "$OUT_DIR/dex" "$CLASSES_JAR" "$KOTLIN_STDLIB"
+
+# 5) Finalize APK
 log "Finalizing APK"
 cp "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-release.apk"
 ( cd "$OUT_DIR/dex" && zip -q -u "$OUT_DIR/app-release.apk" ./*.dex )
 
-# 5) Sign (Debug key)
+# 6) Sign (Debug key)
 log "Signing"
 keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
 jarsigner -keystore debug.keystore -storepass android -keypass android "$OUT_DIR/app-release.apk" androiddebugkey
