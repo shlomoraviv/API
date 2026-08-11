@@ -6,13 +6,12 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.view.Gravity
 import android.graphics.Color
-import android.widget.Toast
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState)
 
-        val container = LinearLayout(this).apply {
+        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setBackgroundColor(Color.YELLOW)
@@ -28,12 +27,9 @@ class MainActivity : Activity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            setOnClickListener {
-                Toast.makeText(this@MainActivity, "Hello!", Toast.LENGTH_SHORT).show()
-            }
         }
 
-        container.addView(button)
-        setContentView(container)
+        layout.addView(button)
+        setContentView(layout)
     }
 }
