@@ -103,6 +103,35 @@
     line-height: 1.5;
   }
 
+  .mode-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .mode-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .mode-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .mode-btn:hover:not(.active) { color: var(--text); }
+
   .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -196,6 +225,24 @@
   }
 
   /* --- pipeline rail --- */
+  .rail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+
+  .icon-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .icon-preview:empty { border-color: transparent; }
+  .icon-preview svg { display: block; width: 100%; height: 100%; }
+
   .rail {
     display: flex;
     align-items: center;
@@ -378,34 +425,46 @@
 
   <section class="card">
     <h2>מה בונים?</h2>
-    <p class="hint">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — כדי שהצנרת תישאר פשוטה ואמינה.</p>
+    <p class="hint">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — עם אייקון וקטורי שנבחר אוטומטית, ופרומפט שמתרחב לבריף מפורט יותר לפני הכתיבה בפועל.</p>
+    <div class="mode-toggle" id="modeToggle" role="tablist">
+      <button type="button" class="mode-btn active" data-mode="new" role="tab" aria-selected="true">אפליקציה חדשה</button>
+      <button type="button" class="mode-btn" data-mode="edit" role="tab" aria-selected="false">עריכת הקיימת</button>
+    </div>
     <div class="field">
-      <label for="idea">תיאור האפליקציה <span class="req">*</span></label>
+      <label for="idea"><span id="ideaLabelText">תיאור האפליקציה</span> <span class="req">*</span></label>
       <textarea id="idea" placeholder="לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה"></textarea>
     </div>
     <button type="button" class="primary" id="goBtn">Generate &amp; Build</button>
   </section>
 
   <section class="card">
-    <h2>צנרת הבנייה</h2>
+    <div class="rail-header">
+      <h2>צנרת הבנייה</h2>
+      <div class="icon-preview" id="iconPreview" aria-hidden="true"></div>
+    </div>
     <div class="rail" id="rail">
-      <div class="rail-node" data-key="gemini" data-state="pending">
+      <div class="rail-node" data-key="enhance" data-state="pending">
         <div class="rail-dot">1</div>
-        <div class="rail-label">generate</div>
+        <div class="rail-label">enhance</div>
       </div>
       <div class="rail-line" data-key="line-1" data-state="pending"></div>
-      <div class="rail-node" data-key="commit" data-state="pending">
+      <div class="rail-node" data-key="gemini" data-state="pending">
         <div class="rail-dot">2</div>
-        <div class="rail-label">commit</div>
+        <div class="rail-label">generate</div>
       </div>
       <div class="rail-line" data-key="line-2" data-state="pending"></div>
-      <div class="rail-node" data-key="actions" data-state="pending">
+      <div class="rail-node" data-key="commit" data-state="pending">
         <div class="rail-dot">3</div>
-        <div class="rail-label">build</div>
+        <div class="rail-label">commit</div>
       </div>
       <div class="rail-line" data-key="line-3" data-state="pending"></div>
-      <div class="rail-node" data-key="apk" data-state="pending">
+      <div class="rail-node" data-key="actions" data-state="pending">
         <div class="rail-dot">4</div>
+        <div class="rail-label">build</div>
+      </div>
+      <div class="rail-line" data-key="line-4" data-state="pending"></div>
+      <div class="rail-node" data-key="apk" data-state="pending">
+        <div class="rail-dot">5</div>
         <div class="rail-label">ready</div>
       </div>
     </div>
@@ -421,7 +480,9 @@
   </section>
 
   <footer class="note">
-    הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד, ללא AndroidX וללא משאבי XML — זה מה שמאפשר build בלי Gradle.
+    לפני הכתיבה, Gemini מרחיב את התיאור שלכם לבריף מפורט (שם, פיצ'רים, פלטת צבעים, קונספט לאייקון) — הלוג למטה מראה בדיוק מה נוסף.
+    במצב "עריכת הקיימת" הפרומפט מוחל על הקוד שכבר יושב ב-generated_app/ בריפו שלכם, לא על קובץ שמעלים — כל גרסה נשמרת כ-commit נפרד בהיסטוריית הריפו.
+    הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX — זה מה שמאפשר build בלי Gradle.
     ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
   </footer>
 
@@ -437,9 +498,25 @@
   const POLL_INTERVAL_MS = 5000;
   const POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
-  const SYSTEM_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build pipeline
-(no Gradle, no AndroidX, no external dependencies, no XML resources). Output ONLY a raw JSON
-object - no markdown fences, no commentary - with exactly two string fields: "manifest" and "kotlin".
+  const ENHANCE_INSTRUCTIONS = `You expand a short Android app idea into a concrete build brief for a
+single-screen app with no network access, no external libraries, and no XML layouts (the UI is
+built in Kotlin code only). Output plain text only — no markdown, no JSON, no headings — as short
+labeled lines, exactly this shape:
+
+Name: <a short 2-4 word app name>
+Feature: <the one main interaction, in 1-2 concrete sentences — stay realistic for a single
+  Kotlin file with no dependencies; do not invent multi-screen flows, network calls, or storage>
+UI: <2-4 concrete UI elements and what each does, e.g. "a big toggle button", "a status text
+  above it">
+Palette: <two hex colors, background then accent, that fit the idea>
+Icon: <one short phrase describing a simple abstract symbol for the idea>
+
+Keep it concrete and buildable. Do not add anything not requested by the user's idea below.`;
+
+  const CODEGEN_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build
+pipeline (no Gradle, no AndroidX, no external dependencies, no XML layouts). Output ONLY a raw
+JSON object - no markdown fences, no commentary - with exactly three fields: "manifest" (string),
+"kotlin" (string), and "icon" (object).
 
 Hard constraints:
 - Package name must be exactly: com.aiapp.generated
@@ -448,26 +525,131 @@ Hard constraints:
   androidx.* or com.google.android.material.* - those libraries are not available in this build).
 - Build the entire UI programmatically inside onCreate() via setContentView(...) using plain
   android.widget views (LinearLayout, TextView, Button, etc). Do NOT reference any @layout/@id/
-  @string/@drawable resource and do NOT assume a res/ folder exists - there isn't one.
+  @string resource. Where practical, use the brief's palette for the UI background/accent.
 - The manifest must declare xmlns:android, must NOT include a <uses-sdk> element (the build
-  script sets min/target SDK itself), and must declare MainActivity with an intent-filter
-  containing action MAIN and category LAUNCHER so the app appears on the home screen.
+  script sets min/target SDK itself), must set android:icon="@drawable/ic_launcher" on
+  <application>, and must declare MainActivity with an intent-filter containing action MAIN
+  and category LAUNCHER so the app appears on the home screen.
 - Give <application> a short, human-friendly android:label (a literal string, not a @string
-  reference) that reflects the app idea.
+  reference) matching the brief's app name.
+- "icon" must be exactly: {"shape": one of "circle"|"square"|"triangle"|"diamond"|"star"|
+  "heart"|"bolt", "background": "#rrggbb", "foreground": "#rrggbb"} — reuse the brief's palette
+  (background hex for background, accent hex for foreground) and pick whichever shape best
+  matches the brief's icon concept.
 - Keep it to this single Activity/screen. No network calls, no permissions beyond what the
-  requested feature strictly needs, no third-party libraries.`;
+  requested feature strictly needs, no third-party libraries.
+
+Build brief:`;
+
+  const EDIT_INSTRUCTIONS = `You are editing an existing single-screen Android app from the same
+from-scratch pipeline (no Gradle, no AndroidX, no external dependencies, no XML layouts). You are
+given the CURRENT AndroidManifest.xml and MainActivity.kt, plus a change request. Apply the change
+request to the existing app and output ONLY a raw JSON object - no markdown fences, no commentary -
+with exactly three fields: "manifest" (string), "kotlin" (string), and "icon" (object), using the
+same schema and hard constraints as a fresh build:
+
+- Package name stays exactly: com.aiapp.generated
+- MainActivity still extends android.app.Activity, UI still built programmatically in Kotlin, no
+  @layout/@id/@string resources, no AndroidX.
+- Manifest still has no <uses-sdk>, still sets android:icon="@drawable/ic_launcher", still has the
+  MAIN/LAUNCHER intent-filter.
+- "icon" must be exactly: {"shape": one of "circle"|"square"|"triangle"|"diamond"|"star"|"heart"|
+  "bolt", "background": "#rrggbb", "foreground": "#rrggbb"} — keep the existing icon look unless
+  the change request clearly implies a new one.
+- Preserve everything about the existing app that the change request doesn't mention. This is an
+  edit, not a rewrite from scratch.
+
+Current AndroidManifest.xml:
+---
+{{MANIFEST}}
+---
+
+Current MainActivity.kt:
+---
+{{KOTLIN}}
+---
+
+Change request from the user:`;
+
+  // Hand-authored, guaranteed-valid path data — Gemini only ever picks a shape
+  // NAME (an easy, low-risk choice), never writes path syntax itself. This is
+  // what keeps the icon step from becoming a new source of build breakage.
+  const ICON_SHAPES = {
+    circle: "M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z",
+    square: "M5,5 L19,5 L19,19 L5,19 Z",
+    triangle: "M12,3 L21,20 L3,20 Z",
+    diamond: "M12,2 L22,12 L12,22 L2,12 Z",
+    star: "M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21z",
+    heart: "M12,21.35l-1.45-1.32C5.4,15.36 2,12.28 2,8.5 2,5.42 4.42,3 7.5,3c1.74,0 3.41,0.81 4.5,2.09C13.09,3.81 14.76,3 16.5,3 19.58,3 22,5.42 22,8.5c0,3.78-3.4,6.86-8.55,11.54L12,21.35z",
+    bolt: "M7,2v11h3v9l7-12h-4l4-8z",
+  };
+  const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
+  function normalizeIcon(icon) {
+    return {
+      shape: ICON_SHAPES[icon?.shape] ? icon.shape : "circle",
+      background: HEX_RE.test(icon?.background) ? icon.background : "#21252c",
+      foreground: HEX_RE.test(icon?.foreground) ? icon.foreground : "#dd9c52",
+    };
+  }
+
+  // A plain (non-adaptive) vector launcher icon: full-bleed background square,
+  // chosen shape scaled to 60% around its own center so it stays centered.
+  function buildIconVectorXml({ shape, background, foreground }) {
+    return `<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+  <path android:fillColor="${background}" android:pathData="M0,0h24v24h-24z"/>
+  <group android:pivotX="12" android:pivotY="12" android:scaleX="0.6" android:scaleY="0.6">
+    <path android:fillColor="${foreground}" android:pathData="${ICON_SHAPES[shape]}"/>
+  </group>
+</vector>`;
+  }
+
+  // Same path data, rendered as a plain SVG for the in-page preview swatch.
+  function iconPreviewSvg({ shape, background, foreground }) {
+    return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="app icon preview">
+  <rect width="24" height="24" fill="${background}"/>
+  <g transform="translate(12,12) scale(0.6) translate(-12,-12)">
+    <path d="${ICON_SHAPES[shape]}" fill="${foreground}"/>
+  </g>
+</svg>`;
+  }
 
   // ---------- small DOM helpers ----------
   const $ = (id) => document.getElementById(id);
   const geminiKeyEl = $("geminiKey"), githubTokenEl = $("githubToken");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch"), ideaEl = $("idea");
   const goBtn = $("goBtn"), logEl = $("log"), railEl = $("rail");
-  const downloadBox = $("downloadBox"), downloadLink = $("downloadLink");
+  const downloadBox = $("downloadBox"), downloadLink = $("downloadLink"), iconPreviewEl = $("iconPreview");
+  const modeToggleEl = $("modeToggle"), ideaLabelTextEl = $("ideaLabelText");
 
   $("toggleKeys").addEventListener("click", () => {
     const showing = geminiKeyEl.type === "text";
     geminiKeyEl.type = githubTokenEl.type = showing ? "password" : "text";
     $("toggleKeys").textContent = showing ? "הצג מפתחות" : "הסתר מפתחות";
+  });
+
+  // ---------- new-app / edit-app mode ----------
+  let currentMode = "new";
+  let idleLabel = "Generate & Build";
+  const MODE_COPY = {
+    new: { label: "תיאור האפליקציה", placeholder: "לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה", button: "Generate & Build" },
+    edit: { label: "מה לשנות?", placeholder: "לדוגמה: תוסיף כפתור איפוס, או תשנה את הצבע לירוק", button: "ערוך ובנה מחדש" },
+  };
+  modeToggleEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".mode-btn");
+    if (!btn) return;
+    currentMode = btn.dataset.mode;
+    modeToggleEl.querySelectorAll(".mode-btn").forEach((b) => {
+      b.classList.toggle("active", b === btn);
+      b.setAttribute("aria-selected", b === btn ? "true" : "false");
+    });
+    const copy = MODE_COPY[currentMode];
+    ideaLabelTextEl.textContent = copy.label;
+    ideaEl.placeholder = copy.placeholder;
+    idleLabel = copy.button;
+    if (!goBtn.disabled) goBtn.textContent = idleLabel;
   });
 
   function log(msg, cls) {
@@ -481,10 +663,11 @@ Hard constraints:
   function resetPipeline() {
     logEl.innerHTML = "";
     downloadBox.classList.remove("show");
+    iconPreviewEl.innerHTML = "";
     railEl.querySelectorAll("[data-state]").forEach(el => (el.dataset.state = "pending"));
   }
 
-  const STAGE_ORDER = ["gemini", "commit", "actions", "apk"];
+  const STAGE_ORDER = ["enhance", "gemini", "commit", "actions", "apk"];
   function setStage(key, state) {
     const node = railEl.querySelector(`.rail-node[data-key="${key}"]`);
     if (node) node.dataset.state = state;
@@ -495,6 +678,11 @@ Hard constraints:
     }
   }
 
+  function setStageLabel(key, text) {
+    const label = railEl.querySelector(`.rail-node[data-key="${key}"] .rail-label`);
+    if (label) label.textContent = text;
+  }
+
   function markCurrentStageError() {
     const active = railEl.querySelector('.rail-node[data-state="active"]');
     if (active) active.dataset.state = "error";
@@ -502,7 +690,7 @@ Hard constraints:
 
   function setBusy(isBusy) {
     goBtn.disabled = isBusy;
-    goBtn.textContent = isBusy ? "בונה…" : "Generate & Build";
+    goBtn.textContent = isBusy ? "בונה…" : idleLabel;
   }
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -528,15 +716,41 @@ Hard constraints:
     return res.status === 204 ? null : res.json();
   }
 
-  // ---------- 1. Gemini ----------
-  async function generateAppCode(geminiKey, idea) {
+  // ---------- 1. Enhance the raw idea into a concrete build brief ----------
+  // Best-effort: if this call fails for any reason, we fall back to the raw
+  // idea instead of blocking the whole pipeline on a nice-to-have step.
+  async function enhanceIdea(geminiKey, idea) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: `${ENHANCE_INSTRUCTIONS}\n\nUser's idea:\n${idea}` }] }],
+            generationConfig: { temperature: 0.6, maxOutputTokens: 1024 },
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const brief = (data?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("").trim();
+      if (!brief) throw new Error("empty reply");
+      return { brief, enhanced: true };
+    } catch (e) {
+      return { brief: idea, enhanced: false, reason: e.message };
+    }
+  }
+
+  // ---------- 2. Gemini: shared JSON call, used by both new-app and edit-app ----------
+  async function callGeminiForAppJson(geminiKey, promptText) {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+          contents: [{ role: "user", parts: [{ text: promptText }] }],
           generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 8192 },
         }),
       }
@@ -573,11 +787,55 @@ Hard constraints:
     if (!parsed.manifest || !parsed.kotlin) {
       throw new Error(`Gemini's reply is missing "manifest" or "kotlin". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
     }
-    return parsed;
+    const icon = normalizeIcon(parsed.icon);
+    return { manifest: parsed.manifest, kotlin: parsed.kotlin, icon, iconXml: buildIconVectorXml(icon) };
   }
 
-  // ---------- 2. Commit (atomic, via the Git Data API) ----------
-  async function commitGeneratedApp({ owner, repo, branch, token, manifestXml, kotlinSource }) {
+  function generateAppCode(geminiKey, brief) {
+    return callGeminiForAppJson(geminiKey, `${CODEGEN_INSTRUCTIONS}\n${brief}`);
+  }
+
+  function editAppCode(geminiKey, existing, changeRequest) {
+    const prompt =
+      EDIT_INSTRUCTIONS
+        .replace("{{MANIFEST}}", existing.manifest)
+        .replace("{{KOTLIN}}", existing.kotlin) +
+      "\n" + changeRequest;
+    return callGeminiForAppJson(geminiKey, prompt);
+  }
+
+  // UTF-8-safe base64 decode — the Contents API returns base64, and app
+  // labels here are often Hebrew, so a naive atob() would mangle them.
+  function b64DecodeUtf8(b64) {
+    const binary = atob(b64.replace(/\n/g, ""));
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  // Pull the CURRENT generated_app/ source out of the repo for edit mode —
+  // no upload needed, since the source already lives where this tool put it.
+  async function fetchExistingApp({ owner, repo, branch, token }) {
+    async function getFile(path) {
+      try {
+        const data = await gh(`/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, token);
+        return b64DecodeUtf8(data.content);
+      } catch (e) {
+        if (e.status === 404) return null;
+        throw e;
+      }
+    }
+    const [manifest, kotlin] = await Promise.all([
+      getFile("generated_app/AndroidManifest.xml"),
+      getFile("generated_app/src/MainActivity.kt"),
+    ]);
+    if (!manifest || !kotlin) {
+      throw new Error('לא נמצאה אפליקציה קיימת ב-generated_app/ — קודם צרו אפליקציה חדשה (מצב "אפליקציה חדשה"), ואז אפשר לערוך אותה.');
+    }
+    return { manifest, kotlin };
+  }
+
+  // ---------- 3. Commit (atomic, via the Git Data API) ----------
+  async function commitGeneratedApp({ owner, repo, branch, token, manifestXml, kotlinSource, iconXml }) {
     let refData;
     try {
       refData = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`, token);
@@ -597,6 +855,7 @@ Hard constraints:
         tree: [
           { path: "generated_app/AndroidManifest.xml", mode: "100644", type: "blob", content: manifestXml },
           { path: "generated_app/src/MainActivity.kt", mode: "100644", type: "blob", content: kotlinSource },
+          { path: "generated_app/res/drawable/ic_launcher.xml", mode: "100644", type: "blob", content: iconXml },
         ],
       }),
     });
@@ -618,7 +877,7 @@ Hard constraints:
     return newCommit.sha;
   }
 
-  // ---------- 3. Poll the workflow run tied to this exact commit ----------
+  // ---------- 4. Poll the workflow run tied to this exact commit ----------
   async function waitForWorkflowRun({ owner, repo, token, commitSha }) {
     const start = Date.now();
     let runId = null, runUrl = null, runNumber = null;
@@ -657,7 +916,7 @@ Hard constraints:
     throw timeoutErr;
   }
 
-  // ---------- 4. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
+  // ---------- 5. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
   async function downloadApk({ owner, repo, token, runId }) {
     const artifactsData = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}/artifacts`, token);
     const artifact = (artifactsData.artifacts || []).find((a) => a.name === "app-release.apk");
@@ -698,25 +957,57 @@ Hard constraints:
     const owner = ownerEl.value.trim();
     const repo = repoEl.value.trim();
     const branch = (branchEl.value.trim() || "main");
-    const idea = ideaEl.value.trim();
+    const promptText = ideaEl.value.trim();
+    const isEdit = currentMode === "edit";
 
-    if (!geminiKey || !token || !owner || !repo || !idea) {
+    if (!geminiKey || !token || !owner || !repo || !promptText) {
       resetPipeline();
-      log("חסר שדה — צריך Gemini key, GitHub token, בעל ריפו, שם ריפו, ותיאור אפליקציה.", "error");
+      log(`חסר שדה — צריך Gemini key, GitHub token, בעל ריפו, שם ריפו, ו${isEdit ? "תיאור השינוי" : "תיאור אפליקציה"}.`, "error");
       return;
     }
+
+    // Relabel the first two rail stages to match what each mode actually does.
+    setStageLabel("enhance", isEdit ? "fetch" : "enhance");
+    setStageLabel("gemini", isEdit ? "edit" : "generate");
 
     resetPipeline();
     setBusy(true);
     try {
-      setStage("gemini", "active");
-      log("שולח את הפרומפט ל-Gemini…");
-      const { manifest, kotlin } = await generateAppCode(geminiKey, idea);
+      let manifest, kotlin, icon, iconXml;
+
+      if (isEdit) {
+        setStage("enhance", "active");
+        log(`שולף את הגרסה הנוכחית מ-generated_app/ ב-${owner}/${repo}…`);
+        const existing = await fetchExistingApp({ owner, repo, branch, token });
+        log("נמצאה אפליקציה קיימת.", "ok");
+        setStage("enhance", "done");
+
+        setStage("gemini", "active");
+        log("Gemini מחיל את השינוי…");
+        ({ manifest, kotlin, icon, iconXml } = await editAppCode(geminiKey, existing, promptText));
+      } else {
+        setStage("enhance", "active");
+        log("Gemini מרחיב את הרעיון לבריף מפורט…");
+        const { brief, enhanced, reason } = await enhanceIdea(geminiKey, promptText);
+        if (enhanced) {
+          brief.split("\n").map((l) => l.trim()).filter(Boolean).forEach((line) => log(line));
+        } else {
+          log(`דילוג על שיפור הפרומפט (${reason}) — ממשיך עם התיאור המקורי.`);
+        }
+        setStage("enhance", "done");
+
+        setStage("gemini", "active");
+        log("כותב קוד ובוחר אייקון…");
+        ({ manifest, kotlin, icon, iconXml } = await generateAppCode(geminiKey, brief));
+      }
+
+      iconPreviewEl.innerHTML = iconPreviewSvg(icon);
+      log(`אייקון: ${icon.shape} (${icon.background} / ${icon.foreground})`, "ok");
       setStage("gemini", "done");
 
       setStage("commit", "active");
       log(`מבצע commit ל-${owner}/${repo} (${branch})…`);
-      const commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin });
+      const commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin, iconXml });
       log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok");
       setStage("commit", "done");
 
