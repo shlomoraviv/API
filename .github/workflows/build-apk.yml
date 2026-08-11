@@ -20,22 +20,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Kotlin Compiler & R8
+      - name: Install Tools
         run: |
           mkdir -p bin
-          # Download Kotlin Compiler 1.9.22
+          # הורדת R8/D8
+          curl -L https://storage.googleapis.com/r8-releases/raw/8.2.42/r8lib.jar -o bin/r8lib.jar
+          # הורדת Kotlin Compiler וסידור ה-JARים בתיקיית bin
           curl -L https://github.com/JetBrains/kotlin/releases/download/v1.9.22/kotlin-compiler-1.9.22.zip -o kotlin.zip
           unzip -q kotlin.zip
-          mv kotlinc/lib/*.jar bin/
-          # Download R8
-          curl -L https://storage.googleapis.com/r8-releases/raw/8.2.42/r8lib.jar -o bin/r8lib.jar
+          cp kotlinc/lib/*.jar bin/
+          ls -F bin/
 
       - name: Build APK
         run: |
           chmod +x build.sh
           ./build.sh
-        env:
-          ANDROID_HOME: ${{ echo $ANDROID_HOME }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
