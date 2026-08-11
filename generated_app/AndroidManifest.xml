@@ -6,10 +6,9 @@
     <uses-feature android:name="android.hardware.camera.flash" />
 
     <application
-        android:label="פנס מהיר - רביב דיגיטל"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
-        <activity
-            android:name=".MainActivity"
+        android:label="פנס מהיר"
+        android:theme="@android:style/Theme.DeviceDefault">
+        <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
