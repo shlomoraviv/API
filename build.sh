@@ -10,15 +10,23 @@ SRC_DIR="$ROOT_DIR/generated_app"
 OUT_DIR="$ROOT_DIR/build_out"
 
 # איתור אוטומטי של כלי אנדרואיד בשרת גיטהאב
-ANDROID_JAR=$(find $ANDROID_HOME/platforms -name "android.jar" | sort -r | head -n1)
-AAPT2_BIN=$(find $ANDROID_HOME/build-tools -name "aapt2" | sort -r | head -n1)
+ANDROID_JAR=$(find "$ANDROID_HOME/platforms" -name "android.jar" | sort -r | head -n1)
+AAPT2_BIN=$(find "$ANDROID_HOME/build-tools" -name "aapt2" -type f | sort -r | head -n1)
 
-# שימוש ב-JAR-ים שהורדנו ב-Workflow
-KOTLIN_COMPILER="$BIN_DIR/kotlin-compiler.jar"
-# אם השם שונה בגלל ה-unzip, נמצא אותו
-KOTLIN_COMPILER_JAR=$(find bin -name "kotlin-compiler-*" | head -n1 || echo "bin/kotlin-compiler.jar")
-KOTLIN_STDLIB=$(find bin -name "kotlin-stdlib-*" | head -n1)
+# ה-JAR-ים שהורדנו ב-Install Tools נשמרים תמיד עם השמות המקוריים שלהם
+# מתוך ה-zip הרשמי של Kotlin — בלי סיומת גרסה (kotlin-compiler.jar,
+# לא kotlin-compiler-1.9.22.jar). זה היה הבאג: התבנית "kotlin-compiler-*"
+# לא תפסה קובץ בשם הזה, find החזיר מחרוזת ריקה אבל בהצלחה (exit 0),
+# ולכן ה-|| לא הופעל בכלל — הקומפיילר רץ עם classpath ריק.
+KOTLIN_COMPILER_JAR="$BIN_DIR/kotlin-compiler.jar"
+KOTLIN_STDLIB="$BIN_DIR/kotlin-stdlib.jar"
 R8_JAR="$BIN_DIR/r8lib.jar"
+
+# בדיקה מפורשת שכל כלי אכן קיים — עדיף כישלון ברור כאן מאשר
+# ClassNotFoundException מבלבל כמה שורות אחר כך.
+for tool in "$ANDROID_JAR" "$AAPT2_BIN" "$KOTLIN_COMPILER_JAR" "$KOTLIN_STDLIB" "$R8_JAR"; do
+  [ -n "$tool" ] && [ -e "$tool" ] || die "tool not found: '$tool' — check the Install Tools step output"
+done
 
 log "Using Android Jar: $ANDROID_JAR"
 log "Using AAPT2: $AAPT2_BIN"
