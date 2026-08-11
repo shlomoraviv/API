@@ -34,9 +34,18 @@ log "Using AAPT2: $AAPT2_BIN"
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR/classes" "$OUT_DIR/dex"
 
-# 1) aapt2 link
+# 1) aapt2: compile resources (the icon lives in res/drawable/) if present,
+#    then link. Kept conditional so older generated_app/ content with no
+#    res/ folder at all still builds fine.
 log "Running aapt2 link"
-"$AAPT2_BIN" link -I "$ANDROID_JAR" --manifest "$SRC_DIR/AndroidManifest.xml" --min-sdk-version 24 --target-sdk-version 34 -o "$OUT_DIR/app-unsigned.apk"
+RES_DIR="$SRC_DIR/res"
+if [ -d "$RES_DIR" ] && [ -n "$(find "$RES_DIR" -type f 2>/dev/null)" ]; then
+  log "Compiling resources (res/)"
+  "$AAPT2_BIN" compile --dir "$RES_DIR" -o "$OUT_DIR/compiled_res.zip"
+  "$AAPT2_BIN" link -I "$ANDROID_JAR" --manifest "$SRC_DIR/AndroidManifest.xml" -R "$OUT_DIR/compiled_res.zip" --min-sdk-version 24 --target-sdk-version 34 -o "$OUT_DIR/app-unsigned.apk"
+else
+  "$AAPT2_BIN" link -I "$ANDROID_JAR" --manifest "$SRC_DIR/AndroidManifest.xml" --min-sdk-version 24 --target-sdk-version 34 -o "$OUT_DIR/app-unsigned.apk"
+fi
 
 # 2) Compile Kotlin
 log "Compiling Kotlin"
