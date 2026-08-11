@@ -1,168 +1,232 @@
 package com.aiapp.generated
 
 import android.app.Activity
-import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
+import android.graphics.drawable.GradientDrawable
+import android.graphics.Color
 import android.widget.Toast
+import java.io.DataOutputStream
+import java.util.Random
 
 class MainActivity : Activity() {
 
+    private var originalMac = "02:00:00:00:00:00"
+    private var currentMac = "02:00:00:00:00:00"
+    private var spoofedMac = ""
+
+    private lateinit var txtCurrentMac: TextView
+    private lateinit var txtSpoofedMac: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) 
+        super.onCreate(savedInstanceState)
 
-        val root = LinearLayout(this).apply {
+        spoofedMac = generateRandomMac()
+
+        val rootLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
             setBackgroundColor(Color.parseColor("#121212"))
-            setPadding(50, 50, 50, 50)
+            padding = dpToPx(20)
+            gravity = Gravity.CENTER_HORIZONTAL
         }
 
-        val titleTv = TextView(this).apply {
-            text = "מאיץ ומנקה מערכת"
-            textSize = 26f
-            setTextColor(Color.WHITE)
+        val titleView = TextView(this).apply {
+            text = "SystemID Changer"
+            setTextColor(Color.parseColor("#00D2FF"))
+            textSize = 24f
             gravity = Gravity.CENTER
-            setPadding(0, 40, 0, 40)
+            setPadding(0, dpToPx(20), 0, dpToPx(30))
         }
-        root.addView(titleTv)
+        rootLayout.addView(titleView)
 
-        val progressContainer = FrameLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(500, 500).apply {
-                gravity = Gravity.CENTER_HORIZONTAL
-                topMargin = 60
-                bottomMargin = 60
-            }
-        }
-
-        val progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleLarge).apply {
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-            visibility = View.INVISIBLE
-            indeterminateDrawable.setColorFilter(Color.parseColor("#00E676"), PorterDuff.Mode.SRC_IN)
-        }
-
-        val percentTv = TextView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                gravity = Gravity.CENTER
-            }
-            text = "92%"
-            textSize = 48f
-            setTextColor(Color.parseColor("#00E676"))
-        }
-
-        progressContainer.addView(progressBar)
-        progressContainer.addView(percentTv)
-        root.addView(progressContainer)
-
-        val statsBox = LinearLayout(this).apply {
+        val cardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = 40
-                bottomMargin = 60
-            }
-            setPadding(40, 40, 40, 40)
-            val gd = GradientDrawable().apply {
+            padding = dpToPx(16)
+            val border = GradientDrawable().apply {
                 setColor(Color.parseColor("#1E1E1E"))
-                cornerRadius = 24f
-                setStroke(3, Color.parseColor("#333333"))
+                setStroke(dpToPx(1), Color.parseColor("#00D2FF"))
+                cornerRadius = dpToPx(8).toFloat()
             }
-            background = gd
-        }
-
-        val batteryTv = TextView(this).apply {
-            text = "🔋 מצב סוללה: 72% (צריכה גבוהה)"
-            textSize = 16f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.RIGHT
-        }
-
-        val memoryTv = TextView(this).apply {
-            text = "💾 זיכרון בשימוש: 4.8 GB / 6.0 GB"
-            textSize = 16f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.RIGHT
-            setPadding(0, 20, 0, 20)
-        }
-
-        val storageTv = TextView(this).apply {
-            text = "🧹 שטח פנוי: 12.4 GB פנויים"
-            textSize = 16f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.RIGHT
-        }
-
-        statsBox.addView(batteryTv)
-        statsBox.addView(memoryTv)
-        statsBox.addView(storageTv)
-        root.addView(statsBox)
-
-        val actionButton = Button(this).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150).apply {
-                topMargin = 20
+            background = border
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, dpToPx(24))
             }
-            text = "נקה ומאיץ בלחיצה אחת"
+        }
+
+        val lblCurrent = TextView(this).apply {
+            text = "Active MAC Address:"
+            setTextColor(Color.parseColor("#888888"))
+            textSize = 14f
+        }
+        cardLayout.addView(lblCurrent)
+
+        txtCurrentMac = TextView(this).apply {
+            text = currentMac
+            setTextColor(Color.WHITE)
             textSize = 18f
-            setTextColor(Color.BLACK)
+            setPadding(0, 0, 0, dpToPx(12))
+        }
+        cardLayout.addView(txtCurrentMac)
+
+        val lblSpoofed = TextView(this).apply {
+            text = "Target Spoof MAC:"
+            setTextColor(Color.parseColor("#888888"))
+            textSize = 14f
+        }
+        cardLayout.addView(lblSpoofed)
+
+        txtSpoofedMac = TextView(this).apply {
+            text = spoofedMac
+            setTextColor(Color.parseColor("#00D2FF"))
+            textSize = 18f
+        }
+        cardLayout.addView(txtSpoofedMac)
+
+        rootLayout.addView(cardLayout)
+
+        val btnApply = Button(this).apply {
+            text = "Apply Spoof & Sync"
+            setTextColor(Color.parseColor("#121212"))
             val btnBg = GradientDrawable().apply {
-                setColor(Color.parseColor("#00E676"))
-                cornerRadius = 75f
+                setColor(Color.parseColor("#00D2FF"))
+                cornerRadius = dpToPx(4).toFloat()
             }
             background = btnBg
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(50)
+            ).apply {
+                setMargins(0, 0, 0, dpToPx(12))
+            }
+            setOnClickListener {
+                applySpoof(spoofedMac)
+            }
         }
+        rootLayout.addView(btnApply)
 
-        actionButton.setOnClickListener {
-            actionButton.isEnabled = false
-            progressBar.visibility = View.VISIBLE
-            
-            val handler = Handler(Looper.getMainLooper())
-            val steps = listOf(
-                Pair("80%", "סורק קבצי זבל..."),
-                Pair("65%", "מנקה מטמון מערכת..."),
-                Pair("45%", "משחרר זיכרון RAM..."),
-                Pair("30%", "מייעל צריכת סוללה..."),
-                Pair("15%", "מבצע אופטימיזציה...")
+        val btnRestore = Button(this).apply {
+            text = "Restore Original"
+            setTextColor(Color.WHITE)
+            val btnBg = GradientDrawable().apply {
+                setColor(Color.parseColor("#333333"))
+                cornerRadius = dpToPx(4).toFloat()
+            }
+            background = btnBg
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(50)
             )
-            
-            var currentStep = 0
-            
-            val runnable = object : Runnable {
-                override fun run() {
-                    if (currentStep < steps.size) {
-                        val step = steps[currentStep]
-                        percentTv.text = step.first
-                        actionButton.text = step.second
-                        currentStep++
-                        handler.postDelayed(this, 1200)
-                    } else {
-                        progressBar.visibility = View.INVISIBLE
-                        percentTv.text = "12%"
-                        percentTv.setTextColor(Color.parseColor("#00E676"))
-                        
-                        batteryTv.text = "🔋 מצב סוללה: 72% (אופטימלי)"
-                        memoryTv.text = "💾 זיכרון בשימוש: 1.9 GB / 6.0 GB (שוחררו 2.9 GB)"
-                        storageTv.text = "🧹 שטח פנוי: 16.8 GB פנויים (נוקו 4.4 GB)"
-                        
-                        Toast.makeText(this@MainActivity, "הניקוי הושלם! שיפור של 35% בביצועים!", Toast.LENGTH_LONG).show()
-                        
-                        actionButton.text = "הפעל ניקוי מחדש"
-                        actionButton.isEnabled = true
-                    }
+            setOnClickListener {
+                restoreOriginal()
+            }
+        }
+        rootLayout.addView(btnRestore)
+
+        val spacer = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        }
+        rootLayout.addView(spacer)
+
+        val footerView = TextView(this).apply {
+            text = "Developed by Raviv Digital"
+            setTextColor(Color.parseColor("#555555"))
+            textSize = 12f
+            gravity = Gravity.CENTER
+            setPadding(0, dpToPx(16), 0, 0)
+        }
+        rootLayout.addView(footerView)
+
+        setContentView(rootLayout)
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+
+    private fun generateRandomMac(): String {
+        val r = Random()
+        val mac = ByteArray(6)
+        r.nextBytes(mac)
+        mac[0] = (mac[0].toInt() and 0xFE.toByte().toInt()).toByte()
+        mac[0] = (mac[0].toInt() or 0x02.toByte().toInt()).toByte()
+        return String.format(
+            "%02X:%02X:%02X:%02X:%02X:%02X",
+            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
+        )
+    }
+
+    private fun applySpoof(mac: String) {
+        Thread {
+            var success = false
+            try {
+                val process = Runtime.getRuntime().exec("su")
+                val os = DataOutputStream(process.outputStream)
+                
+                os.writeBytes("echo 'mac=$mac' > /data/misc/bluetooth/bdaddr\n")
+                os.writeBytes("chmod 660 /data/misc/bluetooth/bdaddr\n")
+                os.writeBytes("chown bluetooth:bluetooth /data/misc/bluetooth/bdaddr\n")
+                
+                val currentTimeSec = System.currentTimeMillis() / 1000
+                os.writeBytes("date -u @$currentTimeSec\n")
+                
+                os.writeBytes("exit\n")
+                os.flush()
+                val exitVal = process.waitFor()
+                success = (exitVal == 0)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            runOnUiThread {
+                if (success) {
+                    currentMac = mac
+                    txtCurrentMac.text = currentMac
+                    spoofedMac = generateRandomMac()
+                    txtSpoofedMac.text = spoofedMac
+                    Toast.makeText(this, "Spoof applied successfully!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to acquire root access.", Toast.LENGTH_SHORT).show()
                 }
             }
-            handler.post(runnable)
-        }
+        }.start()
+    }
 
-        root.addView(actionButton)
-        setContentView(root)
+    private fun restoreOriginal() {
+        Thread {
+            var success = false
+            try {
+                val process = Runtime.getRuntime().exec("su")
+                val os = DataOutputStream(process.outputStream)
+                
+                os.writeBytes("echo 'mac=$originalMac' > /data/misc/bluetooth/bdaddr\n")
+                os.writeBytes("exit\n")
+                os.flush()
+                val exitVal = process.waitFor()
+                success = (exitVal == 0)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            runOnUiThread {
+                if (success) {
+                    currentMac = originalMac
+                    txtCurrentMac.text = currentMac
+                    Toast.makeText(this, "Original MAC restored!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to restore. Root required.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
     }
 }

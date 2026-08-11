@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.aiapp.generated">
-    <application android:label="מאיץ ומנקה מערכת" android:icon="@drawable/ic_launcher" android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
-        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aiapp.generated">
+    <application
+        android:label="SystemID Changer"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
