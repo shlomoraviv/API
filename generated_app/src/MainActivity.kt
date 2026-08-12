@@ -2,197 +2,129 @@ package com.aiapp.generated
 
 import android.app.Activity
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
+import com.google.android.gms.nearby.Nearby
+import com.google.android.gms.nearby.connection.*
 
 class MainActivity : Activity() {
+    private lateinit var mc: LinearLayout
+    private lateinit var sv: ScrollView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val root = LinearLayout(this).apply {
+        val r = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#F0F2F5"))
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            setBackgroundColor(Color.LTGRAY)
         }
 
-        val header = TextView(this).apply {
+        val h = TextView(this).apply {
             text = "צ'אט אופליין"
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#008069"))
-            textSize = 20f
-            setTypeface(null, Typeface.BOLD)
-            setPadding(48, 48, 48, 48)
-            gravity = Gravity.CENTER_VERTICAL or Gravity.RIGHT
-        }
-        root.addView(header)
-
-        // Top Bar with Search Friends and Search Devices
-        val topBar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setBackgroundColor(Color.parseColor("#E8F5E9"))
-            setPadding(24, 16, 24, 16)
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        val searchDevicesBtn = Button(this).apply {
-            text = "חפש מכשירים"
-            setTextColor(Color.WHITE)
-            textSize = 14f
-            val btnBg = GradientDrawable().apply {
-                setColor(Color.parseColor("#008069"))
-                cornerRadius = 8f
-            }
-            background = btnBg
-            setPadding(24, 12, 24, 12)
-        }
-
-        val searchFriendsInput = EditText(this).apply {
-            hint = "חפש חברים"
-            setHintTextColor(Color.GRAY)
-            setTextColor(Color.BLACK)
-            textSize = 14f
-            setBackgroundColor(Color.WHITE)
-            setPadding(16, 12, 16, 12)
-            gravity = Gravity.RIGHT
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-                setMargins(16, 0, 0, 0)
-            }
-        }
-
-        topBar.addView(searchDevicesBtn)
-        topBar.addView(searchFriendsInput)
-        root.addView(topBar)
-
-        val scrollView = ScrollView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-            isFillViewport = true
-        }
-
-        val messageContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 32, 32, 32)
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
-        scrollView.addView(messageContainer)
-        root.addView(scrollView)
-
-        val inputRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setBackgroundColor(Color.WHITE)
-            setPadding(24, 24, 24, 24)
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        val editText = EditText(this).apply {
-            hint = "הקלד הודעה..."
-            setHintTextColor(Color.GRAY)
-            setTextColor(Color.BLACK)
-            setBackgroundColor(Color.TRANSPARENT)
-            gravity = Gravity.RIGHT
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1f
-            ).apply { 
-                setMargins(16, 0, 0, 0)
-            }
-        }
-
-        val sendButton = Button(this).apply {
-            text = "שלח"
-            setTextColor(Color.WHITE)
-            val btnBg = GradientDrawable().apply {
-                setColor(Color.parseColor("#008069"))
-                cornerRadius = 12f
-            }
-            background = btnBg
-            setPadding(32, 16, 32, 16)
-        }
-
-        inputRow.addView(sendButton)
-        inputRow.addView(editText)
-        root.addView(inputRow)
-
-        val footer = TextView(this).apply {
-            text = "פותח על ידי רביב דיגיטל"
-            setTextColor(Color.GRAY)
-            textSize = 12f
+            textSize = 18f
+            setPadding(20, 20, 20, 20)
             gravity = Gravity.CENTER
-            setPadding(16, 16, 16, 16)
-            setBackgroundColor(Color.parseColor("#F0F2F5"))
         }
-        root.addView(footer)
+        r.addView(h)
 
-        setContentView(root)
+        val tb = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(10, 10, 10, 10)
+        }
 
-        fun addMessage(text: String, isUser: Boolean) {
-            val bubbleWrapper = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = if (isUser) Gravity.END else Gravity.START
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(0, 12, 0, 12)
+        val btnS = Button(this).apply {
+            text = "חפש מכשירים"
+            setOnClickListener {
+                startNearbyDiscovery()
+            }
+        }
+
+        val etF = EditText(this).apply {
+            hint = "חפש חברים"
+            layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+        }
+
+        tb.addView(btnS)
+        tb.addView(etF)
+        r.addView(tb)
+
+        sv = ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
+        }
+        mc = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(10, 10, 10, 10)
+        }
+        sv.addView(mc)
+        r.addView(sv)
+
+        val ir = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(10, 10, 10, 10)
+        }
+
+        val etM = EditText(this).apply {
+            hint = "הקלד הודעה..."
+            layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+        }
+
+        val btnSend = Button(this).apply {
+            text = "שלח"
+            setOnClickListener {
+                val txt = etM.text.toString().trim()
+                if (txt.isNotEmpty()) {
+                    addMsg(txt, true)
+                    etM.text.clear()
                 }
             }
-
-            val bubble = TextView(this).apply {
-                this.text = text
-                setTextColor(if (isUser) Color.WHITE else Color.BLACK)
-                textSize = 16f
-                setPadding(32, 20, 32, 20)
-                gravity = Gravity.RIGHT
-                val bubbleBg = GradientDrawable().apply {
-                    setColor(Color.parseColor(if (isUser) "#008069" else "#FFFFFF"))
-                    if (isUser) {
-                        cornerRadii = floatArrayOf(24f, 24f, 24f, 24f, 0f, 0f, 24f, 24f)
-                    } else {
-                        cornerRadii = floatArrayOf(24f, 24f, 24f, 24f, 24f, 24f, 0f, 0f)
-                    }
-                }
-                background = bubbleBg
-                maxWidth = (resources.displayMetrics.widthPixels * 0.75).toInt()
-            }
-
-            bubbleWrapper.addView(bubble)
-            messageContainer.addView(bubbleWrapper)
-
-            scrollView.post {
-                scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-            }
         }
 
-        addMessage("ברוכים הבאים לצ'אט אופליין! הקלד הודעה למטה כדי להתחיל.", false)
+        ir.addView(btnSend)
+        ir.addView(etM)
+        r.addView(ir)
 
-        sendButton.setOnClickListener {
-            val messageText = editText.text.toString().trim()
-            if (messageText.isNotEmpty()) {
-                addMessage(messageText, true)
-                editText.text.clear()
-            }
+        val f = TextView(this).apply {
+            text = "פותח על ידי רביב דיגיטל"
+            textSize = 10f
+            gravity = Gravity.CENTER
+            setPadding(10, 10, 10, 10)
         }
+        r.addView(f)
+
+        setContentView(r)
+        addMsg("ברוכים הבאים לצ'אט אופליין! הקלד הודעה למטה כדי להתחיל.", false)
+    }
+
+    private fun addMsg(txt: String, isUser: Boolean) {
+        val tv = TextView(this).apply {
+            text = txt
+            setTextColor(if (isUser) Color.BLUE else Color.BLACK)
+            setPadding(10, 5, 10, 5)
+            gravity = if (isUser) Gravity.RIGHT else Gravity.LEFT
+        }
+        mc.addView(tv)
+        sv.post { sv.fullScroll(ScrollView.FOCUS_DOWN) }
+    }
+
+    private fun startNearbyDiscovery() {
+        val client = Nearby.getConnectionsClient(this)
+        val cb = object : EndpointDiscoveryCallback() {
+            override fun onEndpointFound(id: String, info: DiscoveredEndpointInfo) {
+                Toast.makeText(this@MainActivity, "נמצא מכשיר: ${info.endpointName}", Toast.LENGTH_LONG).show()
+            }
+            override fun onEndpointLost(id: String) {}
+        }
+        val opts = DiscoveryOptions.Builder().setStrategy(Strategy.P2P_CLUSTER).build()
+        client.startDiscovery("com.aiapp.generated.SERVICE_ID", cb, opts)
+            .addOnSuccessListener {
+                Toast.makeText(this, "מחפש מכשירים...", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "שגיאה: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }
