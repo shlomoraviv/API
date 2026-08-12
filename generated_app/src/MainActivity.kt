@@ -27,15 +27,52 @@ class MainActivity : Activity() {
         }
 
         val header = TextView(this).apply {
-            text = "Raviv Digital"
+            text = "צ'אט אופליין"
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#008069"))
             textSize = 20f
             setTypeface(null, Typeface.BOLD)
             setPadding(48, 48, 48, 48)
-            gravity = Gravity.CENTER_VERTICAL
+            gravity = Gravity.CENTER_VERTICAL or Gravity.RIGHT
         }
         root.addView(header)
+
+        // Top Bar with Search Friends and Search Devices
+        val topBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setBackgroundColor(Color.parseColor("#E8F5E9"))
+            setPadding(24, 16, 24, 16)
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val searchDevicesBtn = Button(this).apply {
+            text = "חפש מכשירים"
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            val btnBg = GradientDrawable().apply {
+                setColor(Color.parseColor("#008069"))
+                cornerRadius = 8f
+            }
+            background = btnBg
+            setPadding(24, 12, 24, 12)
+        }
+
+        val searchFriendsInput = EditText(this).apply {
+            hint = "חפש חברים"
+            setHintTextColor(Color.GRAY)
+            setTextColor(Color.BLACK)
+            textSize = 14f
+            setBackgroundColor(Color.WHITE)
+            setPadding(16, 12, 16, 12)
+            gravity = Gravity.RIGHT
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                setMargins(16, 0, 0, 0)
+            }
+        }
+
+        topBar.addView(searchDevicesBtn)
+        topBar.addView(searchFriendsInput)
+        root.addView(topBar)
 
         val scrollView = ScrollView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -69,21 +106,22 @@ class MainActivity : Activity() {
         }
 
         val editText = EditText(this).apply {
-            hint = "Type a message..."
+            hint = "הקלד הודעה..."
             setHintTextColor(Color.GRAY)
             setTextColor(Color.BLACK)
             setBackgroundColor(Color.TRANSPARENT)
+            gravity = Gravity.RIGHT
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 1f
-            ).apply {
-                setMargins(0, 0, 16, 0)
+            ).apply { 
+                setMargins(16, 0, 0, 0)
             }
         }
 
         val sendButton = Button(this).apply {
-            text = "Send"
+            text = "שלח"
             setTextColor(Color.WHITE)
             val btnBg = GradientDrawable().apply {
                 setColor(Color.parseColor("#008069"))
@@ -93,9 +131,19 @@ class MainActivity : Activity() {
             setPadding(32, 16, 32, 16)
         }
 
-        inputRow.addView(editText)
         inputRow.addView(sendButton)
+        inputRow.addView(editText)
         root.addView(inputRow)
+
+        val footer = TextView(this).apply {
+            text = "פותח על ידי רביב דיגיטל"
+            setTextColor(Color.GRAY)
+            textSize = 12f
+            gravity = Gravity.CENTER
+            setPadding(16, 16, 16, 16)
+            setBackgroundColor(Color.parseColor("#F0F2F5"))
+        }
+        root.addView(footer)
 
         setContentView(root)
 
@@ -116,6 +164,7 @@ class MainActivity : Activity() {
                 setTextColor(if (isUser) Color.WHITE else Color.BLACK)
                 textSize = 16f
                 setPadding(32, 20, 32, 20)
+                gravity = Gravity.RIGHT
                 val bubbleBg = GradientDrawable().apply {
                     setColor(Color.parseColor(if (isUser) "#008069" else "#FFFFFF"))
                     if (isUser) {
@@ -136,7 +185,7 @@ class MainActivity : Activity() {
             }
         }
 
-        addMessage("Welcome to Raviv Digital Chat! Type a message below to start.", false)
+        addMessage("ברוכים הבאים לצ'אט אופליין! הקלד הודעה למטה כדי להתחיל.", false)
 
         sendButton.setOnClickListener {
             val messageText = editText.text.toString().trim()

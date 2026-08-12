@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aiapp.generated">
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
-        android:label="Raviv Chat Prototype"
+        android:label="צ'אט אופליין"
         android:icon="@drawable/ic_launcher"
         android:theme="@android:style/Theme.NoTitleBar">
         <activity android:name=".MainActivity"
