@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.*
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.gms.tasks.OnFailureListener
 
 class MainActivity : Activity() {
     private lateinit var mc: LinearLayout
@@ -120,11 +122,15 @@ class MainActivity : Activity() {
         }
         val opts = DiscoveryOptions.Builder().setStrategy(Strategy.P2P_CLUSTER).build()
         client.startDiscovery("com.aiapp.generated.SERVICE_ID", cb, opts)
-            .addOnSuccessListener {
-                Toast.makeText(this, "מחפש מכשירים...", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "שגיאה: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            .addOnSuccessListener(object : OnSuccessListener<Void> {
+                override fun onSuccess(p0: Void?) {
+                    Toast.makeText(this@MainActivity, "מחפש מכשירים...", Toast.LENGTH_SHORT).show()
+                }
+            })
+            .addOnFailureListener(object : OnFailureListener {
+                override fun onFailure(e: Exception) {
+                    Toast.makeText(this@MainActivity, "שגיאה: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }
