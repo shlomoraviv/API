@@ -1,270 +1,307 @@
 package com.aiapp.generated
 
 import android.app.Activity
-import android.os.Bundle
-import android.widget.*
-import android.view.Gravity
-import android.view.View
+import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.content.ClipboardManager
-import android.content.ClipData
-import android.content.Context
-import java.util.Random
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
 
 class MainActivity : Activity() {
 
-    private lateinit var macTextView: TextView
-    private lateinit var serialTextView: TextView
-    private lateinit var logTextView: TextView
-    private lateinit var interfaceRadioGroup: RadioGroup
-    
-    private val random = Random()
-    private val logBuilder = StringBuilder()
+    private lateinit var chatContainer: LinearLayout
+    private lateinit var scrollView: ScrollView
+    private lateinit var statusText: TextView
+    private lateinit var connectBtn: Button
+    private val handler = Handler(Looper.getMainLooper())
+    private var isConnected = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val scrollView = ScrollView(this)
-        scrollView.layoutParams = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        )
-        scrollView.setBackgroundColor(Color.parseColor("#121212"))
-        scrollView.isFillViewport = true
 
-        val mainLayout = LinearLayout(this)
-        mainLayout.orientation = LinearLayout.VERTICAL
-        val mainParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        mainLayout.layoutParams = mainParams
-        val padding = dpToPx(20)
-        mainLayout.setPadding(padding, padding, padding, padding)
-
-        val titleView = TextView(this)
-        titleView.text = "SYSTEM ID CHANGER"
-        titleView.setTextColor(Color.parseColor("#00E676"))
-        titleView.textSize = 22f
-        titleView.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-        titleView.gravity = Gravity.CENTER
-        val titleParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        titleParams.setMargins(0, 0, 0, dpToPx(24))
-        titleView.layoutParams = titleParams
-        mainLayout.addView(titleView)
-
-        val macCard = createCard()
-        val macLabel = createLabel("CURRENT MAC ADDRESS")
-        macCard.addView(macLabel)
-
-        macTextView = TextView(this)
-        macTextView.text = generateMac()
-        macTextView.setTextColor(Color.WHITE)
-        macTextView.textSize = 24f
-        macTextView.typeface = Typeface.MONOSPACE
-        macTextView.gravity = Gravity.CENTER
-        val macTextParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        macTextParams.setMargins(0, dpToPx(8), 0, dpToPx(16))
-        macTextView.layoutParams = macTextParams
-        macCard.addView(macTextView)
-
-        val buttonLayout = LinearLayout(this)
-        buttonLayout.orientation = LinearLayout.HORIZONTAL
-        val buttonLayoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        buttonLayout.layoutParams = buttonLayoutParams
-
-        val btnGenerate = createButton("GENERATE", "#00E676", Color.BLACK)
-        val btnGenerateParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        btnGenerateParams.setMargins(0, 0, dpToPx(8), 0)
-        btnGenerate.layoutParams = btnGenerateParams
-        btnGenerate.setOnClickListener {
-            val newMac = generateMac()
-            macTextView.text = newMac
-            addLog("Generated new MAC: $newMac")
+        // Main Container
+        val mainLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.parseColor("#ECE5DD"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
         }
-        buttonLayout.addView(btnGenerate)
 
-        val btnCopy = createButton("COPY", "#424242", Color.WHITE)
-        val btnCopyParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        btnCopyParams.setMargins(dpToPx(8), 0, 0, 0)
-        btnCopy.layoutParams = btnCopyParams
-        btnCopy.setOnClickListener {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("MAC Address", macTextView.text)
-            clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "MAC copied to clipboard", Toast.LENGTH_SHORT).show()
-            addLog("Copied MAC to clipboard")
+        // Header Bar
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setBackgroundColor(Color.parseColor("#075E54"))
+            setPadding(32, 24, 32, 24)
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
-        buttonLayout.addView(btnCopy)
-        macCard.addView(buttonLayout)
-        mainLayout.addView(macCard)
 
-        val serialCard = createCard()
-        val serialLabel = createLabel("SIMULATED HARDWARE ID")
-        serialCard.addView(serialLabel)
-
-        serialTextView = TextView(this)
-        serialTextView.text = generateSerial()
-        serialTextView.setTextColor(Color.WHITE)
-        serialTextView.textSize = 20f
-        serialTextView.typeface = Typeface.MONOSPACE
-        serialTextView.gravity = Gravity.CENTER
-        val serialTextParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        serialTextParams.setMargins(0, dpToPx(8), 0, dpToPx(16))
-        serialTextView.layoutParams = serialTextParams
-        serialCard.addView(serialTextView)
-
-        val btnSerial = createButton("REGENERATE SERIAL", "#00E676", Color.BLACK)
-        btnSerial.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        btnSerial.setOnClickListener {
-            val newSerial = generateSerial()
-            serialTextView.text = newSerial
-            addLog("Regenerated Hardware ID: $newSerial")
+        val titleLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
-        serialCard.addView(btnSerial)
-        mainLayout.addView(serialCard)
 
-        val interfaceCard = createCard()
-        val interfaceLabel = createLabel("TARGET INTERFACE")
-        interfaceCard.addView(interfaceLabel)
-
-        interfaceRadioGroup = RadioGroup(this)
-        interfaceRadioGroup.orientation = RadioGroup.HORIZONTAL
-        val rgParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        rgParams.setMargins(0, dpToPx(8), 0, 0)
-        interfaceRadioGroup.layoutParams = rgParams
-
-        val interfaces = listOf("wlan0", "eth0", "p2p0")
-        for (i in interfaces.indices) {
-            val rb = RadioButton(this)
-            rb.text = interfaces[i]
-            rb.setTextColor(Color.WHITE)
-            rb.id = i
-            if (i == 0) rb.isChecked = true
-            interfaceRadioGroup.addView(rb)
+        val appTitle = TextView(this).apply {
+            text = "BlueChat Share"
+            setTextColor(Color.WHITE)
+            textSize = 18f
+            typeface = Typeface.DEFAULT_BOLD
         }
-        interfaceRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val selected = interfaces[checkedId]
-            addLog("Target interface switched to: $selected")
+
+        statusText = TextView(this).apply {
+            text = "Bluetooth: Disconnected"
+            setTextColor(Color.parseColor("#B2DFDB"))
+            textSize = 12f
         }
-        interfaceCard.addView(interfaceRadioGroup)
-        mainLayout.addView(interfaceCard)
 
-        val logCard = createCard()
-        val logLabel = createLabel("SIMULATION LOGS")
-        logCard.addView(logLabel)
+        titleLayout.addView(appTitle)
+        titleLayout.addView(statusText)
 
-        logTextView = TextView(this)
-        logTextView.setTextColor(Color.parseColor("#00FF66"))
-        logTextView.textSize = 12f
-        logTextView.typeface = Typeface.MONOSPACE
-        val logTextParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            dpToPx(100)
-        )
-        logTextParams.setMargins(0, dpToPx(8), 0, 0)
-        logTextView.layoutParams = logTextParams
-        logTextView.setBackgroundColor(Color.parseColor("#0A0A0A"))
-        logTextView.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8))
-        logCard.addView(logTextView)
-        mainLayout.addView(logCard)
+        connectBtn = Button(this).apply {
+            text = "Connect"
+            setTextColor(Color.WHITE)
+            textSize = 12f
+            val btnBg = GradientDrawable().apply {
+                setColor(Color.parseColor("#128C7E"))
+                cornerRadius = 8f
+            }
+            background = btnBg
+            setPadding(24, 12, 24, 12)
+        }
 
-        addLog("SystemID Changer Initialized.")
-        addLog("Current MAC: ${macTextView.text}")
-        addLog("Current HWID: ${serialTextView.text}")
+        header.addView(titleLayout)
+        header.addView(connectBtn)
+        mainLayout.addView(header)
 
-        scrollView.addView(mainLayout)
-        setContentView(scrollView)
+        // Chat Scroll Area
+        scrollView = ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        }
+
+        chatContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24, 24, 24, 24)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        scrollView.addView(chatContainer)
+        mainLayout.addView(scrollView)
+
+        // Input Bar Container
+        val inputBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setBackgroundColor(Color.WHITE)
+            setPadding(16, 16, 16, 16)
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        val plusBtn = Button(this).apply {
+            text = "+"
+            textSize = 22f
+            setTextColor(Color.parseColor("#075E54"))
+            background = null
+            setPadding(16, 0, 16, 0)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        val inputField = EditText(this).apply {
+            hint = "Type a message..."
+            setHintTextColor(Color.GRAY)
+            setTextColor(Color.BLACK)
+            background = null
+            textSize = 16f
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                setMargins(16, 0, 16, 0)
+            }
+        }
+
+        val sendBtn = Button(this).apply {
+            text = "Send"
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            val sendBg = GradientDrawable().apply {
+                setColor(Color.parseColor("#075E54"))
+                cornerRadius = 8f
+            }
+            background = sendBg
+            setPadding(32, 16, 32, 16)
+        }
+
+        inputBar.addView(plusBtn)
+        inputBar.addView(inputField)
+        inputBar.addView(sendBtn)
+        mainLayout.addView(inputBar)
+
+        // Raviv Digital Credit Label
+        val creditLabel = TextView(this).apply {
+            text = "Powered by Raviv Digital"
+            textSize = 11f
+            setTextColor(Color.GRAY)
+            gravity = Gravity.CENTER
+            setPadding(0, 12, 0, 12)
+            setBackgroundColor(Color.parseColor("#ECE5DD"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        mainLayout.addView(creditLabel)
+
+        setContentView(mainLayout)
+
+        // Initial Welcome Messages
+        addBubble("Welcome to BlueChat Share! Connect to a nearby Bluetooth device to start sharing.", false)
+
+        // Interactivity
+        connectBtn.setOnClickListener {
+            if (!isConnected) {
+                statusText.text = "Bluetooth: Searching..."
+                connectBtn.text = "Connecting"
+                connectBtn.isEnabled = false
+                handler.postDelayed({
+                    isConnected = true
+                    statusText.text = "Bluetooth: Connected to BlueDevice-X9"
+                    connectBtn.text = "Disconnect"
+                    connectBtn.isEnabled = true
+                    addBubble("Connected to BlueDevice-X9 successfully!", false, isSystem = true)
+                }, 1500)
+            } else {
+                isConnected = false
+                statusText.text = "Bluetooth: Disconnected"
+                connectBtn.text = "Connect"
+                addBubble("Disconnected from device.", false, isSystem = true)
+            }
+        }
+
+        sendBtn.setOnClickListener {
+            val message = inputField.text.toString().trim()
+            if (message.isNotEmpty()) {
+                if (!isConnected) {
+                    Toast.makeText(this, "Please connect to a Bluetooth device first!", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                addBubble(message, true)
+                inputField.setText("")
+
+                // Simulated Auto-Reply
+                handler.postDelayed({
+                    val replies = arrayOf(
+                        "Got it!",
+                        "That sounds interesting.",
+                        "Received your message via Bluetooth.",
+                        "Awesome! Let's share some files next."
+                    )
+                    addBubble(replies.random(), false)
+                }, 1200)
+            }
+        }
+
+        plusBtn.setOnClickListener {
+            if (!isConnected) {
+                Toast.makeText(this, "Please connect to a Bluetooth device first!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val options = arrayOf("Share Image (photo.jpg)", "Share Document (report.pdf)", "Share Audio (voice.mp3)")
+            AlertDialog.Builder(this)
+                .setTitle("Select File to Share")
+                .setItems(options) { _, which ->
+                    val fileName = when (which) {
+                        0 -> "📷 photo.jpg (2.4 MB)"
+                        1 -> "📄 report.pdf (1.1 MB)"
+                        else -> "🎵 voice.mp3 (4.5 MB)"
+                    }
+                    addBubble("Shared File: $fileName", true)
+                    
+                    // Simulated File Transfer Progress
+                    handler.postDelayed({
+                        addBubble("File '$fileName' received successfully!", false, isSystem = true)
+                    }, 1500)
+                }
+                .show()
+        }
     }
 
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
-    }
+    private fun addBubble(message: String, isSent: Boolean, isSystem: Boolean = false) {
+        val bubbleLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 8, 0, 8)
+            }
+        }
 
-    private fun createCard(): LinearLayout {
-        val card = LinearLayout(this)
-        card.orientation = LinearLayout.VERTICAL
+        val bubble = TextView(this).apply {
+            text = message
+            textSize = 15f
+            setPadding(24, 16, 24, 16)
+            
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 16f
+                when {
+                    isSystem -> {
+                        setColor(Color.parseColor("#CFD8DC"))
+                        setStroke(1, Color.parseColor("#B0BEC5"))
+                    }
+                    isSent -> {
+                        setColor(Color.parseColor("#DCF8C6"))
+                        setStroke(1, Color.parseColor("#C7EAA8"))
+                    }
+                    else -> {
+                        setColor(Color.WHITE)
+                        setStroke(1, Color.parseColor("#E0E0E0"))
+                    }
+                }
+            }
+            background = bg
+            setTextColor(Color.BLACK)
+        }
+
         val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        params.setMargins(0, 0, 0, dpToPx(16))
-        card.layoutParams = params
-        card.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16))
-        
-        val gd = GradientDrawable()
-        gd.setColor(Color.parseColor("#1E1E1E"))
-        gd.cornerRadius = dpToPx(8).toFloat()
-        card.background = gd
-        
-        return card
-    }
+        ).apply {
+            gravity = when {
+                isSystem -> Gravity.CENTER
+                isSent -> Gravity.END
+                else -> Gravity.START
+            }
+            maxWidth = (resources.displayMetrics.widthPixels * 0.75).toInt()
+        }
+        bubble.layoutParams = params
 
-    private fun createLabel(text: String): TextView {
-        val label = TextView(this)
-        label.text = text
-        label.setTextColor(Color.parseColor("#888888"))
-        label.textSize = 11f
-        label.typeface = Typeface.create("sans-serif", Typeface.BOLD)
-        label.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        return label
-    }
+        bubbleLayout.addView(bubble)
+        chatContainer.addView(bubbleLayout)
 
-    private fun createButton(text: String, bgColorHex: String, textColor: Int): Button {
-        val button = Button(this)
-        button.text = text
-        button.setTextColor(textColor)
-        button.typeface = Typeface.create("sans-serif", Typeface.BOLD)
-        
-        val gd = GradientDrawable()
-        gd.setColor(Color.parseColor(bgColorHex))
-        gd.cornerRadius = dpToPx(4).toFloat()
-        button.background = gd
-        
-        return button
-    }
-
-    private fun generateMac(): String {
-        val mac = ByteArray(6)
-        random.nextBytes(mac)
-        mac[0] = (mac[0].toInt() and 0xFC or 0x02).toByte()
-        return mac.joinToString(":") { String.format("%02X", it) }
-    }
-
-    private fun generateSerial(): String {
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        val sb = StringBuilder("SYS-")
-        for (i in 0..3) sb.append(chars[random.nextInt(chars.length)])
-        sb.append("-")
-        for (i in 0..3) sb.append(chars[random.nextInt(chars.length)])
-        return sb.toString()
-    }
-
-    private fun addLog(message: String) {
-        logBuilder.append("> ").append(message).append("\n")
-        logTextView.text = logBuilder.toString()
+        // Auto Scroll to Bottom
+        scrollView.post {
+            scrollView.fullScroll(View.FOCUS_DOWN)
+        }
     }
 }
