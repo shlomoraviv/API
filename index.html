@@ -6,26 +6,33 @@
 <title>AI App Maker — prompt to APK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
   :root {
-    --bg: #14161a;
-    --surface: #1b1e24;
-    --surface-2: #21252c;
-    --border: #2b3039;
-    --text: #e9e7e2;
-    --text-muted: #8b8f98;
-    --accent: #dd9c52;
-    --accent-soft: #4a3c26;
-    --success: #6fb89a;
-    --success-soft: #2a3934;
-    --error: #d97a63;
-    --error-soft: #3c2c28;
+    --bg: #F4F1EA;
+    --bg-inset: #EBE6D9;
+    --surface: #FFFFFF;
+    --surface-2: #F7F4EC;
+    --border: #E4DECD;
+    --border-strong: #D3CBB5;
+    --text: #2B2924;
+    --text-muted: #83806F;
+    --accent: #D97757;
+    --accent-hover: #C15F40;
+    --accent-soft: #F3DDCF;
+    --on-accent: #FFFFFF;
+    --success: #77875F;
+    --success-soft: #E6EBDA;
+    --on-success: #FFFFFF;
+    --error: #B3483B;
+    --error-soft: #F5E0DA;
     --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
     --sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --display: 'Space Grotesk', var(--sans);
-    --radius: 10px;
+    --display: 'Source Serif 4', Georgia, serif;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(43,41,36,0.06), 0 1px 1px rgba(43,41,36,0.04);
   }
 
   * { box-sizing: border-box; }
@@ -38,48 +45,99 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  body {
-    min-height: 100vh;
-    background-image:
-      radial-gradient(circle at 15% 0%, rgba(221,156,82,0.07), transparent 45%),
-      radial-gradient(circle at 85% 100%, rgba(111,184,154,0.05), transparent 45%);
-  }
+  body { min-height: 100vh; }
 
-  .wrap {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 56px 20px 80px;
+  /* --- top bar --- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 5;
   }
-
-  header.page-head {
-    margin-bottom: 40px;
-  }
-
-  .kicker {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin: 0 0 10px;
-  }
-
-  h1 {
+  .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  .brand-mark {
     font-family: var(--display);
     font-weight: 600;
-    font-size: clamp(28px, 5vw, 38px);
-    line-height: 1.15;
-    margin: 0 0 12px;
+    font-size: 19px;
     letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .brand-kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .new-chat-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .new-chat-btn:hover { background: var(--bg-inset); border-color: var(--accent); }
+  .new-chat-btn .plus { font-size: 15px; line-height: 1; }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
   }
 
+  header.page-head { margin-bottom: 22px; }
   .lede {
     color: var(--text-muted);
-    font-size: 15.5px;
+    font-size: 14.5px;
     line-height: 1.6;
     margin: 0;
-    max-width: 58ch;
+    max-width: 62ch;
   }
+
+  /* --- mode tabs --- */
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .mode-tab {
+    flex: 1 1 170px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    text-align: right;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .mode-tab:hover { border-color: var(--border-strong); }
+  .mode-tab .mode-tab-title { font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .mode-tab .mode-tab-sub { font-size: 11px; color: var(--text-muted); }
+  .mode-tab[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .mode-tab[aria-selected="true"] .mode-tab-title { color: var(--accent-hover); }
+  .mode-panel[hidden] { display: none; }
 
   section.card {
     background: var(--surface);
@@ -87,11 +145,12 @@
     border-radius: var(--radius);
     padding: 24px;
     margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
   }
 
   .card h2 {
     font-family: var(--display);
-    font-size: 15px;
+    font-size: 16.5px;
     font-weight: 600;
     margin: 0 0 4px;
   }
@@ -100,37 +159,8 @@
     color: var(--text-muted);
     font-size: 13px;
     margin: 0 0 18px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
-
-  .mode-toggle {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 16px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px;
-  }
-  .mode-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 8px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .mode-btn.active {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .mode-btn:hover:not(.active) { color: var(--text); }
 
   .field-row {
     display: grid;
@@ -168,19 +198,22 @@
     font-family: var(--sans);
     font-size: 14px;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     width: 100%;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
-  input::placeholder, textarea::placeholder { color: #565b64; }
+  input::placeholder, textarea::placeholder { color: #ADA894; }
 
   input:focus, textarea:focus {
     outline: none;
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
   }
 
-  input:focus-visible, textarea:focus-visible, button:focus-visible, .toggle-keys:focus-visible {
+  input:focus-visible, textarea:focus-visible, button:focus-visible,
+  .toggle-keys:focus-visible, .think-btn:focus-visible, .mode-tab:focus-visible,
+  .question-option:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -190,6 +223,8 @@
     min-height: 92px;
     line-height: 1.5;
   }
+  textarea.mono-input { font-family: var(--mono); font-size: 12.5px; min-height: 56px; }
+  .key-mask { filter: blur(5px); user-select: none; }
 
   .toggle-keys {
     background: none;
@@ -207,42 +242,81 @@
   button.primary {
     width: 100%;
     background: var(--accent);
-    color: #201404;
+    color: var(--on-accent);
     border: none;
     font-family: var(--display);
     font-weight: 600;
     font-size: 15px;
     padding: 14px 18px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: filter 0.15s ease, transform 0.05s ease;
+    transition: background 0.15s ease, transform 0.05s ease;
   }
-  button.primary:hover:not(:disabled) { filter: brightness(1.08); }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
   button.primary:active:not(:disabled) { transform: scale(0.99); }
-  button.primary:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+  button.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  button.secondary {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
   }
+  button.secondary:hover:not(:disabled) { background: var(--bg-inset); }
+  button.secondary:active:not(:disabled) { transform: scale(0.99); }
+  button.secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  input[type="file"] {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+  }
+  input[type="file"]::file-selector-button,
+  input[type="file"]::-webkit-file-upload-button {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-inline-end: 10px;
+  }
+
+  /* --- thinking-level toggle --- */
+  .think-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+  .think-btn {
+    flex: 1 1 0;
+    min-width: 84px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .think-btn:hover { border-color: var(--border-strong); }
+  .think-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
   /* --- pipeline rail --- */
-  .rail-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2px;
-  }
-
-  .icon-preview {
-    width: 40px;
-    height: 40px;
-    border-radius: 9px;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 1px solid var(--border);
-  }
-  .icon-preview:empty { border-color: transparent; }
-  .icon-preview svg { display: block; width: 100%; height: 100%; }
-
   .rail {
     display: flex;
     align-items: center;
@@ -275,7 +349,7 @@
 
   .rail-node[data-state="active"] .rail-dot {
     border-color: var(--accent);
-    color: var(--accent);
+    color: var(--accent-hover);
     background: var(--accent-soft);
     animation: pulse 1.4s ease-in-out infinite;
   }
@@ -291,8 +365,8 @@
   }
 
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(221,156,82,0.35); }
-    50% { box-shadow: 0 0 0 5px rgba(221,156,82,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,87,0.35); }
+    50% { box-shadow: 0 0 0 5px rgba(217,119,87,0); }
   }
   @media (prefers-reduced-motion: reduce) {
     .rail-node[data-state="active"] .rail-dot { animation: none; }
@@ -304,7 +378,7 @@
     color: var(--text-muted);
     text-align: center;
   }
-  .rail-node[data-state="active"] .rail-label { color: var(--accent); }
+  .rail-node[data-state="active"] .rail-label { color: var(--accent-hover); }
   .rail-node[data-state="done"] .rail-label { color: var(--success); }
   .rail-node[data-state="error"] .rail-label { color: var(--error); }
 
@@ -318,23 +392,170 @@
   .rail-line[data-state="done"] { background: var(--success); }
   .rail-line[data-state="active"] { background: linear-gradient(90deg, var(--success), var(--border)); }
 
-  /* --- log panel --- */
-  .log {
-    background: #0e0f12;
+  /* --- clarifying-question card --- */
+  .question-card {
+    display: none;
+    margin: 6px 0 22px;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    line-height: 1.75;
-    color: #b7bac1;
-    max-height: 220px;
-    overflow-y: auto;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
   }
-  .log p { margin: 0; white-space: pre-wrap; word-break: break-word; }
-  .log p.error { color: var(--error); }
-  .log p.ok { color: var(--success); }
-  .log .muted { color: #565b64; }
+  .question-card.show { display: block; }
+  .question-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 18px 4px;
+  }
+  .question-title {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .question-pager {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .question-pager button {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .question-pager button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .question-options { padding: 10px 10px 6px; display: flex; flex-direction: column; }
+  .question-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: right;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 13px 8px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--text);
+    border-radius: 8px;
+    transition: background 0.12s ease;
+  }
+  .question-options .question-option:first-child { border-top: none; }
+  .question-option:hover { background: var(--accent-soft); }
+  .question-num {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .question-option:hover .question-num { border-color: var(--accent); color: var(--accent-hover); }
+  .question-option-label { flex: 1 1 auto; line-height: 1.4; }
+  .question-other {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding: 10px 8px;
+  }
+  .question-other input {
+    flex: 1 1 auto;
+    border: none;
+    background: none;
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 6px 4px;
+  }
+  .question-other input:focus { outline: none; box-shadow: none; }
+  .question-other button {
+    flex: 0 0 auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .question-other button:hover { background: var(--bg-inset); }
+  .question-foot { display: flex; justify-content: flex-end; padding: 8px 14px 14px; }
+  .question-skip {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .question-skip:hover { color: var(--text); }
+
+  /* --- log panel, styled as a compact message thread --- */
+  .log {
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .log-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .log-row.muted { color: var(--text-muted); border-style: dashed; }
+  .log-row.ok { border-color: var(--success); background: var(--success-soft); }
+  .log-row.error { border-color: var(--error); background: var(--error-soft); }
+  .log-dot {
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .log-row.ok .log-dot { background: var(--success); }
+  .log-row.error .log-dot { background: var(--error); }
+  .log-row .msg { white-space: pre-wrap; word-break: break-word; }
 
   .download-box {
     display: none;
@@ -342,7 +563,7 @@
     padding: 18px;
     border: 1px solid var(--success);
     background: var(--success-soft);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -352,11 +573,13 @@
   .download-box .msg {
     font-size: 13.5px;
     color: var(--text);
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .download-box .msg strong { font-family: var(--mono); }
   a.download-btn {
     background: var(--success);
-    color: #0d1f18;
+    color: var(--on-success);
     font-family: var(--display);
     font-weight: 600;
     font-size: 14px;
@@ -366,46 +589,216 @@
     white-space: nowrap;
   }
 
+  .app-preview { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .app-icon-preview {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .app-icon-preview svg { display: block; width: 100%; height: 100%; }
+
+  /* --- prompt-enhancement confirmation panel --- */
+  .enhance-box {
+    display: none;
+    margin: 6px 0 22px;
+    padding: 18px;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: var(--radius-sm);
+    flex-direction: column;
+    gap: 14px;
+  }
+  .enhance-box.show { display: flex; }
+  .enhance-title { margin: 0; font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .enhance-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .enhance-col-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .enhance-text {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    white-space: pre-wrap;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .enhance-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .enhance-actions button { flex: 1 1 200px; width: auto; }
+
+  /* --- mode placeholder (not-yet-built modes) --- */
+  .mode-placeholder {
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    background: var(--bg-inset);
+  }
+  .mode-placeholder h3 { margin: 0 0 8px; font-family: var(--display); font-size: 15px; }
+  .mode-placeholder p { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-muted); }
+
+  /* --- APK image editor --- */
+  .edit-status { font-size: 13px; margin: 10px 0 0; line-height: 1.5; }
+  .edit-status.muted { color: var(--text-muted); }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .image-grid[hidden] { display: none; }
+
+  .image-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+  }
+  .image-row.pending { border-color: var(--accent); }
+
+  .image-thumb {
+    width: 100%;
+    height: 104px;
+    object-fit: contain;
+    border-radius: 6px;
+    background-color: #F6F4EC;
+    background-image:
+      linear-gradient(45deg, #E8E3D2 25%, transparent 25%),
+      linear-gradient(-45deg, #E8E3D2 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #E8E3D2 75%),
+      linear-gradient(-45deg, transparent 75%, #E8E3D2 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  }
+
+  .image-path { font-family: var(--mono); font-size: 11px; color: var(--text); word-break: break-all; line-height: 1.4; }
+  .image-size { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); }
+  .image-status {
+    display: inline-block;
+    width: fit-content;
+    font-size: 10.5px;
+    font-family: var(--mono);
+    color: var(--accent-hover);
+    background: rgba(217,119,87,0.12);
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  .image-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+  .chip-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 11.5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .chip-btn:hover { background: var(--bg-inset); }
+  .chip-btn.danger { border-color: var(--error); color: var(--error); }
+
+  .edit-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 22px;
+    flex-wrap: wrap;
+  }
+  .edit-summary[hidden] { display: none; }
+  .edit-summary .hint { margin: 0; }
+  #buildEditedBtn { width: auto; flex: 0 0 auto; padding: 12px 20px; }
+
   footer.note {
-    color: #565b64;
+    color: var(--text-muted);
     font-size: 12px;
     line-height: 1.7;
     margin-top: 28px;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 640px) {
+    .topbar { padding: 12px 16px; }
+    .brand-kicker { display: none; }
     .field-row, .field-row.three { grid-template-columns: 1fr; }
     .rail { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    .enhance-compare { grid-template-columns: 1fr; }
+    .image-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-mark">AI App Maker</span>
+    <span class="brand-kicker">$ prompt → kotlin → dex → apk</span>
+  </div>
+  <button type="button" class="new-chat-btn" id="newChatBtn">
+    <span class="plus" aria-hidden="true">+</span> שיחה חדשה
+  </button>
+</div>
+
 <div class="wrap">
 
   <header class="page-head">
-    <p class="kicker">$ prompt → kotlin → dex → apk</p>
-    <h1>AI App Maker</h1>
     <p class="lede">
-      תארו אפליקציית אנדרואיד במילים. Gemini כותב את הקוד, GitHub Actions מקמפל,
-      ממיין ל-DEX וחותם APK אמיתי — והאתר הזה מוריד אותו אליכם, בלי לגעת ב-GitHub בעצמכם.
+      תארו אפליקציית אנדרואיד, ערכו, תרגמו או צנזרו APK קיים. Gemini עושה את החשיבה והכתיבה,
+      GitHub Actions מקמפל וחותם APK אמיתי, והכל יורד אליכם ישירות מהדפדפן.
     </p>
   </header>
 
+  <div class="mode-tabs" role="tablist" aria-label="מצב עבודה" id="modeTabs">
+    <button type="button" class="mode-tab" role="tab" data-mode="build" aria-selected="true">
+      <span class="mode-tab-title">בניית אפליקציה</span>
+      <span class="mode-tab-sub">תיאור → APK חדש</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="edit" aria-selected="false">
+      <span class="mode-tab-title">עריכת אפליקציה</span>
+      <span class="mode-tab-sub">שינוי ב-APK קיים</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="translate" aria-selected="false">
+      <span class="mode-tab-title">תרגום אפליקציה</span>
+      <span class="mode-tab-sub">APK לשפה אחרת</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="censor" aria-selected="false">
+      <span class="mode-tab-title">צנזור אפליקציה</span>
+      <span class="mode-tab-sub">החלפת / הסתרת תמונות</span>
+    </button>
+  </div>
+
   <section class="card">
     <h2>חיבורים</h2>
-    <p class="hint">שני המפתחות נשארים בזיכרון הדפדפן בלבד ונשלחים ישירות ל-Google ול-GitHub — הם לא נשמרים ולא עוברים דרך שרת שלישי.</p>
+    <p class="hint">המפתחות נשארים בזיכרון הדפדפן בלבד ונשלחים ישירות ל-Google ול-GitHub — הם לא נשמרים ולא עוברים דרך שרת שלישי.</p>
 
-    <div class="field-row">
-      <div class="field">
-        <label for="geminiKey">Gemini API Key <span class="req">*</span></label>
-        <input type="password" id="geminiKey" placeholder="AIza…" autocomplete="off">
-      </div>
-      <div class="field">
-        <label for="githubToken">GitHub Token <span class="req">*</span></label>
-        <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
-      </div>
+    <div class="field">
+      <label for="geminiKeys">Gemini API Keys <span class="req">*</span></label>
+      <textarea id="geminiKeys" class="mono-input key-mask" rows="2" autocomplete="off" placeholder="AIza…&#10;AIza…"></textarea>
+      <p class="hint" style="margin:6px 0 0;">מפתח אחד בכל שורה. כשיש כמה מפתחות, האתר מסובב ביניהם אוטומטית — כך המכסה החינמית של AI Studio מתחלקת בפועל בין כמה מפתחות, ואם מפתח נתקל במגבלת קצב (429) הבקשה עוברת אוטומטית למפתח הבא.</p>
     </div>
     <button type="button" class="toggle-keys" id="toggleKeys">הצג מפתחות</button>
+
+    <div class="field" style="margin-top:16px;">
+      <label for="githubToken">GitHub Token <span class="req">*</span></label>
+      <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
+    </div>
 
     <div class="field-row three" style="margin-top:16px;">
       <div class="field">
@@ -423,67 +816,259 @@
     </div>
   </section>
 
-  <section class="card">
-    <h2>מה בונים?</h2>
-    <p class="hint">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — עם אייקון וקטורי שנבחר אוטומטית, ופרומפט שמתרחב לבריף מפורט יותר לפני הכתיבה בפועל.</p>
-    <div class="mode-toggle" id="modeToggle" role="tablist">
-      <button type="button" class="mode-btn active" data-mode="new" role="tab" aria-selected="true">אפליקציה חדשה</button>
-      <button type="button" class="mode-btn" data-mode="edit" role="tab" aria-selected="false">עריכת הקיימת</button>
-    </div>
-    <div class="field">
-      <label for="idea"><span id="ideaLabelText">תיאור האפליקציה</span> <span class="req">*</span></label>
-      <textarea id="idea" placeholder="לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה"></textarea>
-    </div>
-    <button type="button" class="primary" id="goBtn">Generate &amp; Build</button>
+  <!-- ===================== BUILD MODE ===================== -->
+  <section class="mode-panel" id="panel-build">
+    <section class="card">
+      <h2>מה בונים?</h2>
+      <p class="hint">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — כדי שהצנרת תישאר פשוטה ואמינה.</p>
+      <div class="field">
+        <label for="idea">תיאור האפליקציה <span class="req">*</span></label>
+        <textarea id="idea" placeholder="לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה"></textarea>
+      </div>
+      <div class="field">
+        <label>רמת חשיבה</label>
+        <div class="think-toggle" id="thinkToggle" role="radiogroup" aria-label="רמת חשיבה">
+          <button type="button" class="think-btn" data-level="fast">מהיר</button>
+          <button type="button" class="think-btn active" data-level="medium">בינוני</button>
+          <button type="button" class="think-btn" data-level="deep">עמוק</button>
+        </div>
+        <p class="hint" style="margin:6px 0 0;">עמוק = Gemini "חושב" יותר לפני שהוא כותב קוד — איכות ומורכבות גבוהות יותר, אבל איטי יותר וצורך יותר קרדיטים. מהיר = מסך בסיסי, כמעט מיידי.</p>
+      </div>
+      <button type="button" class="primary" id="goBtn">Generate &amp; Build</button>
+    </section>
+
+    <section class="card">
+      <h2>צנרת הבנייה</h2>
+      <div class="rail" id="rail">
+        <div class="rail-node" data-key="enhance" data-state="pending">
+          <div class="rail-dot">1</div>
+          <div class="rail-label">enhance</div>
+        </div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="gemini" data-state="pending">
+          <div class="rail-dot">2</div>
+          <div class="rail-label">generate</div>
+        </div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="commit" data-state="pending">
+          <div class="rail-dot">3</div>
+          <div class="rail-label">commit</div>
+        </div>
+        <div class="rail-line" data-key="line-3" data-state="pending"></div>
+        <div class="rail-node" data-key="actions" data-state="pending">
+          <div class="rail-dot">4</div>
+          <div class="rail-label">build</div>
+        </div>
+        <div class="rail-line" data-key="line-4" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending">
+          <div class="rail-dot">5</div>
+          <div class="rail-label">ready</div>
+        </div>
+      </div>
+
+      <div class="question-card" id="questionCard">
+        <div class="question-head">
+          <p class="question-title" id="qTitle"></p>
+          <div class="question-pager">
+            <button type="button" id="qPrev" aria-label="שאלה קודמת">›</button>
+            <span id="qPagerLabel"></span>
+            <button type="button" id="qNext" aria-label="שאלה הבאה">‹</button>
+          </div>
+        </div>
+        <div class="question-options" id="qOptions"></div>
+        <div class="question-other">
+          <input type="text" id="qOtherInput" placeholder="משהו אחר…">
+          <button type="button" id="qOtherBtn">שלח</button>
+        </div>
+        <div class="question-foot">
+          <button type="button" class="question-skip" id="qSkipBtn">דלג על השאלה</button>
+        </div>
+      </div>
+
+      <div class="enhance-box" id="enhanceBox">
+        <p class="enhance-title">Gemini הציע ניסוח משופר לתיאור שלכם — להשתמש בו?</p>
+        <div class="enhance-compare">
+          <div>
+            <span class="enhance-col-label">מקורי</span>
+            <p class="enhance-text" id="enhanceOriginalText"></p>
+          </div>
+          <div>
+            <span class="enhance-col-label">משופר</span>
+            <p class="enhance-text" id="enhanceImprovedText"></p>
+          </div>
+        </div>
+        <div class="enhance-actions">
+          <button type="button" class="primary" id="useImprovedBtn">השתמש בגרסה המשופרת</button>
+          <button type="button" class="secondary" id="keepOriginalBtn">השאר את המקורי</button>
+        </div>
+      </div>
+
+      <div class="log" id="log">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+
+      <div class="download-box" id="downloadBox">
+        <div class="app-preview">
+          <div class="app-icon-preview" id="appIconPreview"></div>
+          <div class="msg">האפליקציה מוכנה: <strong id="appLabelPreview">app-release.apk</strong></div>
+        </div>
+        <a href="#" class="download-btn" id="downloadLink" download="app-release.apk">הורד אפליקציה מוכנה</a>
+      </div>
+    </section>
   </section>
 
-  <section class="card">
-    <div class="rail-header">
-      <h2>צנרת הבנייה</h2>
-      <div class="icon-preview" id="iconPreview" aria-hidden="true"></div>
-    </div>
-    <div class="rail" id="rail">
-      <div class="rail-node" data-key="enhance" data-state="pending">
-        <div class="rail-dot">1</div>
-        <div class="rail-label">enhance</div>
+  <!-- ===================== EDIT MODE (real decompile) ===================== -->
+  <section class="mode-panel" id="panel-edit" hidden>
+    <section class="card">
+      <h2>עריכת אפליקציה — שינוי קוד קיים</h2>
+      <p class="hint">
+        עובד על כל APK: מפרק אותו לקוד smali קריא ומשאבים מפוענחים (apktool), נותן ל-Gemini לבחור
+        ולשנות רק את הקבצים הרלוונטיים לבקשה, ובונה APK חדש וחתום. <strong>ניסיוני</strong> — עריכת
+        smali ע"י AI עובדת הכי טוב על שינויים ממוקדים באפליקציות לא-מעורבלות (non-obfuscated);
+        שינויים גדולים או אפליקציות מורכבות עלולים להיכשל למרות ניסיון התיקון האוטומטי. משתמש ברמת
+        החשיבה שנבחרה בטאב "בניית אפליקציה".
+      </p>
+      <div class="field">
+        <label for="editApkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <input type="file" id="editApkFile" accept=".apk">
       </div>
-      <div class="rail-line" data-key="line-1" data-state="pending"></div>
-      <div class="rail-node" data-key="gemini" data-state="pending">
-        <div class="rail-dot">2</div>
-        <div class="rail-label">generate</div>
+      <div class="field">
+        <label for="editInstruction">מה לשנות? <span class="req">*</span></label>
+        <textarea id="editInstruction" placeholder="לדוגמה: תחליפו את הצבע הראשי של הכפתורים לכחול, ותוסיפו רטט קצר בלחיצה"></textarea>
       </div>
-      <div class="rail-line" data-key="line-2" data-state="pending"></div>
-      <div class="rail-node" data-key="commit" data-state="pending">
-        <div class="rail-dot">3</div>
-        <div class="rail-label">commit</div>
-      </div>
-      <div class="rail-line" data-key="line-3" data-state="pending"></div>
-      <div class="rail-node" data-key="actions" data-state="pending">
-        <div class="rail-dot">4</div>
-        <div class="rail-label">build</div>
-      </div>
-      <div class="rail-line" data-key="line-4" data-state="pending"></div>
-      <div class="rail-node" data-key="apk" data-state="pending">
-        <div class="rail-dot">5</div>
-        <div class="rail-label">ready</div>
-      </div>
-    </div>
+      <button type="button" class="primary" id="editGoBtn">פרק, ערוך ובנה מחדש</button>
+    </section>
 
-    <div class="log" id="log">
-      <p class="muted">ממתין להתחלה…</p>
-    </div>
+    <section class="card">
+      <h2>צנרת העריכה</h2>
+      <div class="rail" id="railEditDecompile">
+        <div class="rail-node" data-key="decompile" data-state="pending"><div class="rail-dot">1</div><div class="rail-label">decompile</div></div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="locate" data-state="pending"><div class="rail-dot">2</div><div class="rail-label">locate</div></div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="patch" data-state="pending"><div class="rail-dot">3</div><div class="rail-label">patch</div></div>
+        <div class="rail-line" data-key="line-3" data-state="pending"></div>
+        <div class="rail-node" data-key="commit" data-state="pending"><div class="rail-dot">4</div><div class="rail-label">commit</div></div>
+        <div class="rail-line" data-key="line-4" data-state="pending"></div>
+        <div class="rail-node" data-key="rebuild" data-state="pending"><div class="rail-dot">5</div><div class="rail-label">rebuild</div></div>
+        <div class="rail-line" data-key="line-5" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending"><div class="rail-dot">6</div><div class="rail-label">ready</div></div>
+      </div>
+      <div class="log" id="logEditDecompile">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+      <div class="download-box" id="downloadBoxEditDecompile">
+        <div class="msg">ה-APK הערוך מוכן: <strong>app-recompiled-release.apk</strong></div>
+        <a href="#" class="download-btn" id="downloadLinkEditDecompile" download="app-edited-decompiled-release.apk">הורד APK ערוך</a>
+      </div>
+    </section>
+  </section>
 
-    <div class="download-box" id="downloadBox">
-      <div class="msg">האפליקציה מוכנה: <strong>app-release.apk</strong></div>
-      <a href="#" class="download-btn" id="downloadLink" download="app-release.apk">הורד אפליקציה מוכנה</a>
-    </div>
+  <!-- ===================== TRANSLATE MODE (real decompile) ===================== -->
+  <section class="mode-panel" id="panel-translate" hidden>
+    <section class="card">
+      <h2>תרגום אפליקציה</h2>
+      <p class="hint">
+        עובד על כל APK: מפרק אותו (apktool), שולף את כל מחרוזות הטקסט מתוך res/values/strings.xml,
+        מתרגם עם Gemini, ומוסיף תיקיית שפה חדשה לצד המקור — כך שהאפליקציה תומכת גם בשפה החדשה וגם
+        במקורית. לא נוגע בקוד בכלל, ולכן אמין משמעותית יותר מ"עריכת אפליקציה".
+      </p>
+      <div class="field">
+        <label for="translateApkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <input type="file" id="translateApkFile" accept=".apk">
+      </div>
+      <div class="field">
+        <label for="targetLanguage">לאיזו שפה לתרגם? <span class="req">*</span></label>
+        <input type="text" id="targetLanguage" placeholder="לדוגמה: אנגלית, ספרדית, French…">
+      </div>
+      <button type="button" class="primary" id="translateGoBtn">פרק, תרגם ובנה מחדש</button>
+    </section>
+
+    <section class="card">
+      <h2>צנרת התרגום</h2>
+      <div class="rail" id="railTranslate">
+        <div class="rail-node" data-key="decompile" data-state="pending"><div class="rail-dot">1</div><div class="rail-label">decompile</div></div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="strings" data-state="pending"><div class="rail-dot">2</div><div class="rail-label">strings</div></div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="translate" data-state="pending"><div class="rail-dot">3</div><div class="rail-label">translate</div></div>
+        <div class="rail-line" data-key="line-3" data-state="pending"></div>
+        <div class="rail-node" data-key="commit" data-state="pending"><div class="rail-dot">4</div><div class="rail-label">commit</div></div>
+        <div class="rail-line" data-key="line-4" data-state="pending"></div>
+        <div class="rail-node" data-key="rebuild" data-state="pending"><div class="rail-dot">5</div><div class="rail-label">rebuild</div></div>
+        <div class="rail-line" data-key="line-5" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending"><div class="rail-dot">6</div><div class="rail-label">ready</div></div>
+      </div>
+      <div class="log" id="logTranslate">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+      <div class="download-box" id="downloadBoxTranslate">
+        <div class="msg">ה-APK המתורגם מוכן: <strong>app-recompiled-release.apk</strong></div>
+        <a href="#" class="download-btn" id="downloadLinkTranslate" download="app-translated-release.apk">הורד APK מתורגם</a>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== CENSOR MODE ===================== -->
+  <section class="mode-panel" id="panel-censor" hidden>
+    <section class="card">
+      <h2>צנזור אפליקציה — תמונות</h2>
+      <p class="hint">
+        העלו APK קיים (למשל אפליקציה שכבר בניתם) כדי לראות את כל קבצי התמונות שבתוכו,
+        ולהחליף או לצנזר (לרוקן) תמונות לא צנועות לפני העלאה לגוגל פליי. הסריקה והעריכה
+        קורות כאן בדפדפן בלבד; ה-APK הערוך נשלח באמצעות ה-GitHub Token והריפו שמולאו למעלה
+        ב"חיבורים" (לא צריך Gemini key לשלב הזה), כדי ש-GitHub Actions ייישר (zipalign) ויחתום
+        (apksigner) אותו מחדש — בלי זה ה-APK לא יתקין, כי כל שינוי בקבצים מבטל את החתימה המקורית.
+        מחיקת תמונה לא מסירה את הקובץ אלא מחליפה אותו בתמונה שקופה ריקה, כדי לא לשבור הפניות
+        למשאב הזה בקוד של האפליקציה.
+      </p>
+
+      <div class="field">
+        <label for="apkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <input type="file" id="apkFile" accept=".apk">
+      </div>
+      <p class="edit-status muted" id="editScanStatus"></p>
+
+      <div class="image-grid" id="imageGrid" hidden></div>
+
+      <div class="edit-summary" id="editSummary" hidden>
+        <p class="hint" id="editSummaryText">לא סומנו שינויים עדיין.</p>
+        <button type="button" class="primary" id="buildEditedBtn" disabled>צור APK מצונזר</button>
+      </div>
+
+      <div class="rail" id="railEdit">
+        <div class="rail-node" data-key="commit" data-state="pending">
+          <div class="rail-dot">1</div>
+          <div class="rail-label">commit</div>
+        </div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="actions" data-state="pending">
+          <div class="rail-dot">2</div>
+          <div class="rail-label">sign</div>
+        </div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending">
+          <div class="rail-dot">3</div>
+          <div class="rail-label">ready</div>
+        </div>
+      </div>
+
+      <div class="log" id="logEdit">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+
+      <div class="download-box" id="downloadBoxEdit">
+        <div class="msg">ה-APK המצונזר מוכן: <strong>app-edited-release.apk</strong></div>
+        <a href="#" class="download-btn" id="downloadLinkEdit" download="app-edited-release.apk">הורד APK מצונזר</a>
+      </div>
+    </section>
   </section>
 
   <footer class="note">
-    לפני הכתיבה, Gemini מרחיב את התיאור שלכם לבריף מפורט (שם, פיצ'רים, פלטת צבעים, קונספט לאייקון) — הלוג למטה מראה בדיוק מה נוסף.
-    במצב "עריכת הקיימת" הפרומפט מוחל על הקוד שכבר יושב ב-generated_app/ בריפו שלכם, לא על קובץ שמעלים — כל גרסה נשמרת כ-commit נפרד בהיסטוריית הריפו.
-    הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX — זה מה שמאפשר build בלי Gradle.
+    הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX וללא XML layouts — זה מה שמאפשר build בלי Gradle.
     ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
+    ה-APK המצונזר מטאב "צנזור אפליקציה" נחתם בנפרד עם apksigner (v1+v2+v3) — מתאים להעלאה ראשונה של אפליקציה חדשה לגוגל פליי
+    (עם Play App Signing), אך לעדכון אפליקציה שכבר פורסמה צריך לחתום עם מפתח ה-upload המקורי שלה, לא עם מפתח חדש.
   </footer>
 
 </div>
@@ -495,202 +1080,207 @@
   // Update this if Google renames/deprecates the model — check ai.google.dev/api/models.
   const GEMINI_MODEL = "gemini-3.5-flash";
   const WORKFLOW_FILE = "build-apk.yml";
+  const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
   const POLL_TIMEOUT_MS = 10 * 60 * 1000;
+  const MAX_AUTO_FIX_ATTEMPTS = 2;
+  const MAX_LOG_CHARS = 6000;
 
-  const ENHANCE_INSTRUCTIONS = `You expand a short Android app idea into a concrete build brief for a
-single-screen app with no network access, no external libraries, and no XML layouts (the UI is
-built in Kotlin code only). Output plain text only — no markdown, no JSON, no headings — as short
-labeled lines, exactly this shape:
+  // Thinking-budget tokens per level. Gemini's exact thinking-budget parameter name/limits for
+  // GEMINI_MODEL can change — if you see a 400 error mentioning "thinkingConfig", check the
+  // current AI Studio docs for this model and adjust the field name/values below.
+  const THINK_BUDGETS = { fast: 0, medium: 4096, deep: 16384 };
 
-Name: <a short 2-4 word app name>
-Feature: <the one main interaction, in 1-2 concrete sentences — stay realistic for a single
-  Kotlin file with no dependencies; do not invent multi-screen flows, network calls, or storage>
-UI: <2-4 concrete UI elements and what each does, e.g. "a big toggle button", "a status text
-  above it">
-Palette: <two hex colors, background then accent, that fit the idea>
-Icon: <one short phrase describing a simple abstract symbol for the idea>
+  const STAGE_ORDER = ["enhance", "gemini", "commit", "actions", "apk"];
+  const EDIT_STAGE_ORDER = ["commit", "actions", "apk"];
 
-Keep it concrete and buildable. Do not add anything not requested by the user's idea below.`;
+  const IMAGE_EXT_RE = /\.(png|jpg|jpeg|gif|webp|bmp)$/i;
+  // 1x1 fully-transparent PNG, used to "censor" (blank out) a deleted image
+  // without removing its zip entry — removing it outright could crash the
+  // app if some resource lookup still points at that exact path.
+  const TRANSPARENT_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=";
+  const TRANSPARENT_PNG_BYTES = Uint8Array.from(atob(TRANSPARENT_PNG_BASE64), (c) => c.charCodeAt(0));
 
-  const CODEGEN_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build
-pipeline (no Gradle, no AndroidX, no external dependencies, no XML layouts). Output ONLY a raw
-JSON object - no markdown fences, no commentary - with exactly three fields: "manifest" (string),
-"kotlin" (string), and "icon" (object).
+  const SYSTEM_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build pipeline
+(no Gradle, no AndroidX, no external dependencies, no XML layout resources). Output ONLY a raw JSON
+object - no markdown fences, no commentary - with exactly three string fields: "manifest", "kotlin",
+and "icon".
 
-Hard constraints:
+Hard constraints (never break these - the build pipeline depends on them):
 - Package name must be exactly: com.aiapp.generated
 - The Kotlin file must start with "package com.aiapp.generated" and define a single class
   "MainActivity" that extends android.app.Activity (NOT AppCompatActivity, NOT anything from
   androidx.* or com.google.android.material.* - those libraries are not available in this build).
 - Build the entire UI programmatically inside onCreate() via setContentView(...) using plain
-  android.widget views (LinearLayout, TextView, Button, etc). Do NOT reference any @layout/@id/
-  @string resource. Where practical, use the brief's palette for the UI background/accent.
-- The manifest must declare xmlns:android, must NOT include a <uses-sdk> element (the build
-  script sets min/target SDK itself), must set android:icon="@drawable/ic_launcher" on
-  <application>, and must declare MainActivity with an intent-filter containing action MAIN
-  and category LAUNCHER so the app appears on the home screen.
+  android.widget / android.view views. The Kotlin code must not reference any @layout/@id/@string/
+  @drawable resource - build everything in code. The only resource file in this project is the
+  launcher icon described below; nothing else in res/ exists, so all colors/shapes/states must be
+  set with code-built Drawables (GradientDrawable, ColorDrawable, StateListDrawable, LayerDrawable),
+  never with XML drawable resources.
+- The manifest must declare xmlns:android, must NOT include a <uses-sdk> element (the build script
+  sets min/target SDK itself), must declare MainActivity with an intent-filter containing action
+  MAIN and category LAUNCHER so the app appears on the home screen, and must set
+  android:icon="@drawable/ic_launcher" on <application> to use the generated icon below.
 - Give <application> a short, human-friendly android:label (a literal string, not a @string
-  reference) matching the brief's app name.
-- "icon" must be exactly: {"shape": one of "circle"|"square"|"triangle"|"diamond"|"star"|
-  "heart"|"bolt", "background": "#rrggbb", "foreground": "#rrggbb"} — reuse the brief's palette
-  (background hex for background, accent hex for foreground) and pick whichever shape best
-  matches the brief's icon concept.
+  reference) that reflects the app idea.
 - Keep it to this single Activity/screen. No network calls, no permissions beyond what the
-  requested feature strictly needs, no third-party libraries.
+  requested feature strictly needs, no third-party libraries, nothing that needs a Gradle/Maven
+  dependency.
 
-Build brief:`;
+Quality bar - within the constraints above, make the app feel like a genuinely finished product,
+not a skeleton:
+- A real, considered layout: nested LinearLayout/FrameLayout, sensible padding/margins converted
+  to pixels via resources.displayMetrics.density (never raw hardcoded pixels), a ScrollView when
+  content might overflow, and a clear visual hierarchy instead of default-styled stacked views.
+- Polished visuals built entirely in code: rounded corners and fills via GradientDrawable,
+  pressed/focused feedback via StateListDrawable, elevation for depth, a coherent small color
+  palette that fits the app's theme rather than default gray widgets.
+- Real interactivity and state: the app should actually respond to input, validate it, show clear
+  feedback (Toast, text/color changes, simple animations via ValueAnimator or view.animate()), and
+  persist anything that should survive a restart with SharedPreferences.
+- Correct lifecycle handling: restore transient UI state in onCreate from savedInstanceState and
+  implement onSaveInstanceState so rotation doesn't lose progress; guard anything that could throw
+  (parsing input, array/index access, nullable results) with sensible checks instead of crashing.
+- Use the specific framework APIs the idea calls for, always via plain android.* packages, never
+  androidx.* - e.g. a custom View overriding onDraw()+Canvas for drawing/visualization/games,
+  Handler.postDelayed or ValueAnimator for timers and animation loops, SensorManager for motion,
+  MediaPlayer/SoundPool/Vibrator for feedback, TextWatcher for live input validation.
+- If the idea is small, keep it complete and polished rather than padding it with unrelated
+  features; if it leaves room for small, clearly useful additions (a reset button, a short history
+  of past results, a settings toggle), include them as long as they fit on one screen and don't
+  need anything outside the constraints above.
 
-  const EDIT_INSTRUCTIONS = `You are editing an existing single-screen Android app from the same
-from-scratch pipeline (no Gradle, no AndroidX, no external dependencies, no XML layouts). You are
-given the CURRENT AndroidManifest.xml and MainActivity.kt, plus a change request. Apply the change
-request to the existing app and output ONLY a raw JSON object - no markdown fences, no commentary -
-with exactly three fields: "manifest" (string), "kotlin" (string), and "icon" (object), using the
-same schema and hard constraints as a fresh build:
+"icon": a complete, valid Android vector drawable XML document for the launcher icon - a simple,
+colorful symbol that visually reflects the app idea. Must be a single root <vector> element with
+xmlns:android="http://schemas.android.com/apk/res/android", android:width="108dp",
+android:height="108dp", android:viewportWidth="108", android:viewportHeight="108", containing
+one background <path> (e.g. a filled rounded square or circle) plus 1-3 simple foreground
+<path> elements, each with android:fillColor as a hex color and android:pathData. No text, no
+gradients, no raster images, no references to other resources - only <vector> and <path>.`;
 
-- Package name stays exactly: com.aiapp.generated
-- MainActivity still extends android.app.Activity, UI still built programmatically in Kotlin, no
-  @layout/@id/@string resources, no AndroidX.
-- Manifest still has no <uses-sdk>, still sets android:icon="@drawable/ic_launcher", still has the
-  MAIN/LAUNCHER intent-filter.
-- "icon" must be exactly: {"shape": one of "circle"|"square"|"triangle"|"diamond"|"star"|"heart"|
-  "bolt", "background": "#rrggbb", "foreground": "#rrggbb"} — keep the existing icon look unless
-  the change request clearly implies a new one.
-- Preserve everything about the existing app that the change request doesn't mention. This is an
-  edit, not a rewrite from scratch.
+  const ANALYZE_INSTRUCTIONS = `You are a product analyst preparing a short Android app idea before
+it is turned into real code by another AI step. Output ONLY a raw JSON object - no markdown fences,
+no commentary - with exactly two fields: "questions" and "improved".
 
-Current AndroidManifest.xml:
----
-{{MANIFEST}}
----
+"questions": an array of AT MOST 3 short clarifying multiple-choice questions to ask the user - ONLY
+include a question if the answer would meaningfully change what gets built (a real fork in
+functionality, not a cosmetic detail). If the idea is already clear and specific enough to build,
+return an empty array. Each question object has exactly two fields:
+  - "question": one short sentence, in the same language the user wrote in.
+  - "options": 3 or 4 short answer choices (a few words each), in the same language as the
+    question, covering the realistic range of what the user might mean. Do not add a "something
+    else" or "skip" option yourself - the interface already adds those automatically.
 
-Current MainActivity.kt:
----
-{{KOTLIN}}
----
+"improved": a clearer, more complete rewrite of the SAME app idea - same core concept, same
+single-screen scope - spelling out concrete UI elements, states/behavior and edge cases, written in
+the same language the user used. If you returned any questions, still fill this in using your best
+default assumption for anything you asked about. Do not turn it into a different app, do not add
+features the user didn't imply, do not mention that you are an AI or that this is a rewritten
+prompt. No preamble, no markdown, no quotes around it.`;
 
-Change request from the user:`;
+  const FIX_INSTRUCTIONS = `You are fixing an Android app build that failed. You will get the
+original app idea, the manifest/kotlin/icon that were generated for it, and a build error log.
+Output ONLY a raw JSON object - no markdown fences, no commentary - with exactly three string
+fields: "manifest", "kotlin", and "icon", following the exact same hard constraints as the original
+generation: package com.aiapp.generated, a single MainActivity extending android.app.Activity built
+entirely in code with plain android.widget/android.view views (no AndroidX, no XML layouts, no
+@layout/@id/@string/@drawable references besides the one launcher icon), a manifest with no
+<uses-sdk> and a MAIN/LAUNCHER intent-filter, and a single <vector> icon.
 
-  // Hand-authored, guaranteed-valid path data — Gemini only ever picks a shape
-  // NAME (an easy, low-risk choice), never writes path syntax itself. This is
-  // what keeps the icon step from becoming a new source of build breakage.
-  const ICON_SHAPES = {
-    circle: "M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z",
-    square: "M5,5 L19,5 L19,19 L5,19 Z",
-    triangle: "M12,3 L21,20 L3,20 Z",
-    diamond: "M12,2 L22,12 L12,22 L2,12 Z",
-    star: "M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21z",
-    heart: "M12,21.35l-1.45-1.32C5.4,15.36 2,12.28 2,8.5 2,5.42 4.42,3 7.5,3c1.74,0 3.41,0.81 4.5,2.09C13.09,3.81 14.76,3 16.5,3 19.58,3 22,5.42 22,8.5c0,3.78-3.4,6.86-8.55,11.54L12,21.35z",
-    bolt: "M7,2v11h3v9l7-12h-4l4-8z",
-  };
-  const HEX_RE = /^#[0-9a-fA-F]{6}$/;
-
-  function normalizeIcon(icon) {
-    return {
-      shape: ICON_SHAPES[icon?.shape] ? icon.shape : "circle",
-      background: HEX_RE.test(icon?.background) ? icon.background : "#21252c",
-      foreground: HEX_RE.test(icon?.foreground) ? icon.foreground : "#dd9c52",
-    };
-  }
-
-  // A plain (non-adaptive) vector launcher icon: full-bleed background square,
-  // chosen shape scaled to 60% around its own center so it stays centered.
-  function buildIconVectorXml({ shape, background, foreground }) {
-    return `<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="24" android:viewportHeight="24">
-  <path android:fillColor="${background}" android:pathData="M0,0h24v24h-24z"/>
-  <group android:pivotX="12" android:pivotY="12" android:scaleX="0.6" android:scaleY="0.6">
-    <path android:fillColor="${foreground}" android:pathData="${ICON_SHAPES[shape]}"/>
-  </group>
-</vector>`;
-  }
-
-  // Same path data, rendered as a plain SVG for the in-page preview swatch.
-  function iconPreviewSvg({ shape, background, foreground }) {
-    return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="app icon preview">
-  <rect width="24" height="24" fill="${background}"/>
-  <g transform="translate(12,12) scale(0.6) translate(-12,-12)">
-    <path d="${ICON_SHAPES[shape]}" fill="${foreground}"/>
-  </g>
-</svg>`;
-  }
+Find the actual root cause in the error log (a real compile error, not a warning) and fix ONLY what
+is needed to make it build, while keeping the app's functionality and intent as close as possible
+to the original. If the log does not clearly show a fixable Kotlin/manifest problem, make the code
+more defensive and conservative (simpler view tree, no risky APIs) rather than guessing randomly.`;
 
   // ---------- small DOM helpers ----------
   const $ = (id) => document.getElementById(id);
-  const geminiKeyEl = $("geminiKey"), githubTokenEl = $("githubToken");
+  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch"), ideaEl = $("idea");
   const goBtn = $("goBtn"), logEl = $("log"), railEl = $("rail");
-  const downloadBox = $("downloadBox"), downloadLink = $("downloadLink"), iconPreviewEl = $("iconPreview");
-  const modeToggleEl = $("modeToggle"), ideaLabelTextEl = $("ideaLabelText");
+  const downloadBox = $("downloadBox"), downloadLink = $("downloadLink");
+  const appIconPreview = $("appIconPreview"), appLabelPreview = $("appLabelPreview");
+  const thinkToggle = $("thinkToggle");
+
+  const questionCard = $("questionCard"), qTitle = $("qTitle"), qPagerLabel = $("qPagerLabel");
+  const qPrev = $("qPrev"), qNext = $("qNext"), qOptionsEl = $("qOptions");
+  const qOtherInput = $("qOtherInput"), qOtherBtn = $("qOtherBtn"), qSkipBtn = $("qSkipBtn");
+
+  const enhanceBox = $("enhanceBox");
+  const enhanceOriginalText = $("enhanceOriginalText"), enhanceImprovedText = $("enhanceImprovedText");
+  const useImprovedBtn = $("useImprovedBtn"), keepOriginalBtn = $("keepOriginalBtn");
+
+  const apkFileEl = $("apkFile"), editScanStatus = $("editScanStatus");
+  const imageGrid = $("imageGrid"), editSummary = $("editSummary"), editSummaryText = $("editSummaryText");
+  const buildEditedBtn = $("buildEditedBtn");
+  const railEditEl = $("railEdit"), logEditEl = $("logEdit");
+  const downloadBoxEdit = $("downloadBoxEdit"), downloadLinkEdit = $("downloadLinkEdit");
+
+  const modeTabsEl = $("modeTabs"), newChatBtn = $("newChatBtn");
+  const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor") };
+
+  let loadedApkZip = null;
+  const pendingChanges = new Map(); // path -> { type: "replace", data: ArrayBuffer } | { type: "delete" }
+  let selectedThinkLevel = "medium";
 
   $("toggleKeys").addEventListener("click", () => {
-    const showing = geminiKeyEl.type === "text";
-    geminiKeyEl.type = githubTokenEl.type = showing ? "password" : "text";
+    const showing = githubTokenEl.type === "text"; // currently revealed?
+    githubTokenEl.type = showing ? "password" : "text";
+    geminiKeysEl.classList.toggle("key-mask", showing);
     $("toggleKeys").textContent = showing ? "הצג מפתחות" : "הסתר מפתחות";
   });
 
-  // ---------- new-app / edit-app mode ----------
-  let currentMode = "new";
-  let idleLabel = "Generate & Build";
-  const MODE_COPY = {
-    new: { label: "תיאור האפליקציה", placeholder: "לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה", button: "Generate & Build" },
-    edit: { label: "מה לשנות?", placeholder: "לדוגמה: תוסיף כפתור איפוס, או תשנה את הצבע לירוק", button: "ערוך ובנה מחדש" },
-  };
-  modeToggleEl.addEventListener("click", (e) => {
-    const btn = e.target.closest(".mode-btn");
-    if (!btn) return;
-    currentMode = btn.dataset.mode;
-    modeToggleEl.querySelectorAll(".mode-btn").forEach((b) => {
-      b.classList.toggle("active", b === btn);
-      b.setAttribute("aria-selected", b === btn ? "true" : "false");
-    });
-    const copy = MODE_COPY[currentMode];
-    ideaLabelTextEl.textContent = copy.label;
-    ideaEl.placeholder = copy.placeholder;
-    idleLabel = copy.button;
-    if (!goBtn.disabled) goBtn.textContent = idleLabel;
-  });
-
-  function log(msg, cls) {
-    const p = document.createElement("p");
-    if (cls) p.className = cls;
-    p.textContent = msg;
-    logEl.appendChild(p);
-    logEl.scrollTop = logEl.scrollHeight;
+  function log(msg, cls, targetLogEl = logEl) {
+    const row = document.createElement("div");
+    row.className = "log-row" + (cls ? " " + cls : "");
+    const dot = document.createElement("span");
+    dot.className = "log-dot";
+    const span = document.createElement("span");
+    span.className = "msg";
+    span.textContent = msg;
+    row.append(dot, span);
+    targetLogEl.appendChild(row);
+    targetLogEl.scrollTop = targetLogEl.scrollHeight;
   }
 
   function resetPipeline() {
     logEl.innerHTML = "";
     downloadBox.classList.remove("show");
-    iconPreviewEl.innerHTML = "";
+    enhanceBox.classList.remove("show");
+    questionCard.classList.remove("show");
+    appIconPreview.innerHTML = "";
+    appLabelPreview.textContent = "app-release.apk";
     railEl.querySelectorAll("[data-state]").forEach(el => (el.dataset.state = "pending"));
   }
 
-  const STAGE_ORDER = ["enhance", "gemini", "commit", "actions", "apk"];
-  function setStage(key, state) {
-    const node = railEl.querySelector(`.rail-node[data-key="${key}"]`);
+  function resetEditPipeline() {
+    logEditEl.innerHTML = "";
+    downloadBoxEdit.classList.remove("show");
+    railEditEl.querySelectorAll("[data-state]").forEach(el => (el.dataset.state = "pending"));
+  }
+
+  function setStage(key, state, targetRailEl = railEl, stageOrder = STAGE_ORDER) {
+    const node = targetRailEl.querySelector(`.rail-node[data-key="${key}"]`);
     if (node) node.dataset.state = state;
-    const idx = STAGE_ORDER.indexOf(key);
-    if (state === "done" && idx >= 0 && idx < STAGE_ORDER.length - 1) {
-      const line = railEl.querySelector(`[data-key="line-${idx + 1}"]`);
+    const idx = stageOrder.indexOf(key);
+    if (state === "done" && idx >= 0 && idx < stageOrder.length - 1) {
+      const line = targetRailEl.querySelector(`[data-key="line-${idx + 1}"]`);
       if (line) line.dataset.state = "done";
     }
   }
 
-  function setStageLabel(key, text) {
-    const label = railEl.querySelector(`.rail-node[data-key="${key}"] .rail-label`);
-    if (label) label.textContent = text;
-  }
-
-  function markCurrentStageError() {
-    const active = railEl.querySelector('.rail-node[data-state="active"]');
+  function markCurrentStageError(targetRailEl = railEl) {
+    const active = targetRailEl.querySelector('.rail-node[data-state="active"]');
     if (active) active.dataset.state = "error";
   }
 
   function setBusy(isBusy) {
     goBtn.disabled = isBusy;
-    goBtn.textContent = isBusy ? "בונה…" : idleLabel;
+    goBtn.textContent = isBusy ? "בונה…" : "Generate & Build";
+  }
+
+  function setEditBusy(isBusy) {
+    buildEditedBtn.disabled = isBusy;
+    buildEditedBtn.textContent = isBusy ? "בונה APK מצונזר…" : "צור APK מצונזר";
   }
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -716,126 +1306,263 @@ Change request from the user:`;
     return res.status === 204 ? null : res.json();
   }
 
-  // ---------- 1. Enhance the raw idea into a concrete build brief ----------
-  // Best-effort: if this call fails for any reason, we fall back to the raw
-  // idea instead of blocking the whole pipeline on a nice-to-have step.
-  async function enhanceIdea(geminiKey, idea) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: `${ENHANCE_INSTRUCTIONS}\n\nUser's idea:\n${idea}` }] }],
-            generationConfig: { temperature: 0.6, maxOutputTokens: 1024 },
-          }),
-        }
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const brief = (data?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("").trim();
-      if (!brief) throw new Error("empty reply");
-      return { brief, enhanced: true };
-    } catch (e) {
-      return { brief: idea, enhanced: false, reason: e.message };
-    }
+  // ---------- Gemini key rotation ----------
+  function parseGeminiKeys(raw) {
+    return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
   }
 
-  // ---------- 2. Gemini: shared JSON call, used by both new-app and edit-app ----------
-  async function callGeminiForAppJson(geminiKey, promptText) {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: promptText }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 8192 },
-        }),
-      }
-    );
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
+  // Round-robins the starting key across successive calls, and — within a single
+  // call — automatically retries on the next key if one comes back rate-limited
+  // (429), unauthorized (401/403) or erroring server-side (5xx). This is what
+  // lets several free AI Studio keys act like one bigger shared quota.
+  let nextKeyOffset = 0;
+  async function callGemini(geminiKeys, body, logTarget = logEl) {
+    if (!geminiKeys || geminiKeys.length === 0) {
+      throw new Error("אין אף Gemini API Key מוגדר.");
     }
-    const data = await res.json();
+    const startOffset = nextKeyOffset % geminiKeys.length;
+    nextKeyOffset = (nextKeyOffset + 1) % geminiKeys.length;
+
+    let lastErr;
+    for (let i = 0; i < geminiKeys.length; i++) {
+      const keyIdx = (startOffset + i) % geminiKeys.length;
+      const key = geminiKeys[keyIdx];
+      const keyLabel = `מפתח #${keyIdx + 1}`;
+
+      let res;
+      try {
+        res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+            body: JSON.stringify(body),
+          }
+        );
+      } catch (networkErr) {
+        lastErr = networkErr;
+        if (geminiKeys.length > 1) log(`${keyLabel}: שגיאת רשת, עובר למפתח הבא…`, null, logTarget);
+        continue;
+      }
+
+      if (res.status === 429 || res.status === 401 || res.status === 403 || res.status >= 500) {
+        const text = await res.text().catch(() => "");
+        lastErr = new Error(`Gemini API ${res.status} (${keyLabel}) — ${text.slice(0, 200)}`);
+        if (geminiKeys.length > 1) log(`${keyLabel} חזר עם ${res.status}, עובר למפתח הבא…`, null, logTarget);
+        continue;
+      }
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
+      }
+      return await res.json();
+    }
+    throw lastErr || new Error("כל מפתחות ה-Gemini נכשלו.");
+  }
+
+  function extractGeminiText(data) {
     const candidate = data?.candidates?.[0];
     const finishReason = candidate?.finishReason || "unknown";
     // Join ALL parts (not just the first) — some responses split text across
     // more than one part, and grabbing only parts[0] silently drops the rest.
     const raw = (candidate?.content?.parts || []).map((p) => p.text || "").join("");
-    if (!raw) {
-      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}). Try again or simplify the prompt.`);
-    }
+    return { raw, finishReason };
+  }
+
+  function parseJsonLoose(raw) {
     // JSON mode should prevent this, but strip ```json fences defensively —
     // models occasionally add them anyway.
     const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-    let parsed;
     try {
-      parsed = JSON.parse(cleaned);
+      return JSON.parse(cleaned);
     } catch {
       const match = cleaned.match(/\{[\s\S]*\}/);
-      if (match) { try { parsed = JSON.parse(match[0]); } catch { /* fall through */ } }
+      if (match) { try { return JSON.parse(match[0]); } catch { /* fall through */ } }
     }
+    return null;
+  }
+
+  // ---------- 1. Gemini: generate the app ----------
+  async function generateAppCode(geminiKeys, idea, thinkLevel, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.4,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) {
+      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}). Try again or simplify the prompt.`);
+    }
+    const parsed = parseJsonLoose(raw);
     if (!parsed) {
       throw new Error(
         `Could not parse Gemini's reply as JSON (finishReason: ${finishReason}). ` +
-        `First 200 chars received: ${cleaned.slice(0, 200) || "(empty)"}`
+        `First 200 chars received: ${raw.slice(0, 200) || "(empty)"}`
       );
     }
-    if (!parsed.manifest || !parsed.kotlin) {
-      throw new Error(`Gemini's reply is missing "manifest" or "kotlin". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
+    if (!parsed.manifest || !parsed.kotlin || !parsed.icon) {
+      throw new Error(`Gemini's reply is missing "manifest", "kotlin" or "icon". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
     }
-    const icon = normalizeIcon(parsed.icon);
-    return { manifest: parsed.manifest, kotlin: parsed.kotlin, icon, iconXml: buildIconVectorXml(icon) };
+    return parsed;
   }
 
-  function generateAppCode(geminiKey, brief) {
-    return callGeminiForAppJson(geminiKey, `${CODEGEN_INSTRUCTIONS}\n${brief}`);
+  // ---------- 1b. Gemini: decide whether to ask clarifying questions, and/or improve the idea ----------
+  async function analyzeIdea(geminiKeys, idea, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${ANALYZE_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1536 },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) {
+      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}).`);
+    }
+    const parsed = parseJsonLoose(raw);
+    if (!parsed) {
+      throw new Error(`Could not parse Gemini's reply as JSON (finishReason: ${finishReason}).`);
+    }
+    const questions = Array.isArray(parsed.questions)
+      ? parsed.questions.filter((q) => q && typeof q.question === "string" && Array.isArray(q.options) && q.options.length).slice(0, 3)
+      : [];
+    const improved = typeof parsed.improved === "string" ? parsed.improved.trim() : "";
+    return { questions, improved };
   }
 
-  function editAppCode(geminiKey, existing, changeRequest) {
-    const prompt =
-      EDIT_INSTRUCTIONS
-        .replace("{{MANIFEST}}", existing.manifest)
-        .replace("{{KOTLIN}}", existing.kotlin) +
-      "\n" + changeRequest;
-    return callGeminiForAppJson(geminiKey, prompt);
-  }
-
-  // UTF-8-safe base64 decode — the Contents API returns base64, and app
-  // labels here are often Hebrew, so a naive atob() would mangle them.
-  function b64DecodeUtf8(b64) {
-    const binary = atob(b64.replace(/\n/g, ""));
-    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-    return new TextDecoder("utf-8").decode(bytes);
-  }
-
-  // Pull the CURRENT generated_app/ source out of the repo for edit mode —
-  // no upload needed, since the source already lives where this tool put it.
-  async function fetchExistingApp({ owner, repo, branch, token }) {
-    async function getFile(path) {
-      try {
-        const data = await gh(`/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, token);
-        return b64DecodeUtf8(data.content);
-      } catch (e) {
-        if (e.status === 404) return null;
-        throw e;
+  // Shows the original vs. the AI-improved idea and waits for the user to pick one.
+  function askEnhanceChoice(original, improved) {
+    return new Promise((resolve) => {
+      enhanceOriginalText.textContent = original;
+      enhanceImprovedText.textContent = improved;
+      enhanceBox.classList.add("show");
+      function cleanup() {
+        enhanceBox.classList.remove("show");
+        useImprovedBtn.removeEventListener("click", onUse);
+        keepOriginalBtn.removeEventListener("click", onKeep);
       }
-    }
-    const [manifest, kotlin] = await Promise.all([
-      getFile("generated_app/AndroidManifest.xml"),
-      getFile("generated_app/src/MainActivity.kt"),
-    ]);
-    if (!manifest || !kotlin) {
-      throw new Error('לא נמצאה אפליקציה קיימת ב-generated_app/ — קודם צרו אפליקציה חדשה (מצב "אפליקציה חדשה"), ואז אפשר לערוך אותה.');
-    }
-    return { manifest, kotlin };
+      function onUse() { cleanup(); resolve(improved); }
+      function onKeep() { cleanup(); resolve(original); }
+      useImprovedBtn.addEventListener("click", onUse);
+      keepOriginalBtn.addEventListener("click", onKeep);
+    });
   }
 
-  // ---------- 3. Commit (atomic, via the Git Data API) ----------
-  async function commitGeneratedApp({ owner, repo, branch, token, manifestXml, kotlinSource, iconXml }) {
+  // Shows Gemini's clarifying multiple-choice questions one at a time (numbered,
+  // clickable options, free-text "something else", skip, and prev/next paging
+  // through already-answered questions) and resolves with the answers given.
+  function askClarifyingQuestions(questions) {
+    return new Promise((resolve) => {
+      const answers = new Array(questions.length).fill(null);
+      let idx = 0;
+
+      function render() {
+        const q = questions[idx];
+        qTitle.textContent = q.question;
+        qPagerLabel.textContent = `${idx + 1} מתוך ${questions.length}`;
+        qPrev.disabled = idx === 0;
+        qNext.disabled = idx === questions.length - 1 || answers[idx] === null;
+        qOptionsEl.innerHTML = "";
+        q.options.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "question-option";
+          const num = document.createElement("span");
+          num.className = "question-num";
+          num.textContent = String(i + 1);
+          const label = document.createElement("span");
+          label.className = "question-option-label";
+          label.textContent = opt;
+          btn.append(num, label);
+          btn.addEventListener("click", () => choose(opt));
+          qOptionsEl.appendChild(btn);
+        });
+        qOtherInput.value = "";
+      }
+
+      function choose(answerText) {
+        answers[idx] = { question: questions[idx].question, answer: answerText };
+        advance();
+      }
+
+      function skip() {
+        answers[idx] = answers[idx] || null;
+        advance();
+      }
+
+      function advance() {
+        if (idx < questions.length - 1) { idx++; render(); }
+        else finish();
+      }
+
+      function finish() {
+        cleanup();
+        resolve(answers.filter(Boolean));
+      }
+
+      function onPrev() { if (idx > 0) { idx--; render(); } }
+      function onNext() { if (idx < questions.length - 1 && answers[idx] !== null) { idx++; render(); } }
+      function onOtherSubmit() {
+        const val = qOtherInput.value.trim();
+        if (val) choose(val);
+      }
+
+      function cleanup() {
+        questionCard.classList.remove("show");
+        qPrev.removeEventListener("click", onPrev);
+        qNext.removeEventListener("click", onNext);
+        qOtherBtn.removeEventListener("click", onOtherSubmit);
+        qSkipBtn.removeEventListener("click", skip);
+      }
+
+      qPrev.addEventListener("click", onPrev);
+      qNext.addEventListener("click", onNext);
+      qOtherBtn.addEventListener("click", onOtherSubmit);
+      qSkipBtn.addEventListener("click", skip);
+
+      questionCard.classList.add("show");
+      render();
+    });
+  }
+
+  // Renders the generated launcher icon (Android vector drawable -> inline SVG)
+  // and the app's label next to the download button once they're known.
+  function renderAppPreview(manifestXml, iconXml) {
+    try {
+      const iconDoc = new DOMParser().parseFromString(iconXml, "application/xml");
+      if (iconDoc.querySelector("parsererror")) throw new Error("bad icon xml");
+      const vectorEl = iconDoc.documentElement;
+      const vw = parseFloat(vectorEl.getAttribute("android:viewportWidth")) || 108;
+      const vh = parseFloat(vectorEl.getAttribute("android:viewportHeight")) || 108;
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+      iconDoc.querySelectorAll("path").forEach((p) => {
+        const d = p.getAttribute("android:pathData");
+        if (!d) return;
+        const pathEl = document.createElementNS(svgNS, "path");
+        pathEl.setAttribute("d", d);
+        pathEl.setAttribute("fill", p.getAttribute("android:fillColor") || "#888");
+        svg.appendChild(pathEl);
+      });
+      appIconPreview.innerHTML = "";
+      appIconPreview.appendChild(svg);
+    } catch {
+      appIconPreview.innerHTML = ""; // preview is cosmetic only — never block the build on it
+    }
+
+    try {
+      const manDoc = new DOMParser().parseFromString(manifestXml, "application/xml");
+      const label = manDoc.querySelector("application")?.getAttribute("android:label");
+      appLabelPreview.textContent = label || "app-release.apk";
+    } catch {
+      appLabelPreview.textContent = "app-release.apk";
+    }
+  }
+
+  // ---------- shared Git Data API helpers (used by both the generate- and edit-flows) ----------
+  async function getBranchHead({ owner, repo, branch, token }) {
     let refData;
     try {
       refData = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`, token);
@@ -847,82 +1574,142 @@ Change request from the user:`;
     }
     const latestSha = refData.object.sha;
     const commitData = await gh(`/repos/${owner}/${repo}/git/commits/${latestSha}`, token);
+    return { latestSha, baseTreeSha: commitData.tree.sha };
+  }
 
+  async function commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message }) {
     const tree = await gh(`/repos/${owner}/${repo}/git/trees`, token, {
       method: "POST",
-      body: JSON.stringify({
-        base_tree: commitData.tree.sha,
-        tree: [
-          { path: "generated_app/AndroidManifest.xml", mode: "100644", type: "blob", content: manifestXml },
-          { path: "generated_app/src/MainActivity.kt", mode: "100644", type: "blob", content: kotlinSource },
-          { path: "generated_app/res/drawable/ic_launcher.xml", mode: "100644", type: "blob", content: iconXml },
-        ],
-      }),
+      body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
     });
-
     const newCommit = await gh(`/repos/${owner}/${repo}/git/commits`, token, {
       method: "POST",
-      body: JSON.stringify({
-        message: "AI App Maker: update generated_app/",
-        tree: tree.sha,
-        parents: [latestSha],
-      }),
+      body: JSON.stringify({ message, tree: tree.sha, parents: [latestSha] }),
     });
-
     await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, token, {
       method: "PATCH",
       body: JSON.stringify({ sha: newCommit.sha, force: false }),
     });
-
     return newCommit.sha;
   }
 
-  // ---------- 4. Poll the workflow run tied to this exact commit ----------
-  async function waitForWorkflowRun({ owner, repo, token, commitSha }) {
+  // ---------- 2. Commit (atomic, via the Git Data API) ----------
+  async function commitGeneratedApp({ owner, repo, branch, token, manifestXml, kotlinSource, iconXml }) {
+    const { latestSha, baseTreeSha } = await getBranchHead({ owner, repo, branch, token });
+    const treeEntries = [
+      { path: "generated_app/AndroidManifest.xml", mode: "100644", type: "blob", content: manifestXml },
+      { path: "generated_app/src/MainActivity.kt", mode: "100644", type: "blob", content: kotlinSource },
+      { path: "generated_app/res/drawable/ic_launcher.xml", mode: "100644", type: "blob", content: iconXml },
+    ];
+    return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message: "AI App Maker: update generated_app/" });
+  }
+
+  // ---------- 2b. Commit an edited (censored) APK as a binary blob ----------
+  async function commitEditedApk({ owner, repo, branch, token, apkBase64 }) {
+    const { latestSha, baseTreeSha } = await getBranchHead({ owner, repo, branch, token });
+    const blob = await gh(`/repos/${owner}/${repo}/git/blobs`, token, {
+      method: "POST",
+      body: JSON.stringify({ content: apkBase64, encoding: "base64" }),
+    });
+    const treeEntries = [
+      { path: "edited_app/app-edited.apk", mode: "100644", type: "blob", sha: blob.sha },
+    ];
+    return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message: "AI App Maker: censor images in uploaded APK" });
+  }
+
+  // ---------- 3. Poll the workflow run tied to this exact commit ----------
+  async function waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile, logTarget = logEl }) {
     const start = Date.now();
     let runId = null, runUrl = null, runNumber = null;
 
     while (Date.now() - start < POLL_TIMEOUT_MS) {
       if (!runId) {
         const runs = await gh(
-          `/repos/${owner}/${repo}/actions/workflows/${WORKFLOW_FILE}/runs?head_sha=${commitSha}&per_page=5`,
+          `/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs?head_sha=${commitSha}&per_page=5`,
           token
         );
         if (runs.workflow_runs && runs.workflow_runs.length > 0) {
           runId = runs.workflow_runs[0].id;
           runUrl = runs.workflow_runs[0].html_url;
           runNumber = runs.workflow_runs[0].run_number;
-          log(`נמצא Workflow Run #${runNumber}`, "actions");
+          log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
         } else {
-          log("ממתין ש-GitHub Actions יתפוס את ה-commit…");
+          log("ממתין ש-GitHub Actions יתפוס את ה-commit…", null, logTarget);
           await sleep(POLL_INTERVAL_MS);
           continue;
         }
       }
 
       const run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
-      log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`);
+      log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`, null, logTarget);
 
       if (run.status === "completed") {
         if (run.conclusion === "success") return run;
         const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
         err.runUrl = runUrl;
+        err.runId = runId;
         throw err;
       }
       await sleep(POLL_INTERVAL_MS);
     }
     const timeoutErr = new Error("עברו 10 דקות בלי שה-build הסתיים.");
     timeoutErr.runUrl = runUrl;
+    timeoutErr.runId = runId;
     throw timeoutErr;
   }
 
-  // ---------- 5. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
-  async function downloadApk({ owner, repo, token, runId }) {
-    const artifactsData = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}/artifacts`, token);
-    const artifact = (artifactsData.artifacts || []).find((a) => a.name === "app-release.apk");
-    if (!artifact) throw new Error('לא נמצא artifact בשם "app-release.apk" בריצה הזו.');
+  // ---------- 3b. Fetch a failed run's logs, trimmed down for a fix prompt ----------
+  async function fetchWorkflowRunLog({ owner, repo, token, runId }) {
+    if (!runId) throw new Error("אין runId זמין לשליפת לוג.");
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/logs`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    });
+    if (!res.ok) throw new Error(`לא הצלחתי להוריד את לוג ה-build (HTTP ${res.status}).`);
+    const zipBlob = await res.blob();
+    const zip = await JSZip.loadAsync(zipBlob);
+    const entries = Object.values(zip.files).filter((f) => !f.dir && f.name.toLowerCase().endsWith(".txt"));
+    let combined = "";
+    for (const entry of entries) {
+      combined += (await entry.async("text")) + "\n";
+    }
+    if (!combined) throw new Error("קובץ הלוגים היה ריק.");
+    // Keep this short and pointed — a full log can be huge, and only the error
+    // tail actually helps Gemini fix the code.
+    return combined.length > MAX_LOG_CHARS ? "…\n" + combined.slice(-MAX_LOG_CHARS) : combined;
+  }
 
-    log("מוריד את ה-artifact…");
+  // ---------- 3c. Gemini: fix generated code against a real build error ----------
+  async function generateAppCodeFix(geminiKeys, idea, previous, errorLog, thinkLevel, logTarget = logEl) {
+    const prompt = `${FIX_INSTRUCTIONS}\n\nOriginal app idea:\n${idea}\n\nPrevious manifest:\n${previous.manifest}\n\nPrevious kotlin:\n${previous.kotlin}\n\nPrevious icon:\n${previous.icon}\n\nBuild error log:\n${errorLog}`;
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !parsed.manifest || !parsed.kotlin || !parsed.icon) {
+      throw new Error(`Gemini's fix reply is missing "manifest", "kotlin" or "icon".`);
+    }
+    return parsed;
+  }
+
+  // ---------- 4. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
+  async function downloadApk({ owner, repo, token, runId, artifactName = "app-release.apk", logTarget = logEl }) {
+    const artifactsData = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}/artifacts`, token);
+    const artifact = (artifactsData.artifacts || []).find((a) => a.name === artifactName);
+    if (!artifact) throw new Error(`לא נמצא artifact בשם "${artifactName}" בריצה הזו.`);
+
+    log("מוריד את ה-artifact…", null, logTarget);
     const res = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`,
       {
@@ -941,7 +1728,7 @@ Change request from the user:`;
     }
     const zipBlob = await res.blob();
 
-    log("מחלץ את ה-APK מתוך ה-zip…");
+    log("מחלץ את ה-APK מתוך ה-zip…", null, logTarget);
     const zip = await JSZip.loadAsync(zipBlob);
     const apkName = Object.keys(zip.files).find((n) => n.toLowerCase().endsWith(".apk"));
     if (!apkName) throw new Error("קובץ ה-zip של ה-artifact לא הכיל קובץ .apk.");
@@ -952,69 +1739,92 @@ Change request from the user:`;
 
   // ---------- orchestration ----------
   async function runPipeline() {
-    const geminiKey = geminiKeyEl.value.trim();
+    const geminiKeys = parseGeminiKeys(geminiKeysEl.value);
     const token = githubTokenEl.value.trim();
     const owner = ownerEl.value.trim();
     const repo = repoEl.value.trim();
     const branch = (branchEl.value.trim() || "main");
-    const promptText = ideaEl.value.trim();
-    const isEdit = currentMode === "edit";
+    const thinkLevel = selectedThinkLevel;
+    let idea = ideaEl.value.trim();
 
-    if (!geminiKey || !token || !owner || !repo || !promptText) {
+    if (geminiKeys.length === 0 || !token || !owner || !repo || !idea) {
       resetPipeline();
-      log(`חסר שדה — צריך Gemini key, GitHub token, בעל ריפו, שם ריפו, ו${isEdit ? "תיאור השינוי" : "תיאור אפליקציה"}.`, "error");
+      log("חסר שדה — צריך לפחות Gemini key אחד, GitHub token, בעל ריפו, שם ריפו, ותיאור אפליקציה.", "error");
       return;
     }
-
-    // Relabel the first two rail stages to match what each mode actually does.
-    setStageLabel("enhance", isEdit ? "fetch" : "enhance");
-    setStageLabel("gemini", isEdit ? "edit" : "generate");
 
     resetPipeline();
     setBusy(true);
     try {
-      let manifest, kotlin, icon, iconXml;
-
-      if (isEdit) {
-        setStage("enhance", "active");
-        log(`שולף את הגרסה הנוכחית מ-generated_app/ ב-${owner}/${repo}…`);
-        const existing = await fetchExistingApp({ owner, repo, branch, token });
-        log("נמצאה אפליקציה קיימת.", "ok");
-        setStage("enhance", "done");
-
-        setStage("gemini", "active");
-        log("Gemini מחיל את השינוי…");
-        ({ manifest, kotlin, icon, iconXml } = await editAppCode(geminiKey, existing, promptText));
-      } else {
-        setStage("enhance", "active");
-        log("Gemini מרחיב את הרעיון לבריף מפורט…");
-        const { brief, enhanced, reason } = await enhanceIdea(geminiKey, promptText);
-        if (enhanced) {
-          brief.split("\n").map((l) => l.trim()).filter(Boolean).forEach((line) => log(line));
+      setStage("enhance", "active");
+      log("בודק אם צריך לשאול משהו לפני שממשיכים…");
+      try {
+        const { questions, improved } = await analyzeIdea(geminiKeys, idea);
+        if (questions.length > 0) {
+          log(`יש ${questions.length} שאלות הבהרה לפני הבנייה…`);
+          const answers = await askClarifyingQuestions(questions);
+          if (answers.length > 0) {
+            const clarifications = answers.map((a) => `- ${a.question} → ${a.answer}`).join("\n");
+            idea = `${idea}\n\nהבהרות:\n${clarifications}`;
+            log("התשובות נוספו לתיאור, ממשיכים.", "ok");
+          } else {
+            log("כל השאלות דולגו, ממשיכים עם התיאור המקורי.");
+          }
+        } else if (improved && improved !== idea) {
+          idea = await askEnhanceChoice(idea, improved);
+          ideaEl.value = idea;
+          log("התיאור עודכן.", "ok");
         } else {
-          log(`דילוג על שיפור הפרומפט (${reason}) — ממשיך עם התיאור המקורי.`);
+          log("Gemini לא הציע שינוי משמעותי, ממשיכים כרגיל.");
         }
-        setStage("enhance", "done");
-
-        setStage("gemini", "active");
-        log("כותב קוד ובוחר אייקון…");
-        ({ manifest, kotlin, icon, iconXml } = await generateAppCode(geminiKey, brief));
+      } catch (enhanceErr) {
+        console.error(enhanceErr);
+        log("שיפור התיאור נכשל, ממשיכים עם התיאור המקורי (" + enhanceErr.message + ")", "error");
       }
+      setStage("enhance", "done");
 
-      iconPreviewEl.innerHTML = iconPreviewSvg(icon);
-      log(`אייקון: ${icon.shape} (${icon.background} / ${icon.foreground})`, "ok");
+      setStage("gemini", "active");
+      log("שולח את הפרומפט ל-Gemini…");
+      let { manifest, kotlin, icon } = await generateAppCode(geminiKeys, idea, thinkLevel);
       setStage("gemini", "done");
+      renderAppPreview(manifest, icon);
 
-      setStage("commit", "active");
-      log(`מבצע commit ל-${owner}/${repo} (${branch})…`);
-      const commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin, iconXml });
-      log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok");
-      setStage("commit", "done");
+      let commitSha, run;
+      for (let attempt = 1; attempt <= MAX_AUTO_FIX_ATTEMPTS + 1; attempt++) {
+        setStage("commit", "active");
+        log(`מבצע commit ל-${owner}/${repo} (${branch})…`);
+        commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin, iconXml: icon });
+        log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok");
+        setStage("commit", "done");
 
-      setStage("actions", "active");
-      const run = await waitForWorkflowRun({ owner, repo, token, commitSha });
-      log("ה-build הצליח ✓", "ok");
-      setStage("actions", "done");
+        setStage("actions", "active");
+        try {
+          run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: WORKFLOW_FILE });
+          log("ה-build הצליח ✓", "ok");
+          setStage("actions", "done");
+          break;
+        } catch (buildErr) {
+          if (attempt > MAX_AUTO_FIX_ATTEMPTS) throw buildErr;
+          log(`✗ ה-build נכשל (ניסיון ${attempt} מתוך ${MAX_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error");
+          log("שולף את יומן השגיאה ומנסה לתקן אוטומטית עם Gemini…");
+          let errorLog;
+          try {
+            errorLog = await fetchWorkflowRunLog({ owner, repo, token, runId: buildErr.runId });
+          } catch (logFetchErr) {
+            console.error(logFetchErr);
+            errorLog = `(לא הצלחתי לשלוף לוג מפורט: ${logFetchErr.message}) conclusion error: ${buildErr.message}`;
+          }
+          try {
+            const fixed = await generateAppCodeFix(geminiKeys, idea, { manifest, kotlin, icon }, errorLog, thinkLevel);
+            manifest = fixed.manifest; kotlin = fixed.kotlin; icon = fixed.icon;
+            renderAppPreview(manifest, icon);
+            log("Gemini החזיר גרסה מתוקנת, מנסה לבנות שוב…", "ok");
+          } catch (fixErr) {
+            console.error(fixErr);
+            throw buildErr; // auto-fix itself failed — surface the original build error
+          }
+        }
+      }
 
       setStage("apk", "active");
       const apkUrl = await downloadApk({ owner, repo, token, runId: run.id });
@@ -1032,7 +1842,268 @@ Change request from the user:`;
     }
   }
 
+  // ---------- APK image editor ("censor" flow) ----------
+  function formatBytes(n) {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+      reader.onerror = () => reject(reader.error || new Error("FileReader failed"));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function updateEditSummary() {
+    editSummaryText.textContent = pendingChanges.size === 0
+      ? "לא סומנו שינויים עדיין."
+      : `${pendingChanges.size} תמונות סומנו לעריכה.`;
+    buildEditedBtn.disabled = pendingChanges.size === 0;
+  }
+
+  // Builds one image row via safe DOM APIs (textContent, not innerHTML) —
+  // entry paths come from inside an uploaded zip and must never be treated
+  // as trusted markup.
+  function buildImageRow(entryPath, originalUrl, sizeBytes) {
+    const row = document.createElement("div");
+    row.className = "image-row";
+
+    const thumb = document.createElement("img");
+    thumb.className = "image-thumb";
+    thumb.src = originalUrl;
+    thumb.alt = entryPath;
+    thumb.loading = "lazy";
+
+    const pathEl = document.createElement("div");
+    pathEl.className = "image-path";
+    pathEl.textContent = entryPath;
+
+    const sizeEl = document.createElement("div");
+    sizeEl.className = "image-size";
+    sizeEl.textContent = formatBytes(sizeBytes);
+
+    const statusEl = document.createElement("span");
+    statusEl.className = "image-status";
+    statusEl.hidden = true;
+
+    const actions = document.createElement("div");
+    actions.className = "image-actions";
+
+    const replaceBtn = document.createElement("button");
+    replaceBtn.type = "button";
+    replaceBtn.className = "chip-btn";
+    replaceBtn.textContent = "החלף";
+
+    const replaceInput = document.createElement("input");
+    replaceInput.type = "file";
+    replaceInput.accept = "image/*";
+    replaceInput.hidden = true;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "chip-btn danger";
+    deleteBtn.textContent = "צנזר (רוקן)";
+
+    const undoBtn = document.createElement("button");
+    undoBtn.type = "button";
+    undoBtn.className = "chip-btn";
+    undoBtn.textContent = "בטל";
+
+    replaceBtn.addEventListener("click", () => replaceInput.click());
+    replaceInput.addEventListener("change", async () => {
+      const file = replaceInput.files[0];
+      if (!file) return;
+      const buf = await file.arrayBuffer();
+      pendingChanges.set(entryPath, { type: "replace", data: buf });
+      thumb.src = URL.createObjectURL(file);
+      statusEl.textContent = "יוחלף";
+      statusEl.hidden = false;
+      row.classList.add("pending");
+      updateEditSummary();
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      pendingChanges.set(entryPath, { type: "delete" });
+      thumb.src = `data:image/png;base64,${TRANSPARENT_PNG_BASE64}`;
+      statusEl.textContent = "יצונזר (יתרוקן)";
+      statusEl.hidden = false;
+      row.classList.add("pending");
+      updateEditSummary();
+    });
+
+    undoBtn.addEventListener("click", () => {
+      pendingChanges.delete(entryPath);
+      thumb.src = originalUrl;
+      statusEl.hidden = true;
+      row.classList.remove("pending");
+      updateEditSummary();
+    });
+
+    actions.append(replaceBtn, replaceInput, deleteBtn, undoBtn);
+    row.append(thumb, pathEl, sizeEl, statusEl, actions);
+    return row;
+  }
+
+  async function scanApkImages(file) {
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+    loadedApkZip = zip;
+    const entries = Object.values(zip.files).filter((f) => !f.dir && IMAGE_EXT_RE.test(f.name));
+
+    imageGrid.innerHTML = "";
+    pendingChanges.clear();
+    for (const entry of entries) {
+      const blob = await entry.async("blob");
+      const url = URL.createObjectURL(blob);
+      imageGrid.appendChild(buildImageRow(entry.name, url, blob.size));
+    }
+    return entries.length;
+  }
+
+  apkFileEl.addEventListener("change", async () => {
+    const file = apkFileEl.files[0];
+    imageGrid.innerHTML = "";
+    imageGrid.hidden = true;
+    editSummary.hidden = true;
+    pendingChanges.clear();
+    loadedApkZip = null;
+    downloadBoxEdit.classList.remove("show");
+
+    if (!file) { editScanStatus.textContent = ""; return; }
+
+    editScanStatus.textContent = "סורק את ה-APK…";
+    if (file.size > 50 * 1024 * 1024) {
+      editScanStatus.textContent += " (קובץ גדול מ-50MB — ייתכן שההעלאה ל-GitHub תיכשל בגלל מגבלת גודל.)";
+    }
+    try {
+      const count = await scanApkImages(file);
+      if (count === 0) {
+        editScanStatus.textContent = "לא נמצאו קבצי תמונה (png/jpg/gif/webp/bmp) ב-APK הזה.";
+      } else {
+        editScanStatus.textContent = `נמצאו ${count} תמונות. אפשר להחליף או לצנזר כל אחת.`;
+        imageGrid.hidden = false;
+        editSummary.hidden = false;
+        updateEditSummary();
+      }
+    } catch (e) {
+      console.error(e);
+      editScanStatus.textContent = "✗ לא הצלחתי לקרוא את הקובץ — ודאו שזה APK תקין. (" + e.message + ")";
+      loadedApkZip = null;
+    }
+  });
+
+  async function runEditPipeline() {
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+
+    if (!token || !owner || !repo) {
+      resetEditPipeline();
+      log("חסר שדה — צריך GitHub Token, בעל ריפו ושם ריפו (בכרטיסיית \"חיבורים\" למעלה).", "error", logEditEl);
+      return;
+    }
+    if (!loadedApkZip) {
+      resetEditPipeline();
+      log("קודם צריך להעלות ולסרוק קובץ APK.", "error", logEditEl);
+      return;
+    }
+    if (pendingChanges.size === 0) {
+      resetEditPipeline();
+      log("לא סימנתם אף תמונה להחלפה/צנזור.", "error", logEditEl);
+      return;
+    }
+
+    resetEditPipeline();
+    setEditBusy(true);
+    try {
+      log(`מחיל ${pendingChanges.size} שינויים על ה-APK…`, null, logEditEl);
+      for (const [path, change] of pendingChanges) {
+        if (change.type === "replace") {
+          loadedApkZip.file(path, change.data, { compression: "DEFLATE" });
+        } else {
+          loadedApkZip.file(path, TRANSPARENT_PNG_BYTES, { compression: "DEFLATE" });
+        }
+      }
+      const apkBlob = await loadedApkZip.generateAsync({ type: "blob" });
+      const apkBase64 = await blobToBase64(apkBlob);
+
+      setStage("commit", "active", railEditEl, EDIT_STAGE_ORDER);
+      log(`מבצע commit ל-${owner}/${repo} (${branch})…`, null, logEditEl);
+      const commitSha = await commitEditedApk({ owner, repo, branch, token, apkBase64 });
+      log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok", logEditEl);
+      setStage("commit", "done", railEditEl, EDIT_STAGE_ORDER);
+
+      setStage("actions", "active", railEditEl, EDIT_STAGE_ORDER);
+      const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: RESIGN_WORKFLOW_FILE, logTarget: logEditEl });
+      log("היישור (zipalign) והחתימה מחדש (apksigner) הצליחו ✓", "ok", logEditEl);
+      setStage("actions", "done", railEditEl, EDIT_STAGE_ORDER);
+
+      setStage("apk", "active", railEditEl, EDIT_STAGE_ORDER);
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id, artifactName: "app-edited-release.apk", logTarget: logEditEl });
+      setStage("apk", "done", railEditEl, EDIT_STAGE_ORDER);
+
+      downloadLinkEdit.href = apkUrl;
+      downloadBoxEdit.classList.add("show");
+      log("מוכן — ה-APK המצונזר מחכה להורדה.", "ok", logEditEl);
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditEl);
+      markCurrentStageError(railEditEl);
+    } finally {
+      setEditBusy(false);
+    }
+  }
+
+  // ---------- mode tabs ----------
+  function switchMode(mode) {
+    Object.entries(modePanels).forEach(([key, el]) => { if (el) el.hidden = key !== mode; });
+    modeTabsEl.querySelectorAll(".mode-tab").forEach((btn) => {
+      btn.setAttribute("aria-selected", btn.dataset.mode === mode ? "true" : "false");
+    });
+  }
+  modeTabsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".mode-tab");
+    if (!btn) return;
+    switchMode(btn.dataset.mode);
+  });
+
+  // ---------- thinking-level toggle ----------
+  thinkToggle.addEventListener("click", (e) => {
+    const btn = e.target.closest(".think-btn");
+    if (!btn) return;
+    selectedThinkLevel = btn.dataset.level;
+    thinkToggle.querySelectorAll(".think-btn").forEach((b) => b.classList.toggle("active", b === btn));
+  });
+
+  // ---------- new chat: clears the current task, keeps saved connections ----------
+  newChatBtn.addEventListener("click", () => {
+    ideaEl.value = "";
+    resetPipeline();
+
+    apkFileEl.value = "";
+    imageGrid.innerHTML = "";
+    imageGrid.hidden = true;
+    editSummary.hidden = true;
+    pendingChanges.clear();
+    loadedApkZip = null;
+    editScanStatus.textContent = "";
+    resetEditPipeline();
+
+    selectedThinkLevel = "medium";
+    thinkToggle.querySelectorAll(".think-btn").forEach((b) => b.classList.toggle("active", b.dataset.level === "medium"));
+
+    switchMode("build");
+    ideaEl.focus();
+  });
+
   goBtn.addEventListener("click", runPipeline);
+  buildEditedBtn.addEventListener("click", runEditPipeline);
+  switchMode("build");
 })();
 </script>
 </body>
