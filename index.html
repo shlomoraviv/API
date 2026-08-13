@@ -1089,6 +1089,8 @@
   const POLL_TIMEOUT_MS = 10 * 60 * 1000;
   const MAX_AUTO_FIX_ATTEMPTS = 2;
   const MAX_LOG_CHARS = 6000;
+  const MAX_GITHUB_READ_ATTEMPTS = 3;
+  const GITHUB_RETRY_DELAY_MS = 1500;
 
   // ---- decompile-based pipelines (edit & translate modes) ----
   const DECOMPILE_WORKFLOW_FILE = "decompile-apk.yml";
@@ -1371,17 +1373,44 @@ rebuild, even if that means dropping part of the requested change.`;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------- GitHub REST helper ----------
+  function githubNetworkError(path, error) {
+    const detail = error?.message ? ` (${error.message})` : "";
+    return new Error(
+      `Could not reach the GitHub API at ${path} after ${MAX_GITHUB_READ_ATTEMPTS} attempts. ` +
+      `This is a network/CORS problem, not an APK or AI code error. Check the internet connection, ` +
+      `VPN/firewall/browser extensions, and serve this page from HTTPS or localhost instead of file://.${detail}`
+    );
+  }
+
+  // Retrying a failed POST/PATCH could create more than one commit if GitHub accepted
+  // the first request but the browser lost its response, so only safe read requests retry.
+  async function githubFetch(path, token, options = {}) {
+    const method = (options.method || "GET").toUpperCase();
+    const attempts = method === "GET" ? MAX_GITHUB_READ_ATTEMPTS : 1;
+    let lastError;
+
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        return await fetch(`https://api.github.com${path}`, {
+          ...options,
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...(options.headers || {}),
+          },
+        });
+      } catch (error) {
+        lastError = error;
+        if (attempt < attempts) await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+      }
+    }
+    throw githubNetworkError(path, lastError);
+  }
+
   async function gh(path, token, options = {}) {
-    const res = await fetch(`https://api.github.com${path}`, {
-      ...options,
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        ...(options.body ? { "Content-Type": "application/json" } : {}),
-        ...(options.headers || {}),
-      },
-    });
+    const res = await githubFetch(path, token, options);
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       const err = new Error(`GitHub API ${res.status} on ${path} — ${text.slice(0, 300)}`);
@@ -1909,13 +1938,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---------- 3b. Fetch a failed run's logs, trimmed down for a fix prompt ----------
   async function fetchWorkflowRunLog({ owner, repo, token, runId }) {
     if (!runId) throw new Error("אין runId זמין לשליפת לוג.");
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/logs`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    });
+    const res = await githubFetch(`/repos/${owner}/${repo}/actions/runs/${runId}/logs`, token);
     if (!res.ok) throw new Error(`לא הצלחתי להוריד את לוג ה-build (HTTP ${res.status}).`);
     const zipBlob = await res.blob();
     const zip = await JSZip.loadAsync(zipBlob);
@@ -1958,16 +1981,7 @@ rebuild, even if that means dropping part of the requested change.`;
     if (!artifact) throw new Error(`לא נמצא artifact בשם "${artifactName}" בריצה הזו.`);
 
     log("מוריד את ה-artifact…", null, logTarget);
-    const res = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`,
-      {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28",
-        },
-      }
-    );
+    const res = await githubFetch(`/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`, token);
     if (!res.ok) {
       throw new Error(
         `לא הצלחתי להוריד את ה-artifact (HTTP ${res.status}). אם ב-console זו שגיאת CORS, ` +
