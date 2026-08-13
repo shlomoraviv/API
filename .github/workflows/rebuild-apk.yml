@@ -1,0 +1,74 @@
+# Rebuilds decompiled_app/ (smali + resources, apktool-decompiled by
+# decompile-apk.yml, then patched/translated by index.html) back into a
+# signed, installable APK.
+#
+# Mirrors this repo's own build.sh: no persistent signing secrets needed — a
+# fresh throwaway debug key is generated every run with keytool (same
+# alias/password build.sh already uses), then used to sign via apksigner.
+# zipalign/apksigner are located under $ANDROID_HOME/build-tools the same way
+# build.sh locates aapt2/android.jar under $ANDROID_HOME — that SDK is already
+# preinstalled on GitHub's ubuntu-latest runners, so no separate Android SDK
+# setup action is needed here either.
+#
+# Setup: save as .github/workflows/rebuild-apk.yml — no new secrets required.
+
+name: Rebuild APK
+
+"on":
+  push:
+    paths:
+      - "decompiled_app/**"
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install apktool (latest release)
+        run: |
+          set -e
+          API_URL="https://api.github.com/repos/iBotPeaches/Apktool/releases/latest"
+          DL_URL=$(curl -sL "$API_URL" | grep "browser_download_url.*\.jar" | head -n1 | cut -d '"' -f 4)
+          if [ -z "$DL_URL" ]; then
+            echo "::error::Could not resolve the latest apktool.jar download URL from $API_URL"
+            exit 1
+          fi
+          curl -sL "$DL_URL" -o /usr/local/bin/apktool.jar
+          printf '#!/bin/sh\nexec java -jar /usr/local/bin/apktool.jar "$@"\n' > /usr/local/bin/apktool
+          chmod +x /usr/local/bin/apktool
+
+      - name: Rebuild (apktool)
+        run: apktool b decompiled_app -o app-unsigned.apk
+
+      - name: Zipalign + sign (fresh debug key, same approach as build.sh)
+        run: |
+          set -e
+          ZIPALIGN_BIN=$(find "$ANDROID_HOME/build-tools" -name "zipalign" -type f | sort -r | head -n1)
+          APKSIGNER_BIN=$(find "$ANDROID_HOME/build-tools" -name "apksigner" -type f | sort -r | head -n1)
+          [ -n "$ZIPALIGN_BIN" ] && [ -e "$ZIPALIGN_BIN" ] || { echo "::error::zipalign not found under \$ANDROID_HOME/build-tools"; exit 1; }
+          [ -n "$APKSIGNER_BIN" ] && [ -e "$APKSIGNER_BIN" ] || { echo "::error::apksigner not found under \$ANDROID_HOME/build-tools"; exit 1; }
+
+          "$ZIPALIGN_BIN" -f -p 4 app-unsigned.apk app-aligned.apk
+
+          keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+
+          "$APKSIGNER_BIN" sign \
+            --ks debug.keystore --ks-pass pass:android \
+            --ks-key-alias androiddebugkey --key-pass pass:android \
+            --out app-recompiled-release.apk app-aligned.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-recompiled-release.apk
+          path: app-recompiled-release.apk
+          retention-days: 7

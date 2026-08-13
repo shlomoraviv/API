@@ -1,0 +1,61 @@
+# Re-signs an APK whose asset bytes were edited directly in the browser (the
+# "censor images" flow in index.html) — no recompilation, just zipalign+sign,
+# since only zip entries changed, not code. This workflow did not exist yet in
+# the repo; the censor mode has been pointing at it since it was first built.
+#
+# Mirrors this repo's own build.sh: a fresh throwaway debug key is generated
+# every run with keytool (same alias/password build.sh already uses) — no
+# persistent signing secrets required. zipalign/apksigner come from
+# $ANDROID_HOME/build-tools, already preinstalled on ubuntu-latest runners.
+#
+# Setup: save as .github/workflows/resign-apk.yml — no secrets required.
+
+name: Resign APK
+
+"on":
+  push:
+    paths:
+      - "edited_app/**"
+
+jobs:
+  resign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Zipalign + sign (fresh debug key, same approach as build.sh)
+        run: |
+          set -e
+          if [ ! -f "edited_app/app-edited.apk" ]; then
+            echo "::error::edited_app/app-edited.apk not found"
+            exit 1
+          fi
+
+          ZIPALIGN_BIN=$(find "$ANDROID_HOME/build-tools" -name "zipalign" -type f | sort -r | head -n1)
+          APKSIGNER_BIN=$(find "$ANDROID_HOME/build-tools" -name "apksigner" -type f | sort -r | head -n1)
+          [ -n "$ZIPALIGN_BIN" ] && [ -e "$ZIPALIGN_BIN" ] || { echo "::error::zipalign not found under \$ANDROID_HOME/build-tools"; exit 1; }
+          [ -n "$APKSIGNER_BIN" ] && [ -e "$APKSIGNER_BIN" ] || { echo "::error::apksigner not found under \$ANDROID_HOME/build-tools"; exit 1; }
+
+          "$ZIPALIGN_BIN" -f -p 4 edited_app/app-edited.apk app-aligned.apk
+
+          keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+
+          "$APKSIGNER_BIN" sign \
+            --ks debug.keystore --ks-pass pass:android \
+            --ks-key-alias androiddebugkey --key-pass pass:android \
+            --out app-edited-release.apk app-aligned.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-edited-release.apk
+          path: app-edited-release.apk
+          retention-days: 7
