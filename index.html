@@ -1067,8 +1067,12 @@
   <footer class="note">
     הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX וללא XML layouts — זה מה שמאפשר build בלי Gradle.
     ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
-    ה-APK המצונזר מטאב "צנזור אפליקציה" נחתם בנפרד עם apksigner (v1+v2+v3) — מתאים להעלאה ראשונה של אפליקציה חדשה לגוגל פליי
-    (עם Play App Signing), אך לעדכון אפליקציה שכבר פורסמה צריך לחתום עם מפתח ה-upload המקורי שלה, לא עם מפתח חדש.
+    ה-APK מטאבים "צנזור אפליקציה", "עריכת אפליקציה" ו"תרגום אפליקציה" נחתם בנפרד עם apksigner, באותה שיטה בדיוק כמו הבנייה
+    הרגילה: מפתח דיבאג <strong>חדש ואקראי בכל ריצה</strong> (לא keystore קבוע). המשמעות: כל APK שיוצא מהכלי הזה — מכל טאב —
+    חתום במפתח שונה מכל APK קודם, כולל קודמים מהכלי הזה עצמו. להתקנה ראשונה זה לא משנה; אבל כדי להתקין גרסה חדשה <em>מעל</em>
+    התקנה קיימת על אותו מכשיר (במקום למחוק ולהתקין מחדש ולאבד נתונים), חובה שיהיה אותו מפתח חתימה — כלומר עדכון-במקום לא
+    יעבוד בין שתי הרצות של הכלי. לפרסום עם עדכונים עתידיים אמיתי (גוגל פליי או התקנה חוזרת על אותו מכשיר) צריך keystore קבוע
+    ולשנות את workflow-י ה-sign כדי שישתמשו בו במקום ביצירת מפתח חדש בכל פעם — תגידו אם תרצו שאבנה את זה.
   </footer>
 
 </div>
@@ -1085,6 +1089,23 @@
   const POLL_TIMEOUT_MS = 10 * 60 * 1000;
   const MAX_AUTO_FIX_ATTEMPTS = 2;
   const MAX_LOG_CHARS = 6000;
+
+  // ---- decompile-based pipelines (edit & translate modes) ----
+  const DECOMPILE_WORKFLOW_FILE = "decompile-apk.yml";
+  const REBUILD_WORKFLOW_FILE = "rebuild-apk.yml";
+  const DECOMPILE_SOURCE_PATH = "decompile_source/source.apk";
+  const DECOMPILED_APP_DIR = "decompiled_app";
+  const REBUILD_ARTIFACT_NAME = "app-recompiled-release.apk";
+  const MAX_EDIT_CANDIDATE_FILES = 60; // path list shown to Gemini when it picks what to open
+  const MAX_EDIT_PATCH_FILES = 6;      // hard cap on files Gemini may rewrite per attempt
+  const MAX_DECOMPILE_AUTO_FIX_ATTEMPTS = 2;
+  // Own-app smali usually lives under a path matching the manifest's package name; these
+  // path fragments are common third-party SDKs/libraries that are almost never what a user
+  // means by "edit my app", so they're filtered out even if they happen to match the package.
+  const THIRD_PARTY_PACKAGE_PREFIXES = [
+    "/androidx/", "/com/google/", "/kotlin/", "/kotlinx/", "/okhttp3/", "/okio/", "/retrofit2/",
+    "/com/facebook/", "/com/bumptech/", "/com/squareup/", "/org/jetbrains/",
+  ];
 
   // Thinking-budget tokens per level. Gemini's exact thinking-budget parameter name/limits for
   // GEMINI_MODEL can change — if you see a 400 error mentioning "thinkingConfig", check the
@@ -1192,6 +1213,54 @@ is needed to make it build, while keeping the app's functionality and intent as 
 to the original. If the log does not clearly show a fixable Kotlin/manifest problem, make the code
 more defensive and conservative (simpler view tree, no risky APIs) rather than guessing randomly.`;
 
+  const TRANSLATE_INSTRUCTIONS = `You are localizing an Android app's string resources. You will
+receive a target language (as free text, possibly in Hebrew or any other language) and a JSON object
+mapping Android string-resource names to their original text. Output ONLY a raw JSON object - no
+markdown fences, no commentary - with exactly two fields:
+
+"langCode": the correct Android resource-qualifier language code for the requested target language
+(e.g. "en", "es", "fr", "de", "ar", "ru", "pt", "ja") - lowercase ISO 639-1 when one exists.
+
+"translations": an object with EXACTLY the same keys as the input mapping, where each value is the
+natural, idiomatic translation of the corresponding original text into the target language. Preserve
+any placeholders exactly as-is (things like %s, %1$s, %d, {0}, \\n) in the same position/role they had
+in the original - these are format specifiers the app fills in at runtime and must survive untouched.
+Keep roughly the same tone/length category (a short button label should stay short). Do not translate
+the resource NAMES (the JSON keys), only the values. No preamble, no markdown.`;
+
+  const LOCATE_FILES_INSTRUCTIONS = `You are about to edit an Android app that has been decompiled
+with apktool (smali code + decoded XML resources). You will receive the app's package name, the
+change the user wants, and a list of file paths that plausibly belong to the app's own code and
+resources (third-party libraries have already been filtered out). Output ONLY a raw JSON object - no
+markdown fences, no commentary - with exactly one field: "paths", an array of AT MOST ${MAX_EDIT_PATCH_FILES}
+of the given paths (copy them exactly, do not invent new ones) that you would need to open in full to
+make the requested change. Prefer the smallest set of files that could plausibly need editing. If
+nothing in the list looks relevant, return an empty array.`;
+
+  const PATCH_FILES_INSTRUCTIONS = `You are editing a decompiled Android app (apktool output - smali
+code and/or decoded XML resources) to make a specific change the user requested. You will receive the
+app's package name, the requested change, and the full current content of a small set of files.
+Output ONLY a raw JSON object - no markdown fences, no commentary - with exactly one field: "files",
+an array of objects with "path" (exactly matching one of the given paths) and "content" (the COMPLETE
+new content of that file, not a diff). Only include files you are actually changing - omit any file
+you decide not to touch. Make the smallest change that accomplishes the request:
+- In smali, preserve method/field signatures, register counts (.locals), and control-flow structure
+  unless the change specifically requires altering them - a wrong .locals count or a bad label/branch
+  target will make the whole app fail to rebuild or crash at runtime.
+- In XML resources, keep the file well-formed and keep unrelated attributes/elements untouched.
+- If the requested change genuinely cannot be made safely from the files you were given, return an
+  empty "files" array rather than guessing destructively.`;
+
+  const PATCH_FIX_INSTRUCTIONS = `You are fixing a rebuild failure after patching a decompiled Android
+app (apktool: smali + decoded XML resources). You will get the package name, the original requested
+change, the files you previously patched, and the rebuild error log. Output ONLY a raw JSON object -
+no markdown fences, no commentary - with exactly one field: "files", an array of {"path","content"}
+objects with corrected COMPLETE content for any of the previously-patched files that need fixing. Find
+the real cause in the log (a real apktool/smali/aapt2 error, not a warning) and fix only what's needed
+to make it rebuild, keeping as much of the intended change as possible. If the log suggests the change
+is not safely fixable, return the files with content reverted to something you're confident will
+rebuild, even if that means dropping part of the requested change.`;
+
   // ---------- small DOM helpers ----------
   const $ = (id) => document.getElementById(id);
   const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken");
@@ -1217,6 +1286,22 @@ more defensive and conservative (simpler view tree, no risky APIs) rather than g
 
   const modeTabsEl = $("modeTabs"), newChatBtn = $("newChatBtn");
   const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor") };
+
+  const editApkFileEl = $("editApkFile"), editInstructionEl = $("editInstruction"), editGoBtn = $("editGoBtn");
+  const railEditDecompileEl = $("railEditDecompile"), logEditDecompileEl = $("logEditDecompile");
+  const downloadBoxEditDecompileEl = $("downloadBoxEditDecompile"), downloadLinkEditDecompileEl = $("downloadLinkEditDecompile");
+
+  const translateApkFileEl = $("translateApkFile"), targetLanguageEl = $("targetLanguage"), translateGoBtn = $("translateGoBtn");
+  const railTranslateEl = $("railTranslate"), logTranslateEl = $("logTranslate");
+  const downloadBoxTranslateEl = $("downloadBoxTranslate"), downloadLinkTranslateEl = $("downloadLinkTranslate");
+
+  const EDIT2_STAGE_ORDER = ["decompile", "locate", "patch", "commit", "rebuild", "apk"];
+  const TRANSLATE_STAGE_ORDER = ["decompile", "strings", "translate", "commit", "rebuild", "apk"];
+
+  function setBusyBtn(btn, busy, busyLabel, idleLabel) {
+    btn.disabled = busy;
+    btn.textContent = busy ? busyLabel : idleLabel;
+  }
 
   let loadedApkZip = null;
   const pendingChanges = new Map(); // path -> { type: "replace", data: ArrayBuffer } | { type: "delete" }
@@ -1604,17 +1689,180 @@ more defensive and conservative (simpler view tree, no risky APIs) rather than g
     return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message: "AI App Maker: update generated_app/" });
   }
 
+  // Commits several files in one atomic commit. Each file is either
+  // { path, content } for text (UTF-8, committed inline) or
+  // { path, contentBase64 } for binary data (committed via an explicit blob) -
+  // mixing both kinds in the same call is fine.
+  async function commitRepoFiles({ owner, repo, branch, token, files, message }) {
+    const { latestSha, baseTreeSha } = await getBranchHead({ owner, repo, branch, token });
+    const treeEntries = [];
+    for (const f of files) {
+      if (f.contentBase64 !== undefined) {
+        const blob = await gh(`/repos/${owner}/${repo}/git/blobs`, token, {
+          method: "POST",
+          body: JSON.stringify({ content: f.contentBase64, encoding: "base64" }),
+        });
+        treeEntries.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+      } else {
+        treeEntries.push({ path: f.path, mode: "100644", type: "blob", content: f.content });
+      }
+    }
+    return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message });
+  }
+
   // ---------- 2b. Commit an edited (censored) APK as a binary blob ----------
   async function commitEditedApk({ owner, repo, branch, token, apkBase64 }) {
-    const { latestSha, baseTreeSha } = await getBranchHead({ owner, repo, branch, token });
-    const blob = await gh(`/repos/${owner}/${repo}/git/blobs`, token, {
-      method: "POST",
-      body: JSON.stringify({ content: apkBase64, encoding: "base64" }),
+    return commitRepoFiles({
+      owner, repo, branch, token,
+      files: [{ path: "edited_app/app-edited.apk", contentBase64: apkBase64 }],
+      message: "AI App Maker: censor images in uploaded APK",
     });
-    const treeEntries = [
-      { path: "edited_app/app-edited.apk", mode: "100644", type: "blob", sha: blob.sha },
-    ];
-    return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message: "AI App Maker: censor images in uploaded APK" });
+  }
+
+  // ---------- reading & listing files already committed to the repo (decompile-based flows) ----------
+  async function fetchRepoFile({ owner, repo, branch, token, path }) {
+    const data = await gh(`/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, token);
+    if (Array.isArray(data) || data.type !== "file" || typeof data.content !== "string") {
+      throw new Error(`"${path}" אינו קובץ טקסט קריא בענף הזה.`);
+    }
+    const bytes = Uint8Array.from(atob(data.content.replace(/\n/g, "")), (c) => c.charCodeAt(0));
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  // Full recursive path listing of a branch via the Git Trees API — one call,
+  // much cheaper than walking directories one by one via the Contents API.
+  async function listRepoTree({ owner, repo, branch, token }) {
+    const data = await gh(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, token);
+    if (data.truncated) {
+      console.warn("Git tree listing was truncated by GitHub (very large repo) — some files may be missing from candidates.");
+    }
+    return (data.tree || []).filter((e) => e.type === "blob").map((e) => e.path);
+  }
+
+  function extractManifestPackage(manifestXml) {
+    const doc = new DOMParser().parseFromString(manifestXml, "application/xml");
+    if (doc.querySelector("parsererror")) throw new Error("apktool's decompiled AndroidManifest.xml did not parse as XML.");
+    const pkg = doc.documentElement.getAttribute("package");
+    if (!pkg) throw new Error("Decompiled AndroidManifest.xml has no package attribute.");
+    return pkg;
+  }
+
+  // Commits the raw uploaded APK to DECOMPILE_SOURCE_PATH and waits for
+  // decompile-apk.yml to unpack it and commit decompiled_app/ back to the branch.
+  async function triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget = logEl }) {
+    log(`מעלה את ה-APK לפירוק (${DECOMPILE_SOURCE_PATH})…`, null, logTarget);
+    const commitSha = await commitRepoFiles({
+      owner, repo, branch, token,
+      files: [{ path: DECOMPILE_SOURCE_PATH, contentBase64: apkBase64 }],
+      message: "AI App Maker: decompile source APK",
+    });
+    log(`Commit נוצר: ${commitSha.slice(0, 7)}, ממתין לפירוק (apktool)…`, "ok", logTarget);
+    await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: DECOMPILE_WORKFLOW_FILE, logTarget });
+    log("הפירוק הושלם ✓", "ok", logTarget);
+  }
+
+  // ---------- string-resource XML helpers (translate mode) ----------
+  // Parses an apktool-decoded strings.xml into { name: text } — only plain
+  // <string> entries; string-array/plurals are left untouched for now, to
+  // keep the round-trip simple and reliable.
+  function parseStringsXml(xmlText) {
+    const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+    if (doc.querySelector("parsererror")) throw new Error("strings.xml did not parse as XML.");
+    const map = {};
+    doc.querySelectorAll("resources > string").forEach((el) => {
+      const name = el.getAttribute("name");
+      if (name) map[name] = el.textContent;
+    });
+    return map;
+  }
+
+  // Builds a new strings.xml with the same <string name="x"> entries but
+  // translated text, by cloning the ORIGINAL document and only swapping text
+  // content — this guarantees well-formed XML regardless of what Gemini
+  // returns, since Gemini only ever supplies plain translated text, never markup.
+  function buildTranslatedStringsXml(originalXmlText, translations) {
+    const doc = new DOMParser().parseFromString(originalXmlText, "application/xml");
+    doc.querySelectorAll("resources > string").forEach((el) => {
+      const name = el.getAttribute("name");
+      if (name && Object.prototype.hasOwnProperty.call(translations, name)) {
+        el.textContent = translations[name];
+      }
+    });
+    return new XMLSerializer().serializeToString(doc);
+  }
+
+  async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(stringsMap)}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !parsed.langCode || typeof parsed.translations !== "object") {
+      throw new Error(`Gemini's translation reply is missing "langCode" or "translations".`);
+    }
+    return parsed;
+  }
+
+  // ---------- file selection & patching helpers (edit mode) ----------
+  function filterEditCandidatePaths(allPaths, pkg) {
+    const pkgPath = pkg.split(".").join("/");
+    const ownSmali = allPaths
+      .filter((p) => /^decompiled_app\/smali(_classes\d+)?\//.test(p))
+      .filter((p) => p.includes(`/${pkgPath}/`) || p.includes(`/${pkgPath}.smali`))
+      .filter((p) => !THIRD_PARTY_PACKAGE_PREFIXES.some((frag) => p.includes(frag)));
+    const resPaths = allPaths.filter((p) => p.startsWith(`${DECOMPILED_APP_DIR}/res/`) && /\.xml$/i.test(p));
+    const manifestPath = allPaths.find((p) => p === `${DECOMPILED_APP_DIR}/AndroidManifest.xml`);
+    return [...ownSmali, ...resPaths, ...(manifestPath ? [manifestPath] : [])].slice(0, MAX_EDIT_CANDIDATE_FILES);
+  }
+
+  async function locateEditFiles(geminiKeys, pkg, instruction, candidatePaths, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${LOCATE_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${instruction}\n\nCandidate paths:\n${candidatePaths.join("\n")}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 1024 },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable file list (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    const paths = Array.isArray(parsed?.paths) ? parsed.paths.filter((p) => candidatePaths.includes(p)).slice(0, MAX_EDIT_PATCH_FILES) : [];
+    return paths;
+  }
+
+  async function patchEditFiles(geminiKeys, pkg, instruction, fileContents, thinkLevel, logTarget = logEl) {
+    const filesBlock = fileContents.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${PATCH_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${instruction}\n\nFiles:\n${filesBlock}` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable patch (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    return Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
+  }
+
+  async function patchEditFilesFix(geminiKeys, pkg, instruction, previousFiles, errorLog, thinkLevel, logTarget = logEl) {
+    const filesBlock = previousFiles.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${PATCH_FIX_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nOriginal requested change:\n${instruction}\n\nPreviously patched files:\n${filesBlock}\n\nRebuild error log:\n${errorLog}` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    const files = Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
+    if (files.length === 0) throw new Error("Gemini's fix reply had no usable files.");
+    return files;
   }
 
   // ---------- 3. Poll the workflow run tied to this exact commit ----------
@@ -2059,6 +2307,175 @@ more defensive and conservative (simpler view tree, no risky APIs) rather than g
     }
   }
 
+  // ---------- translate mode: decompile → extract strings → translate → rebuild ----------
+  async function runTranslatePipeline() {
+    const geminiKeys = parseGeminiKeys(geminiKeysEl.value);
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+    const targetLanguage = targetLanguageEl.value.trim();
+    const file = translateApkFileEl.files[0];
+
+    logTranslateEl.innerHTML = "";
+    downloadBoxTranslateEl.classList.remove("show");
+    railTranslateEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    if (geminiKeys.length === 0 || !token || !owner || !repo || !targetLanguage || !file) {
+      log("חסר שדה — צריך Gemini key, GitHub token, בעל/שם ריפו, קובץ APK ושפת יעד.", "error", logTranslateEl);
+      return;
+    }
+
+    setBusyBtn(translateGoBtn, true, "מתרגם…", "פרק, תרגם ובנה מחדש");
+    try {
+      setStage("decompile", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const apkBase64 = await blobToBase64(file);
+      await triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget: logTranslateEl });
+      setStage("decompile", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("strings", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const stringsPath = `${DECOMPILED_APP_DIR}/res/values/strings.xml`;
+      log(`שולף ${stringsPath}…`, null, logTranslateEl);
+      const originalXml = await fetchRepoFile({ owner, repo, branch, token, path: stringsPath });
+      const stringsMap = parseStringsXml(originalXml);
+      const count = Object.keys(stringsMap).length;
+      if (count === 0) throw new Error("res/values/strings.xml לא הכיל אף <string> לתרגום.");
+      log(`נמצאו ${count} מחרוזות.`, "ok", logTranslateEl);
+      setStage("strings", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("translate", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      log(`מתרגם ל"${targetLanguage}" עם Gemini…`, null, logTranslateEl);
+      const { langCode, translations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logTranslateEl);
+      const translatedXml = buildTranslatedStringsXml(originalXml, translations);
+      log(`תורגם, קוד שפה: ${langCode}`, "ok", logTranslateEl);
+      setStage("translate", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("commit", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const targetPath = `${DECOMPILED_APP_DIR}/res/values-${langCode}/strings.xml`;
+      const commitSha = await commitRepoFiles({
+        owner, repo, branch, token,
+        files: [{ path: targetPath, content: translatedXml }],
+        message: `AI App Maker: add ${langCode} translation`,
+      });
+      log(`Commit נוצר: ${commitSha.slice(0, 7)} (${targetPath})`, "ok", logTranslateEl);
+      setStage("commit", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("rebuild", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logTranslateEl });
+      log("הבנייה מחדש הצליחה ✓", "ok", logTranslateEl);
+      setStage("rebuild", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("apk", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id, artifactName: REBUILD_ARTIFACT_NAME, logTarget: logTranslateEl });
+      setStage("apk", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      downloadLinkTranslateEl.href = apkUrl;
+      downloadBoxTranslateEl.classList.add("show");
+      log("מוכן — ה-APK המתורגם מחכה להורדה.", "ok", logTranslateEl);
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logTranslateEl);
+      markCurrentStageError(railTranslateEl);
+    } finally {
+      setBusyBtn(translateGoBtn, false, "מתרגם…", "פרק, תרגם ובנה מחדש");
+    }
+  }
+
+  // ---------- edit mode: decompile → locate → patch → rebuild (with auto-fix retry) ----------
+  async function runDecompileEditPipeline() {
+    const geminiKeys = parseGeminiKeys(geminiKeysEl.value);
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+    const thinkLevel = selectedThinkLevel;
+    const instruction = editInstructionEl.value.trim();
+    const file = editApkFileEl.files[0];
+
+    logEditDecompileEl.innerHTML = "";
+    downloadBoxEditDecompileEl.classList.remove("show");
+    railEditDecompileEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    if (geminiKeys.length === 0 || !token || !owner || !repo || !instruction || !file) {
+      log("חסר שדה — צריך Gemini key, GitHub token, בעל/שם ריפו, קובץ APK ותיאור השינוי.", "error", logEditDecompileEl);
+      return;
+    }
+
+    setBusyBtn(editGoBtn, true, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
+    try {
+      setStage("decompile", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const apkBase64 = await blobToBase64(file);
+      await triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget: logEditDecompileEl });
+      setStage("decompile", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      setStage("locate", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const manifestXml = await fetchRepoFile({ owner, repo, branch, token, path: `${DECOMPILED_APP_DIR}/AndroidManifest.xml` });
+      const pkg = extractManifestPackage(manifestXml);
+      log(`חבילה: ${pkg}`, null, logEditDecompileEl);
+      const allPaths = await listRepoTree({ owner, repo, branch, token });
+      const candidatePaths = filterEditCandidatePaths(allPaths, pkg);
+      log(`${candidatePaths.length} קבצים אפשריים, שואל את Gemini אילו רלוונטיים…`, null, logEditDecompileEl);
+      const paths = await locateEditFiles(geminiKeys, pkg, instruction, candidatePaths, logEditDecompileEl);
+      if (paths.length === 0) throw new Error("Gemini לא מצא קבצים רלוונטיים לשינוי הזה בין קבצי האפליקציה שזוהו.");
+      log(`נבחרו: ${paths.join(", ")}`, "ok", logEditDecompileEl);
+      setStage("locate", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      setStage("patch", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const fileContents = await Promise.all(paths.map(async (p) => ({ path: p, content: await fetchRepoFile({ owner, repo, branch, token, path: p }) })));
+      let patchedFiles = await patchEditFiles(geminiKeys, pkg, instruction, fileContents, thinkLevel, logEditDecompileEl);
+      if (patchedFiles.length === 0) throw new Error("Gemini לא הציע שינוי בקבצים שנבחרו — נסו לנסח את הבקשה אחרת.");
+      log(`Gemini שינה ${patchedFiles.length} קבצים.`, "ok", logEditDecompileEl);
+      setStage("patch", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      let run;
+      for (let attempt = 1; attempt <= MAX_DECOMPILE_AUTO_FIX_ATTEMPTS + 1; attempt++) {
+        setStage("commit", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+        const commitSha = await commitRepoFiles({ owner, repo, branch, token, files: patchedFiles, message: "AI App Maker: patch decompiled app" });
+        log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok", logEditDecompileEl);
+        setStage("commit", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+        setStage("rebuild", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+        try {
+          run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logEditDecompileEl });
+          log("הבנייה מחדש הצליחה ✓", "ok", logEditDecompileEl);
+          setStage("rebuild", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+          break;
+        } catch (buildErr) {
+          if (attempt > MAX_DECOMPILE_AUTO_FIX_ATTEMPTS) throw buildErr;
+          log(`✗ הבנייה מחדש נכשלה (ניסיון ${attempt} מתוך ${MAX_DECOMPILE_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logEditDecompileEl);
+          log("שולף לוג שגיאה ומנסה לתקן את הטלאי עם Gemini…", null, logEditDecompileEl);
+          let errorLog;
+          try {
+            errorLog = await fetchWorkflowRunLog({ owner, repo, token, runId: buildErr.runId });
+          } catch (logFetchErr) {
+            errorLog = `(לא הצלחתי לשלוף לוג מפורט: ${logFetchErr.message}) conclusion error: ${buildErr.message}`;
+          }
+          try {
+            patchedFiles = await patchEditFilesFix(geminiKeys, pkg, instruction, patchedFiles, errorLog, thinkLevel, logEditDecompileEl);
+            log("Gemini החזיר טלאי מתוקן, מנסה שוב…", "ok", logEditDecompileEl);
+          } catch (fixErr) {
+            console.error(fixErr);
+            throw buildErr;
+          }
+        }
+      }
+
+      setStage("apk", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id, artifactName: REBUILD_ARTIFACT_NAME, logTarget: logEditDecompileEl });
+      setStage("apk", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      downloadLinkEditDecompileEl.href = apkUrl;
+      downloadBoxEditDecompileEl.classList.add("show");
+      log("מוכן — ה-APK הערוך מחכה להורדה.", "ok", logEditDecompileEl);
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditDecompileEl);
+      markCurrentStageError(railEditDecompileEl);
+    } finally {
+      setBusyBtn(editGoBtn, false, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
+    }
+  }
+
   // ---------- mode tabs ----------
   function switchMode(mode) {
     Object.entries(modePanels).forEach(([key, el]) => { if (el) el.hidden = key !== mode; });
@@ -2097,12 +2514,26 @@ more defensive and conservative (simpler view tree, no risky APIs) rather than g
     selectedThinkLevel = "medium";
     thinkToggle.querySelectorAll(".think-btn").forEach((b) => b.classList.toggle("active", b.dataset.level === "medium"));
 
+    editApkFileEl.value = "";
+    editInstructionEl.value = "";
+    logEditDecompileEl.innerHTML = "";
+    downloadBoxEditDecompileEl.classList.remove("show");
+    railEditDecompileEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    translateApkFileEl.value = "";
+    targetLanguageEl.value = "";
+    logTranslateEl.innerHTML = "";
+    downloadBoxTranslateEl.classList.remove("show");
+    railTranslateEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
     switchMode("build");
     ideaEl.focus();
   });
 
   goBtn.addEventListener("click", runPipeline);
   buildEditedBtn.addEventListener("click", runEditPipeline);
+  editGoBtn.addEventListener("click", runDecompileEditPipeline);
+  translateGoBtn.addEventListener("click", runTranslatePipeline);
   switchMode("build");
 })();
 </script>
