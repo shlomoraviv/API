@@ -1,0 +1,71 @@
+# Decompiles decompile_source/source.apk with apktool (smali code + decoded XML
+# resources) and commits the result to decompiled_app/ on the same branch.
+#
+# Triggered by index.html committing a raw APK to decompile_source/source.apk
+# (via the user's own GitHub token, a PAT). The auto-commit step below uses the
+# workflow-run's own default GITHUB_TOKEN, not that PAT — commits made with the
+# default GITHUB_TOKEN do NOT trigger other workflow runs, which is exactly what
+# stops this workflow from accidentally triggering rebuild-apk.yml the moment it
+# writes to decompiled_app/. rebuild-apk.yml should only fire once index.html
+# itself commits an AI-edited/translated file back into decompiled_app/ (which
+# happens with the user's PAT, and therefore does trigger it normally).
+#
+# Setup: save this file as .github/workflows/decompile-apk.yml in your repo.
+# No secrets are needed for this workflow (decompiling doesn't touch signing).
+
+name: Decompile APK
+
+"on":
+  push:
+    paths:
+      - "decompile_source/**"
+
+permissions:
+  contents: write
+
+jobs:
+  decompile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install apktool (latest release)
+        run: |
+          set -e
+          API_URL="https://api.github.com/repos/iBotPeaches/Apktool/releases/latest"
+          DL_URL=$(curl -sL "$API_URL" | grep "browser_download_url.*\.jar" | head -n1 | cut -d '"' -f 4)
+          if [ -z "$DL_URL" ]; then
+            echo "::error::Could not resolve the latest apktool.jar download URL from $API_URL"
+            exit 1
+          fi
+          echo "Downloading apktool from $DL_URL"
+          curl -sL "$DL_URL" -o /usr/local/bin/apktool.jar
+          printf '#!/bin/sh\nexec java -jar /usr/local/bin/apktool.jar "$@"\n' > /usr/local/bin/apktool
+          chmod +x /usr/local/bin/apktool
+
+      - name: Decompile
+        run: |
+          set -e
+          if [ ! -f "decompile_source/source.apk" ]; then
+            echo "::error::decompile_source/source.apk not found"
+            exit 1
+          fi
+          rm -rf decompiled_app
+          apktool d -f -o decompiled_app decompile_source/source.apk
+
+      - name: Commit decompiled tree
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "AI App Maker: decompile source APK"
+          file_pattern: "decompiled_app/**"
+          # Explicitly use the default token so this commit does NOT trigger
+          # rebuild-apk.yml (see note at the top of this file).
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
