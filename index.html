@@ -1373,10 +1373,10 @@ rebuild, even if that means dropping part of the requested change.`;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------- GitHub REST helper ----------
-  function githubNetworkError(path, error) {
+  function githubNetworkError(path, error, attempts) {
     const detail = error?.message ? ` (${error.message})` : "";
     return new Error(
-      `Could not reach the GitHub API at ${path} after ${MAX_GITHUB_READ_ATTEMPTS} attempts. ` +
+      `Could not reach the GitHub API at ${path} after ${attempts} attempt${attempts === 1 ? "" : "s"}. ` +
       `This is a network/CORS problem, not an APK or AI code error. Check the internet connection, ` +
       `VPN/firewall/browser extensions, and serve this page from HTTPS or localhost instead of file://.${detail}`
     );
@@ -1396,7 +1396,9 @@ rebuild, even if that means dropping part of the requested change.`;
           headers: {
             "Authorization": `Bearer ${token}`,
             "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
+            // GitHub serves the current stable REST API by default. Omitting the optional
+            // version header avoids an extra non-simple CORS header that some web filters
+            // block, while retaining the required Authorization and JSON headers.
             ...(options.body ? { "Content-Type": "application/json" } : {}),
             ...(options.headers || {}),
           },
@@ -1406,7 +1408,7 @@ rebuild, even if that means dropping part of the requested change.`;
         if (attempt < attempts) await sleep(GITHUB_RETRY_DELAY_MS * attempt);
       }
     }
-    throw githubNetworkError(path, lastError);
+    throw githubNetworkError(path, lastError, attempts);
   }
 
   async function gh(path, token, options = {}) {
