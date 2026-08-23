@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="m3_sys_color_light_on_error_container">@color/m3_ref_palette_error30</color>
+</resources>

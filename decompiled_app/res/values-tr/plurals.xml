@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="one">(%d öğe) silmek istediğinizden emin misiniz?</item>
+        <item quantity="other">(%d öğe) silmek istediğinizden emin misiniz?</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="one">"'%d' tane dosyayı Geri Dönüşüm Kutusuna taşımak istediğinizden emin misiniz?"</item>
+        <item quantity="other">"'%d' tane dosyayı Geri Dönüşüm Kutusuna taşımak istediğinizden emin misiniz?"</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">%d saniye ileri sar</item>
+        <item quantity="other">%d saniye ileri sar</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">%d saniye geri sar</item>
+        <item quantity="other">%d saniye geri sar</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s dosya</item>
+        <item quantity="other">%1$s dosya</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s klasör</item>
+        <item quantity="other">%1$s klasör</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="one">%2$s içine toplam %1$d öğe sıkıştırıldı</item>
+        <item quantity="other">%2$s içine toplam %1$d öğe sıkıştırıldı</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="one">%2$s klasörüne toplam %1$d öğe kopyalandı</item>
+        <item quantity="other">%2$s klasörüne toplam %1$d öğe kopyalandı</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="one">Toplam %1$d öğe silindi</item>
+        <item quantity="other">Toplam %1$d öğe silindi</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="one">%2$s klasörüne toplam %1$d öğe çıkartıldı</item>
+        <item quantity="other">%2$s klasörüne toplam %1$d öğe çıkartıldı</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="one">%2$s klasörüne toplam %1$d öğe taşındı</item>
+        <item quantity="other">%2$s klasörüne toplam %1$d öğe taşındı</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="one">Toplam %d tane öge Geri Dönüşüm Kutusuna taşındı</item>
+        <item quantity="other">Toplam %d tane öge Geri Dönüşüm Kutusuna taşındı</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="one">Toplam %d tane öge Geri Dönüşüm Kutusundan geri yüklendi</item>
+        <item quantity="other">Toplam %d tane öge Geri Dönüşüm Kutusundan geri yüklendi</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d yeni bildirim</item>
+        <item quantity="other">%d yeni bildirim</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="one">%d öğe</item>
+        <item quantity="other">%d öğe</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d öğe seçildi</item>
+        <item quantity="other">%1$d öğe seçildi</item>
+    </plurals>
+</resources>

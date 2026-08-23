@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.appcompat.widget.Toolbar android:id="@id/toolbar" android:layout_width="match_parent" android:layout_height="?actionBarSize" app:navigationContentDescription="@string/abc_action_bar_up_description" style="@style/ToolbarStyle.Overlay" />
+    <include layout="@layout/video_playback_control_view" />
+</merge>

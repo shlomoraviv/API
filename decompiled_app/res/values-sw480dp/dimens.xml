@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="analysis_card_padding">8.0dp</dimen>
+    <dimen name="desktop2_grid_column_width">108.0dp</dimen>
+    <dimen name="desktop2_grid_icon_size">74.0dp</dimen>
+    <dimen name="desktop_grid_column_width">112.0dp</dimen>
+    <dimen name="desktop_grid_icon_size">80.0dp</dimen>
+    <dimen name="desktop_item_info_text_size">14.0sp</dimen>
+    <dimen name="desktop_item_name_text_size">18.0sp</dimen>
+    <dimen name="exo_media_button_width">76.0dp</dimen>
+    <dimen name="file_grid_column_width_large">90.0dp</dimen>
+    <dimen name="file_grid_column_width_medium">74.0dp</dimen>
+    <dimen name="file_grid_folder_icon_size_large">50.0dp</dimen>
+    <dimen name="file_grid_folder_icon_size_medium">41.0dp</dimen>
+    <dimen name="file_grid_icon_size_large">84.0dp</dimen>
+    <dimen name="file_grid_icon_size_medium">68.0dp</dimen>
+    <dimen name="file_grid_padding">7.0dp</dimen>
+    <dimen name="file_grid_text_size">15.0sp</dimen>
+    <dimen name="file_list_filename_size_large">20.0sp</dimen>
+    <dimen name="max_analysis_title">280.0dp</dimen>
+</resources>

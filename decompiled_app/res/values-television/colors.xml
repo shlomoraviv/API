@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_secondary_text">#9a000000</color>
+    <color name="ripple_more_vivid_dark">#b0ffffff</color>
+    <color name="ripple_vivid_dark">#80ffffff</color>
+    <color name="ripple_vivid_light">#40000000</color>
+</resources>

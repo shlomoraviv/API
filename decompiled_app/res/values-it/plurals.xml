@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="one">Sei sicuro di voler eliminare %d elemento?</item>
+        <item quantity="other">Sei sicuro di voler eliminare %d elementi?</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="one">Sei sicuro di voler spostare %d elemento nel Cestino?</item>
+        <item quantity="other">Sei sicuro di voler spostare %d elementi al Cestino?</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">Avanti di %d secondo</item>
+        <item quantity="other">Avanti di %d secondi</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">Indietro di %d secondo</item>
+        <item quantity="other">Indietro di %d secondi</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s file</item>
+        <item quantity="other">%1$s file</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s cartella</item>
+        <item quantity="other">%1$s cartelle</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="one">%1$d elemento compresso su %2$s</item>
+        <item quantity="other">%1$d elementi compressi su %2$s</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="one">%1$d elemento copiato su %2$s</item>
+        <item quantity="other">%1$d elementi copiati su %2$s</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="one">%1$d elemento eliminato</item>
+        <item quantity="other">%1$d elementi eliminati</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="one">%1$d elemento estratto %2$s</item>
+        <item quantity="other">%1$d elementi estratti %2$s</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="one">%1$d elemento trasferito a %2$s</item>
+        <item quantity="other">%1$d elementi spostati %2$s</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="one">%d elemento spostato nel Cestino</item>
+        <item quantity="other">%d elementi spostati nel Cestino</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="one">%d oggetto ripristinato dal Cestino</item>
+        <item quantity="other">%d elementi ripristinati dal Cestino</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d nuova notifica</item>
+        <item quantity="other">%d nuove notifiche</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="one">%d elemento</item>
+        <item quantity="other">%d elementi</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d file selezionato</item>
+        <item quantity="other">%1$d file selezionati</item>
+    </plurals>
+</resources>

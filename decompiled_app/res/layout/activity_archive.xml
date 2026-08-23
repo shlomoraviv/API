@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alphainventor.filemanager.widget.WindowInsetsFrameLayout android:id="@id/root_view" android:background="?android:colorBackground" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        <FrameLayout android:id="@id/toolbar_container" android:layout_width="match_parent" android:layout_height="?actionBarSize" app:layout_constraintBottom_toTopOf="@id/fragment_container" app:layout_constraintTop_toTopOf="parent" />
+        <FrameLayout android:id="@id/fragment_container" android:layout_width="match_parent" android:layout_height="0.0dp" app:layout_constraintBottom_toTopOf="@id/paste_layout" app:layout_constraintTop_toBottomOf="@id/toolbar_container" />
+        <com.alphainventor.filemanager.widget.BlockTouchView android:id="@id/paste_layout_safe_area" android:visibility="gone" android:layout_width="match_parent" android:layout_height="@dimen/bottom_menu_safe_area_height" android:importantForAccessibility="no" app:layout_constraintBottom_toTopOf="@id/paste_layout" />
+        <include android:id="@id/paste_layout" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/playback_controls_layout" app:layout_constraintTop_toBottomOf="@id/fragment_container" layout="@layout/list_bottom_menu" />
+        <include android:id="@id/playback_controls_layout" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@id/paste_layout" layout="@layout/playback_controls" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.alphainventor.filemanager.widget.WindowInsetsFrameLayout>

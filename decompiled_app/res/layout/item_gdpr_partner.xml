@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:id="@id/list" android:paddingLeft="?android:expandableListPreferredChildPaddingLeft" android:paddingTop="6.0dp" android:paddingRight="6.0dp" android:paddingBottom="6.0dp" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView android:textColor="@color/main_secondary_text" android:layout_gravity="center" android:id="@id/company" android:layout_width="0.0dp" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1.0" />
+    <ImageView android:layout_gravity="center" android:id="@id/open_url" android:background="@drawable/bg_transparent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:tint="@color/main_secondary_text" app:srcCompat="@drawable/ic_open_in_new" />
+</LinearLayout>

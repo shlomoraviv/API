@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/listview_swipe_refresh_layout" android:layout_width="match_parent" android:layout_height="match_parent">
+        <com.alphainventor.filemanager.widget.FileListView android:id="@id/list" android:layout_width="match_parent" android:layout_height="match_parent" android:checkMark="?android:listChoiceIndicatorMultiple" android:divider="@drawable/file_list_divider" android:fastScrollEnabled="false" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/gridview_swipe_refresh_layout" android:visibility="invisible" android:layout_width="match_parent" android:layout_height="match_parent">
+        <com.alphainventor.filemanager.widget.FileGridView android:scrollbarStyle="outsideOverlay" android:gravity="center" android:id="@id/grid" android:padding="@dimen/file_grid_padding" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" android:horizontalSpacing="@dimen/file_grid_horizontal_spacing" android:verticalSpacing="@dimen/file_grid_vertical_spacing" android:stretchMode="columnWidth" android:columnWidth="@dimen/file_grid_column_width_medium" android:numColumns="auto_fit" android:fastScrollEnabled="false" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/message_swipe_refresh_layout" android:visibility="invisible" android:layout_width="match_parent" android:layout_height="match_parent">
+        <RelativeLayout android:id="@id/message" android:padding="10.0dp" android:layout_width="match_parent" android:layout_height="match_parent">
+            <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_centerInParent="true">
+                <TextView android:textAppearance="?android:textAppearanceLarge" android:textColor="@color/main_primary_text" android:layout_gravity="center" android:id="@id/main_message" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/empty_folder" />
+                <TextView android:textAppearance="?android:textAppearanceMedium" android:textColor="@color/main_secondary_text" android:layout_gravity="center" android:id="@id/sub_message" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <Button android:layout_gravity="center" android:id="@id/clickable_message" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:text="@string/open_with_system_files" style="@style/Widget.MaterialComponents.Button.TextButton" />
+            </LinearLayout>
+        </RelativeLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <ViewStub android:id="@id/full_progress" android:layout="@layout/part_full_progress" android:layout_width="match_parent" android:layout_height="match_parent" />
+</RelativeLayout>

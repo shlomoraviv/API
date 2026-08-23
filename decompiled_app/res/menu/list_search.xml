@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:icon="@drawable/ic_ab_sort" android:id="@id/menu_sort" android:orderInCategory="200" android:title="@string/menu_sort" app:showAsAction="always" />
+    <item android:icon="@drawable/ic_ab_filter" android:id="@id/menu_filter" android:orderInCategory="200" android:title="@string/menu_filter" app:showAsAction="always" />
+</menu>

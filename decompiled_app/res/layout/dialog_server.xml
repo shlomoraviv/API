@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.AlertDialog"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:id="@id/root_view" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:id="@id/server_layout_host" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_host" android:layout_weight="3.0" />
+            <EditText android:ellipsize="end" android:id="@id/server_host" android:layout_width="0.0dp" android:layout_height="wrap_content" android:hint="@string/dialog_hint_host" android:singleLine="true" android:layout_weight="7.0" android:inputType="textUri" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_port" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_port" android:layout_weight="3.0" />
+            <EditText android:id="@id/server_port" android:layout_width="0.0dp" android:layout_height="wrap_content" android:maxLength="5" android:layout_weight="7.0" android:inputType="number" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_encryption" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp">
+            <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="" android:layout_weight="3.0" />
+            <RadioGroup android:orientation="horizontal" android:id="@id/server_encryption" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0">
+                <RadioButton android:id="@id/server_encryption_no" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/http" />
+                <RadioButton android:id="@id/server_encryption_use" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/https" />
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_insecure_warning" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="3.0" />
+            <TextView android:textColor="@color/error_message_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/ssl_not_secure" android:layout_weight="7.0" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_username" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_username" android:layout_weight="3.0" />
+            <EditText android:id="@id/server_username" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0" android:inputType="text" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_password" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_password" android:layout_weight="3.0" />
+            <EditText android:id="@id/server_password" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0" android:inputType="textPassword" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_private_key" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_private_key" android:layout_weight="3.0" />
+            <TextView android:textAppearance="?android:textAppearanceMedium" android:textSize="16.0sp" android:id="@id/server_private_key" android:focusable="true" android:layout_width="0.0dp" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="7.0" style="@style/Widget.AppCompat.Spinner.Underlined" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_private_key_passphrase" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_private_key_passphrase" android:layout_weight="3.0" />
+            <EditText android:id="@id/server_private_key_passphrase" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0" android:inputType="textPassword" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_anonymous" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp">
+            <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="" android:layout_weight="3.0" />
+            <CheckBox android:id="@id/server_anonymous" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="-3.0dp" android:text="@string/dialog_entry_anonymous" android:layout_weight="7.0" android:layout_marginStart="-3.0dp" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_mode" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp">
+            <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_mode" android:layout_weight="3.0" />
+            <RadioGroup android:orientation="horizontal" android:id="@id/server_mode" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0">
+                <RadioButton android:id="@id/server_mode_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/active" />
+                <RadioButton android:id="@id/server_mode_passive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/passive" />
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_security" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp">
+            <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_security" android:layout_weight="3.0" />
+            <RadioGroup android:orientation="horizontal" android:id="@id/server_security" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0">
+                <RadioButton android:id="@id/server_mode_implicit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/implicit" />
+                <RadioButton android:id="@id/server_mode_explicit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/explicit" />
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_encoding" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp">
+            <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/text_encoding" android:layout_weight="3.0" />
+            <Spinner android:id="@id/server_charset" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_domain" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_domain" android:layout_weight="3.0" />
+            <EditText android:id="@id/server_domain" android:layout_width="0.0dp" android:layout_height="wrap_content" android:hint="@string/dialog_hint_optional" android:singleLine="true" android:layout_weight="7.0" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_protocol" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp">
+            <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_smb_version" android:layout_weight="3.0" />
+            <Spinner android:id="@id/server_protocol" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/server_layout_diaplay" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dp" android:baselineAligned="false">
+            <TextView android:layout_gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_display" android:layout_weight="3.0" />
+            <EditText android:id="@id/server_display" android:layout_width="0.0dp" android:layout_height="wrap_content" android:hint="@string/dialog_hint_optional" android:singleLine="true" android:layout_weight="7.0" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

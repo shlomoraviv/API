@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="35" android:compileSdkVersionCodename="15" package="com.alphainventor.filemanager" platformBuildVersionCode="35" platformBuildVersionName="15">
+    <uses-permission-sdk-23 android:name="moe.shizuku.manager.permission.API_V23"/>
+    <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true" android:xlargeScreens="true"/>
+    <uses-permission android:maxSdkVersion="32" android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:maxSdkVersion="32" android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:maxSdkVersion="26" android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission-sdk-23 android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <uses-permission-sdk-23 android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission-sdk-23 android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission-sdk-23 android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission-sdk-23 android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-feature android:name="android.hardware.usb.host" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
+    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
+    <uses-feature android:name="android.software.leanback" android:required="false"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-feature android:name="android.hardware.faketouch" android:required="false"/>
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.nfc" android:required="false"/>
+    <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    <uses-feature android:name="android.hardware.sensor" android:required="false"/>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.INSERT"/>
+            <data android:mimeType="vnd.android.cursor.dir/event"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="sms"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:path="tel:"/>
+        </intent>
+        <package android:name="com.dropbox.android"/>
+    </queries>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <permission android:name="com.alphainventor.filemanager.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature"/>
+    <uses-permission android:name="com.alphainventor.filemanager.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+    <application android:allowBackup="@bool/enable_backup" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:banner="@drawable/tvbanner" android:dataExtractionRules="@xml/data_export_rules" android:enableOnBackInvokedCallback="false" android:fullBackupContent="@xml/autobackupscheme" android:fullBackupOnly="true" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:largeHeap="true" android:localeConfig="@xml/locales_config" android:name="com.hm.speedremoveads.RMApplication" android:networkSecurityConfig="@xml/network_security_config" android:requestLegacyExternalStorage="true" android:supportsRtl="false" android:usesCleartextTraffic="true">
+        <provider android:authorities="com.alphainventor.filemanager.shizuku" android:enabled="@bool/enable_shizuku_provider" android:exported="true" android:multiprocess="false" android:name="rikka.shizuku.ShizukuProvider" android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <meta-data android:name="android.max_aspect" android:value="2.4"/>
+        <activity android:allowTaskReparenting="true" android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:enableOnBackInvokedCallback="@bool/temp_disabled_sdk_34" android:exported="true" android:label="@string/app_name" android:launchMode="singleTop" android:name="com.alphainventor.filemanager.activity.MainActivity" android:resizeableActivity="true" android:theme="@style/filemanager.AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.MONKEY"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:label="@string/open_source_licenses" android:name="com.alphainventor.filemanager.oss.OssLicenseActivity" android:theme="@style/filemanager.AppTheme"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="true" android:label="@string/location_archive_viewer" android:name="com.alphainventor.filemanager.activity.ArchiveActivity" android:resizeableActivity="true" android:theme="@style/filemanager.AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/zip"/>
+                <data android:mimeType="multipart/*zip"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/java-archive"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="true" android:label="@string/text_editor" android:name="com.alphainventor.filemanager.texteditor.TextEditorActivity" android:theme="@style/filemanager.AppTheme" android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/*" android:scheme="file"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="com.alphainventor.filemanager.fileprovider" android:mimeType="text/*" android:scheme="content"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:enableOnBackInvokedCallback="@bool/temp_disabled_sdk_34" android:label="@string/image_viewer" android:name="com.alphainventor.filemanager.viewer.ImageViewerActivity" android:theme="@style/ImageViewerTheme"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:enableOnBackInvokedCallback="@bool/temp_disabled_sdk_34" android:enabled="@bool/enabled_sdk_16" android:exported="true" android:label="@string/video_player" android:launchMode="singleTop" android:name="com.alphainventor.filemanager.viewer.VideoPlayerActivity" android:taskAffinity="com.alphainventor.filemanager.videoplayer" android:theme="@style/VideoPlayerTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="http"/>
+                <data android:scheme="https"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="video/mp4"/>
+                <data android:mimeType="video/3gpp"/>
+                <data android:mimeType="video/webm"/>
+                <data android:mimeType="video/x-matroska"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="video/mp4"/>
+                <data android:mimeType="video/3gpp"/>
+                <data android:mimeType="video/webm"/>
+                <data android:mimeType="video/x-matroska"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:enableOnBackInvokedCallback="@bool/temp_disabled_sdk_34" android:exported="false" android:name="com.alphainventor.filemanager.activity.SettingsActivity" android:theme="@style/filemanager.AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.alphainventor.filemanager.activity.DevSettingsActivity" android:theme="@style/filemanager.AppTheme"/>
+        <activity android:exported="true" android:label="@string/file_launcher" android:launchMode="singleTask" android:name="com.alphainventor.filemanager.activity.LaunchActivity" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="com.example.android.uamp.open_ui"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="resource/folder"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_DOWNLOADS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="com.android.mtp.documents" android:mimeType="vnd.android.document/root" android:scheme="content"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="media" android:mimeType="*/*" android:scheme="content"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="audio/mpeg"/>
+                <data android:mimeType="audio/flac"/>
+                <data android:mimeType="audio/ogg"/>
+                <data android:mimeType="audio/aac"/>
+                <data android:mimeType="audio/3gpp"/>
+                <data android:mimeType="audio/mp4"/>
+                <data android:mimeType="audio/wav"/>
+                <data android:mimeType="image/jpeg"/>
+                <data android:mimeType="image/gif"/>
+                <data android:mimeType="image/png"/>
+                <data android:mimeType="image/bmp"/>
+                <data android:mimeType="image/webp"/>
+                <data android:mimeType="image/svg+xml"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="true" android:label="" android:name="com.alphainventor.filemanager.activity.ShortcutActivity" android:taskAffinity="com.alphainventor.filemanager.shortcut" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="com.alphainventor.filemanager.OPEN_SHORTCUT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="true" android:label="@string/app_name" android:name="com.alphainventor.filemanager.activity.UsbAttachActivity" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+            </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@xml/device_filter"/>
+        </activity>
+        <activity android:exported="true" android:label="@string/app_name" android:name="com.alphainventor.filemanager.activity.PickerActivity" android:theme="@style/filemanager.AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.OPENABLE"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.OPEN_DOCUMENT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.OPENABLE"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PICK"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="true" android:label="@string/app_name" android:launchMode="singleTask" android:name="com.alphainventor.filemanager.activity.SaveToActivity" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+        </activity>
+        <activity android:exported="true" android:label="@string/label_wallpaper" android:launchMode="singleTask" android:name="com.alphainventor.filemanager.activity.WallpaperActivity" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA"/>
+                <data android:mimeType="image/*"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:enableOnBackInvokedCallback="@bool/temp_disabled_sdk_34" android:launchMode="singleTask" android:name="com.alphainventor.filemanager.activity.FileProgressActivity" android:theme="@style/filemanager.AppTheme"/>
+        <activity android:exported="false" android:label="@string/image_viewer" android:name="com.alphainventor.filemanager.viewer.ImageViewer" android:theme="@style/filemanager.AppTheme"/>
+        <activity android:exported="false" android:label="@string/music_player" android:name="com.alphainventor.filemanager.viewer.MusicPlayer" android:theme="@style/filemanager.AppTheme"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="true" android:label="@string/split_apk_installer" android:name="com.alphainventor.filemanager.activity.SplitApkInstallerActivity" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="file"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="application/x-splitapk"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="file"/>
+                <data android:host="*"/>
+                <data android:pathPattern=".*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="file"/>
+                <data android:scheme="content"/>
+                <data android:host="*"/>
+                <data android:mimeType="*/*"/>
+                <data android:pathPattern=".*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk+"/>
+                <data android:pathPattern=".*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk%2B"/>
+            </intent-filter>
+        </activity>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="true" android:label="@string/label_ms_url" android:name="com.alphainventor.filemanager.activity.MSURLLauncherActivity" android:theme="@style/TransparentTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="file"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="application/x-mswinurl"/>
+            </intent-filter>
+        </activity>
+        <activity android:launchMode="singleTask" android:name="com.alphainventor.filemanager.activity.ResultActivity" android:theme="@style/TransparentTheme"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:label="@string/music_player" android:launchMode="singleTop" android:name="com.alphainventor.filemanager.musicplayer.FullScreenPlayerActivity" android:parentActivityName="com.alphainventor.filemanager.activity.MainActivity" android:theme="@style/MusicPlayerDarkTheme">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".activity.MainActivity"/>
+        </activity>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:label="@string/settings_default_apps" android:name="com.alphainventor.filemanager.activity.DefaultsSettingsActivity" android:theme="@style/filemanager.AppTheme"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:enableOnBackInvokedCallback="@bool/temp_disabled_sdk_34" android:label="@string/title_premium" android:name="com.alphainventor.filemanager.activity.PaymentActivity" android:theme="@style/filemanager.AppTheme"/>
+        <service android:exported="false" android:foregroundServiceType="dataSync" android:name="com.alphainventor.filemanager.service.FtpServerService"/>
+        <service android:exported="false" android:foregroundServiceType="dataSync" android:name="com.alphainventor.filemanager.service.FileObserverService"/>
+        <service android:exported="false" android:foregroundServiceType="dataSync" android:name="com.alphainventor.filemanager.service.ScanService"/>
+        <service android:exported="false" android:foregroundServiceType="mediaPlayback" android:name="com.alphainventor.filemanager.service.HttpServerService"/>
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="dataSync" android:name="com.alphainventor.filemanager.service.CommandService">
+            <intent-filter>
+                <action android:name="com.alphainventor.service.FILEPROGRESSSERVICE"/>
+            </intent-filter>
+        </service>
+        <receiver android:exported="true" android:name="com.alphainventor.filemanager.receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.alphainventor.filemanager.receiver.PackageCommitReceiver"/>
+        <receiver android:exported="true" android:name="com.alphainventor.filemanager.receiver.StorageCheckReceiver">
+            <intent-filter>
+                <action android:name="filemanager.intent.action.STORAGE_CHECK"/>
+            </intent-filter>
+        </receiver>
+        <provider android:authorities="com.alphainventor.filemanager.bookmark" android:exported="false" android:name="com.alphainventor.filemanager.bookmark.BookmarkProvider"/>
+        <provider android:authorities="com.alphainventor.filemanager.fileprovider" android:exported="false" android:grantUriPermissions="false" android:name="com.alphainventor.filemanager.provider.MyFileProvider">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths"/>
+            <grant-uri-permission android:pathPrefix="/"/>
+        </provider>
+        <provider android:authorities="com.alphainventor.filemanager.foldershare.provider" android:exported="false" android:grantUriPermissions="true" android:name="com.alphainventor.filemanager.sharing.QuickShareProvider"/>
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
+        <activity android:configChanges="keyboard|orientation" android:exported="true" android:launchMode="singleTask" android:name="com.dropbox.core.android.AuthActivity">
+            <intent-filter>
+                <data android:scheme="db-u1wulwl292c1qq6"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <provider android:authorities="com.alphainventor.filemanager.androidx-startup" android:exported="false" android:name="androidx.startup.InitializationProvider">
+            <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer" android:value="androidx.startup"/>
+            <meta-data android:name="androidx.lifecycle.ProcessLifecycleInitializer" android:value="androidx.startup"/>
+        </provider>
+        <activity android:excludeFromRecents="true" android:exported="false" android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <service android:exported="true" android:name="com.google.android.gms.auth.api.signin.RevocationBoundService" android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION" android:visibleToInstantApps="true"/>
+        <activity android:exported="false" android:name="com.google.android.gms.common.api.GoogleApiActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <service android:exported="true" android:foregroundServiceType="mediaPlayback" android:name="com.example.android.uamp.MusicService">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
+        <receiver android:exported="true" android:name="androidx.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
+        <uses-library android:name="androidx.window.extensions" android:required="false"/>
+        <uses-library android:name="androidx.window.sidecar" android:required="false"/>
+        <service android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"/>
+        <service android:directBootAware="false" android:enabled="@bool/enable_system_job_service_default" android:exported="true" android:name="androidx.work.impl.background.systemjob.SystemJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service android:directBootAware="false" android:enabled="@bool/enable_system_foreground_service_default" android:exported="false" android:name="androidx.work.impl.foreground.SystemForegroundService"/>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="false" android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"/>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_OKAY"/>
+                <action android:name="android.intent.action.BATTERY_LOW"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy">
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
+                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver">
+            <intent-filter>
+                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver" android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.profileinstaller.ProfileInstallReceiver" android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+            </intent-filter>
+        </receiver>
+        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.box.androidsdk.content.auth.OAuthActivity"/>
+        <activity android:launchMode="singleInstance" android:name="com.box.androidsdk.content.auth.BlockedIPErrorActivity"/>
+        <provider android:authorities="com.alphainventor.filemanager.box.androidsdk.provider" android:exported="false" android:name="com.box.androidsdk.content.utils.BoxContentProvider"/>
+        <meta-data android:name="moe.shizuku.client.V3_SUPPORT" android:value="true"/>
+        <service android:directBootAware="true" android:exported="false" android:name="androidx.room.MultiInstanceInvalidationService"/>
+    </application>
+</manifest>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="match_parent" style="@style/Widget.AlertDialog"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.textfield.TextInputLayout android:id="@id/date_input_layout" android:layout_width="0.0dp" android:layout_height="wrap_content" android:hint="@string/dialog_entry_date" app:hintEnabled="true" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <AutoCompleteTextView android:id="@id/date_complete_text_view" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout android:id="@id/size_input_layout" android:layout_width="0.0dp" android:layout_height="wrap_content" android:hint="@string/dialog_entry_size" app:hintEnabled="true" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/date_input_layout" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <AutoCompleteTextView android:id="@id/size_complete_text_view" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout android:id="@id/type_input_layout" android:layout_width="0.0dp" android:layout_height="wrap_content" android:hint="@string/dialog_entry_type" app:hintEnabled="true" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/size_input_layout" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <AutoCompleteTextView android:id="@id/type_complete_text_view" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

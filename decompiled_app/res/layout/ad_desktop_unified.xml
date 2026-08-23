@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.gms.ads.nativead.NativeAdView android:background="@color/desktop_native_ads_background" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="0.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="horizontal" android:paddingLeft="8.0dp" android:paddingRight="16.0dp" android:layout_width="match_parent" android:layout_height="@dimen/desktop_ad_height" android:layout_marginTop="1.0px">
+        <ImageView android:layout_gravity="center_vertical" android:id="@id/unified_app_icon" android:layout_width="44.0dp" android:layout_height="44.0dp" android:layout_marginRight="6.0dp" android:adjustViewBounds="true" android:layout_marginEnd="6.0dp" />
+        <com.google.android.gms.ads.nativead.MediaView android:layout_gravity="center_vertical" android:id="@id/unified_icon_media" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="0.0dp" android:layout_marginRight="6.0dp" android:layout_marginEnd="6.0dp" />
+        <LinearLayout android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:layout_marginRight="2.0dp" android:layout_weight="1.0" android:layout_marginEnd="2.0dp">
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <TextView android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/main_primary_text" android:id="@id/unified_headline" android:focusable="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:singleLine="true" />
+            </LinearLayout>
+            <TextView android:textSize="12.0sp" android:textColor="@color/main_secondary_text" android:id="@id/unified_body" android:focusable="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="2" />
+        </LinearLayout>
+        <Button android:textSize="12.0sp" android:gravity="center" android:layout_gravity="center_vertical" android:id="@id/unified_call_to_action" android:paddingLeft="6.0dp" android:paddingRight="6.0dp" android:layout_width="wrap_content" android:layout_height="56.0dp" android:maxWidth="92.0dp" android:minWidth="80.0dp" style="@style/Widget.MaterialComponents.Button" />
+    </LinearLayout>
+    <TextView android:textSize="8.0sp" android:textColor="#ff00abca" android:gravity="center" android:layout_gravity="end|bottom" android:background="#ffeaeaea" android:layout_width="15.0dp" android:layout_height="14.0dp" android:text="@string/ad_mark" />
+</com.google.android.gms.ads.nativead.NativeAdView>

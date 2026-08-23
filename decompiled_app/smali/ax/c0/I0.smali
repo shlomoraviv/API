@@ -1,0 +1,16 @@
+.class public final synthetic Lax/c0/I0;
+.super Ljava/lang/Object;
+
+
+# direct methods
+.method public static bridge synthetic a(Landroid/view/WindowInsets$Builder;Landroid/graphics/Insets;)Landroid/view/WindowInsets$Builder;
+    .locals 1
+
+    invoke-virtual {p0, p1}, Landroid/view/WindowInsets$Builder;->setMandatorySystemGestureInsets(Landroid/graphics/Insets;)Landroid/view/WindowInsets$Builder;
+
+    move-result-object p0
+
+    const/4 v0, 0x1
+
+    return-object p0
+.end method

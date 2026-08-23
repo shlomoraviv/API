@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="other">คุณแน่ใจว่าต้องการลบ (%d รายการ) หรือไม่?</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="other">คุณแน่ใจว่าต้องการย้ายรายการเหล่านี้ %d รายการไปยังถังรีไซเคิลหรือไม่</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">กรอไปข้างหน้า %d วินาที</item>
+        <item quantity="other">กรอไปข้างหน้า %d วินาที</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">กรอกลับ %d วินาที</item>
+        <item quantity="other">กรอกลับ %d วินาที</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s ไฟล์</item>
+        <item quantity="other">%1$s ไฟล์</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s โฟลเดอร์</item>
+        <item quantity="other">%1$s โฟลเดอร์</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="other">รวม %1$d รายการถูกบีบอัดไปที่ %2$s</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="other">รวม %1$d รายการถูกคัดลอกไปที่ %2$s</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="other">รวม %1$d รายการที่ถูกลบ</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="other">รวม %1$d รายการถูกแยกไปที่ %2$s</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="other">รวม %1$d รายการถูกย้ายไปที่ %2$s</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="other">รายการทั้งหมด %d รายการถูกย้ายไปยังถังรีไซเคิลแล้ว</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="other">กู้คืนรายการทั้งหมด %d รายการจากถังรีไซเคิลแล้ว</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">การแจ้งเตือนใหม่ %d รายการ</item>
+        <item quantity="other">การแจ้งเตือนใหม่ %d รายการ</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="other">%d รายการ</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">เลือกไว้ %1$d รายการ</item>
+        <item quantity="other">เลือกไว้ %1$d รายการ</item>
+    </plurals>
+</resources>

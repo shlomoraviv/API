@@ -1,0 +1,70 @@
+.class public final Lax/f6/Cz;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Lax/f6/Cz0;
+
+
+# instance fields
+.field private final a:Lax/f6/Tz0;
+
+.field private final b:Lax/f6/Tz0;
+
+.field private final c:Lax/f6/Tz0;
+
+
+# direct methods
+.method public constructor <init>(Lax/f6/Tz0;Lax/f6/Tz0;Lax/f6/Tz0;)V
+    .locals 0
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput-object p1, p0, Lax/f6/Cz;->a:Lax/f6/Tz0;
+
+    iput-object p2, p0, Lax/f6/Cz;->b:Lax/f6/Tz0;
+
+    iput-object p3, p0, Lax/f6/Cz;->c:Lax/f6/Tz0;
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final synthetic b()Ljava/lang/Object;
+    .locals 3
+
+    iget-object v0, p0, Lax/f6/Cz;->a:Lax/f6/Tz0;
+
+    check-cast v0, Lax/f6/BC;
+
+    invoke-virtual {v0}, Lax/f6/BC;->a()Lax/f6/q70;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lax/f6/Cz;->b:Lax/f6/Tz0;
+
+    check-cast v1, Lax/f6/UU;
+
+    invoke-virtual {v1}, Lax/f6/UU;->a()Lax/f6/TU;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lax/f6/Cz;->c:Lax/f6/Tz0;
+
+    check-cast v2, Lax/f6/AU;
+
+    invoke-virtual {v2}, Lax/f6/AU;->a()Lax/f6/zU;
+
+    move-result-object v2
+
+    invoke-virtual {v0}, Lax/f6/q70;->a()Lax/f6/ki;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    return-object v1
+
+    :cond_0
+    return-object v2
+.end method

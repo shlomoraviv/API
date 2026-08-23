@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/title_premium" android:key="settings_payment" app:iconSpaceReserved="false">
+        <PreferenceScreen android:title="@string/upgrade_to_premium" android:key="payment_screen" app:iconSpaceReserved="false" />
+        <ListPreference android:entries="@array/night_mode_entries" android:title="@string/title_theme" android:key="night_mode" android:defaultValue="1" android:entryValues="@array/night_mode_values" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_default_apps" android:key="settings_defaults" app:iconSpaceReserved="false">
+        <PreferenceScreen android:title="@string/settings_default_apps" android:key="defaults_screen" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/builtin_apps_settings" android:key="settings_general" app:iconSpaceReserved="false">
+        <CheckBoxPreference android:title="@string/image_viewer" android:key="use_internal_image_viewer" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/video_player" android:key="use_internal_video_player" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/music_player" android:key="use_internal_music_player" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/text_editor" android:key="use_internal_text_editor" android:defaultValue="true" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/notifications_settings" android:key="settings_notification" app:iconSpaceReserved="false">
+        <ListPreference android:entries="@array/storage_full_thredhold_entries" android:title="@string/noti_storage_full" android:key="storage_full_threshold" android:defaultValue="97" android:entryValues="@array/storage_full_threshold_values" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/recycle_bin_settings" android:key="settings_recycle_bin" app:iconSpaceReserved="false">
+        <CheckBoxPreference android:title="@string/use_recycle_bin" android:key="use_recycle_bin" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/recycle_bin_confirmation" android:key="recycle_bin_confirmation_2" android:dependency="use_recycle_bin" android:defaultValue="true" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/advanced_settings" android:key="settings_advanced" app:iconSpaceReserved="false">
+        <CheckBoxPreference android:title="@string/setting_always_show_nav_icon" android:key="show_drawer_always" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/setting_detect_usb_connection" android:key="detect_usb_attached" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/setting_show_history" android:key="show_history" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/setting_show_system" android:key="show_system" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:visibility="gone" android:title="@string/setting_root_access_mode" android:key="root_access_mode" android:dependency="show_system" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/setting_show_dual_apps" android:key="show_dual_apps" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <ListPreference android:entries="@array/file_size_unit_entries" android:title="@string/setting_file_size_unit" android:key="file_size_unit" android:defaultValue="0" android:entryValues="@array/file_size_unit_values" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/show_advanced_menus" android:key="show_advacned_menus" app:iconSpaceReserved="false">
+        <CheckBoxPreference android:title="@string/menu_add_bookmark" android:key="show_add_to_favorite" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/menu_add_to_home_screen" android:key="show_add_to_home_screen" android:defaultValue="@bool/default_show_add_to_home_screen" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/settings_hide_unhide" android:key="show_hide_unhide" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/menu_open_as" android:key="show_open_as" android:defaultValue="false" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/about_preference" android:key="settings_about" app:iconSpaceReserved="false">
+        <Preference android:title="@string/about_preference" android:key="about_screen" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

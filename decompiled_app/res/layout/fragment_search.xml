@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        <TextView android:textSize="16.0sp" android:textColor="@color/search_query_text" android:gravity="center" android:id="@id/query" android:background="@drawable/bg_search_query" android:padding="5.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/list" app:layout_constraintTop_toTopOf="parent" />
+        <com.alphainventor.filemanager.widget.FileListView android:id="@id/list" android:layout_width="match_parent" android:layout_height="0.0dp" android:divider="@drawable/file_list_divider" app:layout_constraintBottom_toTopOf="@id/snackbar_container" app:layout_constraintTop_toBottomOf="@id/query" />
+        <TextView android:textSize="20.0sp" android:gravity="center" android:id="@id/empty" android:visibility="gone" android:layout_width="match_parent" android:layout_height="0.0dp" android:text="@string/no_results" app:layout_constraintBottom_toTopOf="@id/snackbar_container" app:layout_constraintTop_toBottomOf="@id/query" />
+        <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/snackbar_container" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/bottom_menu_layout" app:layout_constraintTop_toBottomOf="@id/list" />
+        <com.alphainventor.filemanager.widget.BlockTouchView android:id="@id/bottom_menu_safe_area" android:visibility="gone" android:layout_width="match_parent" android:layout_height="@dimen/bottom_menu_safe_area_height" android:importantForAccessibility="no" app:layout_constraintBottom_toTopOf="@id/bottom_menu_layout" />
+        <include android:id="@id/bottom_menu_layout" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/fragment_navigation_area" app:layout_constraintTop_toBottomOf="@id/snackbar_container" layout="@layout/list_bottom_menu" />
+        <FrameLayout android:id="@id/fragment_navigation_area" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@id/bottom_menu_layout" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.alphainventor.filemanager.widget.RefreshProgressBar android:id="@id/progressbar" android:visibility="gone" android:layout_width="match_parent" android:layout_height="4.0dp" app:barHeight="2.5dp" />
+</RelativeLayout>

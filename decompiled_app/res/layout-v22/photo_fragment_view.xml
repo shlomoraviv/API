@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" android:defaultFocusHighlightEnabled="false"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView android:id="@id/scale_view" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" />
+    <com.android.ex.photo.views.PhotoView android:id="@id/photo_view" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" />
+    <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/exif_info_layout" android:layout_width="match_parent" android:layout_height="match_parent">
+        <include android:id="@id/bottom_sheet_exif_info" app:behavior_hideable="true" app:layout_behavior="@string/bottom_sheet_behavior" layout="@layout/include_exif_info" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <FrameLayout android:id="@id/photo_preview" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_centerInParent="true">
+        <ImageView android:layout_gravity="center" android:id="@id/photo_preview_image" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitCenter" />
+        <ProgressBar android:layout_gravity="top" android:id="@id/indeterminate_progress" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="?actionBarSize" android:indeterminate="true" style="?android:progressBarStyleHorizontal" />
+        <ProgressBar android:layout_gravity="top" android:id="@id/determinate_progress" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="?actionBarSize" android:indeterminate="false" style="?android:progressBarStyleHorizontal" />
+    </FrameLayout>
+    <ImageView android:id="@id/control_play" android:visibility="gone" android:layout_width="160.0dp" android:layout_height="160.0dp" android:scaleType="center" android:layout_centerInParent="true" android:defaultFocusHighlightEnabled="false" app:srcCompat="@drawable/ic_control_play" />
+    <TextView android:textColor="@android:color/white" android:id="@id/empty_text" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8.0dp" android:layout_centerInParent="true" android:layout_centerHorizontal="true" />
+    <TextView android:textColor="#ffff0000" android:id="@id/error_text" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8.0dp" android:layout_below="@id/empty_text" android:layout_centerHorizontal="true" />
+    <include layout="@layout/photo_retry_button" />
+</RelativeLayout>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="appopen_menu">
+        <item>@string/menu_open</item>
+        <item>@string/menu_info</item>
+        <item>@string/menu_store</item>
+    </string-array>
+    <string-array name="date_filter_values">
+        <item>@string/option_any_date</item>
+        <item>@string/option_today</item>
+        <item>@string/option_yesterday</item>
+        <item>@string/option_this_week</item>
+        <item>@string/option_last_week</item>
+        <item>@string/option_custom</item>
+    </string-array>
+    <string-array name="dev_settings_navigation_entries">
+        <item>Windows Drawer</item>
+        <item>Windows Drawer - Up button to Home</item>
+        <item>No Drawer</item>
+        <item>Drawer Only Home</item>
+        <item>No Up Button</item>
+        <item>Alternative</item>
+    </string-array>
+    <string-array name="dev_settings_navigation_type_string">
+        <item>WINDOW</item>
+        <item>WINDOW_UP_BUTTON_TO_HOME</item>
+        <item>NO_DRAWER</item>
+        <item>DRAWER_ONLY_HOME</item>
+        <item>NO_UP_BUTTON</item>
+        <item>ALTERNATIVE</item>
+    </string-array>
+    <string-array name="dev_settings_navigation_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+    <string-array name="dev_settings_sdcard_type_string">
+        <item>NO_SDCARD</item>
+        <item>AVAILABLE</item>
+        <item>NOT_AVAILABLE</item>
+        <item>SD_MAIN_MOUNTED</item>
+        <item>SD_MAIN_NOT_MOUNTED</item>
+        <item>NO_SDCARD_NO_MAIN</item>
+    </string-array>
+    <string-array name="exo_controls_playback_speeds">
+        <item>0.25x</item>
+        <item>0.5x</item>
+        <item>0.75x</item>
+        <item>Normal</item>
+        <item>1.25x</item>
+        <item>1.5x</item>
+        <item>2x</item>
+    </string-array>
+    <string-array name="extract_menu">
+        <item>@string/extract_here</item>
+        <item>@string/extract_to_file_name</item>
+        <item>@string/extract_to</item>
+    </string-array>
+    <string-array name="file_size_unit_entries">
+        <item>@string/gigabyteShort</item>
+        <item>@string/gibibyteShort</item>
+    </string-array>
+    <string-array name="file_size_unit_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="night_mode_entries">
+        <item>@string/theme_default</item>
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+        <item>@string/theme_auto</item>
+    </string-array>
+    <string-array name="night_mode_entries_no_auto">
+        <item>@string/theme_default</item>
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+    </string-array>
+    <string-array name="night_mode_values">
+        <item>-1</item>
+        <item>1</item>
+        <item>2</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="night_mode_values_no_auto">
+        <item>-1</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="openas_menu">
+        <item>@string/text</item>
+        <item>@string/image</item>
+        <item>@string/audio</item>
+        <item>@string/video</item>
+        <item>@string/other</item>
+    </string-array>
+    <string-array name="settings_sort_method_entries">
+        <item>@string/sort_no_sort</item>
+        <item>@string/sort_name_ascend</item>
+        <item>@string/sort_name_descend</item>
+        <item>@string/sort_size_ascend</item>
+        <item>@string/sort_size_descend</item>
+        <item>@string/sort_date_ascend</item>
+        <item>@string/sort_date_descend</item>
+        <item>@string/sort_type_ascend</item>
+        <item>@string/sort_type_descend</item>
+    </string-array>
+    <string-array name="settings_sort_method_values">
+        <item>None</item>
+        <item>NameUp</item>
+        <item>NameDown</item>
+        <item>SizeUp</item>
+        <item>SizeDown</item>
+        <item>DateUp</item>
+        <item>DateDown</item>
+        <item>TypeUp</item>
+        <item>TypeDown</item>
+    </string-array>
+    <string-array name="size_filter_values">
+        <item>@string/option_any_file_size</item>
+        <item>0 KB</item>
+        <item>0 - 16 KB</item>
+        <item>16 KB - 1 MB</item>
+        <item>1 - 128 MB</item>
+        <item>128 MB - 1 GB</item>
+        <item>> 1 GB</item>
+        <item>@string/option_custom</item>
+    </string-array>
+    <string-array name="storage_full_thredhold_entries">
+        <item>@string/switch_off_text</item>
+        <item>99%</item>
+        <item>98%</item>
+        <item>97%</item>
+        <item>96%</item>
+        <item>95%</item>
+        <item>90%</item>
+        <item>85%</item>
+    </string-array>
+    <string-array name="storage_full_threshold_values">
+        <item>200</item>
+        <item>99</item>
+        <item>98</item>
+        <item>97</item>
+        <item>96</item>
+        <item>95</item>
+        <item>90</item>
+        <item>85</item>
+    </string-array>
+</resources>

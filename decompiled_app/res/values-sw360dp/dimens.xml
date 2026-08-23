@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="analysis_card_padding">6.0dp</dimen>
+    <dimen name="desktop_grid_padding">16.0dp</dimen>
+    <dimen name="exo_media_button_width">71.0dp</dimen>
+    <dimen name="file_grid_horizontal_spacing">2.0dp</dimen>
+    <dimen name="file_grid_padding">6.0dp</dimen>
+    <dimen name="file_grid_vertical_spacing">2.0dp</dimen>
+    <dimen name="max_analysis_title">200.0dp</dimen>
+    <dimen name="video_ad_close_translate">-28.0dp</dimen>
+    <dimen name="video_ad_marginTop">50.0dp</dimen>
+</resources>

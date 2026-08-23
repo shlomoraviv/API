@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:icon="@drawable/ic_ab_add" android:id="@id/menu_add_location" android:orderInCategory="110" android:title="@string/menu_add_location" app:showAsAction="ifRoom" />
+    <item android:icon="@drawable/ic_ab_edit" android:id="@id/menu_edit_location" android:orderInCategory="120" android:title="@string/menu_edit" app:showAsAction="ifRoom" />
+</menu>

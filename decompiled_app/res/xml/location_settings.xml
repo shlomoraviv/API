@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <CheckBoxPreference android:title="@string/dialog_button_apply_to_all_folders" android:key="apply_to_all" android:defaultValue="false" app:iconSpaceReserved="false" app:persistent="false" />
+    <PreferenceCategory android:title="@string/settings_view" android:key="settings_view" app:iconSpaceReserved="false">
+        <com.alphainventor.filemanager.RadioGroupPreference android:layout="@layout/preference_view_type" android:key="view_type" app:iconSpaceReserved="false" />
+        <com.alphainventor.filemanager.RadioGroupPreference android:layout="@layout/preference_icon_size" android:key="icon_size" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_sort" android:key="settings_sort" app:iconSpaceReserved="false">
+        <ListPreference android:entries="@array/settings_sort_method_entries" android:title="@string/settings_sortby" android:key="sort_type" android:dialogTitle="@string/settings_sortby" android:entryValues="@array/settings_sort_method_values" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_etc" android:key="settings_etc" app:iconSpaceReserved="false">
+        <CheckBoxPreference android:title="@string/settings_hidden" android:key="show_hidden" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/settings_thumbnails" android:key="show_thumbnails" android:defaultValue="true" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

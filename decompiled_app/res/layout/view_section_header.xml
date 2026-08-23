@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alphainventor.filemanager.widget.BlockTouchRelativeLayout android:orientation="horizontal" android:id="@id/header_label_layout" android:visibility="gone" android:layout_width="match_parent" android:layout_height="@dimen/section_header_height"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView android:id="@id/sep" android:background="@color/section_divider_bg_color" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/section_separator_side_margin" android:layout_marginRight="@dimen/section_separator_side_margin" android:src="@drawable/file_list_divider" android:layout_alignParentBottom="true" />
+    <LinearLayout android:orientation="horizontal" android:background="@color/section_bg_color" android:paddingTop="2.0dp" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_above="@id/sep">
+        <TextView android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/section_fg_color" android:ellipsize="end" android:gravity="center_vertical" android:id="@id/header_label" android:paddingLeft="8.0dp" android:layout_width="wrap_content" android:layout_height="match_parent" android:singleLine="true" android:textIsSelectable="false" />
+        <CheckBox android:id="@id/header_checkbox" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/button_toggle_selection" style="@style/FileManager.Widget.CheckBox.Selection" />
+    </LinearLayout>
+</com.alphainventor.filemanager.widget.BlockTouchRelativeLayout>

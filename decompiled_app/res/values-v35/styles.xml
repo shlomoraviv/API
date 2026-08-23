@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="filemanager.base.theme" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:navigationBarColor">@color/main_background</item>
+        <item name="android:windowLightNavigationBar">@bool/is_light_theme</item>
+    </style>
+</resources>

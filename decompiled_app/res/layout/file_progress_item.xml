@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/file_progress_item_ll_progress_info" android:paddingLeft="10.0dp" android:paddingTop="5.0dp" android:paddingRight="10.0dp" android:paddingBottom="5.0dp" android:descendantFocusability="blocksDescendants" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView android:textColor="@color/main_primary_text" android:id="@id/file_progress_item_tv_progress_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:singleLine="true" />
+    <TextView android:gravity="center_vertical" android:id="@id/file_progress_item_tv_file_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:maxLines="2" android:minLines="2" />
+    <RelativeLayout android:id="@id/file_progress_item_rl_progress_current_progress" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:id="@id/file_progress_item_tv_progress_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:textIsSelectable="true" />
+        <TextView android:id="@id/file_progress_item_tv_progress_percent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="4.0dp" android:layout_toLeftOf="@id/file_progress_item_tv_progress_count" />
+        <TextView android:id="@id/file_progress_item_tv_progress_size" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <ProgressBar android:id="@id/file_progress_item_pb_total_progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dp" style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+</LinearLayout>

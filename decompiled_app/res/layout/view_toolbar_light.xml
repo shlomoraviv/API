@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.MaterialToolbar android:id="@id/toolbar" android:layout_width="match_parent" android:layout_height="match_parent" android:minHeight="?actionBarSize" style="@style/ToolbarStyle.Light"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout android:id="@id/title_container" android:layout_width="wrap_content" android:layout_height="match_parent">
+        <LinearLayout android:layout_gravity="start|center" android:orientation="vertical" android:background="@drawable/bg_transparent" android:paddingTop="4.0dp" android:paddingRight="4.0dp" android:paddingBottom="4.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingEnd="4.0dp">
+            <TextView android:textAppearance="@style/ToolbarTitleStyle.Light" android:ellipsize="end" android:id="@id/title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" />
+            <TextView android:textAppearance="@style/ToolbarSubtitleStyle.Light" android:ellipsize="end" android:id="@id/subtitle" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="-3.0dp" android:singleLine="true" />
+        </LinearLayout>
+    </FrameLayout>
+    <androidx.appcompat.widget.AppCompatImageView android:layout_gravity="start" android:id="@id/arrow_drop_down" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" app:srcCompat="@drawable/ic_baseline_arrow_drop_down" app:tint="@color/toolbar_light_foreground" />
+    <ProgressBar android:layout_gravity="end" android:id="@id/toolbar_progress" android:visibility="gone" android:layout_width="24.0dp" android:layout_height="24.0dp" android:layout_marginRight="6.0dp" android:indeterminate="true" android:layout_marginEnd="6.0dp" android:indeterminateTint="@color/toolbar_light_foreground" android:indeterminateTintMode="src_in" />
+</com.google.android.material.appbar.MaterialToolbar>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="one">Wollen Sie wirklich (%d Element) löschen?</item>
+        <item quantity="other">Wollen Sie wirklich (%d Elemente) löschen?</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="one">Möchten Sie wirklich %d Element in den Papierkorb verschieben?</item>
+        <item quantity="other">Möchten Sie wirklich %d Elemente in den Papierkorb verschieben?</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">%d Sekunde vorspulen</item>
+        <item quantity="other">%d Sekunden vorspulen</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">%d Sekunde zurückspulen</item>
+        <item quantity="other">%d Sekunden zurückspulen</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s Datei</item>
+        <item quantity="other">%1$s Dateien</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s Ordner</item>
+        <item quantity="other">%1$s Ordner</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="one">%1$d Element gepackt in %2$s</item>
+        <item quantity="other">%1$d Elemente gepackt in %2$s</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="one">%1$d Element kopiert nach %2$s</item>
+        <item quantity="other">Insgesamt %1$d Elemente kopiert nach %2$s</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="one">%1$d Element gelöscht</item>
+        <item quantity="other">Insgesamt %1$d Elemente gelöscht</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="one">%1$d Element entpackt in %2$s</item>
+        <item quantity="other">%1$d Elemente entpackt in %2$s</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="one">%1$d Element verschoben nach %2$s</item>
+        <item quantity="other">Insgesamt %1$d Elemente verschoben nach %2$s</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="one">%d Element in den Papierkorb verschoben.</item>
+        <item quantity="other">%d Elemente in den Papierkorb verschoben.</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="one">%d Element aus dem Papierkorb wiederhergestellt.</item>
+        <item quantity="other">%d Elemente aus dem Papierkorb wiederhergestellt.</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d neue Benachrichtigung</item>
+        <item quantity="other">%d neue Benachrichtigungen</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="one">%d Element</item>
+        <item quantity="other">%d Elemente</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d ausgewählt</item>
+        <item quantity="other">%1$d ausgewählt</item>
+    </plurals>
+</resources>

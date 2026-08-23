@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="one">你确定要删除%d项?</item>
+        <item quantity="other">你确定要删除%d项?</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="one">您确定%d项移动到回收站吗?</item>
+        <item quantity="other">您确定%d项移动到回收站吗?</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">快进 %d 秒</item>
+        <item quantity="other">快进 %d 秒</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">快退 %d 秒</item>
+        <item quantity="other">快退 %d 秒</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s 个文件</item>
+        <item quantity="other">%1$s 个文件</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s 个文件夹</item>
+        <item quantity="other">%1$s 个文件夹</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="one">总共%1$d项压缩为%2$s</item>
+        <item quantity="other">总共%1$d项压缩为%2$s</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="one">总共%1$d项复制到%2$s</item>
+        <item quantity="other">总共%1$d项复制到%2$s</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="one">总共%1$d项已删除</item>
+        <item quantity="other">总共%1$d项已删除</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="one">总共%1$d项解压到%2$s</item>
+        <item quantity="other">总共%1$d项解压到%2$s</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="one">总共%1$d项移动到%2$s</item>
+        <item quantity="other">总共%1$d项移动到%2$s</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="one">总共%d项移动到回收站</item>
+        <item quantity="other">总共%d项移动到回收站</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="one">从回收站还原了%d项</item>
+        <item quantity="other">从回收站还原了%d项</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d 条新通知</item>
+        <item quantity="other">%d 条新通知</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="one">%d 项</item>
+        <item quantity="other">%d 项</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">已选择 %1$d 项</item>
+        <item quantity="other">已选择 %1$d 项</item>
+    </plurals>
+</resources>

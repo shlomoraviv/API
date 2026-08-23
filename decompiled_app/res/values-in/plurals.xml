@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="other">Anda yakin ingin menghapus (%d item)?</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="other">Apakah Anda yakin ingin memindahkan %d item ini ke Keranjang Sampah?</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">Maju cepat %d detik</item>
+        <item quantity="other">Maju cepat %d detik</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">Mundur %d detik</item>
+        <item quantity="other">Mundur %d detik</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s file</item>
+        <item quantity="other">%1$s file</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s folder</item>
+        <item quantity="other">%1$s folder</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="other">Total %1$d item dikompresikan ke %2$s</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="other">Total %1$d item disalin ke</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="other">Total %1$d item dihapus</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="other">Total %1$d item diekstraksi ke %2$s</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="other">Total %1$d itemdipindahkan ke %2$s</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="other">Total %d item dipindahkan ke Keranjang Sampah</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="other">Total %d item dipulihkan dari Keranjang Sampah</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d notifikasi baru</item>
+        <item quantity="other">%d notifikasi baru</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="other">%d item</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d dipilih</item>
+        <item quantity="other">%1$d dipilih</item>
+    </plurals>
+</resources>

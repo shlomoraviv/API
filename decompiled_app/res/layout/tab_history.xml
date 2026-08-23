@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alphainventor.filemanager.widget.BlockTouchLinearLayout android:orientation="vertical" android:background="@color/nav_background" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListView android:id="@id/list" android:layout_width="match_parent" android:layout_height="0.0dp" android:divider="@drawable/nav_list_divider" android:layout_weight="1.0" />
+    <TextView android:textColor="@color/main_secondary_text" android:gravity="center" android:id="@id/emptyview" android:layout_width="match_parent" android:layout_height="0.0dp" android:text="@string/no_history" android:layout_weight="1.0" android:alpha="0.6" />
+    <View android:background="@color/nav_list_separator" android:layout_width="match_parent" android:layout_height="2.0dp" />
+    <Button android:id="@id/bottom_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48.0dp" android:text="@string/menu_clear" style="@style/Widget.MaterialComponents.Button.TextButton" />
+</com.alphainventor.filemanager.widget.BlockTouchLinearLayout>

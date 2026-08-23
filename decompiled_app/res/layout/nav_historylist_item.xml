@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/listItemBackground"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/location_layout" android:background="@color/nav_label_background" android:padding="4.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@id/location_icon" android:layout_width="16.0dp" android:layout_height="16.0dp" />
+        <TextView android:textAppearance="?android:textAppearanceSmall" android:textColor="@color/nav_secondary_text" android:id="@id/location" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:textIsSelectable="false" />
+        <TextView android:textAppearance="?android:textAppearanceSmall" android:textSize="10.0sp" android:textColor="@color/nav_secondary_text" android:id="@id/secondary_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:textIsSelectable="false" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:paddingLeft="2.0dp" android:paddingTop="4.0dp" android:paddingRight="2.0dp" android:paddingBottom="4.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/listItemBackground">
+        <ImageView android:id="@id/icon" android:layout_width="32.0dp" android:layout_height="32.0dp" android:layout_margin="4.0dp" android:scaleType="centerInside" />
+        <TextView android:textAppearance="?android:textAppearanceSmall" android:textColor="@color/nav_primary_text" android:id="@id/path" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:textIsSelectable="false" />
+    </LinearLayout>
+</LinearLayout>

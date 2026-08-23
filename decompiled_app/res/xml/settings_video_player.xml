@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/video_player" android:key="settings_video_player" app:iconSpaceReserved="false">
+        <CheckBoxPreference android:title="@string/use_external_codec" android:key="use_custom_codec" android:defaultValue="false" app:iconSpaceReserved="false" />
+        <Preference android:title="@string/subtitle_size" android:key="subtitle_size" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

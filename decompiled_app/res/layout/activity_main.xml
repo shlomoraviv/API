@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alphainventor.filemanager.widget.WindowInsetsFrameLayout android:id="@id/root_view" android:background="?android:colorBackground" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.drawerlayout.widget.DrawerLayout android:id="@id/drawer_layout" android:layout_width="match_parent" android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="match_parent">
+            <FrameLayout android:id="@id/toolbar_container" android:layout_width="match_parent" android:layout_height="?actionBarSize" app:layout_constraintBottom_toTopOf="@id/fragment_container" app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_chainStyle="spread">
+                <View android:layout_gravity="end" android:id="@id/open_window_anchor" android:layout_width="0.0dp" android:layout_height="match_parent" />
+            </FrameLayout>
+            <FrameLayout android:id="@id/fragment_container" android:layout_width="match_parent" android:layout_height="0.0dp" app:layout_constraintBottom_toTopOf="@id/activity_message_container" app:layout_constraintTop_toBottomOf="@id/toolbar_container" />
+            <com.alphainventor.filemanager.widget.BlockTouchView android:id="@id/paste_layout_safe_area" android:visibility="gone" android:layout_width="match_parent" android:layout_height="@dimen/bottom_menu_safe_area_height" android:importantForAccessibility="no" app:layout_constraintBottom_toTopOf="@id/activity_message_container" />
+            <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/activity_message_container" android:background="@color/snackbar_background_color" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/paste_layout" app:layout_constraintTop_toBottomOf="@id/fragment_container" />
+            <include android:id="@id/paste_layout" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/playback_controls_layout" app:layout_constraintTop_toBottomOf="@id/activity_message_container" layout="@layout/list_bottom_menu" />
+            <include android:id="@id/playback_controls_layout" android:layout_width="match_parent" android:layout_height="wrap_content" app:layout_constraintBottom_toTopOf="@id/ad_container" app:layout_constraintTop_toBottomOf="@id/paste_layout" layout="@layout/playback_controls" />
+            <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/ad_container" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/playback_controls_layout" />
+            <RelativeLayout android:orientation="vertical" android:id="@id/top_windows" android:background="#99000000" android:focusable="false" android:visibility="gone" android:clickable="true" android:layout_width="match_parent" android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent">
+                <ListView android:id="@id/top_windows_list" android:background="@drawable/bg_tablayout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/top_window_separator" />
+                <androidx.appcompat.widget.Toolbar android:id="@id/top_windows_toolbar" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="?actionBarSize" style="@style/ToolbarStyle.Default">
+                    <LinearLayout android:layout_gravity="start" android:orientation="vertical" android:id="@id/top_windows_title_container" android:paddingTop="4.0dp" android:paddingRight="4.0dp" android:paddingBottom="4.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingEnd="4.0dp">
+                        <TextView android:textAppearance="@style/ToolbarTitleStyle.Default" android:ellipsize="end" android:id="@id/top_windows_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" />
+                        <TextView android:textAppearance="@style/ToolbarSubtitleStyle.Default" android:ellipsize="end" android:id="@id/top_windows_subtitle" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="-3.0dp" android:singleLine="true" />
+                    </LinearLayout>
+                </androidx.appcompat.widget.Toolbar>
+                <View android:id="@id/top_window_separator" android:layout_width="match_parent" android:layout_height="@dimen/minimum_border_width" android:layout_below="@id/top_windows_toolbar" />
+            </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <RelativeLayout android:layout_gravity="start" android:id="@id/tab_view" android:layout_width="280.0dp" android:layout_height="match_parent">
+            <com.google.android.material.tabs.TabLayout android:id="@id/tab_layout" android:background="@drawable/bg_tablayout" android:layout_width="match_parent" android:layout_height="?actionBarSize" app:tabGravity="fill" app:tabIconTint="@color/nav_tab_icon" app:tabIndicatorHeight="4.0dp" app:tabMode="fixed" app:tabTextColor="@color/nav_tab_icon" />
+            <FrameLayout android:id="@id/tab_content" android:background="@color/nav_background" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_below="@id/tab_layout" />
+        </RelativeLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
+</com.alphainventor.filemanager.widget.WindowInsetsFrameLayout>

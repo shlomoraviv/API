@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="0.0dp" android:top="0.0dp" android:right="0.0dp" android:bottom="0.0dp">
+        <shape>
+            <size android:height="96.0dp" android:width="96.0dp" />
+            <solid android:color="@color/icon_home_background" />
+            <stroke android:width="1.0dp" android:color="@color/icon_home_border" />
+            <corners android:radius="10.0dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/v_home_shape_server" />
+</layer-list>

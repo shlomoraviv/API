@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="true" style="@style/Widget.AlertDialog.Less"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.alphainventor.filemanager.widget.BaselineTextInputLayout android:id="@id/filename_layout" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0" app:counterEnabled="false" app:hintEnabled="false" style="@style/FileManager.Widget.TextInputLayout.OutlineBox.Denser">
+        <com.google.android.material.textfield.TextInputEditText android:textAppearance="?android:textAppearanceMedium" android:id="@id/file_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48.0dp" android:singleLine="true" android:maxLength="255" android:inputType="textNoSuggestions" android:imeOptions="actionDone" />
+    </com.alphainventor.filemanager.widget.BaselineTextInputLayout>
+    <TextView android:textAppearance="?android:textAppearanceMedium" android:id="@id/file_extension" android:paddingRight="@dimen/abc_control_padding_material" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout>

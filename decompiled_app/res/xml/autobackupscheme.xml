@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="sharedpref" path="transferable_prefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="DropboxPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="GoogleDrivePrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="OneDrivePrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="SFTPPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="SFTPKeyPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="SMBPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="FTPPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="YandexDiskPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="WebDAVPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+    <include domain="sharedpref" path="BoxCloudPrefs.xml" requireFlags="clientSideEncryption|deviceToDeviceTransfer" />
+</full-backup-content>

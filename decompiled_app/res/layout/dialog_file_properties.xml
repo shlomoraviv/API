@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:scrollbarStyle="outsideOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:fadeScrollbars="false" style="@style/Widget.AlertDialog"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:id="@id/type_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_type" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_type" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/size_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_size" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_size" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/contents_container" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_contents" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_contents" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/date_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_modified" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_date" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/path_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_path" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_path" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="true" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/permission_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_permissions" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_permissions" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/hidden_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/dialog_entry_hidden" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/file_hidden" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/extra1_container" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/extra1_label" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/extra1_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/extra2_container" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="2.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/extra2_label" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="3.0" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:id="@id/extra2_text" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_weight="7.0" android:textIsSelectable="false" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/checksum_container" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginTop="4.0dp" android:layout_marginRight="4.0dp">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Small" android:textColor="@color/main_secondary_text" android:gravity="center_vertical" android:layout_width="0.0dp" android:layout_height="42.0dp" android:text="@string/file_checksums" android:layout_weight="3.0" />
+            <FrameLayout android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="7.0">
+                <Button android:textColor="@color/main_primary_text" android:id="@id/btn_checksum" android:paddingLeft="8.0dp" android:paddingRight="8.0dp" android:layout_width="wrap_content" android:layout_height="42.0dp" android:text="@string/menu_calculate" app:strokeColor="@color/main_primary_text" style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

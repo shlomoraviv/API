@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.gms.ads.nativead.NativeAdView android:visibility="gone" android:layout_width="0.0dp" android:layout_height="0.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:layout_gravity="center" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:paddingLeft="4.0dp" android:paddingRight="8.0dp" android:paddingBottom="6.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4.0dp" android:paddingEnd="8.0dp">
+            <ImageView android:layout_gravity="center_vertical" android:id="@id/unified_app_icon" android:layout_width="48.0dp" android:layout_height="48.0dp" android:layout_marginTop="4.0dp" android:layout_marginRight="6.0dp" android:adjustViewBounds="true" android:layout_marginEnd="6.0dp" />
+            <LinearLayout android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginTop="0.0dp" android:layout_marginRight="6.0dp" android:layout_weight="1.0" android:layout_marginEnd="6.0dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:textSize="10.0sp" android:textColor="#ff00abca" android:gravity="center" android:id="@id/ad_mark" android:background="#ffeaeaea" android:paddingLeft="2.0dp" android:paddingRight="2.0dp" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="0.0dp" android:layout_marginLeft="2.0dp" android:layout_marginRight="2.0dp" android:text="@string/ad_mark" android:layout_alignParentRight="true" android:layout_alignParentEnd="true" />
+                    <TextView android:textSize="14.0sp" android:textStyle="bold" android:textColor="#ff000000" android:id="@id/unified_headline" android:focusable="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:singleLine="true" android:layout_toLeftOf="@id/ad_mark" android:layout_toStartOf="@id/ad_mark" />
+                </RelativeLayout>
+                <TextView android:textSize="12.0sp" android:textColor="#8a000000" android:id="@id/unified_body" android:focusable="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="2" />
+            </LinearLayout>
+        </LinearLayout>
+        <FrameLayout android:id="@id/media_container" android:layout_width="match_parent" android:layout_height="150.0dp">
+            <ImageView android:layout_gravity="center_horizontal" android:id="@id/unified_image" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" />
+            <com.google.android.gms.ads.nativead.MediaView android:layout_gravity="center_horizontal" android:id="@id/unified_media" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="0.0dp" />
+        </FrameLayout>
+        <Button android:textSize="14.0sp" android:textColor="#ffffffff" android:gravity="center" android:id="@id/unified_call_to_action" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.MaterialComponents.Button" />
+    </LinearLayout>
+</com.google.android.gms.ads.nativead.NativeAdView>

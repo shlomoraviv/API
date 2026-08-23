@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textAppearance="?android:textAppearanceSmall" android:textColor="@color/main_secondary_text" android:gravity="left" android:id="@id/file_size" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxWidth="160.0dp" android:layout_weight="1.0" android:textIsSelectable="false" />
+    <TextView android:textAppearance="?android:textAppearanceSmall" android:textColor="@color/main_secondary_text" android:gravity="center" android:id="@id/file_details" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:layout_marginRight="4.0dp" android:maxWidth="92.0dp" android:singleLine="true" android:textIsSelectable="false" />
+    <TextView android:textAppearance="?android:textAppearanceSmall" android:textColor="@color/main_secondary_text" android:gravity="right" android:id="@id/file_date" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxWidth="160.0dp" android:singleLine="true" android:layout_weight="1.0" android:textIsSelectable="false" />
+</LinearLayout>

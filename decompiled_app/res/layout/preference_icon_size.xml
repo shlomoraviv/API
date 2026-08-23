@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="horizontal" android:paddingLeft="?listPreferredItemPaddingLeft" android:paddingRight="?listPreferredItemPaddingRight" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="?listPreferredItemHeight" android:paddingStart="?android:listPreferredItemPaddingStart" android:paddingEnd="?android:listPreferredItemPaddingEnd">
+        <RadioGroup android:layout_gravity="center_vertical" android:orientation="horizontal" android:id="@id/radio_group" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <RadioButton android:id="@id/icon_medium" android:layout_width="wrap_content" android:layout_height="48.0dp" android:checked="true" android:drawableLeft="@drawable/ic_icon_medium" android:layout_weight="1.0" />
+            <RadioButton android:id="@id/icon_large" android:layout_width="wrap_content" android:layout_height="48.0dp" android:drawableLeft="@drawable/ic_icon_large" android:layout_weight="1.0" />
+            <RadioButton android:visibility="invisible" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableLeft="@drawable/ic_gridview" android:layout_weight="1.0" />
+        </RadioGroup>
+    </LinearLayout>
+</RelativeLayout>

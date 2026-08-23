@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/about_preference" android:key="settings_about" app:iconSpaceReserved="false">
+        <Preference android:title="@string/about_version" android:key="app_version" app:iconSpaceReserved="false" />
+        <Preference android:title="@string/privacy_policy" android:key="privacy_policy" app:iconSpaceReserved="false" />
+        <Preference android:title="@string/open_source_licenses" android:key="open_source_licenses" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/setting_usage_and_diagnostics" android:key="usage_diagnostics" android:defaultValue="true" app:iconSpaceReserved="false" />
+        <Preference android:title="@string/ads_settings" android:key="gdpr_consent" app:iconSpaceReserved="false" />
+        <CheckBoxPreference android:title="@string/user_debug_mode" android:key="user_debug_mode" android:defaultValue="false" app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

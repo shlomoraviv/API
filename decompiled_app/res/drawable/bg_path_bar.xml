@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/pathbar_border" />
+        </shape>
+    </item>
+    <item android:top="@dimen/minimum_border_width" android:bottom="@dimen/minimum_border_width">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/pathbar_background" />
+        </shape>
+    </item>
+</layer-list>

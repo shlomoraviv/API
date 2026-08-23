@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/gridview_swipe_refresh_layout" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0">
+            <com.alphainventor.filemanager.widget.DesktopGridView android:scrollbarStyle="outsideOverlay" android:gravity="center" android:id="@id/grid" android:padding="@dimen/desktop_grid_padding" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" android:horizontalSpacing="@dimen/desktop_grid_horizontal_space" android:verticalSpacing="5.0dp" android:stretchMode="columnWidth" android:columnWidth="@dimen/desktop_grid_column_width" android:numColumns="auto_fit" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/snackbar_container" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <FrameLayout android:id="@id/fragment_navigation_area" android:layout_width="match_parent" android:layout_height="0.0dp" />
+    </LinearLayout>
+    <com.alphainventor.filemanager.widget.RefreshProgressBar android:id="@id/progressbar" android:visibility="gone" android:layout_width="match_parent" android:layout_height="4.0dp" app:barHeight="2.5dp" />
+</RelativeLayout>

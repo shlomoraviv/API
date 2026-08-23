@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="confirm_delete_items_plurals">
+        <item quantity="other">本当に（%d項目を）削除してもよろしいですか？</item>
+    </plurals>
+    <plurals name="confirm_recyclebin_items_plurals">
+        <item quantity="one">%d個の項目をごみ箱に移動しますか。</item>
+        <item quantity="other">%d個の項目をごみ箱に移動しますか。</item>
+    </plurals>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+        <item quantity="one">%d 秒早送り</item>
+        <item quantity="other">%d 秒早送り</item>
+    </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+        <item quantity="one">%d 秒巻き戻し</item>
+        <item quantity="other">%d 秒巻き戻し</item>
+    </plurals>
+    <plurals name="files">
+        <item quantity="one">%1$s 個のファイル</item>
+        <item quantity="other">%1$s 個のファイル</item>
+    </plurals>
+    <plurals name="folders">
+        <item quantity="one">%1$s 個のフォルダ</item>
+        <item quantity="other">%1$s 個のフォルダ</item>
+    </plurals>
+    <plurals name="msg_compressed_items_plurals">
+        <item quantity="other">合計%1$dの項目が、%2$sに圧縮できました</item>
+    </plurals>
+    <plurals name="msg_copied_items_plurals">
+        <item quantity="other">合計%1$dの項目が、%2$sにコピーされました</item>
+    </plurals>
+    <plurals name="msg_deleted_items_plurals">
+        <item quantity="other">合計%1$dの項目が削除されました</item>
+    </plurals>
+    <plurals name="msg_extracted_items_plurals">
+        <item quantity="other">合計%1$dの項目が、%2$sへ解凍されました</item>
+    </plurals>
+    <plurals name="msg_moved_items_plurals">
+        <item quantity="other">合計%1$dの項目が、%2$sに移動されました</item>
+    </plurals>
+    <plurals name="msg_recycled_items_plurals">
+        <item quantity="one">合計%d個の項目がごみ箱に移動されました。</item>
+        <item quantity="other">合計%d個の項目がごみ箱に移動されました。</item>
+    </plurals>
+    <plurals name="msg_restored_items_plurals">
+        <item quantity="one">合計%d個の項目がごみ箱から復元されました。</item>
+        <item quantity="other">合計%d個の項目がごみ箱から復元されました。</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d 件の新しい通知</item>
+        <item quantity="other">%d 件の新しい通知</item>
+    </plurals>
+    <plurals name="num_items_plurals">
+        <item quantity="other">%dアイテム</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d件選択済み</item>
+        <item quantity="other">%1$d件選択済み</item>
+    </plurals>
+</resources>

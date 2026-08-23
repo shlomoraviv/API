@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.appcompat.widget.Toolbar android:id="@id/toolbar" android:layout_width="match_parent" android:layout_height="?actionBarSize" android:minHeight="?actionBarSize" app:navigationContentDescription="@string/abc_action_bar_up_description" style="@style/ToolbarStyle.Default">
+        <ProgressBar android:layout_gravity="right" android:id="@id/progress_spinner" android:visibility="gone" android:layout_width="30.0dp" android:layout_height="30.0dp" android:layout_marginRight="10.0dp" android:indeterminate="true" />
+    </androidx.appcompat.widget.Toolbar>
+    <TextView android:textSize="16.0dp" android:textColor="@color/pathbar_text_selected" android:gravity="center" android:id="@id/query" android:background="@drawable/bg_path_bar" android:padding="5.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <ListView android:id="@id/list" android:layout_width="match_parent" android:layout_height="match_parent" android:divider="@drawable/file_list_divider" />
+</LinearLayout>

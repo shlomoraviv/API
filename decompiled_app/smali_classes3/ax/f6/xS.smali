@@ -1,0 +1,131 @@
+.class public final Lax/f6/xS;
+.super Ljava/lang/Object;
+
+
+# static fields
+.field public static final b:Lax/f6/xS;
+
+
+# instance fields
+.field private a:Lax/f6/pr;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 7
+
+    new-instance v0, Lax/f6/xS;
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x1
+
+    const/4 v4, 0x1
+
+    invoke-direct/range {v0 .. v6}, Lax/f6/xS;-><init>(IIIIILax/f6/VE;)V
+
+    sput-object v0, Lax/f6/xS;->b:Lax/f6/xS;
+
+    const/4 v0, 0x0
+
+    const/16 v1, 0x24
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    const/4 v0, 0x1
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    const/4 v0, 0x2
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    const/4 v0, 0x3
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    const/4 v0, 0x4
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    return-void
+.end method
+
+.method synthetic constructor <init>(IIIIILax/f6/VE;)V
+    .locals 0
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final a()Lax/f6/pr;
+    .locals 2
+
+    iget-object v0, p0, Lax/f6/xS;->a:Lax/f6/pr;
+
+    if-nez v0, :cond_0
+
+    new-instance v0, Lax/f6/pr;
+
+    const/4 v1, 0x0
+
+    invoke-direct {v0, p0, v1}, Lax/f6/pr;-><init>(Lax/f6/xS;Lax/f6/VE;)V
+
+    iput-object v0, p0, Lax/f6/xS;->a:Lax/f6/pr;
+
+    :cond_0
+    iget-object v0, p0, Lax/f6/xS;->a:Lax/f6/pr;
+
+    return-object v0
+.end method
+
+.method public final equals(Ljava/lang/Object;)Z
+    .locals 3
+
+    const/4 v0, 0x1
+
+    if-ne p0, p1, :cond_0
+
+    return v0
+
+    :cond_0
+    if-eqz p1, :cond_2
+
+    invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v1
+
+    const-class v2, Lax/f6/xS;
+
+    if-eq v2, v1, :cond_1
+
+    goto :goto_0
+
+    :cond_1
+    check-cast p1, Lax/f6/xS;
+
+    return v0
+
+    :cond_2
+    :goto_0
+    const/4 p1, 0x0
+
+    return p1
+.end method
+
+.method public final hashCode()I
+    .locals 1
+
+    const v0, 0x1d02666f
+
+    return v0
+.end method

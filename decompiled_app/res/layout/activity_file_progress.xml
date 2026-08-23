@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alphainventor.filemanager.widget.WindowInsetsFrameLayout android:id="@id/root_view" android:background="?android:colorBackground" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+        <androidx.appcompat.widget.Toolbar android:id="@id/toolbar" android:layout_width="match_parent" android:layout_height="?actionBarSize" android:minHeight="?actionBarSize" app:navigationContentDescription="@string/abc_action_bar_up_description" style="@style/ToolbarStyle.Default" />
+        <View android:background="@color/actionbar_separator" android:layout_width="match_parent" android:layout_height="1.0dp" />
+        <ListView android:id="@id/file_progress_lv_list" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_weight="1.0" />
+        <TextView android:textAppearance="?android:textAppearanceLarge" android:gravity="center" android:id="@id/file_progress_tv_empty" android:layout_width="match_parent" android:layout_height="match_parent" android:text="@string/empty" android:layout_weight="1.0" />
+    </LinearLayout>
+</com.alphainventor.filemanager.widget.WindowInsetsFrameLayout>

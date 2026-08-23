@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alphainventor.filemanager.widget.ActivatableFrameLayout android:descendantFocusability="blocksDescendants" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/listItemBackground"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/item_container" android:background="@drawable/bg_transparent" android:paddingRight="4.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <RelativeLayout android:id="@id/icon_container" android:layout_width="@dimen/file_media_list_icon_size_medium" android:layout_height="@dimen/file_media_list_icon_size_medium" android:layout_marginRight="4.0dp">
+            <ImageView android:id="@id/icon" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" />
+            <ImageView android:id="@id/mask" android:visibility="gone" android:layout_width="20.0dp" android:layout_height="20.0dp" android:src="@drawable/ic_gallery_play" android:scaleType="centerInside" android:layout_centerInParent="true" />
+            <ImageView android:id="@id/shortcut" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:layout_alignParentLeft="true" android:layout_alignParentBottom="true" app:srcCompat="@drawable/ic_v_shortcut" />
+            <ImageView android:id="@id/folder_icon" android:padding="1.0dp" android:visibility="gone" android:layout_width="20.0dp" android:layout_height="20.0dp" android:scaleType="centerInside" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" />
+            <ImageView android:id="@id/subicon" android:background="@drawable/bg_subicon" android:padding="1.0dp" android:visibility="gone" android:layout_width="20.0dp" android:layout_height="20.0dp" android:layout_toLeftOf="@id/folder_icon" android:layout_alignParentBottom="true" android:layout_alignWithParentIfMissing="true" />
+        </RelativeLayout>
+        <RelativeLayout android:id="@id/background_layer" android:background="@drawable/listitem_layers" android:layout_width="match_parent" android:layout_height="match_parent">
+            <View android:id="@id/selected_description" android:visibility="gone" android:layout_width="match_parent" android:layout_height="5.0dp" android:layout_marginTop="-1.0dp" android:contentDescription="@string/label_selected_item" />
+            <TextView android:textAppearance="?android:textAppearanceMedium" android:textColor="@color/main_secondary_text" android:gravity="center_vertical" android:id="@id/file_size" android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_marginLeft="4.0dp" android:layout_marginRight="4.0dp" android:layout_alignParentRight="true" android:textIsSelectable="false" />
+            <TextView android:textAppearance="?android:textAppearanceMedium" android:textColor="@color/main_primary_text" android:gravity="center_vertical" android:id="@id/filename" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="2.0dp" android:drawablePadding="4.0dp" android:layout_toLeftOf="@id/file_size" android:textIsSelectable="false" />
+        </RelativeLayout>
+    </LinearLayout>
+</com.alphainventor.filemanager.widget.ActivatableFrameLayout>
