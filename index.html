@@ -1525,7 +1525,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // horizontally-scrollable/swipeable gallery of image assets actually found inside the APK. This
   // is a visual approximation, not a real running app — there is no lightweight way to execute
   // real Android/ART bytecode in a browser tab.
-  function renderPhoneFrame(containerEl, { iconUrl, label, images = [], htmlMock } = {}) {
+  function renderPhoneFrame(containerEl, { iconUrl, iconSvgEl, label, images = [], htmlMock } = {}) {
     containerEl.innerHTML = "";
     const screen = document.createElement("div");
     screen.className = "phone-screen";
@@ -1535,7 +1535,9 @@ rebuild, even if that means dropping part of the requested change.`;
     home.className = "phone-home";
     const iconBox = document.createElement("div");
     iconBox.className = "phone-home-icon";
-    if (iconUrl) {
+    if (iconSvgEl) {
+      iconBox.appendChild(iconSvgEl);
+    } else if (iconUrl) {
       const img = document.createElement("img");
       img.src = iconUrl;
       img.alt = label || "app icon";
@@ -1600,7 +1602,12 @@ rebuild, even if that means dropping part of the requested change.`;
   // client-side to pull out a launcher-icon-looking image plus any other images to use as
   // "screens", then renders it via renderPhoneFrame. Never throws outward — a preview hiccup
   // should never make an otherwise-successful build look like it failed.
-  async function previewApkAsPhone(containerEl, apkSource, { label, htmlMock } = {}) {
+  // apkSource is the final, already-compiled APK — its own vector-drawable XML (if any) has been
+  // compiled to Android's binary XML format by aapt2/apktool by this point, so it can no longer be
+  // read back as plain text here. Pass iconXml explicitly (the exact pre-compilation string, when
+  // the caller still has it — build mode always does) to get a real icon; otherwise this only finds
+  // a launcher icon when the original APK actually ships one as an ordinary raster PNG/JPG/etc.
+  async function previewApkAsPhone(containerEl, apkSource, { label, htmlMock, iconXml } = {}) {
     try {
       const blob = apkSource instanceof Blob ? apkSource : await (await fetch(apkSource)).blob();
       const zip = await JSZip.loadAsync(blob);
@@ -1610,7 +1617,14 @@ rebuild, even if that means dropping part of the requested change.`;
       const galleryEntries = imageEntries.filter((f) => f !== iconEntry).slice(0, 24);
       const images = [];
       for (const entry of galleryEntries) images.push(URL.createObjectURL(await entry.async("blob")));
-      renderPhoneFrame(containerEl, { iconUrl, label, images, htmlMock });
+
+      let iconSvgEl = null;
+      if (!iconUrl && iconXml) {
+        try { iconSvgEl = vectorXmlToSvgElement(iconXml); }
+        catch (e) { console.error("Vector icon decode failed (non-fatal):", e); }
+      }
+
+      renderPhoneFrame(containerEl, { iconUrl, iconSvgEl, label, images, htmlMock });
     } catch (e) {
       console.error("Phone-frame preview failed (non-fatal):", e);
     }
@@ -1788,7 +1802,23 @@ rebuild, even if that means dropping part of the requested change.`;
         const text = await res.text().catch(() => "");
         throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
       }
-      return await res.json();
+
+      const bodyText = await res.text();
+      try {
+        return JSON.parse(bodyText);
+      } catch {
+        // A 2xx status with a non-JSON body (usually starting with "<") means something between
+        // the browser and Google intercepted the request — a VPN/proxy, a corporate/ISP firewall,
+        // or a browser extension (ad-blocker/privacy tool) — and served its own HTML page instead
+        // of ever reaching the real Gemini API. Retrying other keys won't help if this is the
+        // cause, so this is thrown immediately rather than rotated through every remaining key.
+        throw new Error(
+          `Gemini API החזיר תשובה שאינה JSON (סטטוס ${res.status}, ${keyLabel}). זה כמעט תמיד ` +
+          `אומר שמשהו בדרך יירט את הבקשה לפני שהגיעה בכלל ל-Google — VPN/פרוקסי, פיירוול ` +
+          `ארגוני/ספק, או תוסף דפדפן (חוסם פרסומות/פרטיות). נסו לנטרל אותם או לבדוק בדפדפן/מכשיר ` +
+          `אחר. תחילת התשובה שהתקבלה: ${bodyText.slice(0, 200) || "(ריקה)"}`
+        );
+      }
     }
     throw lastErr || new Error("כל מפתחות ה-Gemini נכשלו.");
   }
@@ -1964,26 +1994,33 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // Renders the generated launcher icon (Android vector drawable -> inline SVG)
   // and the app's label next to the download button once they're known.
+  // Converts an Android vector-drawable XML document (<vector><path .../></vector>) into an
+  // inline SVG element. Shared by the build-mode icon preview and the phone-frame emulator, since
+  // self-built apps' only visual asset is this one vector icon (no raster images exist to show).
+  function vectorXmlToSvgElement(iconXml) {
+    const iconDoc = new DOMParser().parseFromString(iconXml, "application/xml");
+    if (iconDoc.querySelector("parsererror")) throw new Error("bad icon xml");
+    const vectorEl = iconDoc.documentElement;
+    const vw = parseFloat(vectorEl.getAttribute("android:viewportWidth")) || 108;
+    const vh = parseFloat(vectorEl.getAttribute("android:viewportHeight")) || 108;
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+    iconDoc.querySelectorAll("path").forEach((p) => {
+      const d = p.getAttribute("android:pathData");
+      if (!d) return;
+      const pathEl = document.createElementNS(svgNS, "path");
+      pathEl.setAttribute("d", d);
+      pathEl.setAttribute("fill", p.getAttribute("android:fillColor") || "#888");
+      svg.appendChild(pathEl);
+    });
+    return svg;
+  }
+
   function renderAppPreview(manifestXml, iconXml) {
     try {
-      const iconDoc = new DOMParser().parseFromString(iconXml, "application/xml");
-      if (iconDoc.querySelector("parsererror")) throw new Error("bad icon xml");
-      const vectorEl = iconDoc.documentElement;
-      const vw = parseFloat(vectorEl.getAttribute("android:viewportWidth")) || 108;
-      const vh = parseFloat(vectorEl.getAttribute("android:viewportHeight")) || 108;
-      const svgNS = "http://www.w3.org/2000/svg";
-      const svg = document.createElementNS(svgNS, "svg");
-      svg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
-      iconDoc.querySelectorAll("path").forEach((p) => {
-        const d = p.getAttribute("android:pathData");
-        if (!d) return;
-        const pathEl = document.createElementNS(svgNS, "path");
-        pathEl.setAttribute("d", d);
-        pathEl.setAttribute("fill", p.getAttribute("android:fillColor") || "#888");
-        svg.appendChild(pathEl);
-      });
       appIconPreview.innerHTML = "";
-      appIconPreview.appendChild(svg);
+      appIconPreview.appendChild(vectorXmlToSvgElement(iconXml));
     } catch {
       appIconPreview.innerHTML = ""; // preview is cosmetic only — never block the build on it
     }
@@ -2419,7 +2456,7 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadBox.classList.add("show");
       log("מוכן — האפליקציה שלך מחכה להורדה.", "ok");
       phonePreviewBuild.hidden = false;
-      previewApkAsPhone(phoneFrameBuild, apkUrl, { label: appLabelPreview.textContent, htmlMock: preview });
+      previewApkAsPhone(phoneFrameBuild, apkUrl, { label: appLabelPreview.textContent, htmlMock: preview, iconXml: icon });
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error");
