@@ -55,7 +55,7 @@ class MainActivity : Activity() {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
-            val gForce = Math.sqrt((x * x + y * y + z * z).toDouble()) / SensorManager.GRAVITY_EARTH
+            val gForce = Math.sqrt((x * x + y * y + z * z).toDouble()) / SensorManager.GRAVITY_EARTH.toDouble()
             if (gForce > 2.5) {
                 val now = System.currentTimeMillis()
                 if (now - lastShakeTime > 1500) {
@@ -69,7 +69,7 @@ class MainActivity : Activity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) 
+        super.onCreate(savedInstanceState)
 
         // Load Saved State
         val prefs = getSharedPreferences("flashlight_prefs", Context.MODE_PRIVATE)
@@ -91,8 +91,8 @@ class MainActivity : Activity() {
 
         // Build UI
         val scrollView = ScrollView(this).apply {
-            isFillViewport = true
-            backgroundColor = Color.parseColor("#0F172A")
+            setFillViewport(true)
+            setBackgroundColor(Color.parseColor("#0F172A"))
         }
 
         val root = LinearLayout(this).apply {
@@ -215,7 +215,7 @@ class MainActivity : Activity() {
                 topMargin = dp(12f)
             }
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     strobeFrequency = progress
                     strobeValueText.text = if (progress == 0) "כבוי" else "$progress הרץ"
                     if (progress > 0) {
@@ -228,8 +228,8 @@ class MainActivity : Activity() {
                         .edit().putInt("strobe_freq", progress).apply()
                 }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar) {}
             })
         }
         strobeCard.addView(strobeSeekBar)
