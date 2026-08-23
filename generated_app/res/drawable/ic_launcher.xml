@@ -1,8 +1,31 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="24" android:viewportHeight="24">
-  <path android:fillColor="#00796B" android:pathData="M0,0h24v24h-24z"/>
-  <group android:pivotX="12" android:pivotY="12" android:scaleX="0.6" android:scaleY="0.6">
-    <path android:fillColor="#FFFFFF" android:pathData="M7,2v11h3v9l7-12h-4l4-8z"/>
-  </group>
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background rounded square -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M 20 10 L 88 10 A 10 10 0 0 1 98 20 L 98 88 A 10 10 0 0 1 88 98 L 20 98 A 10 10 0 0 1 10 88 L 10 20 A 10 10 0 0 1 20 10 Z" />
+    
+    <!-- Glowing Light Beam -->
+    <path
+        android:fillColor="#FCD34D"
+        android:pathData="M 34 45 L 74 45 L 94 15 L 14 15 Z" />
+    
+    <!-- Flashlight Bezel -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M 40 45 L 68 45 L 68 50 L 40 50 Z" />
+
+    <!-- Flashlight Body -->
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M 44 50 L 64 50 L 60 75 L 48 75 Z" />
+
+    <!-- Red Switch -->
+    <path
+        android:fillColor="#EF4444"
+        android:pathData="M 51 60 L 57 60 L 57 68 L 51 68 Z" />
 </vector>
