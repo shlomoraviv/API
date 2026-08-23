@@ -239,6 +239,15 @@
   }
   .toggle-keys:hover { color: var(--text); }
 
+  .proxy-details summary {
+    color: var(--text-muted);
+    font-size: 12.5px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .proxy-details summary:hover { color: var(--text); }
+  .proxy-details[open] summary { color: var(--text); margin-bottom: 4px; }
+
   button.primary {
     width: 100%;
     background: var(--accent);
@@ -1009,6 +1018,31 @@
   .phone-running .phone-icon-img { width: 64px; height: 64px; border-radius: 16px; }
   .phone-running-title { margin: 0; font-family: var(--display); font-weight: 600; font-size: 14px; }
   .phone-running-note { margin: 0; font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+  .phone-running-note.phone-running-error { color: var(--error); }
+
+  .phone-spinner {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    animation: phone-spin 0.8s linear infinite;
+  }
+  @keyframes phone-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .phone-spinner { animation-duration: 2.4s; } }
+
+  .phone-running--live {
+    padding: 0;
+    justify-content: flex-start;
+    gap: 0;
+  }
+  .phone-appetize-frame {
+    width: 100%;
+    flex: 1 1 auto;
+    border: none;
+    background: #000;
+  }
+  .phone-running-back { flex: 0 0 auto; margin: 8px; border-radius: 10px; }
 
   .emulator-toggle-tab:focus-visible, .emulator-close-btn:focus-visible, .phone-app-tile:focus-visible,
   .phone-back-btn:focus-visible, .phone-open-btn:focus-visible, .phone-download-btn:focus-visible,
@@ -1081,6 +1115,37 @@
       <label for="githubToken">GitHub Token <span class="req">*</span></label>
       <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
     </div>
+
+    <details class="proxy-details" style="margin-top:16px;">
+      <summary>כתובת פרוקסי ל-Gemini (אופציונלי — לרשתות עם סינון תוכן)</summary>
+      <div class="field" style="margin-top:10px;">
+        <label for="geminiProxyUrl">Proxy URL</label>
+        <input type="text" id="geminiProxyUrl" class="mono-input" placeholder="https://your-worker.your-subdomain.workers.dev" autocomplete="off">
+        <p class="hint" style="margin:6px 0 0;">
+          בסביבות עם סינון תוכן כמו אתרוג או נטפרי, הפנייה הישירה מהדפדפן ל-generativelanguage.googleapis.com
+          נחסמת לפעמים ברמת הרשת עצמה (לא קשור למפתחות או לקוד) — הפילטר מיירט את הבקשה ומחזיר עמוד
+          חסימה במקום את התשובה האמיתית מ-Google. אם זה קורה אצלכם: הריצו את הפרוקסי החינמי המצורף
+          (gemini-proxy-worker.js) כ-Cloudflare Worker משלכם, והדביקו כאן את כתובת ה-worker. שדה ריק =
+          פנייה ישירה כרגיל, בלי שום שינוי בהתנהגות.
+        </p>
+      </div>
+    </details>
+
+    <details class="proxy-details" style="margin-top:10px;">
+      <summary>מפתח Appetize.io (אופציונלי — הרצה אמיתית של APK באמולטור)</summary>
+      <div class="field" style="margin-top:10px;">
+        <label for="appetizeApiKey">Appetize.io API Key</label>
+        <input type="password" id="appetizeApiKey" placeholder="—" autocomplete="off">
+        <p class="hint" style="margin:6px 0 0;">
+          בלי מפתח: האמולטור מציג הדמיית מסך אינטראקטיבית וחינמית (ברירת המחדל — בלי הרשמה לשום
+          מקום). עם מפתח: לחיצה על "פתח אפליקציה" מריצה את ה-APK בפועל, בזמן אמת, על אמולטור
+          אנדרואיד אמיתי בענן של Appetize.io — בתוך אותו מסך מדומה. הרשמה חינמית ב-appetize.io
+          (טיר חינמי מוגבל בדקות ריצה בחודש — כדאי לבדוק את המחירון העדכני שלהם), את המפתח מקבלים
+          תחת Organization ← API Tokens. לתשומת לב: עם המפתח הזה קובץ ה-APK עצמו מועלה לשרתי
+          Appetize כדי להריץ אותו — בשונה משאר המפתחות כאן, שלא עוברים דרך אף שרת שלישי.
+        </p>
+      </div>
+    </details>
 
     <div class="field-row three" style="margin-top:16px;">
       <div class="field">
@@ -1354,7 +1419,8 @@
         העלו כאן קובץ APK כדי להתקין אותו על מסך טלפון מדומה ואינטראקטיבי, ממש בתוך הדפדפן — אפשר
         ללחוץ על אייקון האפליקציה, לפתוח אותה, להוריד את קובץ ה-APK או להסיר את ההתקנה. כל אפליקציה
         שנבנתה, נערכה, תורגמה או צונזרה בטאבים האחרים מותקנת כאן אוטומטית, עם הגרסה העדכנית ביותר
-        שלה. זו הדמיית מסך בית ומסך פרטי אפליקציה — לא הרצה אמיתית של קוד אנדרואיד בדפדפן.
+        שלה. בברירת מחדל זו הדמיית מסך בית ומסך פרטי אפליקציה — לא הרצה אמיתית של קוד אנדרואיד
+        בדפדפן; אם מוסיפים מפתח Appetize.io ב"חיבורים" למעלה, "פתח אפליקציה" מריץ את ה-APK בפועל.
       </p>
       <div class="field">
         <label for="emulatorApkFile">קובץ APK להתקנה ישירה באמולטור</label>
@@ -1587,7 +1653,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // ---------- small DOM helpers ----------
   const $ = (id) => document.getElementById(id);
-  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken");
+  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken"), geminiProxyUrlEl = $("geminiProxyUrl"), appetizeApiKeyEl = $("appetizeApiKey");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch"), ideaEl = $("idea");
   const goBtn = $("goBtn"), logEl = $("log"), railEl = $("rail");
   const downloadBox = $("downloadBox"), downloadLink = $("downloadLink");
@@ -1761,6 +1827,11 @@ rebuild, even if that means dropping part of the requested change.`;
     const startOffset = nextKeyOffset % geminiKeys.length;
     nextKeyOffset = (nextKeyOffset + 1) % geminiKeys.length;
 
+    // Empty by default → direct to Google, exactly as before. Only used if the user has pasted
+    // in their own relay (see the "כתובת פרוקסי ל-Gemini" field) because their network blocks
+    // generativelanguage.googleapis.com outright — see the comment on the fetch call below.
+    const geminiBase = (geminiProxyUrlEl.value || "").trim().replace(/\/+$/, "") || "https://generativelanguage.googleapis.com";
+
     let lastErr;
     for (let i = 0; i < geminiKeys.length; i++) {
       const keyIdx = (startOffset + i) % geminiKeys.length;
@@ -1775,8 +1846,10 @@ rebuild, even if that means dropping part of the requested change.`;
           // preflight מסוג OPTIONS, וה-preflight הזה נחסם/נכשל אצל חלק מסינוני התוכן ברמת הרשת
           // (כמו אתרוג ונטפרי) — שם הבעיה שגרמה לפעולות ה-AI, בניגוד לפעולות ה-GitHub, לא לעבוד
           // בסביבות האלה. פרמטר ה-query הוא דרך האימות הרשמית והנתמכת של Gemini API למפתחות API,
-          // ולא דורש preflight.
-          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
+          // ולא דורש preflight. עם זאת, בחלק מהרשתות עם סינון תוכן החסימה היא ברמת הדומיין עצמו
+          // (generativelanguage.googleapis.com) ולא קשורה לכותרות בכלל — geminiBase מאפשר לנתב
+          // דרך פרוקסי (Cloudflare Worker) על דומיין אחר שלא חסום, במקום ישירות לגוגל.
+          `${geminiBase}/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1799,7 +1872,20 @@ rebuild, even if that means dropping part of the requested change.`;
         const text = await res.text().catch(() => "");
         throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
       }
-      return await res.json();
+      try {
+        return await res.json();
+      } catch (parseErr) {
+        // A 2xx response that isn't valid JSON almost never comes from Gemini itself (its errors
+        // are JSON too) — it's the fingerprint of something between the browser and Google
+        // returning its own content instead, most commonly a network-level content filter (like
+        // Etrog/Netfree) substituting a block page. Point at the fix instead of surfacing a raw
+        // "Unexpected token '<'" parse error.
+        throw new Error(
+          "התקבלה תשובה שאינה JSON מ-" + geminiBase.replace(/^https?:\/\//, "") + " — כנראה שהרשת חוסמת את הפנייה " +
+          "(לדוגמה סינון תוכן כמו אתרוג/נטפרי) ומחזירה עמוד חסימה במקום את התשובה האמיתית מגוגל. נסו להגדיר " +
+          "כתובת פרוקסי בשדה \"כתובת פרוקסי ל-Gemini\" למעלה (יש הוראות והקובץ הנדרש מצורפים)."
+        );
+      }
     }
     throw lastErr || new Error("כל מפתחות ה-Gemini נכשלו.");
   }
@@ -1858,7 +1944,11 @@ rebuild, even if that means dropping part of the requested change.`;
   async function analyzeIdea(geminiKeys, idea, logTarget = logEl) {
     const data = await callGemini(geminiKeys, {
       contents: [{ role: "user", parts: [{ text: `${ANALYZE_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1536 },
+      // thinkingBudget: 0 — this is a quick classification/rewrite step (same spirit as the
+      // "fast" thinking preset used elsewhere), not something that benefits from reasoning
+      // tokens. Without it, some of maxOutputTokens can get spent on invisible thinking before
+      // any JSON is emitted, truncating the reply (finishReason: MAX_TOKENS) before it parses.
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } },
     }, logTarget);
     const { raw, finishReason } = extractGeminiText(data);
     if (!raw) {
@@ -2907,12 +2997,38 @@ rebuild, even if that means dropping part of the requested change.`;
   const EMULATOR_SOURCE_LABELS = { build: "נבנתה כאן", edit: "נערכה", translate: "תורגמה", censor: "צונזרה", upload: "הועלתה" };
 
   // installedApps: key -> { key, label, iconType: "svg"|"img"|"fallback", iconMarkup, iconUrl,
-  // apkUrl, sizeBytes, source, updatedAt }. Keyed so that re-building/re-editing/re-translating the
-  // SAME app (same package, or same generated app) updates its existing entry instead of piling up
-  // duplicates — this is what keeps the emulator showing "the updated version" per app.
+  // apkUrl, sizeBytes, source, updatedAt, appetizePublicKey, appetizeSyncedApkUrl }. Keyed so that
+  // re-building/re-editing/re-translating the SAME app (same package, or same generated app)
+  // updates its existing entry instead of piling up duplicates — this is what keeps the emulator
+  // showing "the updated version" per app, and what lets a real Appetize.io session (see below)
+  // refresh in place instead of creating a new one for every rebuild.
   const installedApps = new Map();
   let phoneScreenMode = "home"; // "home" | "detail" | "running"
   let phoneActiveKey = null;
+  // Sub-state for the "running" screen only, since opening a real Appetize.io session is async
+  // (upload, then wait for a publicKey) while everything else here is synchronous rendering.
+  let runningStatus = "idle"; // "idle" (plain simulated placeholder) | "loading" | "ready" | "error"
+  let runningErrorMsg = "";
+
+  // Direct-uploads the raw APK bytes to Appetize.io (https://docs.appetize.io/rest-api/direct-file-uploads)
+  // — no public URL hosting needed, which matters here since our APKs only ever exist as
+  // in-browser blob: URLs. Reusing an existing publicKey updates that same app in place (new
+  // build, same embedded session) instead of registering a new one every time.
+  async function appetizeUploadApk(apiKey, blob, existingPublicKey) {
+    const form = new FormData();
+    form.append("file", blob, "app.apk");
+    form.append("platform", "android");
+    const url = existingPublicKey
+      ? `https://api.appetize.io/v1/apps/${existingPublicKey}`
+      : "https://api.appetize.io/v1/apps";
+    const res = await fetch(url, { method: "POST", headers: { "X-API-KEY": apiKey }, body: form });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Appetize API ${res.status} — ${text.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    return data.publicKey;
+  }
 
   // Real, non-obfuscated APKs conventionally keep res/mipmap|drawable/ic_launcher* file names even
   // after compiling (aapt2) or decompiling (apktool) — searching for that path shape is a light,
@@ -3073,7 +3189,7 @@ rebuild, even if that means dropping part of the requested change.`;
     openBtn.type = "button";
     openBtn.className = "phone-open-btn";
     openBtn.textContent = "פתח אפליקציה";
-    openBtn.addEventListener("click", () => { phoneScreenMode = "running"; renderPhoneScreen(); });
+    openBtn.addEventListener("click", () => { openAppRunning(app); });
 
     const dlLink = document.createElement("a");
     dlLink.className = "phone-download-btn";
@@ -3098,16 +3214,100 @@ rebuild, even if that means dropping part of the requested change.`;
     return wrap;
   }
 
+  // Orchestrates opening an app: with no Appetize key configured, this is just the existing
+  // honest simulated placeholder (idle). With a key, it uploads the current APK to Appetize.io
+  // (skipping the upload if this exact build was already synced) and shows a real embedded
+  // session once ready, or a clear error + fallback to the placeholder if it fails.
+  async function openAppRunning(app) {
+    phoneScreenMode = "running";
+    const apiKey = (appetizeApiKeyEl.value || "").trim();
+    if (!apiKey) {
+      runningStatus = "idle";
+      renderPhoneScreen();
+      return;
+    }
+    if (app.appetizePublicKey && app.appetizeSyncedApkUrl === app.apkUrl) {
+      runningStatus = "ready";
+      renderPhoneScreen();
+      return;
+    }
+    runningStatus = "loading";
+    renderPhoneScreen();
+    try {
+      if (!app.apkUrl) throw new Error("אין קובץ APK זמין להעלאה.");
+      const blob = await (await fetch(app.apkUrl)).blob();
+      const publicKey = await appetizeUploadApk(apiKey, blob, app.appetizePublicKey);
+      app.appetizePublicKey = publicKey;
+      app.appetizeSyncedApkUrl = app.apkUrl;
+      installedApps.set(app.key, app);
+      runningStatus = "ready";
+    } catch (e) {
+      console.error(e);
+      runningStatus = "error";
+      runningErrorMsg = e.message || String(e);
+    }
+    // The user may have navigated away (home / a different app) while the upload was in flight —
+    // only repaint if we're still looking at this same app's running screen.
+    if (phoneScreenMode === "running" && phoneActiveKey === app.key) renderPhoneScreen();
+  }
+
   function buildAppRunningScreen(app) {
     const wrap = document.createElement("div");
     wrap.className = "phone-running";
+
+    if (runningStatus === "loading") {
+      wrap.appendChild(createIconEl(app, 56));
+      const title = document.createElement("p");
+      title.className = "phone-running-title";
+      title.textContent = "מתחבר לאמולטור של Appetize.io…";
+      const spinner = document.createElement("div");
+      spinner.className = "phone-spinner";
+      wrap.append(title, spinner);
+      return wrap;
+    }
+
+    if (runningStatus === "ready" && app.appetizePublicKey) {
+      wrap.classList.add("phone-running--live");
+      const iframe = document.createElement("iframe");
+      iframe.className = "phone-appetize-frame";
+      iframe.src = `https://appetize.io/embed/${app.appetizePublicKey}`;
+      iframe.setAttribute("frameborder", "0");
+      iframe.setAttribute("scrolling", "no");
+      iframe.title = app.label;
+      const backBtn = document.createElement("button");
+      backBtn.type = "button";
+      backBtn.className = "phone-secondary-btn phone-running-back";
+      backBtn.textContent = "חזרה לפרטי האפליקציה";
+      backBtn.addEventListener("click", () => { phoneScreenMode = "detail"; renderPhoneScreen(); });
+      wrap.append(iframe, backBtn);
+      return wrap;
+    }
+
+    if (runningStatus === "error") {
+      wrap.appendChild(createIconEl(app, 56));
+      const title = document.createElement("p");
+      title.className = "phone-running-title";
+      title.textContent = app.label;
+      const note = document.createElement("p");
+      note.className = "phone-running-note phone-running-error";
+      note.textContent = "החיבור ל-Appetize.io נכשל (" + runningErrorMsg + ") — מוצגת הדמיית מסך בלבד במקום.";
+      const homeBtn = document.createElement("button");
+      homeBtn.type = "button";
+      homeBtn.className = "phone-secondary-btn";
+      homeBtn.textContent = "חזרה למסך הבית";
+      homeBtn.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
+      wrap.append(title, note, homeBtn);
+      return wrap;
+    }
+
+    // idle — no Appetize key configured: the original honest simulated placeholder, unchanged.
     wrap.appendChild(createIconEl(app, 64));
     const title = document.createElement("p");
     title.className = "phone-running-title";
     title.textContent = app.label;
     const note = document.createElement("p");
     note.className = "phone-running-note";
-    note.textContent = "זו הדמיית מסך בלבד — האמולטור לא מריץ קוד אנדרואיד אמיתי בדפדפן. התקינו את קובץ ה-APK שהורדתם על מכשיר או אמולטור אנדרואיד אמיתי כדי להריץ אותה במלואה.";
+    note.textContent = "זו הדמיית מסך בלבד — האמולטור לא מריץ קוד אנדרואיד אמיתי בדפדפן. הוסיפו מפתח Appetize.io ב\"חיבורים\" כדי לפתוח הרצה אמיתית, או התקינו את קובץ ה-APK שהורדתם על מכשיר או אמולטור אמיתי.";
     const homeBtn = document.createElement("button");
     homeBtn.type = "button";
     homeBtn.className = "phone-secondary-btn";
