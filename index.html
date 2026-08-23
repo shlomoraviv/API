@@ -734,159 +734,6 @@
     margin-top: 28px;
   }
 
-  /* --- phone-frame emulator preview --- */
-  .phone-preview { margin-top: 18px; }
-  .phone-preview[hidden] { display: none; }
-  .phone-preview-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 0 0 10px;
-  }
-  .phone-frame {
-    width: 240px;
-    aspect-ratio: 9 / 19.5;
-    margin: 0 auto;
-    background: #111;
-    border-radius: 32px;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(43,41,36,0.15), 0 12px 28px rgba(43,41,36,0.18);
-    position: relative;
-  }
-  .phone-frame::before {
-    content: "";
-    position: absolute;
-    top: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 48px;
-    height: 6px;
-    border-radius: 4px;
-    background: #000;
-    z-index: 2;
-  }
-  .phone-screen {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #0d0e10;
-    border-radius: 22px;
-    overflow: hidden;
-  }
-  .phone-home {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(160deg, #2b2f38, #14161a 70%);
-    cursor: pointer;
-    border: none;
-    padding: 0;
-    width: 100%;
-  }
-  .phone-home-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: var(--surface-2);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-  }
-  .phone-home-icon img, .phone-home-icon svg { width: 100%; height: 100%; object-fit: cover; }
-  .phone-home-label {
-    color: #f1efe9;
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    text-align: center;
-    max-width: 80%;
-    line-height: 1.4;
-  }
-  .phone-home-hint {
-    color: rgba(241,239,233,0.55);
-    font-family: var(--mono);
-    font-size: 9.5px;
-    letter-spacing: 0.04em;
-  }
-  .phone-app-view {
-    position: absolute;
-    inset: 0;
-    display: none;
-    flex-direction: column;
-    background: #fff;
-  }
-  .phone-app-view.show { display: flex; }
-  .phone-app-stage {
-    flex: 1 1 auto;
-    position: relative;
-    overflow: hidden;
-    background: #fff;
-  }
-  .phone-app-stage iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
-  .phone-gallery {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    background: #f3f1ea;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .phone-gallery::-webkit-scrollbar { display: none; }
-  .phone-gallery-slide {
-    flex: 0 0 100%;
-    scroll-snap-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-  }
-  .phone-gallery-slide img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .phone-gallery-empty {
-    font-family: var(--sans);
-    font-size: 12px;
-    color: #8a8776;
-    text-align: center;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-  .phone-nav {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    background: #f3f1ea;
-    border-top: 1px solid #e2ded2;
-  }
-  .phone-nav button {
-    background: #fff;
-    border: 1px solid #d8d3c3;
-    color: #2b2924;
-    font-family: var(--sans);
-    font-size: 11px;
-    padding: 5px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-
   @media (max-width: 640px) {
     .topbar { padding: 12px 16px; }
     .brand-kicker { display: none; }
@@ -894,6 +741,284 @@
     .rail { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
     .enhance-compare { grid-template-columns: 1fr; }
     .image-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  }
+
+  /* ===================== Android Emulator (floating toggle + side panel) ===================== */
+  .emulator-toggle-tab {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 40;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(43,41,36,0.28);
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .emulator-toggle-tab:hover { background: var(--accent-hover); transform: scale(1.04); }
+  .emulator-toggle-tab.is-open { background: var(--accent); }
+  .emulator-toggle-tab.just-updated { animation: emulator-pop 1.6s ease; }
+  @keyframes emulator-pop {
+    0%, 100% { box-shadow: 0 4px 14px rgba(43,41,36,0.28); }
+    20% { box-shadow: 0 0 0 8px var(--accent-soft); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .emulator-toggle-tab.just-updated { animation: none; }
+  }
+  .emulator-badge {
+    position: absolute;
+    top: -3px;
+    inset-inline-end: -3px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--error);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg);
+  }
+  .emulator-badge[hidden] { display: none; }
+
+  .emulator-panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 336px;
+    max-width: 88vw;
+    background: var(--surface);
+    border-inline-end: 1px solid var(--border);
+    box-shadow: 4px 0 24px rgba(43,41,36,0.14);
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+  .emulator-panel[hidden] { display: none; }
+  .emulator-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex: 0 0 auto;
+  }
+  .emulator-panel-title { font-family: var(--display); font-weight: 600; font-size: 15px; }
+  .emulator-close-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .emulator-close-btn:hover { background: var(--bg-inset); color: var(--text); }
+
+  /* --- phone hardware chrome --- */
+  .phone-shell {
+    position: relative;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 264px;
+    aspect-ratio: 9 / 19.5;
+    background: #24221D;
+    border-radius: 34px;
+    padding: 10px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 28px rgba(43,41,36,0.22);
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 84px;
+    height: 18px;
+    background: #24221D;
+    border-radius: 0 0 12px 12px;
+    z-index: 3;
+  }
+  .phone-statusbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px 2px;
+    color: #F4F1EA;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    direction: ltr;
+  }
+  .phone-status-icons { letter-spacing: 2px; }
+  .phone-screen {
+    flex: 1 1 auto;
+    min-height: 0;
+    background: var(--bg);
+    border-radius: 22px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .phone-home-indicator {
+    flex: 0 0 auto;
+    width: 92px;
+    height: 4px;
+    border-radius: 999px;
+    background: #F4F1EA;
+    opacity: 0.55;
+    margin: 8px auto 2px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .phone-home-indicator:hover { opacity: 0.9; }
+
+  /* --- home screen --- */
+  .phone-home { flex: 1; display: flex; flex-direction: column; padding: 16px 10px; overflow-y: auto; }
+  .phone-empty { margin: auto; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6; padding: 0 10px; }
+  .phone-empty-glyph { font-size: 30px; margin-bottom: 8px; }
+  .phone-app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 8px; }
+  .phone-app-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    font-family: var(--sans);
+  }
+  .phone-icon-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  .phone-icon-img svg, .phone-icon-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .phone-icon-fallback {
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .phone-app-label {
+    font-size: 10px;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.25;
+    max-width: 62px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* --- app detail screen --- */
+  .phone-detail { flex: 1; display: flex; flex-direction: column; padding: 10px 14px 16px; overflow-y: auto; }
+  .phone-back-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--accent-hover);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+    padding: 6px 0 10px;
+  }
+  .phone-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .phone-detail-head .phone-icon-img { width: 72px; height: 72px; border-radius: 18px; }
+  .phone-detail-info { min-width: 0; }
+  .phone-detail-info h3 {
+    margin: 0 0 4px;
+    font-family: var(--display);
+    font-size: 15px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .phone-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .phone-meta-list { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 4px 0 16px; }
+  .phone-meta-list dt { font-size: 11px; color: var(--text-muted); }
+  .phone-meta-list dd { margin: 0; font-size: 11px; color: var(--text); font-family: var(--mono); }
+  .phone-detail-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+  .phone-open-btn, .phone-download-btn, .phone-uninstall-btn, .phone-secondary-btn {
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 10px 12px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    display: block;
+  }
+  .phone-open-btn { background: var(--accent); color: var(--on-accent); }
+  .phone-open-btn:hover { background: var(--accent-hover); }
+  .phone-download-btn { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); }
+  .phone-download-btn:hover { background: var(--bg-inset); }
+  .phone-uninstall-btn { background: none; color: var(--error); border: 1px solid var(--error-soft); }
+  .phone-uninstall-btn:hover { background: var(--error-soft); }
+
+  /* --- "running app" placeholder screen --- */
+  .phone-running {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .phone-running .phone-icon-img { width: 64px; height: 64px; border-radius: 16px; }
+  .phone-running-title { margin: 0; font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .phone-running-note { margin: 0; font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+
+  .emulator-toggle-tab:focus-visible, .emulator-close-btn:focus-visible, .phone-app-tile:focus-visible,
+  .phone-back-btn:focus-visible, .phone-open-btn:focus-visible, .phone-download-btn:focus-visible,
+  .phone-uninstall-btn:focus-visible, .phone-secondary-btn:focus-visible, .phone-home-indicator:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .emulator-panel { width: 100%; max-width: 100%; }
   }
 </style>
 </head>
@@ -937,7 +1062,7 @@
     </button>
     <button type="button" class="mode-tab" role="tab" data-mode="emulator" aria-selected="false">
       <span class="mode-tab-title">אמולטור אנדרואיד</span>
-      <span class="mode-tab-sub">תצוגה על מסך טלפון</span>
+      <span class="mode-tab-sub">התקנה על מסך טלפון מדומה</span>
     </button>
   </div>
 
@@ -1071,11 +1196,6 @@
         </div>
         <a href="#" class="download-btn" id="downloadLink" download="app-release.apk">הורד אפליקציה מוכנה</a>
       </div>
-
-      <div class="phone-preview" id="phonePreviewBuild" hidden>
-        <p class="phone-preview-label">תצוגה באמולטור</p>
-        <div class="phone-frame" id="phoneFrameBuild"></div>
-      </div>
     </section>
   </section>
 
@@ -1123,11 +1243,6 @@
         <div class="msg">ה-APK הערוך מוכן: <strong>app-recompiled-release.apk</strong></div>
         <a href="#" class="download-btn" id="downloadLinkEditDecompile" download="app-edited-decompiled-release.apk">הורד APK ערוך</a>
       </div>
-
-      <div class="phone-preview" id="phonePreviewEditDecompile" hidden>
-        <p class="phone-preview-label">תצוגה באמולטור</p>
-        <div class="phone-frame" id="phoneFrameEditDecompile"></div>
-      </div>
     </section>
   </section>
 
@@ -1172,11 +1287,6 @@
       <div class="download-box" id="downloadBoxTranslate">
         <div class="msg">ה-APK המתורגם מוכן: <strong>app-recompiled-release.apk</strong></div>
         <a href="#" class="download-btn" id="downloadLinkTranslate" download="app-translated-release.apk">הורד APK מתורגם</a>
-      </div>
-
-      <div class="phone-preview" id="phonePreviewTranslate" hidden>
-        <p class="phone-preview-label">תצוגה באמולטור</p>
-        <div class="phone-frame" id="phoneFrameTranslate"></div>
       </div>
     </section>
   </section>
@@ -1233,38 +1343,25 @@
         <div class="msg">ה-APK המצונזר מוכן: <strong>app-edited-release.apk</strong></div>
         <a href="#" class="download-btn" id="downloadLinkEdit" download="app-edited-release.apk">הורד APK מצונזר</a>
       </div>
-
-      <div class="phone-preview" id="phonePreviewCensor" hidden>
-        <p class="phone-preview-label">תצוגה באמולטור</p>
-        <div class="phone-frame" id="phoneFrameCensor"></div>
-      </div>
     </section>
   </section>
 
-  <!-- ===================== ANDROID EMULATOR MODE (standalone) ===================== -->
+  <!-- ===================== ANDROID EMULATOR MODE ===================== -->
   <section class="mode-panel" id="panel-emulator" hidden>
     <section class="card">
       <h2>אמולטור אנדרואיד</h2>
       <p class="hint">
-        העלו כל קובץ APK כדי לראות אותו על מסך טלפון בפרופורציות אנדרואיד, ישר בדפדפן — בלי GitHub
-        ובלי Gemini, הכל קורה מקומית מהקובץ עצמו. אפשר ללחוץ על האייקון כדי "לפתוח" את האפליקציה
-        ולדפדף בין התמונות שנמצאו בתוכה כמו מסכים, ולחזור עם כפתור החזרה. <strong>זו לא הרצה אמיתית
-        של האפליקציה</strong> — הרצת קוד אנדרואיד אמיתי בדפדפן דורשת אמולטור מלא של מערכת הפעלה
-        (כמו ב-Android Studio) שלא קיים כתשתית קלה כאן; זו תצוגה מקירבת שבנויה מהאייקון והתמונות
-        האמיתיים שנמצאים בקובץ.
+        העלו כאן קובץ APK כדי להתקין אותו על מסך טלפון מדומה ואינטראקטיבי, ממש בתוך הדפדפן — אפשר
+        ללחוץ על אייקון האפליקציה, לפתוח אותה, להוריד את קובץ ה-APK או להסיר את ההתקנה. כל אפליקציה
+        שנבנתה, נערכה, תורגמה או צונזרה בטאבים האחרים מותקנת כאן אוטומטית, עם הגרסה העדכנית ביותר
+        שלה. זו הדמיית מסך בית ומסך פרטי אפליקציה — לא הרצה אמיתית של קוד אנדרואיד בדפדפן.
       </p>
       <div class="field">
-        <label for="emulatorApkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <label for="emulatorApkFile">קובץ APK להתקנה ישירה באמולטור</label>
         <input type="file" id="emulatorApkFile" accept=".apk">
       </div>
-      <p class="edit-status muted" id="emulatorStatus"></p>
-    </section>
-
-    <section class="card">
-      <h2>תצוגה</h2>
-      <div class="phone-preview" id="phonePreviewStandalone">
-        <div class="phone-frame" id="phoneFrameStandalone"></div>
-      </div>
+      <p class="edit-status muted" id="emulatorUploadStatus"></p>
+      <button type="button" class="secondary" id="openEmulatorPanelBtn">פתח את חלונית האמולטור</button>
     </section>
   </section>
 
@@ -1280,6 +1377,27 @@
   </footer>
 
 </div>
+
+<button type="button" class="emulator-toggle-tab" id="emulatorToggleTab" aria-label="פתח/סגור אמולטור אנדרואיד" aria-expanded="false">
+  <span aria-hidden="true">📱</span>
+  <span class="emulator-badge" id="emulatorAppCount" hidden>0</span>
+</button>
+
+<aside class="emulator-panel" id="emulatorPanel" hidden aria-label="אמולטור אנדרואיד">
+  <div class="emulator-panel-head">
+    <span class="emulator-panel-title">אמולטור אנדרואיד</span>
+    <button type="button" class="emulator-close-btn" id="emulatorCloseBtn" aria-label="סגור את חלונית האמולטור">✕</button>
+  </div>
+  <div class="phone-shell">
+    <div class="phone-notch" aria-hidden="true"></div>
+    <div class="phone-statusbar">
+      <span id="phoneClock">0:00</span>
+      <span class="phone-status-icons" aria-hidden="true">📶 🔋</span>
+    </div>
+    <div class="phone-screen" id="phoneScreen"></div>
+    <button type="button" class="phone-home-indicator" id="phoneHomeBtn" aria-label="מסך הבית"></button>
+  </div>
+</aside>
 
 <script>
 (function () {
@@ -1330,8 +1448,8 @@
 
   const SYSTEM_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build pipeline
 (no Gradle, no AndroidX, no external dependencies, no XML layout resources). Output ONLY a raw JSON
-object - no markdown fences, no commentary - with exactly four string fields: "manifest", "kotlin",
-"icon", and "preview".
+object - no markdown fences, no commentary - with exactly three string fields: "manifest", "kotlin",
+and "icon".
 
 Hard constraints (never break these - the build pipeline depends on them):
 - Package name must be exactly: com.aiapp.generated
@@ -1383,17 +1501,7 @@ xmlns:android="http://schemas.android.com/apk/res/android", android:width="108dp
 android:height="108dp", android:viewportWidth="108", android:viewportHeight="108", containing
 one background <path> (e.g. a filled rounded square or circle) plus 1-3 simple foreground
 <path> elements, each with android:fillColor as a hex color and android:pathData. No text, no
-gradients, no raster images, no references to other resources - only <vector> and <path>.
-
-"preview": a SINGLE self-contained HTML document (inline <style> and <script> only, no external
-resources, no network requests) that visually mimics the Kotlin app's screen closely enough to click
-around and get a feel for it - same texts, same rough layout/colors, same controls. This is a
-best-effort approximation shown inside a phone-shaped frame in a web page, NOT the compiled app, so:
-- Make buttons/inputs/toggles actually respond with plain vanilla JS (no imports, no build step) -
-  visible feedback on tap, working text fields, simple state changes - so it feels alive, not static.
-- Size it for a phone screen: assume a narrow (~360px wide) viewport, and make the outermost element
-  fill 100% width/height with no fixed pixel dimensions larger than that.
-- Keep it short and dependency-free - inline CSS, inline JS, system fonts only.`;
+gradients, no raster images, no references to other resources - only <vector> and <path>.`;
 
   const ANALYZE_INSTRUCTIONS = `You are a product analyst preparing a short Android app idea before
 it is turned into real code by another AI step. Output ONLY a raw JSON object - no markdown fences,
@@ -1503,12 +1611,6 @@ rebuild, even if that means dropping part of the requested change.`;
   const modeTabsEl = $("modeTabs"), newChatBtn = $("newChatBtn");
   const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor"), emulator: $("panel-emulator") };
 
-  const phonePreviewBuild = $("phonePreviewBuild"), phoneFrameBuild = $("phoneFrameBuild");
-  const phonePreviewCensor = $("phonePreviewCensor"), phoneFrameCensor = $("phoneFrameCensor");
-  const phonePreviewTranslate = $("phonePreviewTranslate"), phoneFrameTranslate = $("phoneFrameTranslate");
-  const phonePreviewEditDecompile = $("phonePreviewEditDecompile"), phoneFrameEditDecompile = $("phoneFrameEditDecompile");
-  const emulatorApkFileEl = $("emulatorApkFile"), emulatorStatusEl = $("emulatorStatus"), phoneFrameStandalone = $("phoneFrameStandalone");
-
   const editApkFileEl = $("editApkFile"), editInstructionEl = $("editInstruction"), editGoBtn = $("editGoBtn");
   const railEditDecompileEl = $("railEditDecompile"), logEditDecompileEl = $("logEditDecompile");
   const downloadBoxEditDecompileEl = $("downloadBoxEditDecompile"), downloadLinkEditDecompileEl = $("downloadLinkEditDecompile");
@@ -1518,117 +1620,6 @@ rebuild, even if that means dropping part of the requested change.`;
   const downloadBoxTranslateEl = $("downloadBoxTranslate"), downloadLinkTranslateEl = $("downloadLinkTranslate");
 
   const EDIT2_STAGE_ORDER = ["decompile", "locate", "patch", "commit", "rebuild", "apk"];
-
-  // ---------- phone-frame emulator preview (build/edit/translate/censor + standalone tab) ----------
-  // Builds a tappable "phone" inside containerEl: a home screen (icon + label) that opens into
-  // either a Gemini-authored interactive HTML mock (htmlMock, sandboxed in an iframe) or a native
-  // horizontally-scrollable/swipeable gallery of image assets actually found inside the APK. This
-  // is a visual approximation, not a real running app — there is no lightweight way to execute
-  // real Android/ART bytecode in a browser tab.
-  function renderPhoneFrame(containerEl, { iconUrl, iconSvgEl, label, images = [], htmlMock } = {}) {
-    containerEl.innerHTML = "";
-    const screen = document.createElement("div");
-    screen.className = "phone-screen";
-
-    const home = document.createElement("button");
-    home.type = "button";
-    home.className = "phone-home";
-    const iconBox = document.createElement("div");
-    iconBox.className = "phone-home-icon";
-    if (iconSvgEl) {
-      iconBox.appendChild(iconSvgEl);
-    } else if (iconUrl) {
-      const img = document.createElement("img");
-      img.src = iconUrl;
-      img.alt = label || "app icon";
-      iconBox.appendChild(img);
-    } else {
-      iconBox.textContent = "📱";
-    }
-    const labelEl = document.createElement("div");
-    labelEl.className = "phone-home-label";
-    labelEl.textContent = label || "אפליקציה";
-    const hint = document.createElement("div");
-    hint.className = "phone-home-hint";
-    hint.textContent = "הקישו לפתיחה";
-    home.append(iconBox, labelEl, hint);
-
-    const appView = document.createElement("div");
-    appView.className = "phone-app-view";
-    const stage = document.createElement("div");
-    stage.className = "phone-app-stage";
-
-    if (htmlMock) {
-      const iframe = document.createElement("iframe");
-      iframe.setAttribute("sandbox", "allow-scripts");
-      iframe.srcdoc = htmlMock;
-      stage.appendChild(iframe);
-    } else if (images.length > 0) {
-      const gallery = document.createElement("div");
-      gallery.className = "phone-gallery";
-      images.forEach((src, i) => {
-        const slide = document.createElement("div");
-        slide.className = "phone-gallery-slide";
-        const img = document.createElement("img");
-        img.src = src;
-        img.alt = `מסך ${i + 1}`;
-        slide.appendChild(img);
-        gallery.appendChild(slide);
-      });
-      stage.appendChild(gallery);
-    } else {
-      const empty = document.createElement("div");
-      empty.className = "phone-gallery-empty";
-      empty.textContent = "לא נמצאו תמונות בתוך ה-APK להצגה כמסכים.";
-      stage.appendChild(empty);
-    }
-
-    const nav = document.createElement("div");
-    nav.className = "phone-nav";
-    const backBtn = document.createElement("button");
-    backBtn.type = "button";
-    backBtn.textContent = "⌂ בית";
-    backBtn.addEventListener("click", () => appView.classList.remove("show"));
-    nav.appendChild(backBtn);
-
-    appView.append(stage, nav);
-    home.addEventListener("click", () => appView.classList.add("show"));
-
-    screen.append(home, appView);
-    containerEl.appendChild(screen);
-  }
-
-  // Unzips an already-built APK (from a blob: URL produced by downloadApk, or any Blob) purely
-  // client-side to pull out a launcher-icon-looking image plus any other images to use as
-  // "screens", then renders it via renderPhoneFrame. Never throws outward — a preview hiccup
-  // should never make an otherwise-successful build look like it failed.
-  // apkSource is the final, already-compiled APK — its own vector-drawable XML (if any) has been
-  // compiled to Android's binary XML format by aapt2/apktool by this point, so it can no longer be
-  // read back as plain text here. Pass iconXml explicitly (the exact pre-compilation string, when
-  // the caller still has it — build mode always does) to get a real icon; otherwise this only finds
-  // a launcher icon when the original APK actually ships one as an ordinary raster PNG/JPG/etc.
-  async function previewApkAsPhone(containerEl, apkSource, { label, htmlMock, iconXml } = {}) {
-    try {
-      const blob = apkSource instanceof Blob ? apkSource : await (await fetch(apkSource)).blob();
-      const zip = await JSZip.loadAsync(blob);
-      const imageEntries = Object.values(zip.files).filter((f) => !f.dir && IMAGE_EXT_RE.test(f.name));
-      const iconEntry = imageEntries.find((f) => /ic_launcher|mipmap|\/icon/i.test(f.name)) || imageEntries[0] || null;
-      const iconUrl = iconEntry ? URL.createObjectURL(await iconEntry.async("blob")) : null;
-      const galleryEntries = imageEntries.filter((f) => f !== iconEntry).slice(0, 24);
-      const images = [];
-      for (const entry of galleryEntries) images.push(URL.createObjectURL(await entry.async("blob")));
-
-      let iconSvgEl = null;
-      if (!iconUrl && iconXml) {
-        try { iconSvgEl = vectorXmlToSvgElement(iconXml); }
-        catch (e) { console.error("Vector icon decode failed (non-fatal):", e); }
-      }
-
-      renderPhoneFrame(containerEl, { iconUrl, iconSvgEl, label, images, htmlMock });
-    } catch (e) {
-      console.error("Phone-frame preview failed (non-fatal):", e);
-    }
-  }
   const TRANSLATE_STAGE_ORDER = ["decompile", "strings", "translate", "commit", "rebuild", "apk"];
 
   function setBusyBtn(btn, busy, busyLabel, idleLabel) {
@@ -1779,10 +1770,16 @@ rebuild, even if that means dropping part of the requested change.`;
       let res;
       try {
         res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+          // המפתח עובר כפרמטר query (?key=), לא ככותרת x-goog-api-key — בדיוק כמו שכבר נעשה
+          // למטה עבור GitHub: כותרת מותאמת-אישית כזו הופכת את הבקשה ל-"non-simple" ומחייבת
+          // preflight מסוג OPTIONS, וה-preflight הזה נחסם/נכשל אצל חלק מסינוני התוכן ברמת הרשת
+          // (כמו אתרוג ונטפרי) — שם הבעיה שגרמה לפעולות ה-AI, בניגוד לפעולות ה-GitHub, לא לעבוד
+          // בסביבות האלה. פרמטר ה-query הוא דרך האימות הרשמית והנתמכת של Gemini API למפתחות API,
+          // ולא דורש preflight.
+          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
           }
         );
@@ -1802,23 +1799,7 @@ rebuild, even if that means dropping part of the requested change.`;
         const text = await res.text().catch(() => "");
         throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
       }
-
-      const bodyText = await res.text();
-      try {
-        return JSON.parse(bodyText);
-      } catch {
-        // A 2xx status with a non-JSON body (usually starting with "<") means something between
-        // the browser and Google intercepted the request — a VPN/proxy, a corporate/ISP firewall,
-        // or a browser extension (ad-blocker/privacy tool) — and served its own HTML page instead
-        // of ever reaching the real Gemini API. Retrying other keys won't help if this is the
-        // cause, so this is thrown immediately rather than rotated through every remaining key.
-        throw new Error(
-          `Gemini API החזיר תשובה שאינה JSON (סטטוס ${res.status}, ${keyLabel}). זה כמעט תמיד ` +
-          `אומר שמשהו בדרך יירט את הבקשה לפני שהגיעה בכלל ל-Google — VPN/פרוקסי, פיירוול ` +
-          `ארגוני/ספק, או תוסף דפדפן (חוסם פרסומות/פרטיות). נסו לנטרל אותם או לבדוק בדפדפן/מכשיר ` +
-          `אחר. תחילת התשובה שהתקבלה: ${bodyText.slice(0, 200) || "(ריקה)"}`
-        );
-      }
+      return await res.json();
     }
     throw lastErr || new Error("כל מפתחות ה-Gemini נכשלו.");
   }
@@ -1870,9 +1851,6 @@ rebuild, even if that means dropping part of the requested change.`;
     if (!parsed.manifest || !parsed.kotlin || !parsed.icon) {
       throw new Error(`Gemini's reply is missing "manifest", "kotlin" or "icon". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
     }
-    // "preview" (the phone-frame interactive mock) is a nice-to-have, not load-bearing for the
-    // actual APK — never fail a good build just because this extra field was missing/truncated.
-    if (typeof parsed.preview !== "string" || !parsed.preview.trim()) parsed.preview = null;
     return parsed;
   }
 
@@ -1994,33 +1972,26 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // Renders the generated launcher icon (Android vector drawable -> inline SVG)
   // and the app's label next to the download button once they're known.
-  // Converts an Android vector-drawable XML document (<vector><path .../></vector>) into an
-  // inline SVG element. Shared by the build-mode icon preview and the phone-frame emulator, since
-  // self-built apps' only visual asset is this one vector icon (no raster images exist to show).
-  function vectorXmlToSvgElement(iconXml) {
-    const iconDoc = new DOMParser().parseFromString(iconXml, "application/xml");
-    if (iconDoc.querySelector("parsererror")) throw new Error("bad icon xml");
-    const vectorEl = iconDoc.documentElement;
-    const vw = parseFloat(vectorEl.getAttribute("android:viewportWidth")) || 108;
-    const vh = parseFloat(vectorEl.getAttribute("android:viewportHeight")) || 108;
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
-    iconDoc.querySelectorAll("path").forEach((p) => {
-      const d = p.getAttribute("android:pathData");
-      if (!d) return;
-      const pathEl = document.createElementNS(svgNS, "path");
-      pathEl.setAttribute("d", d);
-      pathEl.setAttribute("fill", p.getAttribute("android:fillColor") || "#888");
-      svg.appendChild(pathEl);
-    });
-    return svg;
-  }
-
   function renderAppPreview(manifestXml, iconXml) {
     try {
+      const iconDoc = new DOMParser().parseFromString(iconXml, "application/xml");
+      if (iconDoc.querySelector("parsererror")) throw new Error("bad icon xml");
+      const vectorEl = iconDoc.documentElement;
+      const vw = parseFloat(vectorEl.getAttribute("android:viewportWidth")) || 108;
+      const vh = parseFloat(vectorEl.getAttribute("android:viewportHeight")) || 108;
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+      iconDoc.querySelectorAll("path").forEach((p) => {
+        const d = p.getAttribute("android:pathData");
+        if (!d) return;
+        const pathEl = document.createElementNS(svgNS, "path");
+        pathEl.setAttribute("d", d);
+        pathEl.setAttribute("fill", p.getAttribute("android:fillColor") || "#888");
+        svg.appendChild(pathEl);
+      });
       appIconPreview.innerHTML = "";
-      appIconPreview.appendChild(vectorXmlToSvgElement(iconXml));
+      appIconPreview.appendChild(svg);
     } catch {
       appIconPreview.innerHTML = ""; // preview is cosmetic only — never block the build on it
     }
@@ -2115,6 +2086,17 @@ rebuild, even if that means dropping part of the requested change.`;
     }
     const bytes = Uint8Array.from(atob(data.content.replace(/\n/g, "")), (c) => c.charCodeAt(0));
     return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  // Same as fetchRepoFile but returns the raw base64 content untouched, instead of decoding it as
+  // UTF-8 text — needed for binary files (e.g. a launcher icon image) where text-decoding would
+  // corrupt the bytes.
+  async function fetchRepoFileBase64({ owner, repo, branch, token, path }) {
+    const data = await gh(`/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, token);
+    if (Array.isArray(data) || data.type !== "file" || typeof data.content !== "string") {
+      throw new Error(`"${path}" אינו קובץ קריא בענף הזה.`);
+    }
+    return data.content.replace(/\n/g, "");
   }
 
   // Full recursive path listing of a branch via the Git Trees API — one call,
@@ -2406,7 +2388,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
       setStage("gemini", "active");
       log("שולח את הפרומפט ל-Gemini…");
-      let { manifest, kotlin, icon, preview } = await generateAppCode(geminiKeys, idea, thinkLevel);
+      let { manifest, kotlin, icon } = await generateAppCode(geminiKeys, idea, thinkLevel);
       setStage("gemini", "done");
       renderAppPreview(manifest, icon);
 
@@ -2438,7 +2420,6 @@ rebuild, even if that means dropping part of the requested change.`;
           try {
             const fixed = await generateAppCodeFix(geminiKeys, idea, { manifest, kotlin, icon }, errorLog, thinkLevel);
             manifest = fixed.manifest; kotlin = fixed.kotlin; icon = fixed.icon;
-            if (fixed.preview) preview = fixed.preview; // else keep the previous mock — still roughly accurate
             renderAppPreview(manifest, icon);
             log("Gemini החזיר גרסה מתוקנת, מנסה לבנות שוב…", "ok");
           } catch (fixErr) {
@@ -2455,8 +2436,15 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLink.href = apkUrl;
       downloadBox.classList.add("show");
       log("מוכן — האפליקציה שלך מחכה להורדה.", "ok");
-      phonePreviewBuild.hidden = false;
-      previewApkAsPhone(phoneFrameBuild, apkUrl, { label: appLabelPreview.textContent, htmlMock: preview, iconXml: icon });
+
+      installAppInEmulator({
+        key: "com.aiapp.generated",
+        label: appLabelPreview.textContent || "האפליקציה שלי",
+        iconType: appIconPreview.innerHTML ? "svg" : "fallback",
+        iconMarkup: appIconPreview.innerHTML,
+        apkUrl,
+        source: "build",
+      });
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error");
@@ -2674,8 +2662,23 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkEdit.href = apkUrl;
       downloadBoxEdit.classList.add("show");
       log("מוכן — ה-APK המצונזר מחכה להורדה.", "ok", logEditEl);
-      phonePreviewCensor.hidden = false;
-      previewApkAsPhone(phoneFrameCensor, apkUrl, { label: "האפליקציה המצונזרת" });
+
+      try {
+        const censorFile = apkFileEl.files[0];
+        const iconPath = loadedApkZip ? findLauncherIconPath(Object.keys(loadedApkZip.files)) : null;
+        let iconUrl = null;
+        if (iconPath) iconUrl = URL.createObjectURL(await loadedApkZip.files[iconPath].async("blob"));
+        installAppInEmulator({
+          key: censorFile ? `file:${censorFile.name}` : "censor-app",
+          label: censorFile ? censorFile.name.replace(/\.apk$/i, "") : "אפליקציה מצונזרת",
+          iconType: iconUrl ? "img" : "fallback",
+          iconUrl,
+          apkUrl,
+          source: "censor",
+        });
+      } catch (emulatorErr) {
+        console.error(emulatorErr); // cosmetic only — never block the censor pipeline on this
+      }
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditEl);
@@ -2750,8 +2753,25 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkTranslateEl.href = apkUrl;
       downloadBoxTranslateEl.classList.add("show");
       log("מוכן — ה-APK המתורגם מחכה להורדה.", "ok", logTranslateEl);
-      phonePreviewTranslate.hidden = false;
-      previewApkAsPhone(phoneFrameTranslate, apkUrl, { label: `האפליקציה (${langCode})` });
+
+      try {
+        const appMeta = { key: `file:${file.name}`, label: file.name.replace(/\.apk$/i, ""), iconType: "fallback", iconUrl: null };
+        const manifestXmlT = await fetchRepoFile({ owner, repo, branch, token, path: `${DECOMPILED_APP_DIR}/AndroidManifest.xml` });
+        appMeta.key = extractManifestPackage(manifestXmlT);
+        const manDocT = new DOMParser().parseFromString(manifestXmlT, "application/xml");
+        const labelT = manDocT.querySelector("application")?.getAttribute("android:label");
+        if (labelT) appMeta.label = labelT;
+        const allPathsT = await listRepoTree({ owner, repo, branch, token });
+        const iconPathT = findLauncherIconPath(allPathsT);
+        if (iconPathT) {
+          const b64 = await fetchRepoFileBase64({ owner, repo, branch, token, path: iconPathT });
+          appMeta.iconType = "img";
+          appMeta.iconUrl = `data:${mimeForImagePath(iconPathT)};base64,${b64}`;
+        }
+        installAppInEmulator({ ...appMeta, apkUrl, source: "translate" });
+      } catch (emulatorErr) {
+        console.error(emulatorErr); // cosmetic only — never block the translate pipeline on this
+      }
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logTranslateEl);
@@ -2847,8 +2867,27 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkEditDecompileEl.href = apkUrl;
       downloadBoxEditDecompileEl.classList.add("show");
       log("מוכן — ה-APK הערוך מחכה להורדה.", "ok", logEditDecompileEl);
-      phonePreviewEditDecompile.hidden = false;
-      previewApkAsPhone(phoneFrameEditDecompile, apkUrl, { label: "האפליקציה הערוכה" });
+
+      try {
+        const manDocE = new DOMParser().parseFromString(manifestXml, "application/xml");
+        const labelE = manDocE.querySelector("application")?.getAttribute("android:label");
+        let iconType = "fallback", iconUrl = null;
+        const iconPathE = findLauncherIconPath(allPaths);
+        if (iconPathE) {
+          const b64 = await fetchRepoFileBase64({ owner, repo, branch, token, path: iconPathE });
+          iconType = "img";
+          iconUrl = `data:${mimeForImagePath(iconPathE)};base64,${b64}`;
+        }
+        installAppInEmulator({
+          key: pkg,
+          label: labelE || file.name.replace(/\.apk$/i, ""),
+          iconType, iconUrl,
+          apkUrl,
+          source: "edit",
+        });
+      } catch (emulatorErr) {
+        console.error(emulatorErr); // cosmetic only — never block the edit pipeline on this
+      }
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditDecompileEl);
@@ -2857,6 +2896,269 @@ rebuild, even if that means dropping part of the requested change.`;
       setBusyBtn(editGoBtn, false, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
     }
   }
+
+  // ---------- Android Emulator ----------
+  const emulatorApkFileEl = $("emulatorApkFile"), emulatorUploadStatus = $("emulatorUploadStatus");
+  const openEmulatorPanelBtn = $("openEmulatorPanelBtn");
+  const emulatorToggleTab = $("emulatorToggleTab"), emulatorAppCountEl = $("emulatorAppCount");
+  const emulatorPanel = $("emulatorPanel"), emulatorCloseBtn = $("emulatorCloseBtn");
+  const phoneScreen = $("phoneScreen"), phoneHomeBtn = $("phoneHomeBtn"), phoneClockEl = $("phoneClock");
+
+  const EMULATOR_SOURCE_LABELS = { build: "נבנתה כאן", edit: "נערכה", translate: "תורגמה", censor: "צונזרה", upload: "הועלתה" };
+
+  // installedApps: key -> { key, label, iconType: "svg"|"img"|"fallback", iconMarkup, iconUrl,
+  // apkUrl, sizeBytes, source, updatedAt }. Keyed so that re-building/re-editing/re-translating the
+  // SAME app (same package, or same generated app) updates its existing entry instead of piling up
+  // duplicates — this is what keeps the emulator showing "the updated version" per app.
+  const installedApps = new Map();
+  let phoneScreenMode = "home"; // "home" | "detail" | "running"
+  let phoneActiveKey = null;
+
+  // Real, non-obfuscated APKs conventionally keep res/mipmap|drawable/ic_launcher* file names even
+  // after compiling (aapt2) or decompiling (apktool) — searching for that path shape is a light,
+  // best-effort way to find a preview icon without a full Android Binary XML resource resolver.
+  // Cosmetic only: every call site falls back to a generic icon tile if nothing matches.
+  const LAUNCHER_ICON_RE = /(^|\/)res\/(mipmap|drawable)[^/]*\/ic_launcher[^/]*\.(png|webp|jpg|jpeg)$/i;
+  const DENSITY_RANK = ["xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi"];
+  function findLauncherIconPath(paths) {
+    const candidates = paths.filter((p) => LAUNCHER_ICON_RE.test(p));
+    if (candidates.length === 0) return null;
+    const rank = (p) => { const i = DENSITY_RANK.findIndex((d) => p.includes(d)); return i === -1 ? DENSITY_RANK.length : i; };
+    candidates.sort((a, b) => rank(a) - rank(b) || (a.includes("_round") ? 1 : 0) - (b.includes("_round") ? 1 : 0));
+    return candidates[0];
+  }
+  function mimeForImagePath(path) {
+    if (/\.webp$/i.test(path)) return "image/webp";
+    if (/\.jpe?g$/i.test(path)) return "image/jpeg";
+    return "image/png";
+  }
+
+  function updateEmulatorBadge() {
+    emulatorAppCountEl.textContent = String(installedApps.size);
+    emulatorAppCountEl.hidden = installedApps.size === 0;
+  }
+
+  function flashEmulatorToggle() {
+    emulatorToggleTab.classList.remove("just-updated");
+    void emulatorToggleTab.offsetWidth; // restart animation even if it's already mid-flash
+    emulatorToggleTab.classList.add("just-updated");
+  }
+
+  function openEmulatorPanel() {
+    emulatorPanel.hidden = false;
+    emulatorToggleTab.setAttribute("aria-expanded", "true");
+    emulatorToggleTab.classList.add("is-open");
+  }
+  function closeEmulatorPanel() {
+    emulatorPanel.hidden = true;
+    emulatorToggleTab.setAttribute("aria-expanded", "false");
+    emulatorToggleTab.classList.remove("is-open");
+  }
+  emulatorToggleTab.addEventListener("click", () => (emulatorPanel.hidden ? openEmulatorPanel() : closeEmulatorPanel()));
+  emulatorCloseBtn.addEventListener("click", closeEmulatorPanel);
+  openEmulatorPanelBtn.addEventListener("click", openEmulatorPanel);
+  phoneHomeBtn.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
+
+  function updatePhoneClock() {
+    phoneClockEl.textContent = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+  }
+  updatePhoneClock();
+  setInterval(updatePhoneClock, 15000);
+
+  // Registers or updates an installed app and refreshes the phone screen. Safe to call repeatedly
+  // with the same key (e.g. re-building the same generated app, or re-editing the same uploaded
+  // APK) — it replaces that app's entry in place rather than adding a duplicate icon.
+  function installAppInEmulator(appData) {
+    const prev = installedApps.get(appData.key) || {};
+    installedApps.set(appData.key, { ...prev, ...appData, updatedAt: Date.now() });
+    updateEmulatorBadge();
+    // Don't yank the user off a detail/running screen they're actively looking at for a
+    // DIFFERENT app; otherwise land on the home screen so the new/updated icon is visible.
+    if (phoneActiveKey !== appData.key) { phoneScreenMode = "home"; phoneActiveKey = null; }
+    renderPhoneScreen();
+    flashEmulatorToggle();
+  }
+
+  function createIconEl(app, sizePx) {
+    const el = document.createElement("div");
+    el.className = "phone-icon-img";
+    if (sizePx) { el.style.width = sizePx + "px"; el.style.height = sizePx + "px"; }
+    if (app.iconType === "svg" && app.iconMarkup) {
+      el.innerHTML = app.iconMarkup;
+    } else if (app.iconType === "img" && app.iconUrl) {
+      const img = document.createElement("img");
+      img.src = app.iconUrl;
+      img.alt = "";
+      el.appendChild(img);
+    } else {
+      el.classList.add("phone-icon-fallback");
+      el.textContent = (app.label || "?").trim().charAt(0).toUpperCase() || "A";
+    }
+    return el;
+  }
+
+  function buildHomeScreen() {
+    const wrap = document.createElement("div");
+    wrap.className = "phone-home";
+    if (installedApps.size === 0) {
+      const empty = document.createElement("div");
+      empty.className = "phone-empty";
+      const glyph = document.createElement("div");
+      glyph.className = "phone-empty-glyph";
+      glyph.textContent = "📲";
+      const text = document.createElement("p");
+      text.textContent = "עדיין אין אפליקציות מותקנות. בנו, ערכו, תרגמו או צנזרו אפליקציה בטאבים למעלה, או העלו APK ישירות בטאב \"אמולטור אנדרואיד\" — והיא תופיע כאן.";
+      empty.append(glyph, text);
+      wrap.appendChild(empty);
+      return wrap;
+    }
+    const grid = document.createElement("div");
+    grid.className = "phone-app-grid";
+    for (const app of installedApps.values()) {
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "phone-app-tile";
+      tile.appendChild(createIconEl(app, 52));
+      const label = document.createElement("span");
+      label.className = "phone-app-label";
+      label.textContent = app.label;
+      tile.appendChild(label);
+      tile.addEventListener("click", () => { phoneScreenMode = "detail"; phoneActiveKey = app.key; renderPhoneScreen(); });
+      grid.appendChild(tile);
+    }
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function buildAppDetailScreen(app) {
+    const wrap = document.createElement("div");
+    wrap.className = "phone-detail";
+
+    const back = document.createElement("button");
+    back.type = "button";
+    back.className = "phone-back-btn";
+    back.textContent = "‹ חזרה";
+    back.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
+    wrap.appendChild(back);
+
+    const head = document.createElement("div");
+    head.className = "phone-detail-head";
+    head.appendChild(createIconEl(app, null));
+    const info = document.createElement("div");
+    info.className = "phone-detail-info";
+    const h3 = document.createElement("h3");
+    h3.textContent = app.label;
+    const badge = document.createElement("span");
+    badge.className = "phone-badge";
+    badge.textContent = EMULATOR_SOURCE_LABELS[app.source] || app.source;
+    info.append(h3, badge);
+    head.appendChild(info);
+    wrap.appendChild(head);
+
+    const meta = document.createElement("dl");
+    meta.className = "phone-meta-list";
+    const addRow = (k, v) => {
+      const dt = document.createElement("dt"); dt.textContent = k;
+      const dd = document.createElement("dd"); dd.textContent = v;
+      meta.append(dt, dd);
+    };
+    if (app.sizeBytes) addRow("גודל", formatBytes(app.sizeBytes));
+    addRow("עודכן", new Date(app.updatedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }));
+    wrap.appendChild(meta);
+
+    const actions = document.createElement("div");
+    actions.className = "phone-detail-actions";
+
+    const openBtn = document.createElement("button");
+    openBtn.type = "button";
+    openBtn.className = "phone-open-btn";
+    openBtn.textContent = "פתח אפליקציה";
+    openBtn.addEventListener("click", () => { phoneScreenMode = "running"; renderPhoneScreen(); });
+
+    const dlLink = document.createElement("a");
+    dlLink.className = "phone-download-btn";
+    dlLink.textContent = "הורדת APK";
+    if (app.apkUrl) dlLink.href = app.apkUrl;
+    dlLink.download = `${app.label || "app"}.apk`;
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "phone-uninstall-btn";
+    delBtn.textContent = "הסרת התקנה";
+    delBtn.addEventListener("click", () => {
+      installedApps.delete(app.key);
+      updateEmulatorBadge();
+      phoneScreenMode = "home";
+      phoneActiveKey = null;
+      renderPhoneScreen();
+    });
+
+    actions.append(openBtn, dlLink, delBtn);
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  function buildAppRunningScreen(app) {
+    const wrap = document.createElement("div");
+    wrap.className = "phone-running";
+    wrap.appendChild(createIconEl(app, 64));
+    const title = document.createElement("p");
+    title.className = "phone-running-title";
+    title.textContent = app.label;
+    const note = document.createElement("p");
+    note.className = "phone-running-note";
+    note.textContent = "זו הדמיית מסך בלבד — האמולטור לא מריץ קוד אנדרואיד אמיתי בדפדפן. התקינו את קובץ ה-APK שהורדתם על מכשיר או אמולטור אנדרואיד אמיתי כדי להריץ אותה במלואה.";
+    const homeBtn = document.createElement("button");
+    homeBtn.type = "button";
+    homeBtn.className = "phone-secondary-btn";
+    homeBtn.textContent = "חזרה למסך הבית";
+    homeBtn.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
+    wrap.append(title, note, homeBtn);
+    return wrap;
+  }
+
+  function renderPhoneScreen() {
+    phoneScreen.innerHTML = "";
+    const app = phoneActiveKey ? installedApps.get(phoneActiveKey) : null;
+    if (phoneScreenMode === "detail" && app) phoneScreen.appendChild(buildAppDetailScreen(app));
+    else if (phoneScreenMode === "running" && app) phoneScreen.appendChild(buildAppRunningScreen(app));
+    else { phoneScreenMode = "home"; phoneActiveKey = null; phoneScreen.appendChild(buildHomeScreen()); }
+  }
+  renderPhoneScreen();
+
+  // ---------- direct APK upload straight into the emulator (no AI/GitHub round-trip needed) ----------
+  emulatorApkFileEl.addEventListener("change", async () => {
+    const file = emulatorApkFileEl.files[0];
+    if (!file) return;
+    emulatorUploadStatus.textContent = "טוען את ה-APK…";
+    try {
+      const buf = await file.arrayBuffer();
+      const zip = await JSZip.loadAsync(buf);
+      const iconPath = findLauncherIconPath(Object.keys(zip.files));
+      let iconType = "fallback", iconUrl = null;
+      if (iconPath) {
+        const iconBlob = await zip.files[iconPath].async("blob");
+        iconUrl = URL.createObjectURL(iconBlob);
+        iconType = "img";
+      }
+      const label = file.name.replace(/\.apk$/i, "");
+      const key = `upload:${file.name}`;
+      installAppInEmulator({
+        key, label, iconType, iconUrl,
+        apkUrl: URL.createObjectURL(new Blob([buf], { type: "application/vnd.android.package-archive" })),
+        sizeBytes: file.size,
+        source: "upload",
+      });
+      emulatorUploadStatus.textContent = `הותקן: ${label}`;
+      phoneScreenMode = "detail";
+      phoneActiveKey = key;
+      renderPhoneScreen();
+      openEmulatorPanel();
+    } catch (e) {
+      console.error(e);
+      emulatorUploadStatus.textContent = "✗ לא הצלחתי לקרוא את קובץ ה-APK. (" + e.message + ")";
+    }
+  });
 
   // ---------- mode tabs ----------
   function switchMode(mode) {
@@ -2908,36 +3210,8 @@ rebuild, even if that means dropping part of the requested change.`;
     downloadBoxTranslateEl.classList.remove("show");
     railTranslateEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
 
-    phonePreviewBuild.hidden = true;
-    phonePreviewCensor.hidden = true;
-    phonePreviewTranslate.hidden = true;
-    phonePreviewEditDecompile.hidden = true;
-    phoneFrameBuild.innerHTML = "";
-    phoneFrameCensor.innerHTML = "";
-    phoneFrameTranslate.innerHTML = "";
-    phoneFrameEditDecompile.innerHTML = "";
-    emulatorApkFileEl.value = "";
-    emulatorStatusEl.textContent = "";
-    phoneFrameStandalone.innerHTML = "";
-
     switchMode("build");
     ideaEl.focus();
-  });
-
-  // ---------- standalone Android-emulator tab: instant, fully client-side preview ----------
-  emulatorApkFileEl.addEventListener("change", async () => {
-    const file = emulatorApkFileEl.files[0];
-    phoneFrameStandalone.innerHTML = "";
-    if (!file) { emulatorStatusEl.textContent = ""; return; }
-    emulatorStatusEl.textContent = "קורא את ה-APK…";
-    const label = file.name.replace(/\.apk$/i, "").replace(/[_-]+/g, " ").trim() || "אפליקציה";
-    try {
-      await previewApkAsPhone(phoneFrameStandalone, file, { label });
-      emulatorStatusEl.textContent = "מוכן — הקישו על האייקון בתצוגה כדי לפתוח.";
-    } catch (e) {
-      console.error(e);
-      emulatorStatusEl.textContent = "✗ לא הצלחתי לקרוא את הקובץ — ודאו שזה APK תקין. (" + e.message + ")";
-    }
   });
 
   goBtn.addEventListener("click", runPipeline);
