@@ -3,29 +3,16 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Background rounded square -->
+    <!-- Rounded Background -->
     <path
-        android:fillColor="#0F172A"
-        android:pathData="M 20 10 L 88 10 A 10 10 0 0 1 98 20 L 98 88 A 10 10 0 0 1 88 98 L 20 98 A 10 10 0 0 1 10 88 L 10 20 A 10 10 0 0 1 20 10 Z" />
-    
-    <!-- Glowing Light Beam -->
+        android:fillColor="#1A237E"
+        android:pathData="M12,0 L96,0 A12,12 0 0 1 108,12 L108,96 A12,12 0 0 1 96,108 L12,108 A12,12 0 0 1 0,96 L0,12 A12,12 0 0 1 12,0 Z" />
+    <!-- Shabbat Candle / Flame Icon (Gold) -->
     <path
-        android:fillColor="#FCD34D"
-        android:pathData="M 34 45 L 74 45 L 94 15 L 14 15 Z" />
-    
-    <!-- Flashlight Bezel -->
+        android:fillColor="#FFD54F"
+        android:pathData="M54,25 C54,25 42,38 42,48 C42,55 47,60 54,60 C61,60 66,55 66,48 C66,38 54,25 54,25 Z" />
+    <!-- AC Wave / Signal Lines (White) -->
     <path
-        android:fillColor="#E2E8F0"
-        android:pathData="M 40 45 L 68 45 L 68 50 L 40 50 Z" />
-
-    <!-- Flashlight Body -->
-    <path
-        android:fillColor="#94A3B8"
-        android:pathData="M 44 50 L 64 50 L 60 75 L 48 75 Z" />
-
-    <!-- Red Switch -->
-    <path
-        android:fillColor="#EF4444"
-        android:pathData="M 51 60 L 57 60 L 57 68 L 51 68 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,70 L78,70 L78,74 L30,74 Z M38,80 L70,80 L70,83 L38,83 Z M46,90 L62,90 L62,92 L46,92 Z" />
 </vector>
