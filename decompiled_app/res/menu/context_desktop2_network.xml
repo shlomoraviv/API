@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@id/menu_edit" android:title="@string/menu_edit" />
-    <item android:id="@id/menu_rename" android:title="@string/menu_rename" />
-    <item android:id="@id/menu_remove" android:title="@string/menu_remove" />
-    <item android:id="@id/menu_shortcut" android:visible="false" android:title="@string/menu_add_to_home_screen" />
-</menu>

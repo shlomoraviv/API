@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.AlertDialog.Less"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <TextView android:textColor="?colorControlActivated" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/edit_text_padding" android:text="@string/dialog_entry_server_address" style="@style/TextAppearance.AppCompat.Caption" />
-    <com.alphainventor.filemanager.widget.BaselineTextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" app:counterEnabled="false" app:hintEnabled="false" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
-        <com.google.android.material.textfield.TextInputEditText android:textAppearance="?android:textAppearanceMedium" android:id="@id/address" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="@string/dialog_entry_server_address_hint" android:selectAllOnFocus="true" android:inputType="textUri|textMultiLine" android:imeOptions="actionDone" />
-    </com.alphainventor.filemanager.widget.BaselineTextInputLayout>
-    <TextView android:textColor="@color/design_error" android:id="@id/error_message" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/edit_text_padding" android:layout_marginTop="4.0dp" style="@style/TextAppearance.AppCompat.Caption" />
-</LinearLayout>

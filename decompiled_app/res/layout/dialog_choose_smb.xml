@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" style="@style/Widget.AlertDialog"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <View android:id="@id/dialog_choose_smb_v_background" android:layout_width="match_parent" android:layout_height="200.0dp" />
-    <com.alphainventor.filemanager.widget.RefreshProgressBar android:id="@id/progressbar" android:visibility="gone" android:layout_width="match_parent" android:layout_height="4.0dp" app:barHeight="2.5dp" />
-    <ListView android:id="@id/dialog_choose_smb_lv_smb" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <TextView android:textAppearance="?android:textAppearanceMedium" android:gravity="center" android:id="@id/dialog_choose_smb_tv_empty" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/empty" android:layout_centerVertical="true" />
-    <ProgressBar android:id="@id/dialog_choose_smb_pb_loading" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" />
-</RelativeLayout>

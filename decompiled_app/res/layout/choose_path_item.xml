@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:padding="4.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/listItemBackground"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageView android:id="@id/choose_path_item_iv_icon" android:layout_width="40.0dp" android:layout_height="40.0dp" android:scaleType="centerCrop" />
-    <TextView android:textAppearance="?android:textAppearanceMedium" android:textColor="@color/main_primary_text" android:gravity="center_vertical" android:id="@id/choose_path_item_iv_path" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="4.0dp" android:textIsSelectable="false" />
-</LinearLayout>

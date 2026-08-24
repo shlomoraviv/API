@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.google.android.material.tabs.TabLayout android:layout_gravity="top" android:id="@id/tab_layout" android:background="@drawable/bg_path_bar" android:layout_width="match_parent" android:layout_height="wrap_content" app:tabGravity="fill" app:tabIndicatorHeight="4.0dp" app:tabMinWidth="105.0dp" app:tabMode="fixed" app:tabSelectedTextColor="@color/pathbar_text_selected" app:tabTextColor="@color/pathbar_text_normal" />
-</LinearLayout>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/listItemBackground"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <include android:id="@id/header_label_layout" android:layout_width="match_parent" android:layout_height="@dimen/section_header_height" android:layout_marginBottom="@dimen/section_header_bottom_margin" layout="@layout/view_section_header" />
-    <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/filelist_item" />
-</LinearLayout>

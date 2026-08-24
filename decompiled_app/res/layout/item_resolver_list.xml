@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="horizontal" android:background="@drawable/bg_activated_background" android:layout_width="match_parent" android:layout_height="?listPreferredItemHeightSmall"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ImageView android:layout_gravity="center" android:id="@id/icon" android:layout_width="32.0dp" android:layout_height="32.0dp" android:layout_marginRight="12.0dp" android:layout_marginEnd="12.0dp" />
-    <TextView android:textAppearance="?textAppearanceListItemSmall" android:ellipsize="marquee" android:gravity="center_vertical" android:id="@android:id/text1" android:layout_width="0.0dp" android:layout_height="match_parent" android:layout_weight="1.0" />
-    <ImageView android:id="@id/need_compatibility_mode" android:background="@drawable/bg_transparent" android:paddingLeft="7.0dp" android:paddingRight="7.0dp" android:clickable="true" android:layout_width="32.0dp" android:layout_height="match_parent" android:tint="#ff888888" android:contentDescription="@string/compatibility_mode" app:srcCompat="@drawable/ic_compatibility_mode" />
-    <CheckBox android:id="@id/use_http_scheme" android:background="@drawable/bg_transparent" android:paddingLeft="7.0dp" android:paddingRight="7.0dp" android:focusable="false" android:visibility="gone" android:clickable="true" android:layout_width="32.0dp" android:layout_height="match_parent" android:contentDescription="@string/http" />
-    <View android:id="@id/choice_indicator" android:layout_width="0.0dp" android:layout_height="0.0dp" />
-</LinearLayout>

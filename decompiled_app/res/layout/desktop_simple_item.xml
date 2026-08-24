@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:gravity="center" android:orientation="vertical" android:paddingTop="5.0dp" android:paddingBottom="5.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/listItemBackground"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageView android:id="@id/icon" android:layout_width="@dimen/simple_desktop_item_icon_size" android:layout_height="@dimen/simple_desktop_item_icon_size" android:layout_margin="2.0dp" android:scaleType="centerInside" />
-    <TextView android:textSize="@dimen/simple_desktop_item_name_text_size" android:textColor="@color/main_primary_text" android:gravity="center_horizontal" android:id="@id/name" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-    <TextView android:textSize="@dimen/simple_desktop_item_info_text_size" android:textColor="@color/main_secondary_text" android:gravity="center" android:id="@id/info" android:layout_width="match_parent" android:layout_height="match_parent" />
-</LinearLayout>

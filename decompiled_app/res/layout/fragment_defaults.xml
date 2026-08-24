@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <Switch android:textAppearance="?textAppearanceListItem" android:ellipsize="marquee" android:id="@id/compatibility_mode" android:paddingLeft="?listPreferredItemPaddingLeft" android:paddingRight="?listPreferredItemPaddingRight" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="?listPreferredItemHeight" android:text="@string/compatibility_mode" android:singleLine="true" />
-    <View android:background="?android:listDivider" android:layout_width="match_parent" android:layout_height="1.0dp" />
-    <ListView android:id="@id/list" android:layout_width="match_parent" android:layout_height="match_parent" />
-    <TextView android:textAppearance="?android:textAppearanceLarge" android:gravity="center" android:id="@id/empty" android:layout_width="match_parent" android:layout_height="match_parent" android:text="@string/no_default_apps" />
-</LinearLayout>

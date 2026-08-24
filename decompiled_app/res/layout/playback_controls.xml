@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/controls_container" android:background="@color/playback_controls_parent_background" android:layout_width="match_parent" android:layout_height="wrap_content"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <fragment android:name="com.alphainventor.filemanager.musicplayer.PlaybackControlsFragment" android:id="@id/fragment_playback_controls" android:layout_width="match_parent" android:layout_height="wrap_content" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>

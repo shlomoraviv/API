@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" style="@style/Widget.AlertDialog"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <view android:id="@id/list" android:scrollbars="vertical" android:fadingEdge="none" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="0.0dp" android:cacheColorHint="@null" android:divider="?listDividerAlertDialog" android:choiceMode="singleChoice" android:layout_weight="1.0" android:overScrollMode="ifContentScrolls" android:textAlignment="viewStart" app:paddingBottomNoButtons="@dimen/abc_dialog_list_padding_bottom_no_buttons" app:paddingTopNoTitle="@dimen/abc_dialog_list_padding_top_no_title" class="androidx.appcompat.app.AlertController$RecycleListView" style="@style/Widget.AppCompat.ListView" />
-</LinearLayout>

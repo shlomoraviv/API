@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:gravity="center" android:orientation="vertical" android:paddingTop="5.0dp" android:paddingBottom="5.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/listItemBackground"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ImageView android:id="@id/icon" android:layout_width="@dimen/desktop_grid_icon_size" android:layout_height="@dimen/desktop_grid_icon_size" android:layout_margin="2.0dp" android:scaleType="centerInside" />
-    <com.alphainventor.filemanager.widget.PieProgress android:id="@id/pie_progress" android:visibility="gone" android:layout_width="@dimen/desktop_grid_icon_size" android:layout_height="@dimen/desktop_grid_icon_size" android:layout_margin="2.0dp" app:barWidth="1.0dp" app:color="#ffff0000" />
-    <TextView android:textSize="@dimen/desktop_item_name_text_size" android:textColor="@color/main_primary_text" android:ellipsize="end" android:gravity="center_horizontal" android:id="@id/name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" />
-    <TextView android:textSize="@dimen/desktop_item_info_text_size" android:textColor="@color/main_secondary_text" android:gravity="center" android:id="@id/info" android:layout_width="match_parent" android:layout_height="match_parent" />
-</LinearLayout>

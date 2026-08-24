@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.AlertDialog.Less.NoButton"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
-        <TextView android:textAppearance="?android:textAppearanceMedium" android:id="@id/message" android:paddingLeft="4.0dp" android:paddingRight="4.0dp" android:paddingBottom="4.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/msg_want_continue" />
-    </LinearLayout>
-</ScrollView>

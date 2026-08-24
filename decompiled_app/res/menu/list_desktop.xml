@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:icon="@drawable/ic_ab_settings" android:id="@id/menu_settings" android:orderInCategory="150" android:title="@string/menu_settings" app:showAsAction="never" />
-    <item android:icon="@drawable/ic_video" android:id="@id/menu_reward" android:visible="false" android:orderInCategory="160" android:title="@string/remove_ads" app:showAsAction="never" />
-    <item android:icon="@drawable/ic_colored_crown" android:id="@id/menu_premium" android:visible="false" android:orderInCategory="170" android:title="@string/title_premium" app:showAsAction="never" />
-    <item android:icon="@drawable/ic_ab_analyze" android:id="@id/menu_analyze" android:orderInCategory="190" android:title="@string/analyze" app:showAsAction="never" />
-    <item android:icon="@drawable/ic_ab_refresh" android:id="@id/menu_refresh" android:orderInCategory="200" android:title="@string/menu_refresh" app:showAsAction="never" />
-</menu>
