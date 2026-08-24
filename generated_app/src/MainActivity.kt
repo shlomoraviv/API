@@ -46,7 +46,7 @@ class MainActivity : Activity() {
     private val KEY_EVENTS = "scheduled_events"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.superOnCreate(savedInstanceState)
+        super.onCreate(savedInstanceState)
         
         irManager = getSystemService(Context.CONSUMER_IR_SERVICE) as? ConsumerIrManager
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
@@ -93,10 +93,6 @@ class MainActivity : Activity() {
         intent?.let { handleAlarmIntent(it) }
     }
 
-    private fun superOnCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
     }
@@ -141,7 +137,7 @@ class MainActivity : Activity() {
         
         val hasIr = irManager?.hasIrEmitter() == true
         irStatusText = TextView(this).apply {
-            text = if (hasIr) "✓ חיישן אינפרא-אדום (IR) מזוהה ופעיל" else "⚠ לא נמצא עינית IR - פועל במצב סימולציה" 
+            text = if (hasIr) "✓ חיישן אינפרא-אדום (IR) מזוהה ופעיל" else "⚠ לא נמצא עינית IR - פועל במצב סימולציה"
             textSize = 15f
             setTextColor(if (hasIr) 0xFF2E7D32.toInt() else 0xFFE65100.toInt())
             typeface = Typeface.DEFAULT_BOLD
@@ -611,9 +607,9 @@ class MainActivity : Activity() {
 
         // Start Sound and Vibration loop
         val handler = Handler(Looper.getMainLooper())
-        var secondsRemaining = 60
 
         val alertRunnable = object : Runnable {
+            var secondsRemaining = 60
             override fun run() {
                 if (secondsRemaining > 0) {
                     // Play high pitched warning beep
@@ -677,7 +673,7 @@ class MainActivity : Activity() {
             }
         }
 
-        try {
+        try { 
             manager.transmit(carrierFrequency, pattern)
         } catch (e: Exception) {
             e.printStackTrace()
