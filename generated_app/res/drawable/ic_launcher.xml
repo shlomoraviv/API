@@ -3,16 +3,16 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Rounded Background -->
     <path
-        android:fillColor="#1A237E"
-        android:pathData="M12,0 L96,0 A12,12 0 0 1 108,12 L108,96 A12,12 0 0 1 96,108 L12,108 A12,12 0 0 1 0,96 L0,12 A12,12 0 0 1 12,0 Z" />
-    <!-- Shabbat Candle / Flame Icon (Gold) -->
+        android:fillColor="#120C1F"
+        android:pathData="M10,10 H98 V98 H10 Z" />
     <path
-        android:fillColor="#FFD54F"
-        android:pathData="M54,25 C54,25 42,38 42,48 C42,55 47,60 54,60 C61,60 66,55 66,48 C66,38 54,25 54,25 Z" />
-    <!-- AC Wave / Signal Lines (White) -->
+        android:fillColor="#00E5FF"
+        android:pathData="M30,35 H78 V73 H30 Z M38,43 A8,8 0 1,0 54,43 A8,8 0 1,0 38,43 M62,43 A8,8 0 1,0 78,43 A8,8 0 1,0 62,43" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M30,70 L78,70 L78,74 L30,74 Z M38,80 L70,80 L70,83 L38,83 Z M46,90 L62,90 L62,92 L46,92 Z" />
+        android:fillColor="#FF007F"
+        android:pathData="M20,54 H88 V58 H20 Z" />
+    <path
+        android:fillColor="#39FF14"
+        android:pathData="M44,65 Q54,75 64,65 L68,68 Q54,80 40,68 Z" />
 </vector>

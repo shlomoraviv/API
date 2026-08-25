@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aiapp.generated">
-
-    <uses-permission android:name="android.permission.TRANSMIT_IR" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.aiapp.generated">
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <application
-        android:allowBackup="true"
+    <application 
+        android:label="סורק האופי המטורף" 
         android:icon="@drawable/ic_launcher"
-        android:label="שלט שבת למזגן"
-        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
-        <activity
-            android:name=".MainActivity"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        <activity 
+            android:name=".MainActivity" 
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
