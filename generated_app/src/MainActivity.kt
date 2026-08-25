@@ -46,7 +46,7 @@ class MainActivity : Activity() {
     private val random = Random()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState);
 
         // Main Scrollable Container
         val scrollView = ScrollView(this)
@@ -200,7 +200,6 @@ class MainActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(4))
             background = GradientDrawable().apply {
                 setColor(0xFF39FF14.toInt())
-                setShadowLayer(10f, 0f, 0f, 0xFF39FF14.toInt())
             }
             visibility = View.GONE
         }
