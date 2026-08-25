@@ -752,307 +752,111 @@
     .image-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
 
-  /* ===================== Android Emulator (floating toggle + side panel) ===================== */
-  .emulator-toggle-tab {
-    position: fixed;
-    left: 20px;
-    bottom: 20px;
-    z-index: 40;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--text);
-    color: var(--bg);
-    border: none;
-    font-size: 22px;
+  /* ===================== auth (login/register) ===================== */
+  .user-badge {
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(43,41,36,0.28);
-    transition: background 0.15s ease, transform 0.1s ease;
-  }
-  .emulator-toggle-tab:hover { background: var(--accent-hover); transform: scale(1.04); }
-  .emulator-toggle-tab.is-open { background: var(--accent); }
-  .emulator-toggle-tab.just-updated { animation: emulator-pop 1.6s ease; }
-  @keyframes emulator-pop {
-    0%, 100% { box-shadow: 0 4px 14px rgba(43,41,36,0.28); }
-    20% { box-shadow: 0 0 0 8px var(--accent-soft); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .emulator-toggle-tab.just-updated { animation: none; }
-  }
-  .emulator-badge {
-    position: absolute;
-    top: -3px;
-    inset-inline-end: -3px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    border-radius: 999px;
-    background: var(--error);
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--bg);
-  }
-  .emulator-badge[hidden] { display: none; }
-
-  .emulator-panel {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 336px;
-    max-width: 88vw;
-    background: var(--surface);
-    border-inline-end: 1px solid var(--border);
-    box-shadow: 4px 0 24px rgba(43,41,36,0.14);
-    z-index: 45;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-  }
-  .emulator-panel[hidden] { display: none; }
-  .emulator-panel-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    flex: 0 0 auto;
-  }
-  .emulator-panel-title { font-family: var(--display); font-weight: 600; font-size: 15px; }
-  .emulator-close-btn {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
+    gap: 10px;
+    font-size: 12.5px;
     color: var(--text-muted);
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    line-height: 1;
-  }
-  .emulator-close-btn:hover { background: var(--bg-inset); color: var(--text); }
-
-  /* --- phone hardware chrome --- */
-  .phone-shell {
-    position: relative;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 264px;
-    aspect-ratio: 9 / 19.5;
-    background: #24221D;
-    border-radius: 34px;
-    padding: 10px;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 28px rgba(43,41,36,0.22);
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-  .phone-notch {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 84px;
-    height: 18px;
-    background: #24221D;
-    border-radius: 0 0 12px 12px;
-    z-index: 3;
-  }
-  .phone-statusbar {
     flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 14px 2px;
-    color: #F4F1EA;
+  }
+  .user-badge-name { font-weight: 600; color: var(--text); }
+  .user-badge-role {
     font-family: var(--mono);
     font-size: 10.5px;
-    direction: ltr;
-  }
-  .phone-status-icons { letter-spacing: 2px; }
-  .phone-screen {
-    flex: 1 1 auto;
-    min-height: 0;
-    background: var(--bg);
-    border-radius: 22px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  .phone-home-indicator {
-    flex: 0 0 auto;
-    width: 92px;
-    height: 4px;
-    border-radius: 999px;
-    background: #F4F1EA;
-    opacity: 0.55;
-    margin: 8px auto 2px;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
-  .phone-home-indicator:hover { opacity: 0.9; }
-
-  /* --- home screen --- */
-  .phone-home { flex: 1; display: flex; flex-direction: column; padding: 16px 10px; overflow-y: auto; }
-  .phone-empty { margin: auto; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6; padding: 0 10px; }
-  .phone-empty-glyph { font-size: 30px; margin-bottom: 8px; }
-  .phone-app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 8px; }
-  .phone-app-tile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 2px;
-    font-family: var(--sans);
-  }
-  .phone-icon-img {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-  }
-  .phone-icon-img svg, .phone-icon-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .phone-icon-fallback {
     background: var(--accent-soft);
     color: var(--accent-hover);
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 20px;
-  }
-  .phone-app-label {
-    font-size: 10px;
-    color: var(--text);
-    text-align: center;
-    line-height: 1.25;
-    max-width: 62px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* --- app detail screen --- */
-  .phone-detail { flex: 1; display: flex; flex-direction: column; padding: 10px 14px 16px; overflow-y: auto; }
-  .phone-back-btn {
-    align-self: flex-start;
-    background: none;
-    border: none;
-    color: var(--accent-hover);
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 12.5px;
-    cursor: pointer;
-    padding: 6px 0 10px;
-  }
-  .phone-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .phone-detail-head .phone-icon-img { width: 72px; height: 72px; border-radius: 18px; }
-  .phone-detail-info { min-width: 0; }
-  .phone-detail-info h3 {
-    margin: 0 0 4px;
-    font-family: var(--display);
-    font-size: 15px;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
-  .phone-badge {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-muted);
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    padding: 2px 7px;
+    padding: 2px 8px;
     border-radius: 999px;
   }
-  .phone-meta-list { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 4px 0 16px; }
-  .phone-meta-list dt { font-size: 11px; color: var(--text-muted); }
-  .phone-meta-list dd { margin: 0; font-size: 11px; color: var(--text); font-family: var(--mono); }
-  .phone-detail-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
-  .phone-open-btn, .phone-download-btn, .phone-uninstall-btn, .phone-secondary-btn {
-    border-radius: 10px;
+  .user-badge-credits { font-family: var(--mono); }
+  .user-badge-logout {
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
     font-family: var(--sans);
-    font-weight: 600;
-    font-size: 12.5px;
-    padding: 10px 12px;
-    text-align: center;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
     cursor: pointer;
-    text-decoration: none;
-    border: none;
-    display: block;
   }
-  .phone-open-btn { background: var(--accent); color: var(--on-accent); }
-  .phone-open-btn:hover { background: var(--accent-hover); }
-  .phone-download-btn { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); }
-  .phone-download-btn:hover { background: var(--bg-inset); }
-  .phone-uninstall-btn { background: none; color: var(--error); border: 1px solid var(--error-soft); }
-  .phone-uninstall-btn:hover { background: var(--error-soft); }
+  .user-badge-logout:hover { background: var(--bg-inset); color: var(--text); }
 
-  /* --- "running app" placeholder screen --- */
-  .phone-running {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  .auth-wrap {
+    max-width: 420px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .auth-card { padding: 28px 24px; }
+  .auth-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .auth-tab {
+    flex: 1 1 0;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .auth-tab[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-hover); }
+  .auth-error {
+    color: var(--error);
+    background: var(--error-soft);
+    border: 1px solid var(--error);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    margin: 4px 0 14px;
+  }
+  #authSubmitBtn { margin-top: 4px; }
+
+  /* ===================== admin panel ===================== */
+  .admin-users-table { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .admin-user-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr auto;
+    gap: 8px;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 24px;
-    text-align: center;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 13px;
   }
-  .phone-running .phone-icon-img { width: 64px; height: 64px; border-radius: 16px; }
-  .phone-running-title { margin: 0; font-family: var(--display); font-weight: 600; font-size: 14px; }
-  .phone-running-note { margin: 0; font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
-  .phone-running-note.phone-running-error { color: var(--error); }
-
-  .phone-spinner {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    animation: phone-spin 0.8s linear infinite;
-  }
-  @keyframes phone-spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .phone-spinner { animation-duration: 2.4s; } }
-
-  .phone-running--live {
-    padding: 0;
-    justify-content: flex-start;
-    gap: 0;
-  }
-  .phone-appetize-frame {
+  .admin-user-row .admin-user-name { font-weight: 600; overflow-wrap: anywhere; }
+  .admin-user-row select,
+  .admin-user-row input[type="text"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 8px;
+    font-size: 12.5px;
     width: 100%;
-    flex: 1 1 auto;
-    border: none;
-    background: #000;
   }
-  .phone-running-back { flex: 0 0 auto; margin: 8px; border-radius: 10px; }
-
-  .emulator-toggle-tab:focus-visible, .emulator-close-btn:focus-visible, .phone-app-tile:focus-visible,
-  .phone-back-btn:focus-visible, .phone-open-btn:focus-visible, .phone-download-btn:focus-visible,
-  .phone-uninstall-btn:focus-visible, .phone-secondary-btn:focus-visible, .phone-home-indicator:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+  .admin-user-row label.admin-blocked-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
   }
-
+  .admin-user-row .chip-btn { white-space: nowrap; }
   @media (max-width: 640px) {
-    .emulator-panel { width: 100%; max-width: 100%; }
+    .admin-user-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ===================== site-text inline edit mode ===================== */
+  .site-text-editing [data-text-key] {
+    outline: 2px dashed var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+    cursor: text;
+    background: var(--accent-soft);
   }
 </style>
 </head>
@@ -1063,15 +867,42 @@
     <span class="brand-mark">AI App Maker</span>
     <span class="brand-kicker">$ prompt → kotlin → dex → apk</span>
   </div>
-  <button type="button" class="new-chat-btn" id="newChatBtn">
+  <div class="user-badge" id="userBadge" hidden>
+    <span class="user-badge-name" id="userBadgeName"></span>
+    <span class="user-badge-role" id="userBadgeRole"></span>
+    <span class="user-badge-credits" id="userBadgeCredits"></span>
+    <button type="button" class="user-badge-logout" id="logoutBtn">התנתקות</button>
+  </div>
+  <button type="button" class="new-chat-btn" id="newChatBtn" hidden>
     <span class="plus" aria-hidden="true">+</span> שיחה חדשה
   </button>
 </div>
 
-<div class="wrap">
+<!-- ===================== AUTH SCREEN (shown until logged in) ===================== -->
+<div class="auth-wrap" id="authScreen">
+  <section class="card auth-card">
+    <div class="auth-tabs" role="tablist" aria-label="התחברות או הרשמה">
+      <button type="button" class="auth-tab" id="authTabLogin" aria-selected="true">התחברות</button>
+      <button type="button" class="auth-tab" id="authTabRegister" aria-selected="false">הרשמה</button>
+    </div>
+    <p class="hint" id="authHint">משתמש חדש? הרשמה יוצרת חשבון עם 30 קרדיטים.</p>
+    <div class="field">
+      <label for="authUsername">שם משתמש</label>
+      <input type="text" id="authUsername" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="authPassword">סיסמה</label>
+      <input type="password" id="authPassword" autocomplete="current-password">
+    </div>
+    <p class="auth-error" id="authError" hidden></p>
+    <button type="button" class="primary" id="authSubmitBtn">התחברות</button>
+  </section>
+</div>
+
+<div class="wrap" id="mainWrap" hidden>
 
   <header class="page-head">
-    <p class="lede">
+    <p class="lede" data-text-key="lede">
       תארו אפליקציית אנדרואיד, ערכו, תרגמו או צנזרו APK קיים. Gemini עושה את החשיבה והכתיבה,
       GitHub Actions מקמפל וחותם APK אמיתי, והכל יורד אליכם ישירות מהדפדפן.
     </p>
@@ -1079,94 +910,87 @@
 
   <div class="mode-tabs" role="tablist" aria-label="מצב עבודה" id="modeTabs">
     <button type="button" class="mode-tab" role="tab" data-mode="build" aria-selected="true">
-      <span class="mode-tab-title">בניית אפליקציה</span>
-      <span class="mode-tab-sub">תיאור → APK חדש</span>
+      <span class="mode-tab-title" data-text-key="tab_build_title">בניית אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_build_sub">תיאור → APK חדש</span>
     </button>
     <button type="button" class="mode-tab" role="tab" data-mode="edit" aria-selected="false">
-      <span class="mode-tab-title">עריכת אפליקציה</span>
-      <span class="mode-tab-sub">שינוי ב-APK קיים</span>
+      <span class="mode-tab-title" data-text-key="tab_edit_title">עריכת אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_edit_sub">שינוי ב-APK קיים</span>
     </button>
     <button type="button" class="mode-tab" role="tab" data-mode="translate" aria-selected="false">
-      <span class="mode-tab-title">תרגום אפליקציה</span>
-      <span class="mode-tab-sub">APK לשפה אחרת</span>
+      <span class="mode-tab-title" data-text-key="tab_translate_title">תרגום אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_translate_sub">APK לשפה אחרת</span>
     </button>
     <button type="button" class="mode-tab" role="tab" data-mode="censor" aria-selected="false">
-      <span class="mode-tab-title">צנזור אפליקציה</span>
-      <span class="mode-tab-sub">החלפת / הסתרת תמונות</span>
+      <span class="mode-tab-title" data-text-key="tab_censor_title">צנזור אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_censor_sub">החלפת / הסתרת תמונות</span>
     </button>
-    <button type="button" class="mode-tab" role="tab" data-mode="emulator" aria-selected="false">
-      <span class="mode-tab-title">אמולטור אנדרואיד</span>
-      <span class="mode-tab-sub">התקנה על מסך טלפון מדומה</span>
+    <button type="button" class="mode-tab" role="tab" data-mode="admin" id="adminTabBtn" aria-selected="false" hidden>
+      <span class="mode-tab-title">ניהול</span>
+      <span class="mode-tab-sub">משתמשים, מחירים, טקסטים</span>
     </button>
   </div>
 
+  <section class="card" id="creditCostsCard">
+    <p class="hint" id="creditCostsHint"></p>
+  </section>
+
   <section class="card">
     <h2>חיבורים</h2>
-    <p class="hint">המפתחות נשארים בזיכרון הדפדפן בלבד ונשלחים ישירות ל-Google ול-GitHub — הם לא נשמרים ולא עוברים דרך שרת שלישי.</p>
+    <p class="hint" data-text-key="hint_connections">המפתחות נשארים בזיכרון הדפדפן בלבד ונשלחים ישירות ל-Google ול-GitHub — הם לא נשמרים ולא עוברים דרך שרת שלישי.</p>
 
-    <div class="field">
-      <label for="geminiKeys">Gemini API Keys <span class="req">*</span></label>
-      <textarea id="geminiKeys" class="mono-input key-mask" rows="2" autocomplete="off" placeholder="AIza…&#10;AIza…"></textarea>
-      <p class="hint" style="margin:6px 0 0;">מפתח אחד בכל שורה. כשיש כמה מפתחות, האתר מסובב ביניהם אוטומטית — כך המכסה החינמית של AI Studio מתחלקת בפועל בין כמה מפתחות, ואם מפתח נתקל במגבלת קצב (429) הבקשה עוברת אוטומטית למפתח הבא.</p>
-    </div>
-    <button type="button" class="toggle-keys" id="toggleKeys">הצג מפתחות</button>
-
-    <div class="field" style="margin-top:16px;">
-      <label for="githubToken">GitHub Token <span class="req">*</span></label>
-      <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
-    </div>
-
-    <details class="proxy-details" style="margin-top:16px;">
-      <summary>כתובת פרוקסי ל-Gemini (אופציונלי — לרשתות עם סינון תוכן)</summary>
-      <div class="field" style="margin-top:10px;">
-        <label for="geminiProxyUrl">Proxy URL</label>
-<input type="text" id="geminiProxyUrl" class="mono-input" value="https://weathered-cherry-821f.0556798858b.workers.dev/" placeholder="https://your-worker.your-subdomain.workers.dev" autocomplete="off">        <p class="hint" style="margin:6px 0 0;">
-          בסביבות עם סינון תוכן כמו אתרוג או נטפרי, הפנייה הישירה מהדפדפן ל-generativelanguage.googleapis.com
-          נחסמת לפעמים ברמת הרשת עצמה (לא קשור למפתחות או לקוד) — הפילטר מיירט את הבקשה ומחזיר עמוד
-          חסימה במקום את התשובה האמיתית מ-Google. אם זה קורה אצלכם: הריצו את הפרוקסי החינמי המצורף
-          (gemini-proxy-worker.js) כ-Cloudflare Worker משלכם, והדביקו כאן את כתובת ה-worker. שדה ריק =
-          פנייה ישירה כרגיל, בלי שום שינוי בהתנהגות.
-        </p>
-      </div>
-    </details>
-
-    <details class="proxy-details" style="margin-top:10px;">
-      <summary>מפתח Appetize.io (אופציונלי — הרצה אמיתית של APK באמולטור)</summary>
-      <div class="field" style="margin-top:10px;">
-        <label for="appetizeApiKey">Appetize.io API Key</label>
-        <input type="password" id="appetizeApiKey" placeholder="—" autocomplete="off">
-        <p class="hint" style="margin:6px 0 0;">
-          בלי מפתח: האמולטור מציג הדמיית מסך אינטראקטיבית וחינמית (ברירת המחדל — בלי הרשמה לשום
-          מקום). עם מפתח: לחיצה על "פתח אפליקציה" מריצה את ה-APK בפועל, בזמן אמת, על אמולטור
-          אנדרואיד אמיתי בענן של Appetize.io — בתוך אותו מסך מדומה. הרשמה חינמית ב-appetize.io
-          (טיר חינמי מוגבל בדקות ריצה בחודש — כדאי לבדוק את המחירון העדכני שלהם), את המפתח מקבלים
-          תחת Organization ← API Tokens. לתשומת לב: עם המפתח הזה קובץ ה-APK עצמו מועלה לשרתי
-          Appetize כדי להריץ אותו — בשונה משאר המפתחות כאן, שלא עוברים דרך אף שרת שלישי.
-        </p>
-      </div>
-    </details>
-
-    <div class="field-row three" style="margin-top:16px;">
+    <div id="manualCredentialFields">
       <div class="field">
-        <label for="owner">בעל הריפו <span class="req">*</span></label>
-        <input type="text" id="owner" placeholder="my-username">
+        <label for="geminiKeys">Gemini API Keys <span class="req">*</span></label>
+        <textarea id="geminiKeys" class="mono-input key-mask" rows="2" autocomplete="off" placeholder="AIza…&#10;AIza…"></textarea>
+        <p class="hint" style="margin:6px 0 0;">מפתח אחד בכל שורה. כשיש כמה מפתחות, האתר מסובב ביניהם אוטומטית — כך המכסה החינמית של AI Studio מתחלקת בפועל בין כמה מפתחות, ואם מפתח נתקל במגבלת קצב (429) הבקשה עוברת אוטומטית למפתח הבא.</p>
       </div>
-      <div class="field">
-        <label for="repo">שם הריפו <span class="req">*</span></label>
-        <input type="text" id="repo" placeholder="ai-app-maker">
+      <button type="button" class="toggle-keys" id="toggleKeys">הצג מפתחות</button>
+
+      <div class="field" style="margin-top:16px;">
+        <label for="githubToken">GitHub Token <span class="req">*</span></label>
+        <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
       </div>
-      <div class="field">
-        <label for="branch">ברנץ'</label>
-        <input type="text" id="branch" value="main">
+
+      <details class="proxy-details" style="margin-top:16px;">
+        <summary>כתובת פרוקסי ל-Gemini (אופציונלי — לרשתות עם סינון תוכן)</summary>
+        <div class="field" style="margin-top:10px;">
+          <label for="geminiProxyUrl">Proxy URL</label>
+          <input type="text" id="geminiProxyUrl" class="mono-input" placeholder="https://your-worker.your-subdomain.workers.dev" autocomplete="off">
+          <p class="hint" style="margin:6px 0 0;">
+            בסביבות עם סינון תוכן כמו אתרוג או נטפרי, הפנייה הישירה מהדפדפן ל-generativelanguage.googleapis.com
+            נחסמת לפעמים ברמת הרשת עצמה (לא קשור למפתחות או לקוד) — הפילטר מיירט את הבקשה ומחזיר עמוד
+            חסימה במקום את התשובה האמיתית מ-Google. אם זה קורה אצלכם: הריצו את הפרוקסי החינמי המצורף
+            (gemini-proxy-worker.js) כ-Cloudflare Worker משלכם, והדביקו כאן את כתובת ה-worker. שדה ריק =
+            פנייה ישירה כרגיל, בלי שום שינוי בהתנהגות.
+          </p>
+        </div>
+      </details>
+
+      <div class="field-row three" style="margin-top:16px;">
+        <div class="field">
+          <label for="owner">בעל הריפו <span class="req">*</span></label>
+          <input type="text" id="owner" placeholder="my-username">
+        </div>
+        <div class="field">
+          <label for="repo">שם הריפו <span class="req">*</span></label>
+          <input type="text" id="repo" placeholder="ai-app-maker">
+        </div>
+        <div class="field">
+          <label for="branch">ברנץ'</label>
+          <input type="text" id="branch" value="main">
+        </div>
       </div>
     </div>
+
+    <p class="hint" id="proPlusConnectionsNote" hidden>מחובר עם הרשאות פרו - המפתחות והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</p>
   </section>
 
   <!-- ===================== BUILD MODE ===================== -->
   <section class="mode-panel" id="panel-build">
     <section class="card">
       <h2>מה בונים?</h2>
-      <p class="hint">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — כדי שהצנרת תישאר פשוטה ואמינה.</p>
+      <p class="hint" data-text-key="hint_build">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — כדי שהצנרת תישאר פשוטה ואמינה.</p>
       <div class="field">
         <label for="idea">תיאור האפליקציה <span class="req">*</span></label>
         <textarea id="idea" placeholder="לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה"></textarea>
@@ -1267,7 +1091,7 @@
   <section class="mode-panel" id="panel-edit" hidden>
     <section class="card">
       <h2>עריכת אפליקציה — שינוי קוד קיים</h2>
-      <p class="hint">
+      <p class="hint" data-text-key="hint_edit">
         עובד על כל APK: מפרק אותו לקוד smali קריא ומשאבים מפוענחים (apktool), נותן ל-Gemini לבחור
         ולשנות רק את הקבצים הרלוונטיים לבקשה, ובונה APK חדש וחתום. <strong>ניסיוני</strong> — עריכת
         smali ע"י AI עובדת הכי טוב על שינויים ממוקדים באפליקציות לא-מעורבלות (non-obfuscated);
@@ -1314,7 +1138,7 @@
   <section class="mode-panel" id="panel-translate" hidden>
     <section class="card">
       <h2>תרגום אפליקציה</h2>
-      <p class="hint">
+      <p class="hint" data-text-key="hint_translate">
         עובד על כל APK: מפרק אותו (apktool), שולף את כל מחרוזות הטקסט מתוך res/values/strings.xml,
         מתרגם עם Gemini, ומוסיף תיקיית שפה חדשה לצד המקור — כך שהאפליקציה תומכת גם בשפה החדשה וגם
         במקורית. לא נוגע בקוד בכלל, ולכן אמין משמעותית יותר מ"עריכת אפליקציה".
@@ -1359,7 +1183,7 @@
   <section class="mode-panel" id="panel-censor" hidden>
     <section class="card">
       <h2>צנזור אפליקציה — תמונות</h2>
-      <p class="hint">
+      <p class="hint" data-text-key="hint_censor">
         העלו APK קיים (למשל אפליקציה שכבר בניתם) כדי לראות את כל קבצי התמונות שבתוכו,
         ולהחליף או לצנזר (לרוקן) תמונות לא צנועות לפני העלאה לגוגל פליי. הסריקה והעריכה
         קורות כאן בדפדפן בלבד; ה-APK הערוך נשלח באמצעות ה-GitHub Token והריפו שמולאו למעלה
@@ -1410,27 +1234,59 @@
     </section>
   </section>
 
-  <!-- ===================== ANDROID EMULATOR MODE ===================== -->
-  <section class="mode-panel" id="panel-emulator" hidden>
+  <!-- ===================== ADMIN MODE (visible only to role=admin) ===================== -->
+  <section class="mode-panel" id="panel-admin" hidden>
     <section class="card">
-      <h2>אמולטור אנדרואיד</h2>
-      <p class="hint">
-        העלו כאן קובץ APK כדי להתקין אותו על מסך טלפון מדומה ואינטראקטיבי, ממש בתוך הדפדפן — אפשר
-        ללחוץ על אייקון האפליקציה, לפתוח אותה, להוריד את קובץ ה-APK או להסיר את ההתקנה. כל אפליקציה
-        שנבנתה, נערכה, תורגמה או צונזרה בטאבים האחרים מותקנת כאן אוטומטית, עם הגרסה העדכנית ביותר
-        שלה. בברירת מחדל זו הדמיית מסך בית ומסך פרטי אפליקציה — לא הרצה אמיתית של קוד אנדרואיד
-        בדפדפן; אם מוסיפים מפתח Appetize.io ב"חיבורים" למעלה, "פתח אפליקציה" מריץ את ה-APK בפועל.
-      </p>
-      <div class="field">
-        <label for="emulatorApkFile">קובץ APK להתקנה ישירה באמולטור</label>
-        <input type="file" id="emulatorApkFile" accept=".apk">
+      <h2>משתמשים</h2>
+      <p class="hint">שינוי תפקיד, קרדיטים או חסימה נשמר מיד עם לחיצה על "שמור" באותה שורה.</p>
+      <button type="button" class="secondary" id="adminRefreshUsersBtn" style="width:auto; padding:10px 16px;">רענון רשימה</button>
+      <div id="adminUsersTable" class="admin-users-table"></div>
+    </section>
+
+    <section class="card">
+      <h2>מחירים והוראות מערכת</h2>
+      <p class="hint">עלות בקרדיטים לכל פעולה, ברירת המחדל למשתמש חדש, והוראות שיתווספו אוטומטית לכל פנייה ל-Gemini של משתמשי פרו ומעלה.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="adminCostBuild">בניית אפליקציה</label>
+          <input type="text" id="adminCostBuild" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="adminCostEdit">עריכת אפליקציה</label>
+          <input type="text" id="adminCostEdit" inputmode="numeric">
+        </div>
       </div>
-      <p class="edit-status muted" id="emulatorUploadStatus"></p>
-      <button type="button" class="secondary" id="openEmulatorPanelBtn">פתח את חלונית האמולטור</button>
+      <div class="field-row">
+        <div class="field">
+          <label for="adminCostTranslate">תרגום אפליקציה</label>
+          <input type="text" id="adminCostTranslate" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="adminCostCensor">צנזור אפליקציה</label>
+          <input type="text" id="adminCostCensor" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field">
+        <label for="adminDefaultCredits">קרדיטים למשתמש רגיל חדש</label>
+        <input type="text" id="adminDefaultCredits" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="adminSystemInstructions">הוראות מערכת (לכל המשתמשים)</label>
+        <textarea id="adminSystemInstructions" rows="4" placeholder="לדוגמה: תמיד תעדיפו פלטת צבעים חמה, ותוסיפו תמיכה בעברית לכל אפליקציה."></textarea>
+      </div>
+      <button type="button" class="primary" id="adminSaveConfigBtn">שמירת הגדרות</button>
+      <p class="edit-status" id="adminConfigStatus"></p>
+    </section>
+
+    <section class="card">
+      <h2>עריכת טקסטים באתר</h2>
+      <p class="hint">כשמצב העריכה פעיל, כל טקסט מסומן (הכותרות, ההסברים והפוטר) הופך לניתן-לעריכה ישירות בעמוד - לוחצים על הטקסט, משנים, ולוחצים מחוץ לו כדי לשמור.</p>
+      <button type="button" class="secondary" id="siteTextEditToggle" style="width:auto; padding:10px 16px;">הפעלת מצב עריכת טקסטים</button>
+      <p class="edit-status" id="siteTextEditStatus"></p>
     </section>
   </section>
 
-  <footer class="note">
+  <footer class="note" data-text-key="footer_note">
     הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX וללא XML layouts — זה מה שמאפשר build בלי Gradle.
     ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
     ה-APK מטאבים "צנזור אפליקציה", "עריכת אפליקציה" ו"תרגום אפליקציה" נחתם בנפרד עם apksigner, באותה שיטה בדיוק כמו הבנייה
@@ -1442,27 +1298,6 @@
   </footer>
 
 </div>
-
-<button type="button" class="emulator-toggle-tab" id="emulatorToggleTab" aria-label="פתח/סגור אמולטור אנדרואיד" aria-expanded="false">
-  <span aria-hidden="true">📱</span>
-  <span class="emulator-badge" id="emulatorAppCount" hidden>0</span>
-</button>
-
-<aside class="emulator-panel" id="emulatorPanel" hidden aria-label="אמולטור אנדרואיד">
-  <div class="emulator-panel-head">
-    <span class="emulator-panel-title">אמולטור אנדרואיד</span>
-    <button type="button" class="emulator-close-btn" id="emulatorCloseBtn" aria-label="סגור את חלונית האמולטור">✕</button>
-  </div>
-  <div class="phone-shell">
-    <div class="phone-notch" aria-hidden="true"></div>
-    <div class="phone-statusbar">
-      <span id="phoneClock">0:00</span>
-      <span class="phone-status-icons" aria-hidden="true">📶 🔋</span>
-    </div>
-    <div class="phone-screen" id="phoneScreen"></div>
-    <button type="button" class="phone-home-indicator" id="phoneHomeBtn" aria-label="מסך הבית"></button>
-  </div>
-</aside>
 
 <script>
 (function () {
@@ -1478,6 +1313,20 @@
   const MAX_LOG_CHARS = 6000;
   const MAX_GITHUB_READ_ATTEMPTS = 3;
   const GITHUB_RETRY_DELAY_MS = 1500;
+
+  // ---- backend (Google Apps Script) — holds the real Gemini/GitHub secrets for
+  // pro/superpro/admin users; regular users still bring their own keys directly. ----
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwCJ-DnrNZmZ7x7YPQiS514CleRbvDIoabUKkNoFhjxedb4j7aJyfhWQu-_0AY2tgt_fw/exec";
+  const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
+  const UNLIMITED_ROLES = ["superpro", "admin"]; // roles the credit system never touches
+
+  // currentUser: null when logged out, else { token, username, role, credits }.
+  // credits is a number for regular/pro, or the string "unlimited" for superpro/admin.
+  let currentUser = null;
+  // publicInfo: fetched once on page load (no login needed) — current credit
+  // costs, the shared github owner/repo/branch (for pro+ users), and any
+  // admin-edited site text. Filled in by loadPublicInfo() at the bottom of this file.
+  let publicInfo = { creditCosts: {}, githubOwner: "", githubRepo: "", githubBranch: "", siteText: {} };
 
   // ---- decompile-based pipelines (edit & translate modes) ----
   const DECOMPILE_WORKFLOW_FILE = "decompile-apk.yml";
@@ -1652,7 +1501,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // ---------- small DOM helpers ----------
   const $ = (id) => document.getElementById(id);
-  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken"), geminiProxyUrlEl = $("geminiProxyUrl"), appetizeApiKeyEl = $("appetizeApiKey");
+  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken"), geminiProxyUrlEl = $("geminiProxyUrl");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch"), ideaEl = $("idea");
   const goBtn = $("goBtn"), logEl = $("log"), railEl = $("rail");
   const downloadBox = $("downloadBox"), downloadLink = $("downloadLink");
@@ -1674,7 +1523,22 @@ rebuild, even if that means dropping part of the requested change.`;
   const downloadBoxEdit = $("downloadBoxEdit"), downloadLinkEdit = $("downloadLinkEdit");
 
   const modeTabsEl = $("modeTabs"), newChatBtn = $("newChatBtn");
-  const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor"), emulator: $("panel-emulator") };
+  const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor"), admin: $("panel-admin") };
+
+  // ---- auth / user badge / admin DOM references ----
+  const authScreen = $("authScreen"), mainWrapEl = $("mainWrap");
+  const userBadge = $("userBadge"), userBadgeName = $("userBadgeName"), userBadgeRole = $("userBadgeRole"), userBadgeCredits = $("userBadgeCredits"), logoutBtn = $("logoutBtn");
+  const authTabLogin = $("authTabLogin"), authTabRegister = $("authTabRegister"), authHint = $("authHint");
+  const authUsernameEl = $("authUsername"), authPasswordEl = $("authPassword"), authErrorEl = $("authError"), authSubmitBtn = $("authSubmitBtn");
+  const adminTabBtn = $("adminTabBtn"), manualCredentialFields = $("manualCredentialFields"), proPlusConnectionsNote = $("proPlusConnectionsNote");
+  const creditCostsHint = $("creditCostsHint");
+  const adminUsersTable = $("adminUsersTable"), adminRefreshUsersBtn = $("adminRefreshUsersBtn");
+  const adminCostBuild = $("adminCostBuild"), adminCostEdit = $("adminCostEdit"), adminCostTranslate = $("adminCostTranslate"), adminCostCensor = $("adminCostCensor");
+  const adminDefaultCredits = $("adminDefaultCredits"), adminSystemInstructions = $("adminSystemInstructions");
+  const adminSaveConfigBtn = $("adminSaveConfigBtn"), adminConfigStatus = $("adminConfigStatus");
+  const siteTextEditToggle = $("siteTextEditToggle"), siteTextEditStatus = $("siteTextEditStatus");
+  let authMode = "login"; // "login" | "register"
+  let siteTextEditActive = false;
 
   const editApkFileEl = $("editApkFile"), editInstructionEl = $("editInstruction"), editGoBtn = $("editGoBtn");
   const railEditDecompileEl = $("railEditDecompile"), logEditDecompileEl = $("logEditDecompile");
@@ -1759,6 +1623,27 @@ rebuild, even if that means dropping part of the requested change.`;
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // ---------- backend (Apps Script) helper ----------
+  // Every call to the backend goes through here. Sent as text/plain (not
+  // application/json) on purpose: Apps Script Web Apps don't handle the CORS
+  // preflight that application/json triggers, and text/plain avoids it
+  // entirely — doPost() on the backend parses the body as JSON regardless.
+  async function backendCall(action, params = {}) {
+    const payload = Object.assign({ action, token: currentUser ? currentUser.token : undefined }, params);
+    let res;
+    try {
+      res = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+    } catch (networkErr) {
+      throw new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
+    }
+    if (!res.ok) throw new Error(`שגיאת שרת (HTTP ${res.status}).`);
+    return res.json();
+  }
+
   // ---------- GitHub REST helper ----------
   function githubNetworkError(path, error, attempts) {
     const detail = error?.message ? ` (${error.message})` : "";
@@ -1799,6 +1684,17 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   async function gh(path, token, options = {}) {
+    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+      const method = (options.method || "GET").toUpperCase();
+      const body = options.body ? JSON.parse(options.body) : undefined;
+      const result = await backendCall("githubJson", { path, method, body });
+      if (!result.ok) {
+        const err = new Error(result.error || `GitHub request failed on ${path}`);
+        if (result.status) err.status = result.status;
+        throw err;
+      }
+      return result.data;
+    }
     const res = await githubFetch(path, token, options);
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -1807,6 +1703,22 @@ rebuild, even if that means dropping part of the requested change.`;
       throw err;
     }
     return res.status === 204 ? null : res.json();
+  }
+
+  // Raw-bytes GitHub downloads (artifact zips, log zips) as a Blob, for both
+  // regular (direct fetch) and pro+ (via the backend's base64 relay) users.
+  async function githubFetchBlob(path, token) {
+    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+      const result = await backendCall("githubBinary", { path });
+      if (!result.ok) throw new Error(result.error || `GitHub binary request failed on ${path}`);
+      const binary = atob(result.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes]);
+    }
+    const res = await githubFetch(path, token, {});
+    if (!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
+    return res.blob();
   }
 
   // ---------- Gemini key rotation ----------
@@ -1820,6 +1732,11 @@ rebuild, even if that means dropping part of the requested change.`;
   // lets several free AI Studio keys act like one bigger shared quota.
   let nextKeyOffset = 0;
   async function callGemini(geminiKeys, body, logTarget = logEl) {
+    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+      const result = await backendCall("geminiGenerate", { body, model: GEMINI_MODEL });
+      if (!result.ok) throw new Error(result.error || "בקשת Gemini דרך השרת נכשלה.");
+      return result.data;
+    }
     if (!geminiKeys || geminiKeys.length === 0) {
       throw new Error("אין אף Gemini API Key מוגדר.");
     }
@@ -2368,9 +2285,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---------- 3b. Fetch a failed run's logs, trimmed down for a fix prompt ----------
   async function fetchWorkflowRunLog({ owner, repo, token, runId }) {
     if (!runId) throw new Error("אין runId זמין לשליפת לוג.");
-    const res = await githubFetch(`/repos/${owner}/${repo}/actions/runs/${runId}/logs`, token);
-    if (!res.ok) throw new Error(`לא הצלחתי להוריד את לוג ה-build (HTTP ${res.status}).`);
-    const zipBlob = await res.blob();
+    const zipBlob = await githubFetchBlob(`/repos/${owner}/${repo}/actions/runs/${runId}/logs`, token);
     const zip = await JSZip.loadAsync(zipBlob);
     const entries = Object.values(zip.files).filter((f) => !f.dir && f.name.toLowerCase().endsWith(".txt"));
     let combined = "";
@@ -2411,14 +2326,7 @@ rebuild, even if that means dropping part of the requested change.`;
     if (!artifact) throw new Error(`לא נמצא artifact בשם "${artifactName}" בריצה הזו.`);
 
     log("מוריד את ה-artifact…", null, logTarget);
-    const res = await githubFetch(`/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`, token);
-    if (!res.ok) {
-      throw new Error(
-        `לא הצלחתי להוריד את ה-artifact (HTTP ${res.status}). אם ב-console זו שגיאת CORS, ` +
-        `הפתרון הנפוץ הוא להוריד דרך פרוקסי קטן (למשל Cloudflare Worker) שמצרף את ה-Authorization header.`
-      );
-    }
-    const zipBlob = await res.blob();
+    const zipBlob = await githubFetchBlob(`/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`, token);
 
     log("מחלץ את ה-APK מתוך ה-zip…", null, logTarget);
     const zip = await JSZip.loadAsync(zipBlob);
@@ -2439,13 +2347,18 @@ rebuild, even if that means dropping part of the requested change.`;
     const thinkLevel = selectedThinkLevel;
     let idea = ideaEl.value.trim();
 
-    if (geminiKeys.length === 0 || !token || !owner || !repo || !idea) {
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !idea) {
       resetPipeline();
       log("חסר שדה — צריך לפחות Gemini key אחד, GitHub token, בעל ריפו, שם ריפו, ותיאור אפליקציה.", "error");
       return;
     }
 
     resetPipeline();
+    const spend = await backendCall("spendCredits", { pipelineAction: "build" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error"); return; }
+    refreshCreditsDisplay(spend);
+
     setBusy(true);
     try {
       setStage("enhance", "active");
@@ -2525,15 +2438,6 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLink.href = apkUrl;
       downloadBox.classList.add("show");
       log("מוכן — האפליקציה שלך מחכה להורדה.", "ok");
-
-      installAppInEmulator({
-        key: "com.aiapp.generated",
-        label: appLabelPreview.textContent || "האפליקציה שלי",
-        iconType: appIconPreview.innerHTML ? "svg" : "fallback",
-        iconMarkup: appIconPreview.innerHTML,
-        apkUrl,
-        source: "build",
-      });
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error");
@@ -2703,7 +2607,8 @@ rebuild, even if that means dropping part of the requested change.`;
     const repo = repoEl.value.trim();
     const branch = (branchEl.value.trim() || "main");
 
-    if (!token || !owner || !repo) {
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && !token) || !owner || !repo) {
       resetEditPipeline();
       log("חסר שדה — צריך GitHub Token, בעל ריפו ושם ריפו (בכרטיסיית \"חיבורים\" למעלה).", "error", logEditEl);
       return;
@@ -2720,6 +2625,10 @@ rebuild, even if that means dropping part of the requested change.`;
     }
 
     resetEditPipeline();
+    const spend = await backendCall("spendCredits", { pipelineAction: "censor" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error", logEditEl); return; }
+    refreshCreditsDisplay(spend);
+
     setEditBusy(true);
     try {
       log(`מחיל ${pendingChanges.size} שינויים על ה-APK…`, null, logEditEl);
@@ -2751,23 +2660,6 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkEdit.href = apkUrl;
       downloadBoxEdit.classList.add("show");
       log("מוכן — ה-APK המצונזר מחכה להורדה.", "ok", logEditEl);
-
-      try {
-        const censorFile = apkFileEl.files[0];
-        const iconPath = loadedApkZip ? findLauncherIconPath(Object.keys(loadedApkZip.files)) : null;
-        let iconUrl = null;
-        if (iconPath) iconUrl = URL.createObjectURL(await loadedApkZip.files[iconPath].async("blob"));
-        installAppInEmulator({
-          key: censorFile ? `file:${censorFile.name}` : "censor-app",
-          label: censorFile ? censorFile.name.replace(/\.apk$/i, "") : "אפליקציה מצונזרת",
-          iconType: iconUrl ? "img" : "fallback",
-          iconUrl,
-          apkUrl,
-          source: "censor",
-        });
-      } catch (emulatorErr) {
-        console.error(emulatorErr); // cosmetic only — never block the censor pipeline on this
-      }
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditEl);
@@ -2791,10 +2683,15 @@ rebuild, even if that means dropping part of the requested change.`;
     downloadBoxTranslateEl.classList.remove("show");
     railTranslateEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
 
-    if (geminiKeys.length === 0 || !token || !owner || !repo || !targetLanguage || !file) {
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !targetLanguage || !file) {
       log("חסר שדה — צריך Gemini key, GitHub token, בעל/שם ריפו, קובץ APK ושפת יעד.", "error", logTranslateEl);
       return;
     }
+
+    const spend = await backendCall("spendCredits", { pipelineAction: "translate" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error", logTranslateEl); return; }
+    refreshCreditsDisplay(spend);
 
     setBusyBtn(translateGoBtn, true, "מתרגם…", "פרק, תרגם ובנה מחדש");
     try {
@@ -2842,25 +2739,6 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkTranslateEl.href = apkUrl;
       downloadBoxTranslateEl.classList.add("show");
       log("מוכן — ה-APK המתורגם מחכה להורדה.", "ok", logTranslateEl);
-
-      try {
-        const appMeta = { key: `file:${file.name}`, label: file.name.replace(/\.apk$/i, ""), iconType: "fallback", iconUrl: null };
-        const manifestXmlT = await fetchRepoFile({ owner, repo, branch, token, path: `${DECOMPILED_APP_DIR}/AndroidManifest.xml` });
-        appMeta.key = extractManifestPackage(manifestXmlT);
-        const manDocT = new DOMParser().parseFromString(manifestXmlT, "application/xml");
-        const labelT = manDocT.querySelector("application")?.getAttribute("android:label");
-        if (labelT) appMeta.label = labelT;
-        const allPathsT = await listRepoTree({ owner, repo, branch, token });
-        const iconPathT = findLauncherIconPath(allPathsT);
-        if (iconPathT) {
-          const b64 = await fetchRepoFileBase64({ owner, repo, branch, token, path: iconPathT });
-          appMeta.iconType = "img";
-          appMeta.iconUrl = `data:${mimeForImagePath(iconPathT)};base64,${b64}`;
-        }
-        installAppInEmulator({ ...appMeta, apkUrl, source: "translate" });
-      } catch (emulatorErr) {
-        console.error(emulatorErr); // cosmetic only — never block the translate pipeline on this
-      }
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logTranslateEl);
@@ -2885,10 +2763,15 @@ rebuild, even if that means dropping part of the requested change.`;
     downloadBoxEditDecompileEl.classList.remove("show");
     railEditDecompileEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
 
-    if (geminiKeys.length === 0 || !token || !owner || !repo || !instruction || !file) {
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !instruction || !file) {
       log("חסר שדה — צריך Gemini key, GitHub token, בעל/שם ריפו, קובץ APK ותיאור השינוי.", "error", logEditDecompileEl);
       return;
     }
+
+    const spend = await backendCall("spendCredits", { pipelineAction: "edit" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error", logEditDecompileEl); return; }
+    refreshCreditsDisplay(spend);
 
     setBusyBtn(editGoBtn, true, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
     try {
@@ -2956,27 +2839,6 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkEditDecompileEl.href = apkUrl;
       downloadBoxEditDecompileEl.classList.add("show");
       log("מוכן — ה-APK הערוך מחכה להורדה.", "ok", logEditDecompileEl);
-
-      try {
-        const manDocE = new DOMParser().parseFromString(manifestXml, "application/xml");
-        const labelE = manDocE.querySelector("application")?.getAttribute("android:label");
-        let iconType = "fallback", iconUrl = null;
-        const iconPathE = findLauncherIconPath(allPaths);
-        if (iconPathE) {
-          const b64 = await fetchRepoFileBase64({ owner, repo, branch, token, path: iconPathE });
-          iconType = "img";
-          iconUrl = `data:${mimeForImagePath(iconPathE)};base64,${b64}`;
-        }
-        installAppInEmulator({
-          key: pkg,
-          label: labelE || file.name.replace(/\.apk$/i, ""),
-          iconType, iconUrl,
-          apkUrl,
-          source: "edit",
-        });
-      } catch (emulatorErr) {
-        console.error(emulatorErr); // cosmetic only — never block the edit pipeline on this
-      }
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditDecompileEl);
@@ -2986,385 +2848,13 @@ rebuild, even if that means dropping part of the requested change.`;
     }
   }
 
-  // ---------- Android Emulator ----------
-  const emulatorApkFileEl = $("emulatorApkFile"), emulatorUploadStatus = $("emulatorUploadStatus");
-  const openEmulatorPanelBtn = $("openEmulatorPanelBtn");
-  const emulatorToggleTab = $("emulatorToggleTab"), emulatorAppCountEl = $("emulatorAppCount");
-  const emulatorPanel = $("emulatorPanel"), emulatorCloseBtn = $("emulatorCloseBtn");
-  const phoneScreen = $("phoneScreen"), phoneHomeBtn = $("phoneHomeBtn"), phoneClockEl = $("phoneClock");
-
-  const EMULATOR_SOURCE_LABELS = { build: "נבנתה כאן", edit: "נערכה", translate: "תורגמה", censor: "צונזרה", upload: "הועלתה" };
-
-  // installedApps: key -> { key, label, iconType: "svg"|"img"|"fallback", iconMarkup, iconUrl,
-  // apkUrl, sizeBytes, source, updatedAt, appetizePublicKey, appetizeSyncedApkUrl }. Keyed so that
-  // re-building/re-editing/re-translating the SAME app (same package, or same generated app)
-  // updates its existing entry instead of piling up duplicates — this is what keeps the emulator
-  // showing "the updated version" per app, and what lets a real Appetize.io session (see below)
-  // refresh in place instead of creating a new one for every rebuild.
-  const installedApps = new Map();
-  let phoneScreenMode = "home"; // "home" | "detail" | "running"
-  let phoneActiveKey = null;
-  // Sub-state for the "running" screen only, since opening a real Appetize.io session is async
-  // (upload, then wait for a publicKey) while everything else here is synchronous rendering.
-  let runningStatus = "idle"; // "idle" (plain simulated placeholder) | "loading" | "ready" | "error"
-  let runningErrorMsg = "";
-
-  // Direct-uploads the raw APK bytes to Appetize.io (https://docs.appetize.io/rest-api/direct-file-uploads)
-  // — no public URL hosting needed, which matters here since our APKs only ever exist as
-  // in-browser blob: URLs. Reusing an existing publicKey updates that same app in place (new
-  // build, same embedded session) instead of registering a new one every time.
-  async function appetizeUploadApk(apiKey, blob, existingPublicKey) {
-    const form = new FormData();
-    form.append("file", blob, "app.apk");
-    form.append("platform", "android");
-    const url = existingPublicKey
-      ? `https://api.appetize.io/v1/apps/${existingPublicKey}`
-      : "https://api.appetize.io/v1/apps";
-    const res = await fetch(url, { method: "POST", headers: { "X-API-KEY": apiKey }, body: form });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Appetize API ${res.status} — ${text.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    return data.publicKey;
-  }
-
-  // Real, non-obfuscated APKs conventionally keep res/mipmap|drawable/ic_launcher* file names even
-  // after compiling (aapt2) or decompiling (apktool) — searching for that path shape is a light,
-  // best-effort way to find a preview icon without a full Android Binary XML resource resolver.
-  // Cosmetic only: every call site falls back to a generic icon tile if nothing matches.
-  const LAUNCHER_ICON_RE = /(^|\/)res\/(mipmap|drawable)[^/]*\/ic_launcher[^/]*\.(png|webp|jpg|jpeg)$/i;
-  const DENSITY_RANK = ["xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi"];
-  function findLauncherIconPath(paths) {
-    const candidates = paths.filter((p) => LAUNCHER_ICON_RE.test(p));
-    if (candidates.length === 0) return null;
-    const rank = (p) => { const i = DENSITY_RANK.findIndex((d) => p.includes(d)); return i === -1 ? DENSITY_RANK.length : i; };
-    candidates.sort((a, b) => rank(a) - rank(b) || (a.includes("_round") ? 1 : 0) - (b.includes("_round") ? 1 : 0));
-    return candidates[0];
-  }
-  function mimeForImagePath(path) {
-    if (/\.webp$/i.test(path)) return "image/webp";
-    if (/\.jpe?g$/i.test(path)) return "image/jpeg";
-    return "image/png";
-  }
-
-  function updateEmulatorBadge() {
-    emulatorAppCountEl.textContent = String(installedApps.size);
-    emulatorAppCountEl.hidden = installedApps.size === 0;
-  }
-
-  function flashEmulatorToggle() {
-    emulatorToggleTab.classList.remove("just-updated");
-    void emulatorToggleTab.offsetWidth; // restart animation even if it's already mid-flash
-    emulatorToggleTab.classList.add("just-updated");
-  }
-
-  function openEmulatorPanel() {
-    emulatorPanel.hidden = false;
-    emulatorToggleTab.setAttribute("aria-expanded", "true");
-    emulatorToggleTab.classList.add("is-open");
-  }
-  function closeEmulatorPanel() {
-    emulatorPanel.hidden = true;
-    emulatorToggleTab.setAttribute("aria-expanded", "false");
-    emulatorToggleTab.classList.remove("is-open");
-  }
-  emulatorToggleTab.addEventListener("click", () => (emulatorPanel.hidden ? openEmulatorPanel() : closeEmulatorPanel()));
-  emulatorCloseBtn.addEventListener("click", closeEmulatorPanel);
-  openEmulatorPanelBtn.addEventListener("click", openEmulatorPanel);
-  phoneHomeBtn.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
-
-  function updatePhoneClock() {
-    phoneClockEl.textContent = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
-  }
-  updatePhoneClock();
-  setInterval(updatePhoneClock, 15000);
-
-  // Registers or updates an installed app and refreshes the phone screen. Safe to call repeatedly
-  // with the same key (e.g. re-building the same generated app, or re-editing the same uploaded
-  // APK) — it replaces that app's entry in place rather than adding a duplicate icon.
-  function installAppInEmulator(appData) {
-    const prev = installedApps.get(appData.key) || {};
-    installedApps.set(appData.key, { ...prev, ...appData, updatedAt: Date.now() });
-    updateEmulatorBadge();
-    // Don't yank the user off a detail/running screen they're actively looking at for a
-    // DIFFERENT app; otherwise land on the home screen so the new/updated icon is visible.
-    if (phoneActiveKey !== appData.key) { phoneScreenMode = "home"; phoneActiveKey = null; }
-    renderPhoneScreen();
-    flashEmulatorToggle();
-  }
-
-  function createIconEl(app, sizePx) {
-    const el = document.createElement("div");
-    el.className = "phone-icon-img";
-    if (sizePx) { el.style.width = sizePx + "px"; el.style.height = sizePx + "px"; }
-    if (app.iconType === "svg" && app.iconMarkup) {
-      el.innerHTML = app.iconMarkup;
-    } else if (app.iconType === "img" && app.iconUrl) {
-      const img = document.createElement("img");
-      img.src = app.iconUrl;
-      img.alt = "";
-      el.appendChild(img);
-    } else {
-      el.classList.add("phone-icon-fallback");
-      el.textContent = (app.label || "?").trim().charAt(0).toUpperCase() || "A";
-    }
-    return el;
-  }
-
-  function buildHomeScreen() {
-    const wrap = document.createElement("div");
-    wrap.className = "phone-home";
-    if (installedApps.size === 0) {
-      const empty = document.createElement("div");
-      empty.className = "phone-empty";
-      const glyph = document.createElement("div");
-      glyph.className = "phone-empty-glyph";
-      glyph.textContent = "📲";
-      const text = document.createElement("p");
-      text.textContent = "עדיין אין אפליקציות מותקנות. בנו, ערכו, תרגמו או צנזרו אפליקציה בטאבים למעלה, או העלו APK ישירות בטאב \"אמולטור אנדרואיד\" — והיא תופיע כאן.";
-      empty.append(glyph, text);
-      wrap.appendChild(empty);
-      return wrap;
-    }
-    const grid = document.createElement("div");
-    grid.className = "phone-app-grid";
-    for (const app of installedApps.values()) {
-      const tile = document.createElement("button");
-      tile.type = "button";
-      tile.className = "phone-app-tile";
-      tile.appendChild(createIconEl(app, 52));
-      const label = document.createElement("span");
-      label.className = "phone-app-label";
-      label.textContent = app.label;
-      tile.appendChild(label);
-      tile.addEventListener("click", () => { phoneScreenMode = "detail"; phoneActiveKey = app.key; renderPhoneScreen(); });
-      grid.appendChild(tile);
-    }
-    wrap.appendChild(grid);
-    return wrap;
-  }
-
-  function buildAppDetailScreen(app) {
-    const wrap = document.createElement("div");
-    wrap.className = "phone-detail";
-
-    const back = document.createElement("button");
-    back.type = "button";
-    back.className = "phone-back-btn";
-    back.textContent = "‹ חזרה";
-    back.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
-    wrap.appendChild(back);
-
-    const head = document.createElement("div");
-    head.className = "phone-detail-head";
-    head.appendChild(createIconEl(app, null));
-    const info = document.createElement("div");
-    info.className = "phone-detail-info";
-    const h3 = document.createElement("h3");
-    h3.textContent = app.label;
-    const badge = document.createElement("span");
-    badge.className = "phone-badge";
-    badge.textContent = EMULATOR_SOURCE_LABELS[app.source] || app.source;
-    info.append(h3, badge);
-    head.appendChild(info);
-    wrap.appendChild(head);
-
-    const meta = document.createElement("dl");
-    meta.className = "phone-meta-list";
-    const addRow = (k, v) => {
-      const dt = document.createElement("dt"); dt.textContent = k;
-      const dd = document.createElement("dd"); dd.textContent = v;
-      meta.append(dt, dd);
-    };
-    if (app.sizeBytes) addRow("גודל", formatBytes(app.sizeBytes));
-    addRow("עודכן", new Date(app.updatedAt).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }));
-    wrap.appendChild(meta);
-
-    const actions = document.createElement("div");
-    actions.className = "phone-detail-actions";
-
-    const openBtn = document.createElement("button");
-    openBtn.type = "button";
-    openBtn.className = "phone-open-btn";
-    openBtn.textContent = "פתח אפליקציה";
-    openBtn.addEventListener("click", () => { openAppRunning(app); });
-
-    const dlLink = document.createElement("a");
-    dlLink.className = "phone-download-btn";
-    dlLink.textContent = "הורדת APK";
-    if (app.apkUrl) dlLink.href = app.apkUrl;
-    dlLink.download = `${app.label || "app"}.apk`;
-
-    const delBtn = document.createElement("button");
-    delBtn.type = "button";
-    delBtn.className = "phone-uninstall-btn";
-    delBtn.textContent = "הסרת התקנה";
-    delBtn.addEventListener("click", () => {
-      installedApps.delete(app.key);
-      updateEmulatorBadge();
-      phoneScreenMode = "home";
-      phoneActiveKey = null;
-      renderPhoneScreen();
-    });
-
-    actions.append(openBtn, dlLink, delBtn);
-    wrap.appendChild(actions);
-    return wrap;
-  }
-
-  // Orchestrates opening an app: with no Appetize key configured, this is just the existing
-  // honest simulated placeholder (idle). With a key, it uploads the current APK to Appetize.io
-  // (skipping the upload if this exact build was already synced) and shows a real embedded
-  // session once ready, or a clear error + fallback to the placeholder if it fails.
-  async function openAppRunning(app) {
-    phoneScreenMode = "running";
-    const apiKey = (appetizeApiKeyEl.value || "").trim();
-    if (!apiKey) {
-      runningStatus = "idle";
-      renderPhoneScreen();
-      return;
-    }
-    if (app.appetizePublicKey && app.appetizeSyncedApkUrl === app.apkUrl) {
-      runningStatus = "ready";
-      renderPhoneScreen();
-      return;
-    }
-    runningStatus = "loading";
-    renderPhoneScreen();
-    try {
-      if (!app.apkUrl) throw new Error("אין קובץ APK זמין להעלאה.");
-      const blob = await (await fetch(app.apkUrl)).blob();
-      const publicKey = await appetizeUploadApk(apiKey, blob, app.appetizePublicKey);
-      app.appetizePublicKey = publicKey;
-      app.appetizeSyncedApkUrl = app.apkUrl;
-      installedApps.set(app.key, app);
-      runningStatus = "ready";
-    } catch (e) {
-      console.error(e);
-      runningStatus = "error";
-      runningErrorMsg = e.message || String(e);
-    }
-    // The user may have navigated away (home / a different app) while the upload was in flight —
-    // only repaint if we're still looking at this same app's running screen.
-    if (phoneScreenMode === "running" && phoneActiveKey === app.key) renderPhoneScreen();
-  }
-
-  function buildAppRunningScreen(app) {
-    const wrap = document.createElement("div");
-    wrap.className = "phone-running";
-
-    if (runningStatus === "loading") {
-      wrap.appendChild(createIconEl(app, 56));
-      const title = document.createElement("p");
-      title.className = "phone-running-title";
-      title.textContent = "מתחבר לאמולטור של Appetize.io…";
-      const spinner = document.createElement("div");
-      spinner.className = "phone-spinner";
-      wrap.append(title, spinner);
-      return wrap;
-    }
-
-    if (runningStatus === "ready" && app.appetizePublicKey) {
-      wrap.classList.add("phone-running--live");
-      const iframe = document.createElement("iframe");
-      iframe.className = "phone-appetize-frame";
-      iframe.src = `https://appetize.io/embed/${app.appetizePublicKey}`;
-      iframe.setAttribute("frameborder", "0");
-      iframe.setAttribute("scrolling", "no");
-      iframe.title = app.label;
-      const backBtn = document.createElement("button");
-      backBtn.type = "button";
-      backBtn.className = "phone-secondary-btn phone-running-back";
-      backBtn.textContent = "חזרה לפרטי האפליקציה";
-      backBtn.addEventListener("click", () => { phoneScreenMode = "detail"; renderPhoneScreen(); });
-      wrap.append(iframe, backBtn);
-      return wrap;
-    }
-
-    if (runningStatus === "error") {
-      wrap.appendChild(createIconEl(app, 56));
-      const title = document.createElement("p");
-      title.className = "phone-running-title";
-      title.textContent = app.label;
-      const note = document.createElement("p");
-      note.className = "phone-running-note phone-running-error";
-      note.textContent = "החיבור ל-Appetize.io נכשל (" + runningErrorMsg + ") — מוצגת הדמיית מסך בלבד במקום.";
-      const homeBtn = document.createElement("button");
-      homeBtn.type = "button";
-      homeBtn.className = "phone-secondary-btn";
-      homeBtn.textContent = "חזרה למסך הבית";
-      homeBtn.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
-      wrap.append(title, note, homeBtn);
-      return wrap;
-    }
-
-    // idle — no Appetize key configured: the original honest simulated placeholder, unchanged.
-    wrap.appendChild(createIconEl(app, 64));
-    const title = document.createElement("p");
-    title.className = "phone-running-title";
-    title.textContent = app.label;
-    const note = document.createElement("p");
-    note.className = "phone-running-note";
-    note.textContent = "זו הדמיית מסך בלבד — האמולטור לא מריץ קוד אנדרואיד אמיתי בדפדפן. הוסיפו מפתח Appetize.io ב\"חיבורים\" כדי לפתוח הרצה אמיתית, או התקינו את קובץ ה-APK שהורדתם על מכשיר או אמולטור אמיתי.";
-    const homeBtn = document.createElement("button");
-    homeBtn.type = "button";
-    homeBtn.className = "phone-secondary-btn";
-    homeBtn.textContent = "חזרה למסך הבית";
-    homeBtn.addEventListener("click", () => { phoneScreenMode = "home"; phoneActiveKey = null; renderPhoneScreen(); });
-    wrap.append(title, note, homeBtn);
-    return wrap;
-  }
-
-  function renderPhoneScreen() {
-    phoneScreen.innerHTML = "";
-    const app = phoneActiveKey ? installedApps.get(phoneActiveKey) : null;
-    if (phoneScreenMode === "detail" && app) phoneScreen.appendChild(buildAppDetailScreen(app));
-    else if (phoneScreenMode === "running" && app) phoneScreen.appendChild(buildAppRunningScreen(app));
-    else { phoneScreenMode = "home"; phoneActiveKey = null; phoneScreen.appendChild(buildHomeScreen()); }
-  }
-  renderPhoneScreen();
-
-  // ---------- direct APK upload straight into the emulator (no AI/GitHub round-trip needed) ----------
-  emulatorApkFileEl.addEventListener("change", async () => {
-    const file = emulatorApkFileEl.files[0];
-    if (!file) return;
-    emulatorUploadStatus.textContent = "טוען את ה-APK…";
-    try {
-      const buf = await file.arrayBuffer();
-      const zip = await JSZip.loadAsync(buf);
-      const iconPath = findLauncherIconPath(Object.keys(zip.files));
-      let iconType = "fallback", iconUrl = null;
-      if (iconPath) {
-        const iconBlob = await zip.files[iconPath].async("blob");
-        iconUrl = URL.createObjectURL(iconBlob);
-        iconType = "img";
-      }
-      const label = file.name.replace(/\.apk$/i, "");
-      const key = `upload:${file.name}`;
-      installAppInEmulator({
-        key, label, iconType, iconUrl,
-        apkUrl: URL.createObjectURL(new Blob([buf], { type: "application/vnd.android.package-archive" })),
-        sizeBytes: file.size,
-        source: "upload",
-      });
-      emulatorUploadStatus.textContent = `הותקן: ${label}`;
-      phoneScreenMode = "detail";
-      phoneActiveKey = key;
-      renderPhoneScreen();
-      openEmulatorPanel();
-    } catch (e) {
-      console.error(e);
-      emulatorUploadStatus.textContent = "✗ לא הצלחתי לקרוא את קובץ ה-APK. (" + e.message + ")";
-    }
-  });
-
   // ---------- mode tabs ----------
   function switchMode(mode) {
     Object.entries(modePanels).forEach(([key, el]) => { if (el) el.hidden = key !== mode; });
     modeTabsEl.querySelectorAll(".mode-tab").forEach((btn) => {
       btn.setAttribute("aria-selected", btn.dataset.mode === mode ? "true" : "false");
     });
+    if (mode === "admin") { loadAdminUsers(); loadAdminConfig(); }
   }
   modeTabsEl.addEventListener("click", (e) => {
     const btn = e.target.closest(".mode-tab");
@@ -3413,11 +2903,269 @@ rebuild, even if that means dropping part of the requested change.`;
     ideaEl.focus();
   });
 
+  // ---------- user badge + credits display ----------
+  const ROLE_LABELS = { regular: "רגיל", pro: "פרו", superpro: "סופר-פרו", admin: "מנהל" };
+
+  function renderUserBadge() {
+    if (!currentUser) { userBadge.hidden = true; return; }
+    userBadge.hidden = false;
+    userBadgeName.textContent = currentUser.username;
+    userBadgeRole.textContent = ROLE_LABELS[currentUser.role] || currentUser.role;
+    userBadgeCredits.textContent = currentUser.credits === "unlimited" ? "קרדיטים: ללא הגבלה" : `קרדיטים: ${currentUser.credits}`;
+  }
+
+  function refreshCreditsDisplay(spendResult) {
+    if (!currentUser) return;
+    if (spendResult && spendResult.unlimited) currentUser.credits = "unlimited";
+    else if (spendResult && typeof spendResult.remainingCredits === "number") currentUser.credits = spendResult.remainingCredits;
+    renderUserBadge();
+  }
+
+  // ---------- role-based UI (manual fields vs. backend-managed) ----------
+  function applyRoleUI() {
+    const role = currentUser ? currentUser.role : "regular";
+    const isProPlus = PRO_PLUS_ROLES.includes(role);
+    manualCredentialFields.hidden = isProPlus;
+    proPlusConnectionsNote.hidden = !isProPlus;
+    adminTabBtn.hidden = role !== "admin";
+    if (isProPlus) {
+      ownerEl.value = publicInfo.githubOwner || "";
+      repoEl.value = publicInfo.githubRepo || "";
+      branchEl.value = publicInfo.githubBranch || "main";
+    }
+  }
+
+  // ---------- public info (no login needed): site text + current prices ----------
+  function applySiteText() {
+    document.querySelectorAll("[data-text-key]").forEach((el) => {
+      const key = el.dataset.textKey;
+      if (publicInfo.siteText && publicInfo.siteText[key]) el.innerHTML = publicInfo.siteText[key];
+    });
+  }
+
+  function applyCreditCostsHint() {
+    const c = publicInfo.creditCosts || {};
+    creditCostsHint.textContent =
+      `עלות בקרדיטים: בנייה ${c.build ?? "?"} · עריכה ${c.edit ?? "?"} · תרגום ${c.translate ?? "?"} · צנזור ${c.censor ?? "?"}` +
+      (currentUser ? "" : ` · משתמש חדש מתחיל עם ${publicInfo.regularDefaultCredits ?? "?"} קרדיטים`);
+  }
+
+  async function loadPublicInfo() {
+    try {
+      const res = await fetch(BACKEND_URL + "?action=getPublicInfo");
+      const data = await res.json();
+      if (data.ok) {
+        publicInfo = data;
+        applySiteText();
+        applyCreditCostsHint();
+      }
+    } catch (err) {
+      console.error("loadPublicInfo failed:", err);
+    }
+  }
+
+  // ---------- auth screen ----------
+  function showApp() {
+    authScreen.hidden = true;
+    mainWrapEl.hidden = false;
+    newChatBtn.hidden = false;
+    applyRoleUI();
+    renderUserBadge();
+    applyCreditCostsHint();
+  }
+
+  function showAuthScreenView() {
+    authScreen.hidden = false;
+    mainWrapEl.hidden = true;
+    newChatBtn.hidden = true;
+    userBadge.hidden = true;
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    authTabLogin.setAttribute("aria-selected", mode === "login" ? "true" : "false");
+    authTabRegister.setAttribute("aria-selected", mode === "register" ? "true" : "false");
+    authSubmitBtn.textContent = mode === "login" ? "התחברות" : "הרשמה";
+    authHint.textContent = mode === "login" ? "עדיין אין לך חשבון? עברו ללשונית הרשמה." : "משתמש חדש? הרשמה יוצרת חשבון עם 30 קרדיטים.";
+    authErrorEl.hidden = true;
+  }
+  authTabLogin.addEventListener("click", () => setAuthMode("login"));
+  authTabRegister.addEventListener("click", () => setAuthMode("register"));
+
+  authSubmitBtn.addEventListener("click", async () => {
+    const username = authUsernameEl.value.trim();
+    const password = authPasswordEl.value;
+    authErrorEl.hidden = true;
+    if (!username || !password) {
+      authErrorEl.textContent = "יש למלא שם משתמש וסיסמה.";
+      authErrorEl.hidden = false;
+      return;
+    }
+    authSubmitBtn.disabled = true;
+    try {
+      if (authMode === "register") {
+        const reg = await backendCall("register", { username, password });
+        if (!reg.ok) throw new Error(reg.error);
+      }
+      const login = await backendCall("login", { username, password });
+      if (!login.ok) throw new Error(login.error);
+      currentUser = { token: login.token, username: login.username, role: login.role, credits: login.credits };
+      authPasswordEl.value = "";
+      showApp();
+    } catch (err) {
+      authErrorEl.textContent = err.message;
+      authErrorEl.hidden = false;
+    } finally {
+      authSubmitBtn.disabled = false;
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    try { await backendCall("logout", {}); } catch (err) { console.error(err); }
+    currentUser = null;
+    authUsernameEl.value = "";
+    authPasswordEl.value = "";
+    showAuthScreenView();
+  });
+
+  // ---------- admin: users table ----------
+  function buildAdminUserRow(u) {
+    const row = document.createElement("div");
+    row.className = "admin-user-row";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "admin-user-name";
+    nameEl.textContent = u.username;
+
+    const roleSelect = document.createElement("select");
+    ["regular", "pro", "superpro", "admin"].forEach((r) => {
+      const opt = document.createElement("option");
+      opt.value = r;
+      opt.textContent = ROLE_LABELS[r];
+      if (r === u.role) opt.selected = true;
+      roleSelect.appendChild(opt);
+    });
+
+    const creditsInput = document.createElement("input");
+    creditsInput.type = "text";
+    creditsInput.inputMode = "numeric";
+    creditsInput.value = u.credits;
+
+    const blockedLabel = document.createElement("label");
+    blockedLabel.className = "admin-blocked-label";
+    const blockedCheckbox = document.createElement("input");
+    blockedCheckbox.type = "checkbox";
+    blockedCheckbox.checked = u.blocked;
+    blockedLabel.append(blockedCheckbox, document.createTextNode(" חסום"));
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "chip-btn";
+    saveBtn.textContent = "שמור";
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "שומר…";
+      try {
+        const result = await backendCall("adminSetUser", {
+          targetUsername: u.username,
+          role: roleSelect.value,
+          credits: Number(creditsInput.value) || 0,
+          blocked: blockedCheckbox.checked,
+        });
+        if (!result.ok) throw new Error(result.error);
+        saveBtn.textContent = "נשמר ✓";
+      } catch (err) {
+        saveBtn.textContent = "✗ שגיאה";
+        console.error(err);
+      } finally {
+        saveBtn.disabled = false;
+        setTimeout(() => { saveBtn.textContent = "שמור"; }, 2000);
+      }
+    });
+
+    row.append(nameEl, roleSelect, creditsInput, blockedLabel, saveBtn);
+    return row;
+  }
+
+  async function loadAdminUsers() {
+    adminUsersTable.innerHTML = '<p class="hint">טוען…</p>';
+    try {
+      const result = await backendCall("adminListUsers", {});
+      if (!result.ok) throw new Error(result.error);
+      adminUsersTable.innerHTML = "";
+      result.users.forEach((u) => adminUsersTable.appendChild(buildAdminUserRow(u)));
+    } catch (err) {
+      adminUsersTable.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "✗ " + err.message;
+      adminUsersTable.appendChild(p);
+    }
+  }
+  adminRefreshUsersBtn.addEventListener("click", loadAdminUsers);
+
+  // ---------- admin: credit costs + system instructions ----------
+  async function loadAdminConfig() {
+    try {
+      const result = await backendCall("adminGetConfig", {});
+      if (!result.ok) throw new Error(result.error);
+      adminCostBuild.value = result.config.creditCost_build;
+      adminCostEdit.value = result.config.creditCost_edit;
+      adminCostTranslate.value = result.config.creditCost_translate;
+      adminCostCensor.value = result.config.creditCost_censor;
+      adminDefaultCredits.value = result.config.regularDefaultCredits;
+      adminSystemInstructions.value = result.config.systemInstructions || "";
+      adminConfigStatus.textContent = "";
+    } catch (err) {
+      adminConfigStatus.textContent = "✗ " + err.message;
+    }
+  }
+
+  adminSaveConfigBtn.addEventListener("click", async () => {
+    adminSaveConfigBtn.disabled = true;
+    adminConfigStatus.textContent = "שומר…";
+    try {
+      await Promise.all([
+        backendCall("adminSetConfig", { key: "creditCost_build", value: Number(adminCostBuild.value) || 0 }),
+        backendCall("adminSetConfig", { key: "creditCost_edit", value: Number(adminCostEdit.value) || 0 }),
+        backendCall("adminSetConfig", { key: "creditCost_translate", value: Number(adminCostTranslate.value) || 0 }),
+        backendCall("adminSetConfig", { key: "creditCost_censor", value: Number(adminCostCensor.value) || 0 }),
+        backendCall("adminSetConfig", { key: "regularDefaultCredits", value: Number(adminDefaultCredits.value) || 0 }),
+        backendCall("adminSetConfig", { key: "systemInstructions", value: adminSystemInstructions.value }),
+      ]);
+      adminConfigStatus.textContent = "נשמר ✓";
+      loadPublicInfo();
+    } catch (err) {
+      adminConfigStatus.textContent = "✗ " + err.message;
+    } finally {
+      adminSaveConfigBtn.disabled = false;
+    }
+  });
+
+  // ---------- admin: edit any marked site text directly on the page ----------
+  function onSiteTextBlur(e) {
+    const el = e.currentTarget;
+    backendCall("adminSetSiteText", { key: el.dataset.textKey, value: el.innerHTML.trim() }).catch((err) => console.error(err));
+  }
+  siteTextEditToggle.addEventListener("click", () => {
+    siteTextEditActive = !siteTextEditActive;
+    document.body.classList.toggle("site-text-editing", siteTextEditActive);
+    siteTextEditToggle.textContent = siteTextEditActive ? "כיבוי מצב עריכת טקסטים" : "הפעלת מצב עריכת טקסטים";
+    siteTextEditStatus.textContent = siteTextEditActive ? "לחצו על כל טקסט מסומן, ערכו, ולחצו מחוץ לו כדי לשמור." : "";
+    document.querySelectorAll("[data-text-key]").forEach((el) => {
+      el.contentEditable = siteTextEditActive ? "true" : "false";
+      el.removeEventListener("blur", onSiteTextBlur);
+      if (siteTextEditActive) el.addEventListener("blur", onSiteTextBlur);
+    });
+  });
+
   goBtn.addEventListener("click", runPipeline);
   buildEditedBtn.addEventListener("click", runEditPipeline);
   editGoBtn.addEventListener("click", runDecompileEditPipeline);
   translateGoBtn.addEventListener("click", runTranslatePipeline);
   switchMode("build");
+  setAuthMode("login");
+  loadPublicInfo();
 })();
 </script>
 </body>
