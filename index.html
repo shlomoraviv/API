@@ -1316,8 +1316,7 @@
 
   // ---- backend (Google Apps Script) — holds the real Gemini/GitHub secrets for
   // pro/superpro/admin users; regular users still bring their own keys directly. ----
-  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwCJ-DnrNZmZ7x7YPQiS514CleRbvDIoabUKkNoFhjxedb4j7aJyfhWQu-_0AY2tgt_fw/exec";
-  const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxQ_jOxLilYtst0P5rTPZ7gjykj_VrXIaqI5288SIZTaI23iWnVpV5sVOZYuaC27Qwg/exec";  const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
   const UNLIMITED_ROLES = ["superpro", "admin"]; // roles the credit system never touches
 
   // currentUser: null when logged out, else { token, username, role, credits }.
