@@ -46,7 +46,7 @@ class MainActivity : Activity() {
     private val random = Random()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState)
 
         // Main Scrollable Container
         val scrollView = ScrollView(this)
@@ -73,12 +73,12 @@ class MainActivity : Activity() {
 
         // Restore State if available
         if (savedInstanceState != null) {
-            currentResultText = savedInstanceState.getString("result_text", "")
+            currentResultText = savedInstanceState.getString("result_text") ?: ""
             if (currentResultText.isNotEmpty()) {
                 resultText.text = currentResultText
                 resultCard.visibility = View.VISIBLE
             }
-            capturedBitmap = savedInstanceState.getParcelable("captured_bitmap")
+            capturedBitmap = savedInstanceState.getParcelable("captured_bitmap") as? Bitmap
             if (capturedBitmap != null) {
                 imageView.setImageBitmap(capturedBitmap)
                 imageContainer.visibility = View.VISIBLE
@@ -400,12 +400,19 @@ class MainActivity : Activity() {
             "יהפוך למשפיען רשת של מוצרים שלא קיימים באמת."
         )
 
-        return "📋 ${intros.random()} $name:\n\n" +
-                "👑 תואר כבוד: ${titles.random()}\n\n" +
-                "🧠 ניתוח אישיות:\n${details.random()}\n\n" +
-                "⚡ כוח על: ${superpowers.random()}\n\n" +
-                "⚠️ נקודת תורפה: ${weaknesses.random()}\n\n" +
-                "🔮 עתיד צפוי: ${future.random()}"
+        val intro = intros[random.nextInt(intros.size)]
+        val title = titles[random.nextInt(titles.size)]
+        val detail = details[random.nextInt(details.size)]
+        val superpower = superpowers[random.nextInt(superpowers.size)]
+        val weakness = weaknesses[random.nextInt(weaknesses.size)]
+        val fut = future[random.nextInt(future.size)]
+
+        return "📋 $intro $name:\n\n" +
+                "👑 תואר כבוד: $title\n\n" +
+                "🧠 ניתוח אישיות:\n$detail\n\n" +
+                "⚡ כוח על: $superpower\n\n" +
+                "⚠️ נקודת תורפה: $weakness\n\n" +
+                "🔮 עתיד צפוי: $fut"
     }
 
     private fun saveToHistory(name: String, review: String) {
