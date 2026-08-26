@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded && window.__gisLoaded()"></script>
 <style>
   :root {
     --bg: #F4F1EA;
@@ -788,21 +789,14 @@
     margin: 48px auto 0;
     padding: 0 20px;
   }
-  .auth-card { padding: 28px 24px; }
-  .auth-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-  .auth-tab {
-    flex: 1 1 0;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
+  .auth-card { padding: 32px 24px; text-align: center; }
+  .auth-headline {
     font-family: var(--display);
-    font-weight: 600;
-    font-size: 14px;
-    padding: 10px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
+    font-weight: 700;
+    font-size: 19px;
+    margin: 0 0 10px;
   }
-  .auth-tab[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-hover); }
+  .auth-description { margin: 0 0 20px; }
   .auth-error {
     color: var(--error);
     background: var(--error-soft);
@@ -810,9 +804,10 @@
     border-radius: var(--radius-sm);
     padding: 8px 12px;
     font-size: 13px;
-    margin: 4px 0 14px;
+    margin: 0 0 14px;
+    text-align: right;
   }
-  #authSubmitBtn { margin-top: 4px; }
+  .google-signin-wrap { display: flex; justify-content: center; }
 
   /* ===================== admin panel ===================== */
   .admin-users-table { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
@@ -881,21 +876,10 @@
 <!-- ===================== AUTH SCREEN (shown until logged in) ===================== -->
 <div class="auth-wrap" id="authScreen">
   <section class="card auth-card">
-    <div class="auth-tabs" role="tablist" aria-label="התחברות או הרשמה">
-      <button type="button" class="auth-tab" id="authTabLogin" aria-selected="true">התחברות</button>
-      <button type="button" class="auth-tab" id="authTabRegister" aria-selected="false">הרשמה</button>
-    </div>
-    <p class="hint" id="authHint">משתמש חדש? הרשמה יוצרת חשבון עם 30 קרדיטים.</p>
-    <div class="field">
-      <label for="authUsername">שם משתמש</label>
-      <input type="text" id="authUsername" autocomplete="username">
-    </div>
-    <div class="field">
-      <label for="authPassword">סיסמה</label>
-      <input type="password" id="authPassword" autocomplete="current-password">
-    </div>
+    <h2 class="auth-headline" data-text-key="auth_headline">ברוכים הבאים ל-AI App Maker</h2>
+    <p class="hint auth-description" data-text-key="auth_description">התחברו עם חשבון Google כדי להתחיל לבנות, לערוך, לתרגם ולצנזר אפליקציות אנדרואיד.</p>
     <p class="auth-error" id="authError" hidden></p>
-    <button type="button" class="primary" id="authSubmitBtn">התחברות</button>
+    <div class="google-signin-wrap" id="googleSignInButton"></div>
   </section>
 </div>
 
@@ -1316,7 +1300,8 @@
 
   // ---- backend (Google Apps Script) — holds the real Gemini/GitHub secrets for
   // pro/superpro/admin users; regular users still bring their own keys directly. ----
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxQ_jOxLilYtst0P5rTPZ7gjykj_VrXIaqI5288SIZTaI23iWnVpV5sVOZYuaC27Qwg/exec";  const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwCJ-DnrNZmZ7x7YPQiS514CleRbvDIoabUKkNoFhjxedb4j7aJyfhWQu-_0AY2tgt_fw/exec";
+  const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
   const UNLIMITED_ROLES = ["superpro", "admin"]; // roles the credit system never touches
 
   // currentUser: null when logged out, else { token, username, role, credits }.
@@ -1527,8 +1512,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---- auth / user badge / admin DOM references ----
   const authScreen = $("authScreen"), mainWrapEl = $("mainWrap");
   const userBadge = $("userBadge"), userBadgeName = $("userBadgeName"), userBadgeRole = $("userBadgeRole"), userBadgeCredits = $("userBadgeCredits"), logoutBtn = $("logoutBtn");
-  const authTabLogin = $("authTabLogin"), authTabRegister = $("authTabRegister"), authHint = $("authHint");
-  const authUsernameEl = $("authUsername"), authPasswordEl = $("authPassword"), authErrorEl = $("authError"), authSubmitBtn = $("authSubmitBtn");
+  const authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton");
   const adminTabBtn = $("adminTabBtn"), manualCredentialFields = $("manualCredentialFields"), proPlusConnectionsNote = $("proPlusConnectionsNote");
   const creditCostsHint = $("creditCostsHint");
   const adminUsersTable = $("adminUsersTable"), adminRefreshUsersBtn = $("adminRefreshUsersBtn");
@@ -1536,7 +1520,9 @@ rebuild, even if that means dropping part of the requested change.`;
   const adminDefaultCredits = $("adminDefaultCredits"), adminSystemInstructions = $("adminSystemInstructions");
   const adminSaveConfigBtn = $("adminSaveConfigBtn"), adminConfigStatus = $("adminConfigStatus");
   const siteTextEditToggle = $("siteTextEditToggle"), siteTextEditStatus = $("siteTextEditStatus");
-  let authMode = "login"; // "login" | "register"
+  // Not a secret — this only names which OAuth app a sign-in belongs to; the backend
+  // independently re-checks every token's audience against this same value.
+  const GOOGLE_CLIENT_ID = "733141570620-4elai2igmu1a22ftiqm7pfltvm7vhuhg.apps.googleusercontent.com";
   let siteTextEditActive = false;
 
   const editApkFileEl = $("editApkFile"), editInstructionEl = $("editInstruction"), editGoBtn = $("editGoBtn");
@@ -2908,7 +2894,7 @@ rebuild, even if that means dropping part of the requested change.`;
   function renderUserBadge() {
     if (!currentUser) { userBadge.hidden = true; return; }
     userBadge.hidden = false;
-    userBadgeName.textContent = currentUser.username;
+    userBadgeName.textContent = currentUser.displayName || currentUser.username;
     userBadgeRole.textContent = ROLE_LABELS[currentUser.role] || currentUser.role;
     userBadgeCredits.textContent = currentUser.credits === "unlimited" ? "קרדיטים: ללא הגבלה" : `קרדיטים: ${currentUser.credits}`;
   }
@@ -2980,50 +2966,36 @@ rebuild, even if that means dropping part of the requested change.`;
     userBadge.hidden = true;
   }
 
-  function setAuthMode(mode) {
-    authMode = mode;
-    authTabLogin.setAttribute("aria-selected", mode === "login" ? "true" : "false");
-    authTabRegister.setAttribute("aria-selected", mode === "register" ? "true" : "false");
-    authSubmitBtn.textContent = mode === "login" ? "התחברות" : "הרשמה";
-    authHint.textContent = mode === "login" ? "עדיין אין לך חשבון? עברו ללשונית הרשמה." : "משתמש חדש? הרשמה יוצרת חשבון עם 30 קרדיטים.";
+  // ---------- Google Sign-In ----------
+  async function handleGoogleCredential(response) {
     authErrorEl.hidden = true;
-  }
-  authTabLogin.addEventListener("click", () => setAuthMode("login"));
-  authTabRegister.addEventListener("click", () => setAuthMode("register"));
-
-  authSubmitBtn.addEventListener("click", async () => {
-    const username = authUsernameEl.value.trim();
-    const password = authPasswordEl.value;
-    authErrorEl.hidden = true;
-    if (!username || !password) {
-      authErrorEl.textContent = "יש למלא שם משתמש וסיסמה.";
-      authErrorEl.hidden = false;
-      return;
-    }
-    authSubmitBtn.disabled = true;
     try {
-      if (authMode === "register") {
-        const reg = await backendCall("register", { username, password });
-        if (!reg.ok) throw new Error(reg.error);
-      }
-      const login = await backendCall("login", { username, password });
-      if (!login.ok) throw new Error(login.error);
-      currentUser = { token: login.token, username: login.username, role: login.role, credits: login.credits };
-      authPasswordEl.value = "";
+      const result = await backendCall("googleLogin", { idToken: response.credential });
+      if (!result.ok) throw new Error(result.error);
+      currentUser = { token: result.token, username: result.username, displayName: result.displayName, role: result.role, credits: result.credits };
       showApp();
     } catch (err) {
       authErrorEl.textContent = err.message;
       authErrorEl.hidden = false;
-    } finally {
-      authSubmitBtn.disabled = false;
     }
-  });
+  }
+
+  // Called once by the script tag's onload, and once defensively here in case the
+  // GIS script already finished loading (e.g. from cache) before this ran.
+  function initGoogleSignIn() {
+    if (!window.google || !google.accounts || !google.accounts.id || !googleSignInButtonEl) return;
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
+    google.accounts.id.renderButton(googleSignInButtonEl, {
+      type: "standard", theme: "outline", size: "large", text: "signin_with", shape: "pill", locale: "iw",
+    });
+  }
+  window.__gisLoaded = initGoogleSignIn;
+  initGoogleSignIn();
 
   logoutBtn.addEventListener("click", async () => {
     try { await backendCall("logout", {}); } catch (err) { console.error(err); }
+    if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();
     currentUser = null;
-    authUsernameEl.value = "";
-    authPasswordEl.value = "";
     showAuthScreenView();
   });
 
@@ -3034,7 +3006,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
     const nameEl = document.createElement("div");
     nameEl.className = "admin-user-name";
-    nameEl.textContent = u.username;
+    nameEl.textContent = u.displayName ? `${u.displayName} (${u.username})` : u.username;
 
     const roleSelect = document.createElement("select");
     ["regular", "pro", "superpro", "admin"].forEach((r) => {
@@ -3163,7 +3135,6 @@ rebuild, even if that means dropping part of the requested change.`;
   editGoBtn.addEventListener("click", runDecompileEditPipeline);
   translateGoBtn.addEventListener("click", runTranslatePipeline);
   switchMode("build");
-  setAuthMode("login");
   loadPublicInfo();
 })();
 </script>
