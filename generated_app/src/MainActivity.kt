@@ -2,355 +2,475 @@ package com.aiapp.generated
 
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.os.Build
 import android.os.Bundle
-import android.os.Vibrator
-import android.util.TypedValue
+import android.os.Environment
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
-import java.util.Random
+import android.widget.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
 
 class MainActivity : Activity() {
 
-    private lateinit var jokeTextView: TextView
-    private lateinit var punchlineTextView: TextView
-    private lateinit var revealButton: Button
-    private lateinit var nextButton: Button
-    private lateinit var scoreTextView: TextView
-    private lateinit var containerLayout: LinearLayout
-
-    private var currentJokeIndex = 0
-    private var isPunchlineRevealed = false
-    private var laughScore = 0
-    private lateinit var sharedPreferences: SharedPreferences
-
-    // Dark luxury color palette with neon accents
-    private val colorBackground = Color.parseColor("#0D0D11")
-    private val colorCard = Color.parseColor("#161622")
-    private val colorNeonGreen = Color.parseColor("#39FF14")
-    private val colorNeonCyan = Color.parseColor("#00E5FF")
-    private val colorTextPrimary = Color.parseColor("#FFFFFF")
-    private val colorTextSecondary = Color.parseColor("#8E8E9F")
-
-    private val jokes = arrayOf(
-        Joke("למה מחשבים לא הולכים לבית ספר?", "כי יש להם כבר מספיק דיסקים!"),
-        Joke("איך קוראים לאיש שמתקן שטיחים?", "שטיח-פד!"),
-        Joke("מה אומר ענן אחד לשני כשהוא כועס?", "אני אעשה ממך גשם!"),
-        Joke("למה פילים לא משתמשים במחשב?", "כי הם מפחדים מהעכבר!"),
-        Joke("איך קוראים לדינוזאור שאוכל רק ירקות?", "טבעונוזאור!"),
-        Joke("מה עושה שוקולד כשהוא מתעצבן?", "מתחיל להתפרק!"),
-        Joke("מדוע הדג קיבל ציון נמוך במבחן?", "כי הוא היה מתחת למים!"),
-        Joke("איך קוראים לחתול שגר במדבר?", "חתול חולות!"),
-        Joke("למה תרנגולות לא אוהבות לשחק כדורגל?", "כי הן מפחדות שיעשו מהן ביצה קשה!"),
-        Joke("איך קוראים לרופא שמטפל רק ברוחות רפאים?", "פסיכי-אטר!")
-    )
-
-    data class Joke(val setup: String, val punchline: String)
+    private lateinit var rootStatusText: TextView
+    private lateinit var rootSubText: TextView
+    private lateinit var rootRetryButton: Button
+    
+    private lateinit var bootloaderText: TextView
+    private lateinit var storagePermissionText: TextView
+    private lateinit var systemWritableText: TextView
+    
+    private lateinit var gpsText: TextView
+    private lateinit var otgText: TextView
+    private lateinit var irText: TextView
+    
+    private lateinit var refreshButton: Button
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) 
+        super.onCreate(savedInstanceState)
         
-        sharedPreferences = getSharedPreferences("ComedyBoxPrefs", Context.MODE_PRIVATE)
-        laughScore = sharedPreferences.getInt("laugh_score", 0)
+        // Main Container
+        val rootLayout = FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(Color.parseColor("#0F172A")) // Slate 900
+        }
 
-        val density = resources.displayMetrics.density
-        val dp = { value: Int -> (value * density).toInt() }
+        val scrollView = ScrollView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            isFillViewport = true
+        }
 
-        // Root Layout
-        val rootLayout = FrameLayout(this)
-        rootLayout.setBackgroundColor(colorBackground)
-        rootLayout.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-
-        // Scrollable Container
-        val scrollView = ScrollView(this)
-        scrollView.layoutParams = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        )
-        scrollView.isFillViewport = true
-
-        // Main Vertical Layout
-        containerLayout = LinearLayout(this).apply {
+        val mainContent = LinearLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(24), dp(32), dp(24), dp(32))
+            val p = dp(20)
+            setPadding(p, p, p, p)
         }
 
-        // Header Title
-        val titleView = TextView(this).apply {
-            text = "COMEDY BOX"
-            setTextColor(colorNeonCyan)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 32f)
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dp(8))
-        }
-
-        // Subtitle
-        val subtitleView = TextView(this).apply {
-            text = "מחולל הבדיחות היומי היוקרתי"
-            setTextColor(colorTextSecondary)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dp(32))
-        }
-
-        // Score Counter Card
-        val scoreCard = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            setPadding(dp(16), dp(10), dp(16), dp(10))
-            
-            val border = GradientDrawable().apply {
-                setColor(colorCard)
-                cornerRadius = dp(12).toFloat()
-                setStroke(dp(1), colorNeonCyan)
-            }
-            background = border
-        }
-
-        scoreTextView = TextView(this).apply {
-            text = "מד הצחוק שלך: $laughScore ⚡"
-            setTextColor(colorTextPrimary)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
-            typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
-        }
-        scoreCard.addView(scoreTextView)
-
-        // Spacing
-        val space1 = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(1, dp(32))
-        }
-
-        // Main Joke Card
-        val jokeCard = LinearLayout(this).apply {
+        // Header
+        val headerLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(24), dp(32), dp(24), dp(32))
-            layoutParams = LinearLayout.LayoutParams(
+            gravity = Gravity.RIGHT
+            val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(280)
+                LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            
-            val cardBg = GradientDrawable().apply {
-                setColor(colorCard)
-                cornerRadius = dp(24).toFloat()
-                setStroke(dp(2), colorNeonGreen)
-            }
-            background = cardBg
+            lp.setMargins(0, 0, 0, dp(24))
+            layoutParams = lp
         }
 
-        // Setup Text
-        jokeTextView = TextView(this).apply {
-            text = ""
-            setTextColor(colorTextPrimary)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        }
-
-        // Punchline Text
-        punchlineTextView = TextView(this).apply {
-            text = ""
-            setTextColor(colorNeonGreen)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            visibility = View.INVISIBLE
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        }
-
-        jokeCard.addView(jokeTextView)
-        jokeCard.addView(punchlineTextView)
-
-        // Spacing
-        val space2 = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(1, dp(32))
-        }
-
-        // Interactive Buttons
-        revealButton = Button(this).apply {
-            text = "גלה את הפאנץ'!"
-            setTextColor(colorBackground)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        val titleText = TextView(this).apply {
+            text = "בודק מערכת ורוט"
+            setTextColor(Color.parseColor("#FFFFFF"))
+            textSize = 26f
             typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-            setPadding(dp(24), dp(14), dp(24), dp(14))
-            
-            val normalBg = GradientDrawable().apply {
-                setColor(colorNeonGreen)
-                cornerRadius = dp(16).toFloat()
-            }
-            val pressedBg = GradientDrawable().apply {
-                setColor(Color.parseColor("#2ECC12"))
-                cornerRadius = dp(16).toFloat()
-            }
-            val states = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), pressedBg)
-                addState(intArrayOf(), normalBg)
-            }
-            background = states
-            
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            gravity = Gravity.RIGHT
         }
 
-        nextButton = Button(this).apply {
-            text = "בדיחה הבאה ➔"
-            setTextColor(colorTextPrimary)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-            typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
-            setPadding(dp(24), dp(14), dp(24), dp(14))
+        val subtitleText = TextView(this).apply {
+            text = "מידע מקיף על הרשאות מנהל וחומרה"
+            setTextColor(Color.parseColor("#94A3B8")) // Slate 400
+            textSize = 14f
+            gravity = Gravity.RIGHT
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            lp.setMargins(0, dp(4), 0, 0)
+            layoutParams = lp
+        }
+
+        headerLayout.addView(titleText)
+        headerLayout.addView(subtitleText)
+        mainContent.addView(headerLayout)
+
+        // Progress Bar (Horizontal, subtle)
+        progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(4)
+            ).apply {
+                setMargins(0, 0, 0, dp(16))
+            }
             visibility = View.GONE
-            
-            val normalBg = GradientDrawable().apply {
-                setColor(Color.TRANSPARENT)
-                cornerRadius = dp(16).toFloat()
-                setStroke(dp(2), colorNeonCyan)
-            }
-            val pressedBg = GradientDrawable().apply {
-                setColor(Color.parseColor("#1A00E5FF"))
-                cornerRadius = dp(16).toFloat()
-                setStroke(dp(2), colorNeonCyan)
-            }
-            val states = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), pressedBg)
-                addState(intArrayOf(), normalBg)
-            }
-            background = states
-            
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            isIndeterminate = true
         }
+        mainContent.addView(progressBar)
 
-        // Assemble layout
-        containerLayout.addView(titleView)
-        containerLayout.addView(subtitleView)
-        containerLayout.addView(scoreCard)
-        containerLayout.addView(space1)
-        containerLayout.addView(jokeCard)
-        containerLayout.addView(space2)
-        containerLayout.addView(revealButton)
-        containerLayout.addView(nextButton)
+        // Card 1: Root Status
+        val rootCard = createCard("מצב הרשאות על (Root)")
+        
+        rootStatusText = TextView(this).apply {
+            text = "בודק..."
+            setTextColor(Color.parseColor("#F59E0B")) // Amber 500
+            textSize = 20f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.RIGHT
+        }
+        rootCard.addView(rootStatusText)
 
-        scrollView.addView(containerLayout)
+        rootSubText = TextView(this).apply {
+            text = "מריץ פקודת מערכת לבדיקת הרשאות מנהל..."
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 12f
+            gravity = Gravity.RIGHT
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, dp(4), 0, dp(12))
+            }
+            layoutParams = lp
+        }
+        rootCard.addView(rootSubText)
+
+        rootRetryButton = Button(this).apply {
+            text = "בקש רוט מחדש"
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            background = createButtonDrawable(Color.parseColor("#4F46E5"), Color.parseColor("#4338CA"), dp(8).toFloat())
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(44)
+            )
+            layoutParams = lp
+            setOnClickListener {
+                triggerRootCheck()
+            }
+            visibility = View.GONE
+        }
+        rootCard.addView(rootRetryButton)
+        mainContent.addView(rootCard)
+
+        // Card 2: System & Storage Info
+        val systemCard = createCard("מערכת והרשאות קבצים")
+        
+        bootloaderText = createValueTextView()
+        systemCard.addView(createRow("מצב בוטלודר (Bootloader):", bootloaderText))
+        
+        storagePermissionText = createValueTextView()
+        systemCard.addView(createRow("הרשאות אחסון חיצוני:", storagePermissionText))
+        
+        systemWritableText = createValueTextView()
+        systemCard.addView(createRow("מערכת קבצים פנימית (R/W):", systemWritableText))
+        
+        mainContent.addView(systemCard)
+
+        // Card 3: Hardware Features
+        val hwCard = createCard("תמיכת חומרה")
+        
+        gpsText = createValueTextView()
+        hwCard.addView(createRow("חיישן GPS:", gpsText))
+        
+        otgText = createValueTextView()
+        hwCard.addView(createRow("חיבור USB OTG:", otgText))
+        
+        irText = createValueTextView()
+        hwCard.addView(createRow("עינית אינפרא-אדום (IR):", irText))
+        
+        mainContent.addView(hwCard)
+
+        // Refresh Button at the bottom
+        refreshButton = Button(this).apply {
+            text = "רענן נתונים"
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            background = createButtonDrawable(Color.parseColor("#10B981"), Color.parseColor("#059669"), dp(12).toFloat())
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(50)
+            ).apply {
+                setMargins(0, dp(16), 0, dp(24))
+            }
+            layoutParams = lp
+            setOnClickListener {
+                refreshAllData()
+            }
+        }
+        mainContent.addView(refreshButton)
+
+        scrollView.addView(mainContent)
         rootLayout.addView(scrollView)
         setContentView(rootLayout)
 
-        // Restore State or Setup Default
-        if (savedInstanceState != null) {
-            currentJokeIndex = savedInstanceState.getInt("current_index", 0)
-            isPunchlineRevealed = savedInstanceState.getBoolean("is_revealed", false)
-        } else {
-            currentJokeIndex = Random().nextInt(jokes.size)
+        // Initial load
+        refreshAllData()
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    } 
+
+    private fun createCard(title: String): LinearLayout {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, dp(16))
+            }
+            layoutParams = lp
+            background = createCardDrawable(Color.parseColor("#1E293B"), dp(12).toFloat())
+            val p = dp(16)
+            setPadding(p, p, p, p)
         }
 
-        displayJoke()
-
-        // Interactivity Listeners
-        revealButton.setOnClickListener {
-            revealPunchline()
+        val titleView = TextView(this).apply {
+            text = title
+            setTextColor(Color.parseColor("#6366F1")) // Indigo 500
+            textSize = 15f
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            gravity = Gravity.RIGHT
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, dp(12))
+            }
+            layoutParams = lp
         }
+        card.addView(titleView)
+        return card
+    }
 
-        nextButton.setOnClickListener {
-            loadNextJoke()
+    private fun createRow(label: String, valueView: View): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, dp(6), 0, dp(6))
+            }
+            layoutParams = lp
+            weightSum = 1f
+            
+            // Value on the left
+            val valLp = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.4f
+            )
+            valueView.layoutParams = valLp
+            addView(valueView)
+
+            // Label on the right
+            val labelView = TextView(this@MainActivity).apply {
+                text = label
+                setTextColor(Color.parseColor("#E2E8F0")) // Slate 200
+                textSize = 14f
+                gravity = Gravity.RIGHT
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    0.6f
+                )
+            }
+            addView(labelView)
         }
     }
 
-    private fun displayJoke() {
-        val joke = jokes[currentJokeIndex]
-        jokeTextView.text = joke.setup
-        
-        if (isPunchlineRevealed) {
-            punchlineTextView.text = joke.punchline
-            punchlineTextView.visibility = View.VISIBLE
-            revealButton.visibility = View.GONE
-            nextButton.visibility = View.VISIBLE
-        } else {
-            punchlineTextView.visibility = View.INVISIBLE
-            revealButton.visibility = View.VISIBLE
-            nextButton.visibility = View.GONE
+    private fun createValueTextView(): TextView {
+        return TextView(this).apply {
+            text = "בודק..."
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.LEFT
         }
     }
 
-    private fun revealPunchline() {
-        isPunchlineRevealed = true
-        val joke = jokes[currentJokeIndex]
-        punchlineTextView.text = joke.punchline
-        
-        // Visual Polish: Fade-in & Scale Animation
-        punchlineTextView.visibility = View.VISIBLE
-        punchlineTextView.alpha = 0f
-        punchlineTextView.scaleX = 0.8f
-        punchlineTextView.scaleY = 0.8f
-        punchlineTextView.animate()
-            .alpha(1f)
-            .scaleX(1f)
-            .scaleY(1f)
-            .setDuration(400)
-            .setInterpolator(AccelerateDecelerateInterpolator())
-            .start()
-
-        // Haptic Feedback
-        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-        vibrator?.vibrate(50)
-
-        // Update Score
-        laughScore += 10
-        sharedPreferences.edit().putInt("laugh_score", laughScore).apply()
-        scoreTextView.text = "מד הצחוק שלך: $laughScore ⚡"
-
-        // Toggle buttons
-        revealButton.visibility = View.GONE
-        nextButton.visibility = View.VISIBLE
-        
-        Toast.makeText(this, "חחח! קיבלת 10 נקודות צחוק!", Toast.LENGTH_SHORT).show()
+    private fun createCardDrawable(color: Int, radius: Float): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = radius
+        }
     }
 
-    private fun loadNextJoke() {
-        isPunchlineRevealed = false
-        var nextIndex = Random().nextInt(jokes.size)
-        // Ensure we get a different joke if possible
-        if (jokes.size > 1) {
-            while (nextIndex == currentJokeIndex) {
-                nextIndex = Random().nextInt(jokes.size)
+    private fun createButtonDrawable(normalColor: Int, pressedColor: Int, radius: Float): StateListDrawable {
+        val normal = GradientDrawable().apply {
+            setColor(normalColor)
+            cornerRadius = radius
+        }
+        val pressed = GradientDrawable().apply {
+            setColor(pressedColor)
+            cornerRadius = radius
+        }
+        return StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_pressed), pressed)
+            addState(intArrayOf(), normal)
+        }
+    }
+
+    // Data Loading & Checks
+    private fun refreshAllData() {
+        progressBar.visibility = View.VISIBLE
+        refreshButton.isEnabled = false
+        
+        triggerRootCheck()
+        checkSystemAndHardware()
+    }
+
+    private fun triggerRootCheck() {
+        rootStatusText.text = "בודק גישת רוט..."
+        rootStatusText.setTextColor(Color.parseColor("#F59E0B"))
+        rootSubText.text = "מריץ פקודת מערכת לבדיקת הרשאות מנהל..."
+        rootRetryButton.visibility = View.GONE
+
+        Thread {
+            val hasRoot = checkRootAccess()
+            runOnUiThread {
+                if (hasRoot) {
+                    rootStatusText.text = "מאושר (Rooted)"
+                    rootStatusText.setTextColor(Color.parseColor("#10B981")) // Emerald 500
+                    rootSubText.text = "נמצאה גישת מנהל מערכת מלאה (SU זמין)."
+                    rootRetryButton.visibility = View.GONE
+                } else {
+                    rootStatusText.text = "אין הרשאות רוט"
+                    rootStatusText.setTextColor(Color.parseColor("#EF4444")) // Red 500
+                    rootSubText.text = "המכשיר אינו מורטט או שגישת ה-SU נדחתה."
+                    rootRetryButton.visibility = View.VISIBLE
+                }
+                progressBar.visibility = View.GONE
+                refreshButton.isEnabled = true
+            }
+        }.start() 
+    }
+
+    private fun checkRootAccess(): Boolean {
+        // Method 1: Check common binaries
+        val paths = arrayOf(
+            "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su",
+            "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su",
+            "/system/sd/xbin/su", "/system/bin/failsafe/su", "/data/local/su"
+        )
+        var foundBinary = false
+        for (path in paths) {
+            if (File(path).exists()) {
+                foundBinary = true
+                break
             }
         }
-        currentJokeIndex = nextIndex
-        displayJoke()
+
+        // Method 2: Try executing su command
+        var process: Process? = null
+        var hasSuExecution = false
+        try {
+            process = Runtime.getRuntime().exec(arrayOf("su", "-c", "id"))
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            val output = reader.readLine()
+            if (output != null && (output.contains("uid=0") || output.contains("root"))) {
+                hasSuExecution = true
+            }
+        } catch (e: Exception) {
+            // Denied or not found
+        } finally {
+            process?.destroy()
+        }
+
+        return foundBinary || hasSuExecution
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("current_index", currentJokeIndex)
-        outState.putBoolean("is_revealed", isPunchlineRevealed)
+    private fun checkSystemAndHardware() {
+        // 1. Bootloader
+        val blStatus = getBootloaderStatus()
+        bootloaderText.text = blStatus
+        if (blStatus.contains("פתוח") || blStatus.contains("Unlocked")) {
+            bootloaderText.setTextColor(Color.parseColor("#10B981"))
+        } else if (blStatus.contains("נעול") || blStatus.contains("Locked")) {
+            bootloaderText.setTextColor(Color.parseColor("#EF4444"))
+        } else {
+            bootloaderText.setTextColor(Color.parseColor("#F59E0B"))
+        }
+
+        // 2. Storage Permission
+        val state = Environment.getExternalStorageState()
+        if (state == Environment.MEDIA_MOUNTED) {
+            storagePermissionText.text = "קריאה וכתיבה (R/W)"
+            storagePermissionText.setTextColor(Color.parseColor("#10B981"))
+        } else if (state == Environment.MEDIA_MOUNTED_READ_ONLY) {
+            storagePermissionText.text = "קריאה בלבד (R)"
+            storagePermissionText.setTextColor(Color.parseColor("#F59E0B"))
+        } else {
+            storagePermissionText.text = "אין גישה"
+            storagePermissionText.setTextColor(Color.parseColor("#EF4444"))
+        }
+
+        // 3. System Writable
+        val isWritable = checkSystemWritable()
+        if (isWritable) {
+            systemWritableText.text = "קריאה וכתיבה (R/W)"
+            systemWritableText.setTextColor(Color.parseColor("#10B981"))
+        } else {
+            systemWritableText.text = "קריאה בלבד (R)"
+            systemWritableText.setTextColor(Color.parseColor("#F59E0B"))
+        }
+
+        // 4. GPS
+        val hasGps = packageManager.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)
+        gpsText.text = if (hasGps) "נתמך" else "לא נתמך"
+        gpsText.setTextColor(Color.parseColor(if (hasGps) "#10B981" else "#EF4444"))
+
+        // 5. OTG
+        val hasOtg = packageManager.hasSystemFeature(PackageManager.FEATURE_USB_HOST)
+        otgText.text = if (hasOtg) "נתמך" else "לא נתמך"
+        otgText.setTextColor(Color.parseColor(if (hasOtg) "#10B981" else "#EF4444"))
+
+        // 6. IR
+        val hasIr = packageManager.hasSystemFeature(PackageManager.FEATURE_CONSUMER_IR)
+        irText.text = if (hasIr) "נתמך" else "לא נתמך"
+        irText.setTextColor(Color.parseColor(if (hasIr) "#10B981" else "#EF4444"))
+    }
+
+    private fun getBootloaderStatus(): String {
+        var status = "לא ידוע"
+        try {
+            val p = Runtime.getRuntime().exec("getprop ro.boot.flash.locked")
+            val reader = BufferedReader(InputStreamReader(p.inputStream))
+            val line = reader.readLine()?.trim()
+            if (line == "1") return "נעול (Locked)"
+            if (line == "0") return "פתוח (Unlocked)"
+        } catch (e: Exception) {}
+
+        val bl = Build.BOOTLOADER
+        if (bl != null && bl.isNotEmpty() && bl != "unknown") {
+            return "פעיל ($bl)"
+        }
+        return status
+    }
+
+    private fun checkSystemWritable(): Boolean {
+        return try {
+            val testFile = File(cacheDir, "test_rw.tmp")
+            if (testFile.createNewFile()) {
+                testFile.delete()
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 }
