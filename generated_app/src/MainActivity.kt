@@ -17,11 +17,12 @@ class MainActivity : Activity() {
     private lateinit var currentMacTv: TextView
     private lateinit var macInput: EditText
     
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val density = resources.displayMetrics.density
-        val dp = { value: Int -> (value * density).toInt() }
         
         val scrollView = ScrollView(this)
         scrollView.layoutParams = ViewGroup.LayoutParams(
@@ -40,7 +41,12 @@ class MainActivity : Activity() {
         titleTv.textSize = 24f
         titleTv.setTextColor(Color.WHITE)
         titleTv.gravity = Gravity.CENTER
-        titleTv.setPadding(0, 0, 0, dp(8))
+        titleTv.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(0, 0, 0, dp(8))
+        }
         container.addView(titleTv)
         
         val creditTv = TextView(this)
@@ -48,10 +54,17 @@ class MainActivity : Activity() {
         creditTv.textSize = 14f
         creditTv.setTextColor(Color.parseColor("#00ADB5"))
         creditTv.gravity = Gravity.CENTER
-        creditTv.setPadding(0, 0, 0, dp(24))
+        creditTv.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(0, 0, 0, dp(24))
+        }
         container.addView(creditTv)
         
-        val currentCard = createCard(dp)
+        // Current MAC Card
+        val currentCard = createCard()
+        
         val currentTitle = TextView(this)
         currentTitle.text = "כתובת MAC נוכחית במערכת:"
         currentTitle.setTextColor(Color.parseColor("#888888"))
@@ -62,16 +75,24 @@ class MainActivity : Activity() {
         currentMacTv.text = "02:00:00:00:00:00\n(מגבלת אבטחה של אנדרואיד)"
         currentMacTv.setTextColor(Color.WHITE)
         currentMacTv.textSize = 18f
-        currentMacTv.setPadding(0, dp(8), 0, 0)
+        currentMacTv.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(0, dp(8), 0, 0)
+        }
         currentCard.addView(currentMacTv)
         
         container.addView(currentCard)
         
+        // Spacer
         val space1 = View(this)
-        space1.layoutParams = LinearLayout.LayoutParams(1, dp(16))
+        space1.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(16))
         container.addView(space1)
         
-        val changeCard = createCard(dp)
+        // Change MAC Card
+        val changeCard = createCard()
+        
         val changeTitle = TextView(this)
         changeTitle.text = "הזן כתובת MAC חדשה:"
         changeTitle.setTextColor(Color.parseColor("#888888"))
@@ -85,17 +106,27 @@ class MainActivity : Activity() {
         macInput.textSize = 18f
         macInput.inputType = InputType.TYPE_CLASS_TEXT
         macInput.setPadding(0, dp(12), 0, dp(12))
+        macInput.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         changeCard.addView(macInput)
         
         val btnLayout = LinearLayout(this)
         btnLayout.orientation = LinearLayout.HORIZONTAL
-        btnLayout.setPadding(0, dp(12), 0, 0)
+        btnLayout.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(0, dp(12), 0, 0)
+        }
         
-        val randBtn = createButton("הגרל כתובת", "#393E46", Color.WHITE, dp)
-        val applyBtn = createButton("החל שינוי", "#00ADB5", Color.WHITE, dp)
+        val randBtn = createButton("הגרל כתובת", "#393E46", Color.WHITE)
+        val applyBtn = createButton("החל שינוי", "#00ADB5", Color.WHITE)
         
-        val lpBtnRight = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        lpBtnRight.setMargins(0, 0, dp(8), 0)
+        val lpBtnRight = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+            setMargins(0, 0, dp(8), 0)
+        }
         randBtn.layoutParams = lpBtnRight
         
         val lpBtnLeft = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
@@ -107,16 +138,24 @@ class MainActivity : Activity() {
         
         container.addView(changeCard)
         
+        // Spacer
         val space2 = View(this)
-        space2.layoutParams = LinearLayout.LayoutParams(1, dp(16))
+        space2.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(16))
         container.addView(space2)
         
-        val infoCard = createCard(dp)
+        // Info Card
+        val infoCard = createCard()
+        
         val infoTitle = TextView(this)
         infoTitle.text = "מידע אבטחה והסבר טכני"
         infoTitle.setTextColor(Color.parseColor("#FFD369"))
         infoTitle.textSize = 16f
-        infoTitle.setPadding(0, 0, 0, dp(8))
+        infoTitle.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(0, 0, 0, dp(8))
+        }
         infoCard.addView(infoTitle)
         
         val infoText = TextView(this)
@@ -124,6 +163,7 @@ class MainActivity : Activity() {
         infoText.setTextColor(Color.parseColor("#BBBBBB"))
         infoText.textSize = 13f
         infoCard.addView(infoText)
+        
         container.addView(infoCard)
         
         scrollView.addView(container)
@@ -143,7 +183,7 @@ class MainActivity : Activity() {
         }
     }
     
-    private fun createCard(dp: (Int) -> Int): LinearLayout {
+    private fun createCard(): LinearLayout {
         val card = LinearLayout(this)
         card.orientation = LinearLayout.VERTICAL
         card.setPadding(dp(16), dp(16), dp(16), dp(16))
@@ -153,10 +193,14 @@ class MainActivity : Activity() {
         drawable.cornerRadius = dp(12).toFloat()
         card.background = drawable
         
+        card.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         return card
     }
     
-    private fun createButton(text: String, bgColor: String, textColor: Int, dp: (Int) -> Int): Button {
+    private fun createButton(text: String, bgColor: String, textColor: Int): Button {
         val btn = Button(this)
         btn.text = text
         btn.setTextColor(textColor)
@@ -184,8 +228,8 @@ class MainActivity : Activity() {
         val r = Random()
         val mac = ByteArray(6)
         r.nextBytes(mac)
-        mac[0] = (mac[0].toInt() and 0xFC or 0x02).toByte()
-        return mac.joinToString(":") { String.format("%02X", it) }
+        mac[0] = ((mac[0].toInt() and 0xFC) or 0x02).toByte()
+        return mac.joinToString(":") { String.format("%02X", it.toInt() and 0xFF) }
     }
     
     private fun isValidMac(mac: String): Boolean {
