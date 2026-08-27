@@ -4,10 +4,29 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    
+    <!-- Background: Deep Slate Blue -->
     <path
-        android:fillColor="#222831"
-        android:pathData="M54,8C28.6,8 8,28.6 8,54s20.6,46 46,46s46,-20.6 46,-46S79.4,8 54,8z"/>
+        android:fillColor="#0F172A"
+        android:pathData="M0,0 h108 v108 h-108 z" />
+        
+    <!-- Outer Glowing Ring -->
     <path
-        android:fillColor="#00ADB5"
-        android:pathData="M54,20 L54,88 L71,71 L37,37 L71,37 L54,20 Z"/>
+        android:fillColor="#1E293B"
+        android:pathData="M54,14 A40,40 0 1,0 54,94 A40,40 0 1,0 54,14 Z" />
+
+    <!-- Left Lotus Petal -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M54,48 C40,53 35,68 44,78 C48,73 52,61 54,48 Z" />
+
+    <!-- Right Lotus Petal -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M54,48 C68,53 73,68 64,78 C60,73 56,61 54,48 Z" />
+
+    <!-- Center Lotus Petal -->
+    <path
+        android:fillColor="#0EA5E9"
+        android:pathData="M54,32 C60,47 60,67 54,80 C48,67 48,47 54,32 Z" />
 </vector>
