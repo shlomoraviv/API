@@ -205,7 +205,7 @@ class MainActivity : Activity() {
         btn.text = text
         btn.setTextColor(textColor)
         btn.textSize = 14f
-        btn.textAllCaps = false
+        btn.setAllCaps(false)
         
         val normalDrawable = GradientDrawable()
         normalDrawable.setColor(Color.parseColor(bgColor))
@@ -229,7 +229,7 @@ class MainActivity : Activity() {
         val mac = ByteArray(6)
         r.nextBytes(mac)
         mac[0] = ((mac[0].toInt() and 0xFC) or 0x02).toByte()
-        return mac.joinToString(":") { String.format("%02X", it.toInt() and 0xFF) }
+        return mac.joinToString(":") { "%02X".format(it.toInt() and 0xFF) }
     }
     
     private fun isValidMac(mac: String): Boolean {
