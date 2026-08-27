@@ -241,7 +241,7 @@ class MainActivity : Activity() {
             textSize = 13f
             setTextColor(Color.parseColor("#94A3B8"))
             gravity = Gravity.CENTER
-            lineSpacingMultiplier = 1.2f
+            setLineSpacing(0f, 1.2f)
         }
         cardAbout.addView(txtAboutText)
         txtAboutText.setMargins(0, 0, 0, dp(12f))
@@ -254,6 +254,8 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }
         cardAbout.addView(txtCredit)
+        
+        setContentView(root)
     }
 
     private fun selectPattern(index: Int) {
@@ -268,7 +270,7 @@ class MainActivity : Activity() {
                 )
                 setTextColor(if (active) Color.WHITE else Color.parseColor("#94A3B8"))
                 typeface = Typeface.create(Typeface.DEFAULT, if (active) Typeface.BOLD else Typeface.NORMAL)
-            }
+            } 
         }
         // Reset breathing view to match first phase of selected pattern
         val firstPhase = patterns[currentPatternIndex][0]
@@ -330,7 +332,7 @@ class MainActivity : Activity() {
                         currentPhaseIndex = (currentPhaseIndex + 1) % pattern.size
                         runPhase()
                     }
-                }
+                } 
             })
             start()
         }
