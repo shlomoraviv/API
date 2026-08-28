@@ -5,28 +5,23 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Background: Deep Slate Blue -->
+    <!-- Background: Clean White Rounded Square -->
     <path
-        android:fillColor="#0F172A"
-        android:pathData="M0,0 h108 v108 h-108 z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,12 H96 A12,12 0 0 1 108,24 V92 A12,12 0 0 1 96,108 H12 A12,12 0 0 1 0,96 V24 A12,12 0 0 1 12,12 Z" />
         
-    <!-- Outer Glowing Ring -->
+    <!-- Outer Frame (Gold) -->
     <path
-        android:fillColor="#1E293B"
-        android:pathData="M54,14 A40,40 0 1,0 54,94 A40,40 0 1,0 54,14 Z" />
-
-    <!-- Left Lotus Petal -->
+        android:fillColor="#D4AF37"
+        android:pathData="M18,18 H90 V90 H18 Z M22,22 V86 H86 V22 Z" />
+        
+    <!-- Tefillin Box Symbol (Dark Slate Blue) -->
     <path
-        android:fillColor="#38BDF8"
-        android:pathData="M54,48 C40,53 35,68 44,78 C48,73 52,61 54,48 Z" />
-
-    <!-- Right Lotus Petal -->
+        android:fillColor="#1A252F"
+        android:pathData="M38,38 H70 V70 H38 Z" />
+        
+    <!-- Tefillin Straps (Dark Slate Blue) -->
     <path
-        android:fillColor="#38BDF8"
-        android:pathData="M54,48 C68,53 73,68 64,78 C60,73 56,61 54,48 Z" />
-
-    <!-- Center Lotus Petal -->
-    <path
-        android:fillColor="#0EA5E9"
-        android:pathData="M54,32 C60,47 60,67 54,80 C48,67 48,47 54,32 Z" />
+        android:fillColor="#1A252F"
+        android:pathData="M48,70 L30,90 H40 L54,70 Z M60,70 L78,90 H68 L54,70 Z" />
 </vector>
