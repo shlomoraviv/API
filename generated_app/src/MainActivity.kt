@@ -58,7 +58,7 @@ class MainActivity : Activity() {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
-            backgroundColor = 0xFFFAFAFA.toInt()
+            setBackgroundColor(0xFFFAFAFA.toInt())
         }
         setContentView(mainContainer)
 
@@ -315,11 +315,7 @@ class MainActivity : Activity() {
         faceLightView?.visibility = if (isFaceLightActive) View.VISIBLE else View.GONE
         
         val lp = window.attributes
-        lp.screenBrightness = if (isFaceLightActive) {
-            WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL
-        } else {
-            WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
-        }
+        lp.screenBrightness = if (isFaceLightActive) 1.0f else -1.0f
         window.attributes = lp
     }
 
@@ -420,7 +416,7 @@ class MainActivity : Activity() {
 
         // Divider
         val divider = View(this).apply {
-            backgroundColor = 0xFFE0E0E0.toInt()
+            setBackgroundColor(0xFFE0E0E0.toInt())
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)).apply {
                 topMargin = dp(12)
                 bottomMargin = dp(12)
@@ -620,7 +616,8 @@ class MainActivity : Activity() {
                     mirrorOverlayView?.moveLines(-dp(8))
                     return true
                 }
-            } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+            }
+            if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 if (event.repeatCount > 0 || event.isLongPress) {
                     mirrorOverlayView?.moveLines(dp(8))
                     return true
