@@ -3,24 +3,16 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Background -->
+    <!-- Background: Deep Spiritual Blue -->
     <path
         android:fillColor="#1A237E"
-        android:pathData="M12,0 L96,0 A12,12 0 0 1 108,12 L108,96 A12,12 0 0 1 96,108 L12,108 A12,12 0 0 1 0,96 L0,12 A12,12 0 0 1 12,0 z" />
-    <!-- Mirror Frame (Gold) -->
+        android:pathData="M12,0 L96,0 A12,12 0 0 1 108,12 L108,96 A12,12 0 0 1 96,108 L12,108 A12,12 0 0 1 0,96 L0,12 A12,12 0 0 1 12,0 Z" />
+    <!-- Mirror Frame / Glowing Guides -->
     <path
-        android:fillColor="#8D6E63"
-        android:pathData="M24,24 L84,24 A8,8 0 0 1 92,32 L92,76 A8,8 0 0 1 84,84 L24,84 A8,8 0 0 1 16,76 L16,32 A8,8 0 0 1 24,24 z" />
-    <!-- Mirror Glass (Light Blue) -->
+        android:fillColor="#00E5FF"
+        android:pathData="M20,25 L88,25 L88,27 L20,27 Z M53,25 L55,25 L55,85 L53,85 Z M20,25 L22,25 L22,55 L20,55 Z M86,25 L88,25 L88,55 L86,55 Z" />
+    <!-- Tefillin Box (Bayit) in Gold -->
     <path
-        android:fillColor="#E0F7FA"
-        android:pathData="M28,28 L80,28 A4,4 0 0 1 84,32 L84,72 A4,4 0 0 1 80,76 L28,76 A4,4 0 0 1 24,72 L24,32 A4,4 0 0 1 28,28 z" />
-    <!-- Tefillin Shel Rosh (Black Box) -->
-    <path
-        android:fillColor="#212121"
-        android:pathData="M42,38 L66,38 A4,4 0 0 1 70,42 L70,62 A4,4 0 0 1 66,66 L42,66 A4,4 0 0 1 38,62 L38,42 A4,4 0 0 1 42,38 z" />
-    <!-- Shin Letter (Gold) on Tefillin -->
-    <path
-        android:fillColor="#FFD54F"
-        android:pathData="M46,44 L48,44 L48,56 L52,56 L52,44 L54,44 L54,56 L58,56 L58,44 L60,44 L60,58 A2,2 0 0 1 58,60 L48,60 A2,2 0 0 1 46,58 z" />
+        android:fillColor="#FFD700"
+        android:pathData="M39,45 L69,45 L69,75 L39,75 Z M34,75 L74,75 L74,80 L34,80 Z" />
 </vector>

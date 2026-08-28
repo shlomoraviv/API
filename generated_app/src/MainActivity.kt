@@ -1,6 +1,7 @@
 package com.aiapp.generated
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -10,10 +11,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.hardware.Camera
-import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -22,689 +21,545 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import java.io.IOException
 
-class MainActivity : Activity() {
+class MainActivity : Activity(), SurfaceHolder.Callback {
 
-    enum class Screen {
-        HOME, MIRROR, SEDER, ABOUT
-    }
-
-    private var currentScreen = Screen.HOME
-    private var mainContainer: FrameLayout? = null
-
-    // Camera & Mirror Views
     private var camera: Camera? = null
-    private var cameraPreview: CameraPreview? = null
-    private var mirrorOverlayView: MirrorOverlayView? = null
-    private var faceLightView: View? = null
-    private var isFaceLightActive = false
+    private var surfaceView: SurfaceView? = null
+    private var surfaceHolder: SurfaceHolder? = null
+    private var guideView: GuideView? = null
+    private var faceLightBorder: View? = null
+    private var isFaceLightOn = false
 
-    // Seder Views
-    private var sederTextView: TextView? = null
-    private var activeNusachIndex = 0
-    private val nusachButtons = ArrayList<TextView>()
+    private var mainContainer: FrameLayout? = null
+    private var mirrorLayout: FrameLayout? = null
+    private var orderLayout: LinearLayout? = null
+
+    private var tabMirror: TextView? = null
+    private var tabOrder: TextView? = null
+    private var prayerTextView: TextView? = null
+
+    private val CAMERA_REQ_CODE = 101
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState) 
+        
+        // Main layout containing top tabs, content area, and bottom credit
+        val root = LinearLayout(this)
+        root.orientation = LinearLayout.VERTICAL
+        root.backgroundColor = Color.parseColor("#F9F9F9")
 
-        mainContainer = FrameLayout(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-            setBackgroundColor(0xFFFAFAFA.toInt())
+        // 1. Top Navigation Tabs
+        val tabLayout = LinearLayout(this)
+        tabLayout.orientation = LinearLayout.HORIZONTAL
+        tabLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(55))
+        tabLayout.backgroundColor = Color.parseColor("#FFFFFF")
+        
+        tabMirror = createTab("מראה לתפילין", true)
+        tabOrder = createTab("סדר הנחה", false)
+
+        tabMirror?.setOnClickListener { switchTab(true) }
+        tabOrder?.setOnClickListener { switchTab(false) }
+
+        tabLayout.addView(tabMirror, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
+        tabLayout.addView(tabOrder, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
+        root.addView(tabLayout)
+
+        // 2. Content Area
+        mainContainer = FrameLayout(this)
+        val contentParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        root.addView(mainContainer, contentParams)
+
+        // Build Mirror View
+        buildMirrorLayout()
+        // Build Order View
+        buildOrderLayout()
+
+        // 3. Bottom Credit Bar
+        val bottomBar = LinearLayout(this)
+        bottomBar.orientation = LinearLayout.HORIZONTAL
+        bottomBar.backgroundColor = Color.parseColor("#1A237E")
+        bottomBar.setPadding(dp(10), dp(8), dp(10), dp(8))
+        bottomBar.gravity = Gravity.CENTER_VERTICAL
+
+        val creditText = TextView(this)
+        creditText.text = "פותח ע"י רביב דיגיטל"
+        creditText.setTextColor(Color.parseColor("#FFD700"))
+        creditText.textSize = 14f
+        creditText.typeface = Typeface.DEFAULT_BOLD
+        creditText.gravity = Gravity.RIGHT
+        
+        val aboutButton = Button(this)
+        aboutButton.text = "אודות"
+        aboutButton.textSize = 12f
+        aboutButton.setTextColor(Color.WHITE)
+        aboutButton.background = createButtonDrawable(Color.parseColor("#283593"), Color.parseColor("#3F51B5"))
+        aboutButton.setPadding(dp(12), dp(4), dp(12), dp(4))
+        aboutButton.isFocusable = true
+        aboutButton.setOnClickListener {
+            showAboutDialog()
         }
-        setContentView(mainContainer)
 
-        if (savedInstanceState != null) {
-            val screenName = savedInstanceState.getString("current_screen", Screen.HOME.name)
-            currentScreen = Screen.valueOf(screenName)
-            activeNusachIndex = savedInstanceState.getInt("active_nusach", 0)
-        }
+        val creditParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        bottomBar.addView(aboutButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        bottomBar.addView(creditText, creditParams)
+        root.addView(bottomBar)
 
-        navigateTo(currentScreen)
+        setContentView(root)
+
+        // Default view: Mirror
+        switchTab(true)
+        checkCameraPermission()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("current_screen", currentScreen.name)
-        outState.putInt("active_nusach", activeNusachIndex)
+    private fun createTab(text: String, active: Boolean): TextView {
+        val tab = TextView(this)
+        tab.text = text
+        tab.gravity = Gravity.CENTER
+        tab.textSize = 16f
+        tab.typeface = Typeface.DEFAULT_BOLD
+        tab.isFocusable = true
+        tab.isFocusableInTouchMode = true
+        updateTabStyle(tab, active)
+        return tab
     }
 
-    private fun navigateTo(screen: Screen) {
-        currentScreen = screen
-        mainContainer?.removeAllViews()
-        releaseCamera()
-
-        when (screen) {
-            Screen.HOME -> showHomeScreen()
-            Screen.MIRROR -> showMirrorScreen()
-            Screen.SEDER -> showSederScreen()
-            Screen.ABOUT -> showAboutScreen()
-        }
-    }
-
-    private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
-    }
-
-    private fun createStyledButton(text: String, onClick: View.OnClickListener): TextView {
-        val tv = TextView(this).apply {
-            this.text = text
-            gravity = Gravity.CENTER
-            textSize = 18f
-            setTextColor(0xFF1A237E.toInt())
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            isFocusable = true
-            isFocusableInTouchMode = true
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            setOnClickListener(onClick)
-        }
-
-        val normal = GradientDrawable().apply {
-            setColor(Color.WHITE)
-            setStroke(dp(2), 0xFFE0E0E0.toInt())
-            cornerRadius = dp(12).toFloat()
-        }
-
-        val focused = GradientDrawable().apply {
-            setColor(0xFFF5F7FA.toInt())
-            setStroke(dp(4), 0xFF1A237E.toInt())
-            cornerRadius = dp(12).toFloat()
-        }
-
-        val sld = StateListDrawable().apply {
-            addState(intArrayOf(android.R.attr.state_focused), focused)
-            addState(intArrayOf(android.R.attr.state_pressed), focused)
-            addState(intArrayOf(), normal)
-        }
-
-        tv.background = sld
-        return tv
-    }
-
-    private fun showHomeScreen() {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(24), dp(40), dp(24), dp(24))
-        }
-
-        val title = TextView(this).apply {
-            text = "מראה לתפילין"
-            textSize = 32f
-            setTextColor(0xFF1A237E.toInt())
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            gravity = Gravity.CENTER
-        }
-        root.addView(title)
-
-        val subtitle = TextView(this).apply {
-            text = "סיוע בהנחה וסדר הברכות"
-            textSize = 16f
-            setTextColor(0xFF757575.toInt())
-            gravity = Gravity.CENTER
-            setPadding(0, dp(4), 0, dp(32))
-        }
-        root.addView(subtitle)
-
-        val btnMirror = createStyledButton("מראה חכמה", View.OnClickListener {
-            checkCameraPermissionAndNavigate()
-        })
-        val lpMirror = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-            bottomMargin = dp(16)
-        }
-        root.addView(btnMirror, lpMirror)
-
-        val btnSeder = createStyledButton("סדר הנחת תפילין", View.OnClickListener {
-            navigateTo(Screen.SEDER)
-        })
-        val lpSeder = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-            bottomMargin = dp(16)
-        }
-        root.addView(btnSeder, lpSeder)
-
-        val btnAbout = createStyledButton("אודות", View.OnClickListener {
-            navigateTo(Screen.ABOUT)
-        })
-        root.addView(btnAbout, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-
-        val spacer = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
-        }
-        root.addView(spacer)
-
-        val credit = TextView(this).apply {
-            text = "פותח ע\"י רביב דיגיטל"
-            textSize = 14f
-            setTextColor(0xFF9E9E9E.toInt())
-            typeface = Typeface.create("sans-serif", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            isFocusable = true
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-        }
-        root.addView(credit)
-
-        mainContainer?.addView(root)
-        btnMirror.requestFocus()
-    }
-
-    private fun checkCameraPermissionAndNavigate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 101)
-            } else {
-                navigateTo(Screen.MIRROR)
-            }
+    private fun updateTabStyle(tab: TextView?, active: Boolean) {
+        if (tab == null) return
+        if (active) {
+            tab.setTextColor(Color.parseColor("#1A237E"))
+            val gd = GradientDrawable()
+            gd.setColor(Color.parseColor("#E8EAF6"))
+            gd.setStroke(dp(2), Color.parseColor("#1A237E"))
+            tab.background = gd
         } else {
-            navigateTo(Screen.MIRROR)
+            tab.setTextColor(Color.parseColor("#757575"))
+            val gd = GradientDrawable()
+            gd.setColor(Color.parseColor("#FFFFFF"))
+            gd.setStroke(dp(1), Color.parseColor("#E0E0E0"))
+            tab.background = gd
+        }
+    }
+
+    private fun switchTab(isMirror: Boolean) {
+        updateTabStyle(tabMirror, isMirror)
+        updateTabStyle(tabOrder, !isMirror)
+        
+        if (isMirror) {
+            mirrorLayout?.visibility = View.VISIBLE
+            orderLayout?.visibility = View.GONE
+            startCameraPreview()
+        } else {
+            mirrorLayout?.visibility = View.GONE
+            orderLayout?.visibility = View.VISIBLE
+            stopCameraPreview()
+        }
+    }
+
+    private fun buildMirrorLayout() {
+        mirrorLayout = FrameLayout(this)
+        
+        // Camera Surface
+        surfaceView = SurfaceView(this)
+        surfaceHolder = surfaceView?.holder
+        surfaceHolder?.addCallback(this)
+        mirrorLayout?.addView(surfaceView, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+        // Custom Guide Overlay
+        guideView = GuideView(this)
+        mirrorLayout?.addView(guideView, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+        // Face Light Frame (thick white border, hidden by default)
+        faceLightBorder = View(this)
+        val borderDrawable = GradientDrawable()
+        borderDrawable.setColor(Color.TRANSPARENT)
+        borderDrawable.setStroke(dp(30), Color.WHITE)
+        faceLightBorder?.background = borderDrawable
+        faceLightBorder?.visibility = View.GONE
+        mirrorLayout?.addView(faceLightBorder, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+        // Control Panel Overlay (Bottom of the mirror screen)
+        val controls = LinearLayout(this)
+        controls.orientation = LinearLayout.HORIZONTAL
+        controls.gravity = Gravity.CENTER
+        controls.backgroundColor = Color.parseColor("#CC000000")
+        controls.setPadding(dp(8), dp(8), dp(8), dp(8))
+        
+        val btnLight = createStyledButton("תאורה", Color.parseColor("#FFC107"))
+        btnLight.setOnClickListener {
+            toggleFaceLight()
+        }
+
+        val btnUp = createStyledButton("▲ קו מעלה", Color.parseColor("#2196F3"))
+        btnUp.setOnClickListener {
+            guideView?.moveUp()
+        }
+
+        val btnDown = createStyledButton("▼ קו מטה", Color.parseColor("#2196F3"))
+        btnDown.setOnClickListener {
+            guideView?.moveDown()
+        }
+
+        controls.addView(btnLight, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        controls.addView(btnUp, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        controls.addView(btnDown, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+
+        val controlParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        controlParams.gravity = Gravity.BOTTOM
+        mirrorLayout?.addView(controls, controlParams)
+
+        mainContainer?.addView(mirrorLayout)
+    }
+
+    private fun buildOrderLayout() {
+        orderLayout = LinearLayout(this)
+        orderLayout?.orientation = LinearLayout.VERTICAL
+        orderLayout?.backgroundColor = Color.WHITE
+        orderLayout?.setPadding(dp(12), dp(12), dp(12), dp(12))
+
+        // Nusach Selector Header
+        val selectorLayout = LinearLayout(this)
+        selectorLayout.orientation = LinearLayout.HORIZONTAL
+        selectorLayout.gravity = Gravity.CENTER
+        selectorLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        val nusachs = arrayOf("ע"מ (ספרדי)", "אשכנז", "ספרד", "חב"ד")
+        val buttons = ArrayList<Button>()
+
+        for (i in nusachs.indices) {
+            val btn = Button(this)
+            btn.text = nusachs[i]
+            btn.textSize = 12f
+            btn.isFocusable = true
+            btn.setPadding(dp(4), dp(6), dp(4), dp(6))
+            
+            val params = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            params.setMargins(dp(2), 0, dp(2), 0)
+            selectorLayout.addView(btn, params)
+            buttons.add(btn)
+
+            btn.setOnClickListener {
+                for (b in buttons) {
+                    b.background = createButtonDrawable(Color.parseColor("#E0E0E0"), Color.parseColor("#BDBDBD"))
+                    b.setTextColor(Color.BLACK)
+                }
+                btn.background = createButtonDrawable(Color.parseColor("#1A237E"), Color.parseColor("#3F51B5"))
+                btn.setTextColor(Color.WHITE)
+                loadNusachText(i)
+            }
+        }
+
+        orderLayout?.addView(selectorLayout)
+
+        // Scrollable Prayer Text
+        val scrollView = ScrollView(this)
+        scrollView.isFocusable = true
+        scrollView.isFocusableInTouchMode = true
+        val scrollParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        scrollParams.setMargins(0, dp(12), 0, 0)
+        orderLayout?.addView(scrollView, scrollParams)
+
+        prayerTextView = TextView(this)
+        prayerTextView?.textSize = 18f
+        prayerTextView?.setTextColor(Color.parseColor("#212121"))
+        prayerTextView?.gravity = Gravity.RIGHT
+        prayerTextView?.setLineSpacing(1.3f, 1.0f)
+        scrollView.addView(prayerTextView)
+
+        // Select first Nusach by default
+        if (buttons.isNotEmpty()) {
+            buttons[0].performClick()
+        }
+
+        mainContainer?.addView(orderLayout)
+    }
+
+    private fun createStyledButton(text: String, color: Int): Button {
+        val btn = Button(this)
+        btn.text = text
+        btn.textSize = 13f
+        btn.setTextColor(Color.WHITE)
+        btn.isFocusable = true
+        btn.isFocusableInTouchMode = true
+        btn.background = createButtonDrawable(color, Color.parseColor("#33000000"))
+        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.setMargins(dp(4), dp(4), dp(4), dp(4))
+        btn.layoutParams = params
+        return btn
+    }
+
+    private fun createButtonDrawable(normalColor: Int, focusedColor: Int): StateListDrawable {
+        val res = StateListDrawable()
+        
+        val focused = GradientDrawable()
+        focused.setColor(focusedColor)
+        focused.setCornerRadius(dp(6).toFloat())
+        focused.setStroke(dp(2), Color.parseColor("#FFD700"))
+        
+        val normal = GradientDrawable()
+        normal.setColor(normalColor)
+        normal.setCornerRadius(dp(6).toFloat())
+
+        res.addState(intArrayOf(android.R.attr.state_focused), focused)
+        res.addState(intArrayOf(android.R.attr.state_pressed), focused)
+        res.addState(intArrayOf(), normal)
+        return res
+    }
+
+    private fun toggleFaceLight() {
+        isFaceLightOn = !isFaceLightOn
+        val lp = window.attributes
+        if (isFaceLightOn) {
+            faceLightBorder?.visibility = View.VISIBLE
+            lp.screenBrightness = 1.0f
+        } else {
+            faceLightBorder?.visibility = View.GONE
+            lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        }
+        window.attributes = lp
+    }
+
+    private fun loadNusachText(index: Int) {
+        val sb = StringBuilder()
+        when (index) {
+            0 -> { // Edot HaMizrach
+                sb.append("סדר הנחת תפילין - עדות המזרח\n\n")
+                sb.append("א. הנחת תפילין של יד:\n")
+                sb.append("מניח את התפילה על הקיבורת של יד שמאל (או ימין לאטרליים) ומטה אותה מעט כלפי הלב. לפני ההדקה מברך:\n\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
+                sb.append("מיד לאחר הברכה מהדק את הרצועה וכורך שבע כריכות על הזרוע.\n\n")
+                sb.append("ב. הנחת תפילין של ראש:\n")
+                sb.append("מניח את תפילין של ראש על מקום גידול השיער, בדיוק מעל בין העיניים. הקצה התחתון של התפילין לא ירד מקו גידול השיער. הקשר מאחור יונח בגומחה שבעורף.\n")
+                sb.append("לפי מנהג עדות המזרח אין מברכים על של ראש, אלא אם כן הפסיק בדיבור בין היד לראש. ואם הפסיק מברך:\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין. (ואומר: ברוך שם כבוד מלכותו לעולם ועד).\n\n")
+                sb.append("ג. כריכת הרצועה על האצבע:\n")
+                sb.append("כורך שלוש כריכות על האצבע האמצעית (האמה) ואומר:\n")
+                sb.append("וְאֵרַשְׂתִּיךְ לִי לְעוֹלָם, וְאֵרַשְׂתִּיךְ לִי בְּצֶדֶק וּבְמִשְׁפָּט וּבְחֶסֶד וּבְרַחֲמִים, וְאֵרַשְׂתִּיךְ לִי בֶּאֱמוּנָה וְיָדַעַתְּ אֶת יְהֹוָה.")
+            }
+            1 -> { // Ashkenaz
+                sb.append("סדר הנחת תפילין - אשכנז\n\n")
+                sb.append("א. תפילין של יד:\n")
+                sb.append("מניח על הקיבורת ומברך:\n\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
+                sb.append("ומהדק וכורך שבע כריכות.\n\n")
+                sb.append("ב. תפילין של ראש:\n")
+                sb.append("מניח על הראש במקום גידול השיער ומברך לפני ההדקה:\n\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין.\n\n")
+                sb.append("ומהדק מיד ואומר:\n")
+                sb.append("בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n")
+                sb.append("ג. כריכת הרצועה על האצבע האמצעית ואומר 'וארשתיך...'")
+            }
+            2 -> { // Sefard
+                sb.append("סדר הנחת תפילין - נוסח ספרד\n\n")
+                sb.append("א. תפילין של יד:\n")
+                sb.append("מניח על הקיבורת ומברך:\n\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
+                sb.append("ב. תפילין של ראש:\n")
+                sb.append("מניח במקום גידול השיער ומברך:\n\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין.\n\n")
+                sb.append("ומהדק ואומר מיד:\n")
+                sb.append("בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n")
+                sb.append("ג. כורכים על האצבע ואומרים 'וארשתיך...'")
+            }
+            3 -> { // Chabad
+                sb.append("סדר הנחת תפילין - חב"ד\n\n")
+                sb.append("א. תפילין של יד:\n")
+                sb.append("מניח על הקיבורת, ומברך:\n\n")
+                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
+                sb.append("מהדק וכורך חצי כריכה על הזרוע, ואז כורך כריכה אחת על כף היד, ואז כורך שבע כריכות על הזרוע.\n\n")
+                sb.append("ב. תפילין של ראש:\n")
+                sb.append("מניח על הראש במקום גידול השיער ואינו מברך (אלא אם כן הפסיק בדיבור). לאחר שהניח והדק, אומר בלחש:\n\n")
+                sb.append("בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n")
+                sb.append("ג. כריכת הרצועות על האצבע האמצעית ואומר 'וארשתיך...'")
+            }
+        }
+        prayerTextView?.text = sb.toString()
+    }
+
+    private fun showAboutDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("אודות האפליקציה")
+        
+        val tv = TextView(this)
+        tv.text = "אפליקציית מראה חכמה לתפילין עם סדר הנחה מובנה.\n\nפותח בצורה מקצועית ומכובדת על ידי רביב דיגיטל.\n\nהאפליקציה מותאמת באופן מלא למכשירים בעלי מקשים (D-pad) ומסכים קטנים."
+        tv.textSize = 16f
+        tv.setTextColor(Color.BLACK)
+        tv.gravity = Gravity.RIGHT
+        tv.setPadding(dp(20), dp(20), dp(20), dp(20))
+        
+        builder.setView(tv)
+        builder.setPositiveButton("סגור") { dialog, _ -> dialog.dismiss() }
+        builder.show()
+    }
+
+    // Camera Handling
+    private fun checkCameraPermission() {
+        if (checkCallingOrSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), CAMERA_REQ_CODE)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 101) {
+        if (requestCode == CAMERA_REQ_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                navigateTo(Screen.MIRROR)
+                startCameraPreview()
             } else {
                 Toast.makeText(this, "נדרשת הרשאת מצלמה עבור המראה", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun showMirrorScreen() {
-        val root = FrameLayout(this)
-
-        // Camera Preview
-        try {
-            val cam = openFrontCamera()
-            camera = cam
-            if (cam != null) {
-                cameraPreview = CameraPreview(this, cam)
-                root.addView(cameraPreview)
-            } else {
-                val errorText = TextView(this).apply {
-                    text = "לא ניתן לפתוח את המצלמה הקדמית"
-                    setTextColor(Color.RED)
-                    gravity = Gravity.CENTER
-                }
-                root.addView(errorText)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        // Overlay Lines
-        mirrorOverlayView = MirrorOverlayView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-        }
-        root.addView(mirrorOverlayView)
-
-        // Face Light Border
-        faceLightView = View(this).apply {
-            val gd = GradientDrawable().apply {
-                setColor(Color.TRANSPARENT)
-                setStroke(dp(40), Color.WHITE)
-            }
-            background = gd
-            visibility = View.GONE
-        }
-        root.addView(faceLightView, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
-
-        // Controls Overlay
-        val controls = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.BOTTOM
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-        }
-
-        val infoText = TextView(this).apply {
-            text = "לחיצה ארוכה על למעלה/למטה מזיזה את הקווים"
-            textSize = 13f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            setShadowLayer(2f, 1f, 1f, Color.BLACK)
-            setPadding(0, 0, 0, dp(12))
-        }
-        controls.addView(infoText)
-
-        val buttonsLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-        }
-
-        val btnLight = createStyledButton("תאורת פנים", View.OnClickListener {
-            toggleFaceLight()
-        })
-        val lpLight = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-            rightMargin = dp(8)
-        }
-        buttonsLayout.addView(btnLight, lpLight)
-
-        val btnBack = createStyledButton("חזרה", View.OnClickListener {
-            navigateTo(Screen.HOME)
-        })
-        val lpBack = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-            leftMargin = dp(8)
-        }
-        buttonsLayout.addView(btnBack, lpBack)
-
-        controls.addView(buttonsLayout)
-
-        val rootLp = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            Gravity.BOTTOM
-        )
-        root.addView(controls, rootLp)
-
-        mainContainer?.addView(root)
-        btnLight.requestFocus()
-    }
-
-    private fun toggleFaceLight() {
-        isFaceLightActive = !isFaceLightActive
-        faceLightView?.visibility = if (isFaceLightActive) View.VISIBLE else View.GONE
-        
-        val lp = window.attributes
-        lp.screenBrightness = if (isFaceLightActive) 1.0f else -1.0f
-        window.attributes = lp
-    }
-
-    private fun openFrontCamera(): Camera? {
-        var camId = -1
-        val numCameras = Camera.getNumberOfCameras()
-        for (i in 0 until numCameras) {
-            val info = Camera.CameraInfo()
-            Camera.getCameraInfo(i, info)
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                camId = i
-                break
-            }
-        }
-        if (camId == -1) camId = 0
-        return try {
-            Camera.open(camId).apply {
-                setDisplayOrientation(90)
-            }
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun releaseCamera() {
-        camera?.let {
-            it.stopPreview()
-            it.release()
-        }
-        camera = null
-        cameraPreview = null
-        if (isFaceLightActive) {
-            toggleFaceLight()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        releaseCamera()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (currentScreen == Screen.MIRROR && camera == null) {
-            navigateTo(Screen.MIRROR)
-        }
-    }
-
-    private fun showSederScreen() {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-        }
-
-        // Title
-        val title = TextView(this).apply {
-            text = "סדר הנחת תפילין"
-            textSize = 24f
-            setTextColor(0xFF1A237E.toInt())
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dp(12))
-        }
-        root.addView(title)
-
-        // Nusach Selector
-        val scrollSelector = HorizontalScrollView(this).apply {
-            isFillViewport = true
-            isHorizontalScrollBarEnabled = false
-        }
-        val selectorLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-        }
-
-        val nusachNames = arrayOf("עדות המזרח", "אשכנז", "ספרד", "חב\"ד")
-        nusachButtons.clear()
-
-        for (i in nusachNames.indices) {
-            val btn = TextView(this).apply {
-                text = nusachNames[i]
-                textSize = 15f
-                gravity = Gravity.CENTER
-                isFocusable = true
-                isFocusableInTouchMode = true
-                setPadding(dp(12), dp(8), dp(12), dp(8))
-                setOnClickListener {
-                    selectNusach(i)
-                }
-            }
-            val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                rightMargin = dp(8)
-            }
-            selectorLayout.addView(btn, lp)
-            nusachButtons.add(btn)
-        }
-        scrollSelector.addView(selectorLayout)
-        root.addView(scrollSelector, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-
-        // Divider
-        val divider = View(this).apply {
-            setBackgroundColor(0xFFE0E0E0.toInt())
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)).apply {
-                topMargin = dp(12)
-                bottomMargin = dp(12)
-            }
-        }
-        root.addView(divider)
-
-        // Scrollable Text
-        val scrollView = ScrollView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
-        }
-        sederTextView = TextView(this).apply {
-            textSize = 19f
-            setTextColor(0xFF212121.toInt())
-            gravity = Gravity.RIGHT
-            setLineSpacing(0f, 1.3f)
-        }
-        scrollView.addView(sederTextView)
-        root.addView(scrollView)
-
-        // Back Button
-        val btnBack = createStyledButton("חזרה לתפריט", View.OnClickListener {
-            navigateTo(Screen.HOME)
-        })
-        val lpBack = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-            topMargin = dp(12)
-        }
-        root.addView(btnBack, lpBack)
-
-        mainContainer?.addView(root)
-        selectNusach(activeNusachIndex)
-        nusachButtons[activeNusachIndex].requestFocus()
-    }
-
-    private fun selectNusach(index: Int) {
-        activeNusachIndex = index
-        for (i in nusachButtons.indices) {
-            val btn = nusachButtons[i]
-            val isSelected = i == index
-            val normal = GradientDrawable().apply {
-                setColor(if (isSelected) 0xFF1A237E.toInt() else Color.WHITE)
-                setStroke(dp(1), 0xFF1A237E.toInt())
-                cornerRadius = dp(20).toFloat()
-            }
-            val focused = GradientDrawable().apply {
-                setColor(if (isSelected) 0xFF0D47A1.toInt() else 0xFFF5F7FA.toInt())
-                setStroke(dp(3), 0xFF8D6E63.toInt())
-                cornerRadius = dp(20).toFloat()
-            }
-            val sld = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_focused), focused)
-                addState(intArrayOf(android.R.attr.state_pressed), focused)
-                addState(intArrayOf(), normal)
-            }
-            btn.background = sld
-            btn.setTextColor(if (isSelected) Color.WHITE else 0xFF1A237E.toInt())
-        }
-        sederTextView?.text = getSederText(index)
-    }
-
-    private fun getSederText(index: Int): CharSequence {
-        return when (index) {
-            0 -> {
-                // Edot HaMizrach
-                "סדר הנחת תפילין - עדות המזרח\n\n" +
-                "א. הנחת תפילין של יד:\n" +
-                "מניח את התפילין על הקיבורת של יד שמאל (או ימין לאיטר), ומטה אותם מעט לכיוון הלב. לפני ההדק מברך:\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n" +
-                "מיד לאחר הברכה מהדק את הרצועה וכורך שבע כריכות על הזרוע.\n\n" +
-                "ב. הנחת תפילין של ראש:\n" +
-                "מניח את התפילין של ראש על מקום גידול השיער, בדיוק מעל בין העיניים. יש להקפיד שהקשר יהיה מאחור בבסיס הגולגולת.\n" +
-                "למנהג עדות המזרח אין מברכים על של ראש אלא אם כן הפסיק בדיבור.\n\n" +
-                "ג. כריכת הרצועה על האצבע:\n" +
-                "כורך שלוש כריכות על האצבע האמצעית (האמה) ואומר:\n" +
-                "וְאֵרַשְׂתִּיךְ לִי לְעוֹלָם, וְאֵרַשְׂתִּיךְ לִי בְּצֶדֶק וּבְמִשְׁפָּט וּבְחֶסֶד וּבְרַחֲמִים, וְאֵרַשְׂתִּיךְ לִי בֶּאֱמוּנָה וְיָדַעַתְּ אֶת יְהֹוָה."
-            }
-            1 -> {
-                // Ashkenaz
-                "סדר הנחת תפילין - אשכנז\n\n" +
-                "א. הנחת תפילין של יד:\n" +
-                "מניח את התפילין על הקיבורת, ומברך:\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n" +
-                "ומהדק וכורך שבע כריכות.\n\n" +
-                "ב. הנחת תפילין של ראש:\n" +
-                "לפני שמניח על הראש מברך:\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין.\n\n" +
-                "ומניחם במקומם ומיד אומר:\n" +
-                "בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n" +
-                "ג. כריכת האצבע:\n" +
-                "כורך על האמה ואומר 'וארשתיך לי...'."
-            }
-            2 -> {
-                // Sefard
-                "סדר הנחת תפילין - נוסח ספרד\n\n" +
-                "א. הנחת תפילין של יד:\n" +
-                "מניח על הקיבורת ומברך:\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n" +
-                "ב. הנחת תפילין של ראש:\n" +
-                "מניח על הראש ומברך:\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין.\n\n" +
-                "ואומר: בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n" +
-                "ג. כריכת האצבע:\n" +
-                "כורך על האמה ואומר 'וארשתיך לי...'."
-            }
-            else -> {
-                // Chabad
-                "סדר הנחת תפילין - חב\"ד\n\n" +
-                "א. הנחת תפילין של יד:\n" +
-                "מניח על הקיבורת, ובזמן ההידוק מברך:\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n" +
-                "כורך חצי כריכה על הזרוע, ואז כורך כריכה אחת על כף היד, ואז שבע כריכות על הזרוע.\n\n" +
-                "ב. הנחת תפילין של ראש:\n" +
-                "מניח על הראש ללא ברכה נוספת (אלא אם כן הפסיק בדיבור). לאחר הנחתם אומר:\n\n" +
-                "בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n" +
-                "ג. כריכת האצבע:\n" +
-                "כורך שלוש כריכות על האמה ואומר 'וארשתיך לי...'."
-            }
-        }
-    }
-
-    private fun showAboutScreen() {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(24), dp(40), dp(24), dp(24))
-        }
-
-        val title = TextView(this).apply {
-            text = "אודות האפליקציה"
-            textSize = 24f
-            setTextColor(0xFF1A237E.toInt())
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dp(16))
-        }
-        root.addView(title)
-
-        val desc = TextView(this).apply {
-            text = "אפליקציית מראה חכמה וסדר ברכות להנחת תפילין בצורה מדויקת וקלה.\n\nהאפליקציה מותאמת במיוחד למכשירי מקשים ומגע כאחד, ומאפשרת ניווט מלא באמצעות מקשי החיצים.\n\nקווי העזר במראה מסייעים למרכז את התפילין של ראש בדיוק במרכז הראש."
-            textSize = 16f
-            setTextColor(0xFF424242.toInt())
-            gravity = Gravity.RIGHT
-            setLineSpacing(0f, 1.3f)
-            setPadding(0, 0, 0, dp(32))
-        }
-        root.addView(desc)
-
-        val creditBox = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            val gd = GradientDrawable().apply {
-                setColor(0xFFF5F5F5.toInt())
-                cornerRadius = dp(8).toFloat()
-                setStroke(dp(1), 0xFFE0E0E0.toInt())
-            }
-            background = gd
-        }
-
-        val creditTitle = TextView(this).apply {
-            text = "פותח בגאווה ע\"י:"
-            textSize = 14f
-            setTextColor(0xFF757575.toInt())
-            gravity = Gravity.CENTER
-        }
-        creditBox.addView(creditTitle)
-
-        val creditName = TextView(this).apply {
-            text = "רביב דיגיטל"
-            textSize = 20f
-            setTextColor(0xFF1A237E.toInt())
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, dp(4), 0, 0)
-        }
-        creditBox.addView(creditName)
-        root.addView(creditBox)
-
-        val spacer = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
-        }
-        root.addView(spacer)
-
-        val btnBack = createStyledButton("חזרה", View.OnClickListener {
-            navigateTo(Screen.HOME)
-        })
-        root.addView(btnBack, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-
-        mainContainer?.addView(root)
-        btnBack.requestFocus()
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (currentScreen == Screen.MIRROR) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                if (event.repeatCount > 0 || event.isLongPress) {
-                    mirrorOverlayView?.moveLines(-dp(8))
-                    return true
-                }
-            }
-            if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                if (event.repeatCount > 0 || event.isLongPress) {
-                    mirrorOverlayView?.moveLines(dp(8))
-                    return true
-                }
-            }
-        }
-        return super.onKeyDown(keyCode, event)
-    }
-
-    override fun onBackPressed() {
-        if (currentScreen != Screen.HOME) {
-            navigateTo(Screen.HOME)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    // Custom Camera Preview View
-    private class CameraPreview(context: Context, private val camera: Camera) : SurfaceView(context), SurfaceHolder.Callback {
-        private val mHolder: SurfaceHolder = holder.apply {
-            addCallback(this@CameraPreview)
-        }
-
-        override fun surfaceCreated(holder: SurfaceHolder) {
+    private fun startCameraPreview() {
+        if (camera == null && surfaceHolder != null) {
             try {
-                camera.setPreviewDisplay(holder)
-                camera.startPreview()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
+                // Open front camera
+                val info = Camera.CameraInfo()
+                var frontCameraId = -1
+                for (i in 0 until Camera.getNumberOfCameras()) {
+                    Camera.getCameraInfo(i, info)
+                    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                        frontCameraId = i
+                        break
+                    }
+                }
+                
+                camera = if (frontCameraId != -1) {
+                    Camera.open(frontCameraId)
+                } else {
+                    Camera.open()
+                }
 
-        override fun surfaceDestroyed(holder: SurfaceHolder) {
-            // Handled by Activity
-        }
-
-        override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
-            if (mHolder.surface == null) return
-            try {
-                camera.stopPreview()
-            } catch (e: Exception) {}
-
-            try {
-                camera.setPreviewDisplay(mHolder)
-                camera.startPreview()
+                camera?.setDisplayOrientation(90)
+                camera?.setPreviewDisplay(surfaceHolder)
+                camera?.startPreview()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    // Custom Overlay View for Mirror Guidelines
-    private class MirrorOverlayView(context: Context) : View(context) {
-        private val paint = Paint().apply {
-            color = 0x8000E5FF.toInt() // Semi-transparent Cyan
-            strokeWidth = (3 * resources.displayMetrics.density)
-            style = Paint.Style.STROKE
+    private fun stopCameraPreview() {
+        try {
+            camera?.stopPreview()
+            camera?.release()
+            camera = null
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        private var lineY = -1f
-        private val lineSpacing = (50 * resources.displayMetrics.density)
+    }
+
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        surfaceHolder = holder
+        startCameraPreview()
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        if (holder.surface == null) return
+        try {
+            camera?.stopPreview()
+        } catch (e: Exception) {}
+        
+        try {
+            camera?.setPreviewDisplay(holder)
+            camera?.startPreview()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        stopCameraPreview()
+        surfaceHolder = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (mirrorLayout?.visibility == View.VISIBLE) {
+            startCameraPreview()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopCameraPreview()
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
+
+    // Custom View to Draw Tefillin Alignment Guides
+    inner class GuideView(context: Context) : View(context) {
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var yOffset = 0f
+        private var isInitialized = false
+
+        init {
+            paint.color = Color.parseColor("#00E5FF") // Cyan
+            paint.strokeWidth = dp(2).toFloat()
+            paint.style = Paint.Style.STROKE
+
+            glowPaint.color = Color.parseColor("#4000E5FF") // Semi-transparent Cyan for glow
+            glowPaint.strokeWidth = dp(6).toFloat()
+            glowPaint.style = Paint.Style.STROKE
+        }
 
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
-            if (lineY < 0) {
-                lineY = height / 2f
+            val w = width.toFloat()
+            val h = height.toFloat()
+
+            if (!isInitialized) {
+                yOffset = h * 0.3f // Start at top 30%
+                isInitialized = true
             }
 
-            // Draw 3 horizontal helper lines
-            canvas.drawLine(0f, lineY - lineSpacing, width.toFloat(), lineY - lineSpacing, paint)
-            canvas.drawLine(0f, lineY, width.toFloat(), lineY, paint)
-            canvas.drawLine(0f, lineY + lineSpacing, width.toFloat(), lineY + lineSpacing, paint)
+            val startX = w * 0.15f
+            val endX = w * 0.85f
+            val centerX = w * 0.5f
+            
+            val centerLength = h * 0.4f
+            val sideLength = centerLength * 0.5f
+
+            // 1. Horizontal Header Line
+            canvas.drawLine(startX, yOffset, endX, yOffset, glowPaint)
+            canvas.drawLine(startX, yOffset, endX, yOffset, paint)
+
+            // 2. Center Vertical Line
+            canvas.drawLine(centerX, yOffset, centerX, yOffset + centerLength, glowPaint)
+            canvas.drawLine(centerX, yOffset, centerX, yOffset + centerLength, paint)
+
+            // 3. Left Side Guide
+            canvas.drawLine(startX, yOffset, startX, yOffset + sideLength, glowPaint)
+            canvas.drawLine(startX, yOffset, startX, yOffset + sideLength, paint)
+
+            // 4. Right Side Guide
+            canvas.drawLine(endX, yOffset, endX, yOffset + sideLength, glowPaint)
+            canvas.drawLine(endX, yOffset, endX, yOffset + sideLength, paint)
         }
 
-        fun moveLines(delta: Int) {
-            lineY += delta
-            if (lineY < lineSpacing) lineY = lineSpacing
-            if (lineY > height - lineSpacing) lineY = height - lineSpacing
+        fun moveUp() {
+            yOffset -= dp(15).toFloat()
+            if (yOffset < 0) yOffset = 0f
+            invalidate()
+        }
+
+        fun moveDown() {
+            yOffset += dp(15).toFloat()
+            if (yOffset > height) yOffset = height.toFloat()
             invalidate()
         }
 
         override fun onTouchEvent(event: MotionEvent): Boolean {
-            when (event.action) {
-                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                    lineY = event.y
-                    invalidate()
-                    return true
-                }
+            if (event.action == MotionEvent.ACTION_MOVE || event.action == MotionEvent.ACTION_DOWN) {
+                yOffset = event.y
+                invalidate()
+                return true
             }
             return super.onTouchEvent(event)
         }

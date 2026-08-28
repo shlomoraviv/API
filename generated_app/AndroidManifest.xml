@@ -3,8 +3,6 @@
     package="com.aiapp.generated">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -14,8 +12,7 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize"
-            android:exported="true">
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
