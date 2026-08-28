@@ -6,729 +6,3136 @@
 <title>AI App Maker — prompt to APK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded && window.__gisLoaded()"></script>
 <style>
   :root {
-    --bg: #F6F6F8;
+    --bg: #F4F1EA;
+    --bg-inset: #EBE6D9;
     --surface: #FFFFFF;
-    --surface-2: #FBFBFD;
-    --sidebar-bg: #F0EFF6;
-    --border: #E6E5EE;
-    --border-strong: #D8D6E6;
-    --text: #211F2E;
-    --text-muted: #6F6C82;
-    --text-faint: #9694A8;
-    --accent: #5850EC;
-    --accent-hover: #453FCB;
-    --accent-soft: #ECEBFE;
-    --accent-soft-strong: #DEDBFC;
+    --surface-2: #F7F4EC;
+    --border: #E4DECD;
+    --border-strong: #D3CBB5;
+    --text: #2B2924;
+    --text-muted: #83806F;
+    --accent: #D97757;
+    --accent-hover: #C15F40;
+    --accent-soft: #F3DDCF;
     --on-accent: #FFFFFF;
-    --success: #1E8E5A;
-    --success-soft: #E4F5EC;
-    --error: #D0402B;
-    --error-soft: #FBE7E3;
-    --warn: #B4740E;
-    --warn-soft: #FBF0DD;
+    --success: #77875F;
+    --success-soft: #E6EBDA;
+    --on-success: #FFFFFF;
+    --error: #B3483B;
+    --error-soft: #F5E0DA;
     --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
     --sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --radius-lg: 22px;
+    --display: 'Source Serif 4', Georgia, serif;
     --radius: 16px;
     --radius-sm: 10px;
-    --radius-pill: 999px;
-    --shadow-sm: 0 1px 2px rgba(33,31,46,0.05), 0 1px 1px rgba(33,31,46,0.04);
-    --shadow-md: 0 8px 24px rgba(33,31,46,0.10), 0 2px 6px rgba(33,31,46,0.06);
-    --shadow-lg: 0 20px 48px rgba(33,31,46,0.16), 0 4px 12px rgba(33,31,46,0.08);
-    --side-w: 288px;
+    --shadow-card: 0 1px 2px rgba(43,41,36,0.06), 0 1px 1px rgba(43,41,36,0.04);
   }
 
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
-  body {
+
+  html, body {
+    margin: 0;
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     -webkit-font-smoothing: antialiased;
-    overflow: hidden;
   }
-  button, input, textarea, select { font-family: inherit; }
-  a { color: inherit; }
-  ::selection { background: var(--accent-soft-strong); }
-  .hidden, [hidden] { display: none !important; }
 
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
+  body { min-height: 100vh; }
 
-  /* ===================== buttons & inputs (shared) ===================== */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    border: 1px solid transparent; border-radius: var(--radius-pill);
-    font-family: var(--sans); font-weight: 600; font-size: 14px;
-    padding: 11px 20px; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease;
+  /* --- top bar --- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  .brand-mark {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -0.01em;
     white-space: nowrap;
   }
-  .btn.primary { background: var(--accent); color: var(--on-accent); }
-  .btn.primary:hover { background: var(--accent-hover); }
-  .btn.primary:disabled { opacity: .55; cursor: default; }
-  .btn.secondary { background: var(--surface-2); border-color: var(--border-strong); color: var(--text); }
-  .btn.secondary:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-hover); }
-  .btn.ghost { background: transparent; color: var(--text-muted); }
-  .btn.ghost:hover { background: var(--surface-2); color: var(--text); }
-  .btn.danger { background: var(--error-soft); color: var(--error); }
-  .btn.danger:hover { background: var(--error); color: #fff; }
-  .btn.small { padding: 7px 14px; font-size: 12.5px; }
-  .btn.block { width: 100%; }
-  .icon-btn {
-    width: 34px; height: 34px; border-radius: var(--radius-pill); border: none; background: transparent;
-    color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 15px; transition: background .15s ease, color .15s ease; flex: 0 0 auto;
+  .brand-kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
-  .icon-btn.on-accent { color: rgba(255,255,255,.85); }
-  .icon-btn.on-accent:hover { background: rgba(255,255,255,.16); color: #fff; }
+  .new-chat-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .new-chat-btn:hover { background: var(--bg-inset); border-color: var(--accent); }
+  .new-chat-btn .plus { font-size: 15px; line-height: 1; }
 
-  .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-  .text-input, .textarea, .select-input {
-    width: 100%; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-    padding: 11px 14px; font-size: 14px; color: var(--text); outline: none; transition: border-color .15s ease, box-shadow .15s ease;
-  }
-  .text-input:focus, .textarea:focus, .select-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .textarea { resize: vertical; min-height: 64px; line-height: 1.55; font-family: var(--sans); }
-  .hint-text { font-size: 12.5px; color: var(--text-faint); line-height: 1.6; }
-
-  /* ===================== auth screen ===================== */
-  .auth-shell {
-    height: 100vh; display: flex; align-items: center; justify-content: center;
-    background:
-      radial-gradient(60% 50% at 18% 8%, rgba(88,80,236,0.10), transparent 60%),
-      radial-gradient(50% 45% at 85% 92%, rgba(88,80,236,0.08), transparent 60%),
-      var(--bg);
-    padding: 20px;
-  }
-  .auth-card {
-    background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
-    padding: 44px 40px; width: 380px; max-width: 100%; text-align: center;
-  }
-  .auth-mark {
-    width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 20px;
-    background: linear-gradient(135deg, var(--accent), #8A7BFF);
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 800;
-  }
-  .auth-card h1 { font-size: 20px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; }
-  .auth-card p.sub { color: var(--text-muted); font-size: 13.5px; line-height: 1.6; margin: 0 0 26px; }
-  #googleSignInButton { display: flex; justify-content: center; min-height: 40px; }
-  .auth-error {
-    margin-top: 16px; background: var(--error-soft); color: var(--error); border-radius: var(--radius-sm);
-    padding: 10px 14px; font-size: 13px; text-align: right;
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
   }
 
-  /* ===================== app shell ===================== */
-  .app-shell { height: 100vh; display: flex; }
-
-  /* ---- persistent sidebar (right, matching RTL + reference design) ---- */
-  .side {
-    order: 2; width: var(--side-w); flex: 0 0 auto; height: 100vh;
-    background: var(--sidebar-bg); border-inline-start: 1px solid var(--border);
-    display: flex; flex-direction: column; transition: margin .2s ease;
-  }
-  .side-head { padding: 18px 16px 12px; }
-  .side-brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 16px; }
-  .side-brand-mark {
-    width: 30px; height: 30px; border-radius: 10px; flex: 0 0 auto;
-    background: linear-gradient(135deg, var(--accent), #8A7BFF);
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 800;
-  }
-  .side-brand-text { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
-  .side-new-btn {
-    width: 100%; display: flex; align-items: center; gap: 10px; justify-content: flex-start;
-    background: var(--surface); border: 1px solid var(--border-strong); color: var(--text);
-    font-weight: 600; font-size: 13.5px; padding: 11px 14px; border-radius: var(--radius-pill);
-    cursor: pointer; box-shadow: var(--shadow-sm); transition: border-color .15s ease, background .15s ease;
-  }
-  .side-new-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
-  .side-new-btn .plus-badge {
-    width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; flex: 0 0 auto;
-  }
-  .side-search {
-    display: flex; align-items: center; gap: 8px; margin: 12px 6px 4px; padding: 9px 12px;
-    background: transparent; border: 1px solid transparent; border-radius: var(--radius-pill);
-    color: var(--text-faint); font-size: 13px; cursor: text; transition: background .15s ease, border-color .15s ease;
-  }
-  .side-search:hover, .side-search.active { background: var(--surface); border-color: var(--border-strong); }
-  .side-search input { border: none; outline: none; background: transparent; flex: 1; font-size: 13px; color: var(--text); }
-
-  .side-list { flex: 1; overflow-y: auto; padding: 6px 10px 14px; }
-  .side-section-label { font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; padding: 14px 10px 6px; }
-  .side-conv {
-    display: flex; align-items: center; gap: 6px; padding: 9px 10px; border-radius: var(--radius-sm);
-    cursor: pointer; margin-bottom: 1px; position: relative;
-  }
-  .side-conv:hover { background: rgba(33,31,46,0.05); }
-  .side-conv.active { background: var(--accent-soft-strong); }
-  .side-conv-title {
-    flex: 1; min-width: 0; font-size: 13.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .side-conv.active .side-conv-title { color: var(--accent-hover); font-weight: 600; }
-  .side-conv-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; background: var(--surface); color: var(--text-faint); flex: 0 0 auto; }
-  .side-conv-del {
-    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; border: none; background: transparent;
-    color: var(--text-faint); opacity: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;
-  }
-  .side-conv:hover .side-conv-del { opacity: 1; }
-  .side-conv-del:hover { background: var(--error-soft); color: var(--error); }
-  .side-empty { padding: 18px 12px; color: var(--text-faint); font-size: 12.5px; line-height: 1.6; text-align: center; }
-
-  .side-foot { border-top: 1px solid var(--border); padding: 10px; display: flex; flex-direction: column; gap: 2px; }
-  .side-foot-row {
-    display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: var(--radius-sm);
-    cursor: pointer; font-size: 13px; color: var(--text); background: none; border: none; text-align: right; width: 100%;
-  }
-  .side-foot-row:hover { background: rgba(33,31,46,0.05); }
-  .side-avatar {
-    width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto; background: var(--accent-soft-strong); color: var(--accent-hover);
-    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
-  }
-  .side-user-info { flex: 1; min-width: 0; }
-  .side-user-name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .side-user-sub { font-size: 11px; color: var(--text-faint); }
-
-  /* ---- mobile sidebar toggle + backdrop ---- */
-  .side-toggle-btn { display: none; }
-  .side-backdrop { display: none; }
-
-  /* ===================== main column ===================== */
-  .main { order: 1; flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; position: relative; background: var(--bg); }
-  .main-topbar {
-    flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 14px 22px; min-height: 30px;
-  }
-  .main-topbar-title { font-size: 13.5px; font-weight: 600; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  /* ---- empty state / picker ---- */
-  .empty-wrap { flex: 1; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
-  .empty-inner { width: 100%; max-width: 640px; text-align: center; }
-  .empty-greeting { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; }
-  .empty-greeting .accent-word { color: var(--accent); }
-  .empty-sub { color: var(--text-muted); font-size: 14.5px; margin: 0 0 34px; }
-  .picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .picker-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 24px 20px; text-align: right; cursor: pointer; box-shadow: var(--shadow-sm);
-    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
-  }
-  .picker-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .picker-card-icon {
-    width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
-    font-size: 20px; margin-bottom: 14px; background: var(--accent-soft); color: var(--accent-hover);
-  }
-  .picker-card-title { font-size: 15.5px; font-weight: 700; margin: 0 0 6px; }
-  .picker-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; margin: 0; }
-
-  /* ---- chat thread ---- */
-  .thread-wrap { flex: 1; overflow-y: auto; }
-  .thread { max-width: 720px; margin: 0 auto; padding: 10px 24px 24px; display: flex; flex-direction: column; gap: 18px; }
-  .turn { display: flex; }
-  .turn.role-user { justify-content: flex-start; }
-  .turn.role-assistant { justify-content: flex-start; width: 100%; }
-  .turn-bubble.user-bubble {
-    background: var(--accent-soft); color: var(--text); border-radius: 18px 18px 18px 4px;
-    padding: 11px 16px; font-size: 14.5px; line-height: 1.6; max-width: 78%; white-space: pre-wrap;
-  }
-  .turn.role-assistant .turn-bubble { width: 100%; }
-  .assistant-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); width: 100%;
-    padding: 16px 18px 14px; box-shadow: var(--shadow-sm);
-  }
-  .assistant-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-  .assistant-avatar {
-    width: 22px; height: 22px; border-radius: 7px; flex: 0 0 auto;
-    background: linear-gradient(135deg, var(--accent), #8A7BFF);
-  }
-  .assistant-card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-  .assistant-text { font-size: 14px; line-height: 1.65; margin: 0 0 4px; }
-  .assistant-text.error-text { color: var(--error); }
-  .assistant-text.success-text { color: var(--success); font-weight: 600; }
-
-  /* ---- dynamic per-turn rail (reused structure/contract from the engine) ---- */
-  .rail { display: flex; align-items: center; margin: 14px 2px 10px; }
-  .rail-node { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; }
-  .rail-dot {
-    width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--border-strong);
-    display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; color: var(--text-faint);
-    transition: all .2s ease;
-  }
-  .rail-label { font-size: 10px; color: var(--text-faint); font-family: var(--mono); white-space: nowrap; }
-  .rail-line { flex: 1 1 auto; height: 2px; background: var(--border-strong); margin: 0 4px 16px; min-width: 12px; transition: background .2s ease; }
-  .rail-node[data-state="active"] .rail-dot { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); animation: pulse-ring 1.4s ease-in-out infinite; }
-  .rail-node[data-state="active"] .rail-label { color: var(--accent-hover); font-weight: 600; }
-  .rail-node[data-state="done"] .rail-dot { border-color: var(--success); background: var(--success); color: #fff; }
-  .rail-node[data-state="done"] .rail-dot::after { content: "✓"; }
-  .rail-node[data-state="done"] .rail-label { color: var(--success); }
-  .rail-node[data-state="error"] .rail-dot { border-color: var(--error); background: var(--error); color: #fff; }
-  .rail-node[data-state="error"] .rail-label { color: var(--error); }
-  .rail-line[data-state="done"] { background: var(--success); }
-  @keyframes pulse-ring { 0%, 100% { box-shadow: 0 0 0 0 var(--accent-soft); } 50% { box-shadow: 0 0 0 4px var(--accent-soft); } }
-  @media (prefers-reduced-motion: reduce) { .rail-node[data-state="active"] .rail-dot { animation: none; } }
-
-  .log { max-height: 150px; overflow-y: auto; background: var(--surface-2); border-radius: var(--radius-sm); padding: 8px 12px; margin: 6px 0 4px; }
-  .log-row { display: flex; align-items: flex-start; gap: 8px; padding: 3px 0; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
-  .log-row.ok { color: var(--success); }
-  .log-row.error { color: var(--error); }
-  .log-row.muted { color: var(--text-faint); }
-  .log-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-top: 6px; flex: 0 0 auto; opacity: .6; }
-  .log-row .msg { white-space: pre-wrap; word-break: break-word; }
-  .log-toggle { font-size: 11.5px; color: var(--text-faint); background: none; border: none; cursor: pointer; padding: 2px 0; text-decoration: underline; }
-
-  .turn-download {
-    display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 14px;
-    background: var(--success-soft); border-radius: var(--radius-sm);
-  }
-  .turn-download-icon {
-    width: 34px; height: 34px; border-radius: 10px; background: var(--surface); flex: 0 0 auto;
-    display: flex; align-items: center; justify-content: center; overflow: hidden;
-  }
-  .turn-download-icon svg { width: 22px; height: 22px; }
-  .turn-download-info { flex: 1; min-width: 0; font-size: 12.5px; color: var(--text-muted); }
-  .turn-download-info strong { display: block; font-size: 13.5px; color: var(--text); font-weight: 600; }
-
-  /* ---- resume-old-conversation upload prompt ---- */
-  .resume-box {
-    max-width: 720px; margin: 0 auto; padding: 14px 24px 0; display: flex; align-items: center; gap: 12px;
-    background: var(--warn-soft); border-radius: var(--radius-sm); color: #7A5308; font-size: 13px; padding: 12px 16px; margin-inline: 24px;
+  header.page-head { margin-bottom: 22px; }
+  .lede {
+    color: var(--text-muted);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 62ch;
   }
 
-  /* ===================== composer ===================== */
-  .composer-wrap { flex: 0 0 auto; padding: 10px 24px 20px; }
-  .composer-inner { max-width: 720px; margin: 0 auto; }
-  .composer-actions-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-  .action-chip {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border-strong);
-    color: var(--text-muted); font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: var(--radius-pill);
-    cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease;
+  /* --- mode tabs --- */
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
   }
-  .action-chip:hover { border-color: var(--accent); color: var(--accent-hover); background: var(--accent-soft); }
-  .action-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .think-chip-group { display: inline-flex; gap: 3px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); padding: 3px; }
-  .think-chip { border: none; background: none; padding: 5px 11px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 600; color: var(--text-faint); cursor: pointer; }
-  .think-chip.active { background: var(--accent-soft-strong); color: var(--accent-hover); }
+  .mode-tab {
+    flex: 1 1 170px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    text-align: right;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .mode-tab:hover { border-color: var(--border-strong); }
+  .mode-tab .mode-tab-title { font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .mode-tab .mode-tab-sub { font-size: 11px; color: var(--text-muted); }
+  .mode-tab[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .mode-tab[aria-selected="true"] .mode-tab-title { color: var(--accent-hover); }
+  .mode-panel[hidden] { display: none; }
 
-  .composer-box {
-    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 24px; box-shadow: var(--shadow-sm);
-    padding: 8px 8px 8px 16px; display: flex; align-items: flex-end; gap: 8px; transition: border-color .15s ease, box-shadow .15s ease;
-  }
-  .composer-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-  .composer-box textarea {
-    flex: 1; border: none; outline: none; resize: none; background: transparent; font-size: 14.5px;
-    line-height: 1.5; padding: 9px 2px; max-height: 160px; font-family: var(--sans); color: var(--text);
-  }
-  .composer-box textarea::placeholder { color: var(--text-faint); }
-  .composer-send-btn {
-    width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--accent); color: #fff;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; font-size: 16px;
-    transition: background .15s ease, opacity .15s ease;
-  }
-  .composer-send-btn:hover { background: var(--accent-hover); }
-  .composer-send-btn:disabled { opacity: .4; cursor: default; }
-  .composer-foot-hint { text-align: center; font-size: 11px; color: var(--text-faint); margin-top: 8px; }
-
-  .upload-drop {
-    border: 1.5px dashed var(--border-strong); border-radius: var(--radius); padding: 22px; text-align: center;
-    background: var(--surface); cursor: pointer; transition: border-color .15s ease, background .15s ease;
-  }
-  .upload-drop:hover, .upload-drop.drag { border-color: var(--accent); background: var(--accent-soft); }
-  .upload-drop input[type=file] { display: none; }
-  .upload-drop-icon { font-size: 22px; margin-bottom: 6px; }
-  .upload-drop-title { font-size: 13.5px; font-weight: 600; margin-bottom: 2px; }
-  .upload-drop-sub { font-size: 12px; color: var(--text-faint); }
-  .upload-file-chip {
-    display: inline-flex; align-items: center; gap: 8px; background: var(--accent-soft); color: var(--accent-hover);
-    border-radius: var(--radius-pill); padding: 7px 8px 7px 14px; font-size: 13px; font-weight: 600;
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
   }
 
-  /* ---- inline sub-panels (translate / censor) attached above composer ---- */
-  .inline-panel {
-    background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
+  .card h2 {
+    font-family: var(--display);
+    font-size: 16.5px;
+    font-weight: 600;
+    margin: 0 0 4px;
   }
-  .inline-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .inline-panel-title { font-size: 13px; font-weight: 700; }
-  .lang-row { display: flex; gap: 8px; }
-  .lang-row .text-input { flex: 1; }
 
-  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; max-height: 260px; overflow-y: auto; padding: 2px; margin-bottom: 10px; }
-  .image-row { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); position: relative; }
-  .image-row.pending { border-color: var(--accent); }
-  .image-thumb { width: 100%; height: 72px; object-fit: contain; background: repeating-conic-gradient(#f0f0f4 0% 25%, #fafafc 0% 50%) 50% / 12px 12px; display: block; }
-  .image-path { font-size: 9px; color: var(--text-faint); padding: 3px 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
-  .image-size { font-size: 9px; color: var(--text-faint); padding: 0 5px; }
-  .image-status { font-size: 9px; color: var(--accent-hover); font-weight: 700; padding: 0 5px; display: block; }
-  .image-actions { display: flex; gap: 3px; padding: 4px 5px 5px; }
-  .chip-btn {
-    flex: 1; border: 1px solid var(--border-strong); background: var(--surface); border-radius: 7px; padding: 3px 4px;
-    font-size: 9.5px; cursor: pointer; color: var(--text-muted);
+  .card .hint {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0 0 18px;
+    line-height: 1.55;
   }
-  .chip-btn:hover { border-color: var(--accent); color: var(--accent-hover); }
-  .chip-btn.danger:hover { border-color: var(--error); color: var(--error); background: var(--error-soft); }
 
-  /* ===================== connections modal (BYOK settings) ===================== */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(33,31,46,0.38); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 20px; }
-  .modal { background: var(--surface); border-radius: var(--radius-lg); width: 480px; max-width: 100%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
-  .modal.wide { width: 620px; }
-  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
-  .modal-head h2 { font-size: 16px; margin: 0; font-weight: 700; }
-  .modal-body { padding: 20px 22px; overflow-y: auto; }
-  .modal-foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
-  .field { margin-bottom: 16px; }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field-row.three {
+    grid-template-columns: 1.4fr 1.4fr 0.9fr;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
   .field:last-child { margin-bottom: 0; }
-  .field-row { display: flex; gap: 10px; }
-  .field-row .field { flex: 1; }
-  .pro-note { background: var(--accent-soft); color: var(--accent-hover); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; line-height: 1.55; }
-  .reveal-row { display: flex; justify-content: flex-end; margin-top: -8px; margin-bottom: 12px; }
 
-  /* ===================== admin screen ===================== */
-  .admin-shell { height: 100vh; display: none; flex-direction: column; background: var(--bg); }
-  .admin-topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
-  .admin-topbar h1 { font-size: 15px; margin: 0; font-weight: 700; }
-  .admin-body { flex: 1; overflow-y: auto; }
-  .admin-inner { max-width: 880px; margin: 0 auto; padding: 24px; }
-  .admin-nav { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-  .admin-nav-item { padding: 8px 16px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); cursor: pointer; }
-  .admin-nav-item.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .admin-panel { display: none; }
-  .admin-panel.active { display: block; }
-  .admin-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
-  .admin-card h2 { font-size: 14.5px; margin: 0 0 4px; font-weight: 700; }
-  .admin-card .hint-text { margin-bottom: 14px; }
-  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  table.data-table th { text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--text-faint); padding: 8px 8px; border-bottom: 1px solid var(--border); }
-  table.data-table td { padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  .status-line { font-size: 12.5px; color: var(--text-muted); margin-top: 10px; min-height: 16px; }
-  .admin-conv-row, .api-key-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; margin-bottom: 8px; font-size: 13px; }
-  .admin-conv-meta { font-size: 11px; color: var(--text-faint); font-family: var(--mono); }
-  .api-key-mask { font-family: var(--mono); font-size: 12.5px; letter-spacing: .4px; }
-  .add-row { display: flex; gap: 8px; margin-top: 10px; }
-  .add-row .text-input { flex: 1; }
+  label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
 
-  /* ===================== responsive ===================== */
-  @media (max-width: 860px) {
-    .side { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 40; box-shadow: var(--shadow-lg); transform: translateX(100%); }
-    html[dir="rtl"] .side { transform: translateX(100%); }
-    .side.open { transform: translateX(0); }
-    .side-toggle-btn { display: inline-flex; }
-    .side-backdrop { display: block; position: fixed; inset: 0; background: rgba(33,31,46,0.32); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 39; }
-    .side-backdrop.open { opacity: 1; pointer-events: auto; }
-    .picker-grid { grid-template-columns: 1fr; }
-    .composer-wrap, .thread, .resume-box { padding-inline: 14px; }
+  label .req { color: var(--accent); }
+
+  input[type="text"],
+  input[type="password"],
+  textarea {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  input::placeholder, textarea::placeholder { color: #ADA894; }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  input:focus-visible, textarea:focus-visible, button:focus-visible,
+  .toggle-keys:focus-visible, .think-btn:focus-visible, .mode-tab:focus-visible,
+  .question-option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 92px;
+    line-height: 1.5;
+  }
+  textarea.mono-input { font-family: var(--mono); font-size: 12.5px; min-height: 56px; }
+  .key-mask { filter: blur(5px); user-select: none; }
+
+  .toggle-keys {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+    margin-top: 2px;
+  }
+  .toggle-keys:hover { color: var(--text); }
+
+  .proxy-details summary {
+    color: var(--text-muted);
+    font-size: 12.5px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .proxy-details summary:hover { color: var(--text); }
+  .proxy-details[open] summary { color: var(--text); margin-bottom: 4px; }
+
+  button.primary {
+    width: 100%;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  button.primary:active:not(:disabled) { transform: scale(0.99); }
+  button.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  button.secondary {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  button.secondary:hover:not(:disabled) { background: var(--bg-inset); }
+  button.secondary:active:not(:disabled) { transform: scale(0.99); }
+  button.secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  input[type="file"] {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+  }
+  input[type="file"]::file-selector-button,
+  input[type="file"]::-webkit-file-upload-button {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-inline-end: 10px;
+  }
+
+  /* --- thinking-level toggle --- */
+  .think-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+  .think-btn {
+    flex: 1 1 0;
+    min-width: 84px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .think-btn:hover { border-color: var(--border-strong); }
+  .think-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+  /* --- pipeline rail --- */
+  .rail {
+    display: flex;
+    align-items: center;
+    margin: 6px 0 22px;
+  }
+
+  .rail-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    width: 84px;
+  }
+
+  .rail-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  .rail-node[data-state="active"] .rail-dot {
+    border-color: var(--accent);
+    color: var(--accent-hover);
+    background: var(--accent-soft);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .rail-node[data-state="done"] .rail-dot {
+    border-color: var(--success);
+    color: var(--success);
+    background: var(--success-soft);
+  }
+  .rail-node[data-state="error"] .rail-dot {
+    border-color: var(--error);
+    color: var(--error);
+    background: var(--error-soft);
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,87,0.35); }
+    50% { box-shadow: 0 0 0 5px rgba(217,119,87,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rail-node[data-state="active"] .rail-dot { animation: none; }
+  }
+
+  .rail-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .rail-node[data-state="active"] .rail-label { color: var(--accent-hover); }
+  .rail-node[data-state="done"] .rail-label { color: var(--success); }
+  .rail-node[data-state="error"] .rail-label { color: var(--error); }
+
+  .rail-line {
+    flex: 1 1 auto;
+    height: 2px;
+    background: var(--border);
+    margin: 0 -2px;
+    transform: translateY(-14px);
+  }
+  .rail-line[data-state="done"] { background: var(--success); }
+  .rail-line[data-state="active"] { background: linear-gradient(90deg, var(--success), var(--border)); }
+
+  /* --- clarifying-question card --- */
+  .question-card {
+    display: none;
+    margin: 6px 0 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .question-card.show { display: block; }
+  .question-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 18px 4px;
+  }
+  .question-title {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .question-pager {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .question-pager button {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .question-pager button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .question-options { padding: 10px 10px 6px; display: flex; flex-direction: column; }
+  .question-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: right;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    padding: 13px 8px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--text);
+    border-radius: 8px;
+    transition: background 0.12s ease;
+  }
+  .question-options .question-option:first-child { border-top: none; }
+  .question-option:hover { background: var(--accent-soft); }
+  .question-num {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .question-option:hover .question-num { border-color: var(--accent); color: var(--accent-hover); }
+  .question-option-label { flex: 1 1 auto; line-height: 1.4; }
+  .question-other {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding: 10px 8px;
+  }
+  .question-other input {
+    flex: 1 1 auto;
+    border: none;
+    background: none;
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 6px 4px;
+  }
+  .question-other input:focus { outline: none; box-shadow: none; }
+  .question-other button {
+    flex: 0 0 auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .question-other button:hover { background: var(--bg-inset); }
+  .question-foot { display: flex; justify-content: flex-end; padding: 8px 14px 14px; }
+  .question-skip {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .question-skip:hover { color: var(--text); }
+
+  /* --- log panel, styled as a compact message thread --- */
+  .log {
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .log-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .log-row.muted { color: var(--text-muted); border-style: dashed; }
+  .log-row.ok { border-color: var(--success); background: var(--success-soft); }
+  .log-row.error { border-color: var(--error); background: var(--error-soft); }
+  .log-dot {
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .log-row.ok .log-dot { background: var(--success); }
+  .log-row.error .log-dot { background: var(--error); }
+  .log-row .msg { white-space: pre-wrap; word-break: break-word; }
+
+  .download-box {
+    display: none;
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid var(--success);
+    background: var(--success-soft);
+    border-radius: var(--radius-sm);
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .download-box.show { display: flex; }
+  .download-box .msg {
+    font-size: 13.5px;
+    color: var(--text);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .download-box .msg strong { font-family: var(--mono); }
+  a.download-btn {
+    background: var(--success);
+    color: var(--on-success);
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+
+  .app-preview { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .app-icon-preview {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .app-icon-preview svg { display: block; width: 100%; height: 100%; }
+
+  /* --- prompt-enhancement confirmation panel --- */
+  .enhance-box {
+    display: none;
+    margin: 6px 0 22px;
+    padding: 18px;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: var(--radius-sm);
+    flex-direction: column;
+    gap: 14px;
+  }
+  .enhance-box.show { display: flex; }
+  .enhance-title { margin: 0; font-family: var(--display); font-weight: 600; font-size: 14px; }
+  .enhance-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .enhance-col-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .enhance-text {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    white-space: pre-wrap;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .enhance-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .enhance-actions button { flex: 1 1 200px; width: auto; }
+
+  /* --- mode placeholder (not-yet-built modes) --- */
+  .mode-placeholder {
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    background: var(--bg-inset);
+  }
+  .mode-placeholder h3 { margin: 0 0 8px; font-family: var(--display); font-size: 15px; }
+  .mode-placeholder p { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-muted); }
+
+  /* --- APK image editor --- */
+  .edit-status { font-size: 13px; margin: 10px 0 0; line-height: 1.5; }
+  .edit-status.muted { color: var(--text-muted); }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .image-grid[hidden] { display: none; }
+
+  .image-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+  }
+  .image-row.pending { border-color: var(--accent); }
+
+  .image-thumb {
+    width: 100%;
+    height: 104px;
+    object-fit: contain;
+    border-radius: 6px;
+    background-color: #F6F4EC;
+    background-image:
+      linear-gradient(45deg, #E8E3D2 25%, transparent 25%),
+      linear-gradient(-45deg, #E8E3D2 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #E8E3D2 75%),
+      linear-gradient(-45deg, transparent 75%, #E8E3D2 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  }
+
+  .image-path { font-family: var(--mono); font-size: 11px; color: var(--text); word-break: break-all; line-height: 1.4; }
+  .image-size { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); }
+  .image-status {
+    display: inline-block;
+    width: fit-content;
+    font-size: 10.5px;
+    font-family: var(--mono);
+    color: var(--accent-hover);
+    background: rgba(217,119,87,0.12);
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  .image-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+  .chip-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 11.5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .chip-btn:hover { background: var(--bg-inset); }
+  .chip-btn.danger { border-color: var(--error); color: var(--error); }
+
+  .edit-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 22px;
+    flex-wrap: wrap;
+  }
+  .edit-summary[hidden] { display: none; }
+  .edit-summary .hint { margin: 0; }
+  #buildEditedBtn { width: auto; flex: 0 0 auto; padding: 12px 20px; }
+
+  footer.note {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 28px;
+  }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 12px 16px; }
+    .brand-kicker { display: none; }
+    .field-row, .field-row.three { grid-template-columns: 1fr; }
+    .rail { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    .enhance-compare { grid-template-columns: 1fr; }
+    .image-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  }
+
+  /* ===================== auth (login/register) ===================== */
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    flex: 0 0 auto;
+  }
+  .user-badge-name { font-weight: 600; color: var(--text); }
+  .user-badge-role {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .user-badge-credits { font-family: var(--mono); }
+  .user-badge-logout {
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .user-badge-logout:hover { background: var(--bg-inset); color: var(--text); }
+
+  .auth-wrap {
+    max-width: 420px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .auth-card { padding: 32px 24px; text-align: center; }
+  .auth-headline {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 19px;
+    margin: 0 0 10px;
+  }
+  .auth-description { margin: 0 0 20px; }
+  .auth-error {
+    color: var(--error);
+    background: var(--error-soft);
+    border: 1px solid var(--error);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    margin: 0 0 14px;
+    text-align: right;
+  }
+  .google-signin-wrap { display: flex; justify-content: center; }
+
+  /* ===================== admin panel ===================== */
+  .admin-users-table { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .admin-user-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr auto;
+    gap: 8px;
+    align-items: center;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 13px;
+  }
+  .admin-user-row .admin-user-name { font-weight: 600; overflow-wrap: anywhere; }
+  .admin-user-row select,
+  .admin-user-row input[type="text"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    width: 100%;
+  }
+  .admin-user-row label.admin-blocked-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .admin-user-row .chip-btn { white-space: nowrap; }
+  @media (max-width: 640px) {
+    .admin-user-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ===================== site-text inline edit mode ===================== */
+  .site-text-editing [data-text-key] {
+    outline: 2px dashed var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+    cursor: text;
+    background: var(--accent-soft);
   }
 </style>
 </head>
 <body>
 
-<!-- ===================== AUTH SCREEN ===================== -->
-<div class="auth-shell" id="authScreen">
-  <div class="auth-card">
-    <div class="auth-mark">AI</div>
-    <h1>AI App Maker</h1>
-    <p class="sub" data-text-key="auth_sub">מתארים אפליקציית אנדרואיד במילים — ומקבלים APK מוכן להתקנה. אפשר גם לערוך, לתרגם ולצנזר אפליקציות קיימות.</p>
-    <div id="googleSignInButton"></div>
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-mark">AI App Maker</span>
+    <span class="brand-kicker">$ prompt → kotlin → dex → apk</span>
+  </div>
+  <div class="user-badge" id="userBadge" hidden>
+    <span class="user-badge-name" id="userBadgeName"></span>
+    <span class="user-badge-role" id="userBadgeRole"></span>
+    <span class="user-badge-credits" id="userBadgeCredits"></span>
+    <button type="button" class="user-badge-logout" id="logoutBtn">התנתקות</button>
+  </div>
+  <button type="button" class="new-chat-btn" id="newChatBtn" hidden>
+    <span class="plus" aria-hidden="true">+</span> שיחה חדשה
+  </button>
+</div>
+
+<!-- ===================== AUTH SCREEN (shown until logged in) ===================== -->
+<div class="auth-wrap" id="authScreen">
+  <section class="card auth-card">
+    <h2 class="auth-headline" data-text-key="auth_headline">ברוכים הבאים ל-AI App Maker</h2>
+    <p class="hint auth-description" data-text-key="auth_description">התחברו עם חשבון Google כדי להתחיל לבנות, לערוך, לתרגם ולצנזר אפליקציות אנדרואיד.</p>
     <p class="auth-error" id="authError" hidden></p>
+    <div class="google-signin-wrap" id="googleSignInButton"></div>
+  </section>
+</div>
+
+<div class="wrap" id="mainWrap" hidden>
+
+  <header class="page-head">
+    <p class="lede" data-text-key="lede">
+      תארו אפליקציית אנדרואיד, ערכו, תרגמו או צנזרו APK קיים. Gemini עושה את החשיבה והכתיבה,
+      GitHub Actions מקמפל וחותם APK אמיתי, והכל יורד אליכם ישירות מהדפדפן.
+    </p>
+  </header>
+
+  <div class="mode-tabs" role="tablist" aria-label="מצב עבודה" id="modeTabs">
+    <button type="button" class="mode-tab" role="tab" data-mode="build" aria-selected="true">
+      <span class="mode-tab-title" data-text-key="tab_build_title">בניית אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_build_sub">תיאור → APK חדש</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="edit" aria-selected="false">
+      <span class="mode-tab-title" data-text-key="tab_edit_title">עריכת אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_edit_sub">שינוי ב-APK קיים</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="translate" aria-selected="false">
+      <span class="mode-tab-title" data-text-key="tab_translate_title">תרגום אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_translate_sub">APK לשפה אחרת</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="censor" aria-selected="false">
+      <span class="mode-tab-title" data-text-key="tab_censor_title">צנזור אפליקציה</span>
+      <span class="mode-tab-sub" data-text-key="tab_censor_sub">החלפת / הסתרת תמונות</span>
+    </button>
+    <button type="button" class="mode-tab" role="tab" data-mode="admin" id="adminTabBtn" aria-selected="false" hidden>
+      <span class="mode-tab-title">ניהול</span>
+      <span class="mode-tab-sub">משתמשים, מחירים, טקסטים</span>
+    </button>
   </div>
-</div>
 
-<!-- ===================== MAIN APP ===================== -->
-<div class="app-shell" id="appShell" hidden>
+  <section class="card" id="creditCostsCard">
+    <p class="hint" id="creditCostsHint"></p>
+  </section>
 
-  <div class="side-backdrop" id="sideBackdrop"></div>
+  <section class="card">
+    <h2>חיבורים</h2>
+    <p class="hint" data-text-key="hint_connections">המפתחות נשארים בזיכרון הדפדפן בלבד ונשלחים ישירות ל-Google ול-GitHub — הם לא נשמרים ולא עוברים דרך שרת שלישי.</p>
 
-  <aside class="side" id="sidePanel">
-    <div class="side-head">
-      <div class="side-brand">
-        <div class="side-brand-mark">AI</div>
-        <div class="side-brand-text">App Maker</div>
+    <div id="manualCredentialFields">
+      <div class="field">
+        <label for="geminiKeys">Gemini API Keys <span class="req">*</span></label>
+        <textarea id="geminiKeys" class="mono-input key-mask" rows="2" autocomplete="off" placeholder="AIza…&#10;AIza…"></textarea>
+        <p class="hint" style="margin:6px 0 0;">מפתח אחד בכל שורה. כשיש כמה מפתחות, האתר מסובב ביניהם אוטומטית — כך המכסה החינמית של AI Studio מתחלקת בפועל בין כמה מפתחות, ואם מפתח נתקל במגבלת קצב (429) הבקשה עוברת אוטומטית למפתח הבא.</p>
       </div>
-      <button type="button" class="side-new-btn" id="sideNewBtn">
-        <span class="plus-badge">+</span> שיחה חדשה
-      </button>
-      <label class="side-search" id="sideSearchWrap">
-        🔍<input type="text" id="sideSearchInput" placeholder="חיפוש שיחות">
-      </label>
-    </div>
-    <div class="side-list" id="convListEl">
-      <p class="side-empty">עוד אין שיחות. שיחה חדשה תופיע כאן.</p>
-    </div>
-    <div class="side-foot">
-      <button type="button" class="side-foot-row" id="sideConnectionsBtn">
-        <span class="side-avatar">🔌</span>
-        <span class="side-user-info"><span class="side-user-name">חיבורים</span><span class="side-user-sub" id="connectionsSummary">Gemini · GitHub</span></span>
-      </button>
-      <button type="button" class="side-foot-row" id="sideInfoBtn">
-        <span class="side-avatar">ℹ️</span>
-        <span class="side-user-info"><span class="side-user-name">איך זה עובד / חתימת APK</span></span>
-      </button>
-      <button type="button" class="side-foot-row hidden" id="sideAdminBtn">
-        <span class="side-avatar">⚙️</span>
-        <span class="side-user-info"><span class="side-user-name">ניהול האתר</span></span>
-      </button>
-      <button type="button" class="side-foot-row" id="sideUserBtn">
-        <span class="side-avatar" id="sideAvatarInitial">?</span>
-        <span class="side-user-info">
-          <span class="side-user-name" id="sideUserName">—</span>
-          <span class="side-user-sub" id="sideUserSub">—</span>
-        </span>
-        <span class="icon-btn" id="sideLogoutBtn" title="התנתקות">⏻</span>
-      </button>
-    </div>
-  </aside>
+      <button type="button" class="toggle-keys" id="toggleKeys">הצג מפתחות</button>
 
-  <main class="main">
-    <div class="main-topbar">
-      <button type="button" class="icon-btn side-toggle-btn" id="sideToggleBtn">☰</button>
-      <div class="main-topbar-title" id="mainTopbarTitle"></div>
-      <span></span>
-    </div>
-
-    <!-- ---- empty state: project-type picker ---- -->
-    <div class="empty-wrap" id="emptyWrap">
-      <div class="empty-inner">
-        <h1 class="empty-greeting">מה <span class="accent-word">בונים</span> היום?</h1>
-        <p class="empty-sub">בוחרים סוג פרויקט, ואז ממשיכים בשיחה חופשית עם ה-AI — בדיוק כמו צ'אט.</p>
-        <div class="picker-grid">
-          <div class="picker-card" id="pickerBuildCard">
-            <div class="picker-card-icon">✨</div>
-            <p class="picker-card-title">בניית אפליקציה חדשה</p>
-            <p class="picker-card-desc">מתארים במילים מה האפליקציה צריכה לעשות, ומקבלים APK מוכן. אחר כך אפשר להמשיך ולבקש שדרוגים באותה שיחה.</p>
-          </div>
-          <div class="picker-card" id="pickerEditCard">
-            <div class="picker-card-icon">🛠️</div>
-            <p class="picker-card-title">עריכת אפליקציה קיימת</p>
-            <p class="picker-card-desc">מעלים קובץ APK קיים ומבקשים כל שינוי — צבעים, טקסטים, תכונות חדשות, תרגום או צנזור תמונות.</p>
-          </div>
-        </div>
+      <div class="field" style="margin-top:16px;">
+        <label for="githubToken">GitHub Token <span class="req">*</span></label>
+        <input type="password" id="githubToken" placeholder="github_pat_…" autocomplete="off">
       </div>
-    </div>
 
-    <!-- ---- resume-old-conversation notice (shown when a past conversation has no live APK in memory) ---- -->
-    <div class="resume-box hidden" id="resumeBox">
-      <span>📎</span>
-      <span>זו שיחה ישנה — כדי להמשיך לערוך את האפליקציה הזו צריך להעלות שוב את קובץ ה-APK.</span>
-      <button type="button" class="btn secondary small" id="resumeUploadBtn" style="margin-inline-start:auto;">העלאת APK</button>
-      <input type="file" id="resumeFileInput" accept=".apk" hidden>
-    </div>
-
-    <!-- ---- chat thread ---- -->
-    <div class="thread-wrap hidden" id="threadWrap">
-      <div class="thread" id="threadEl"></div>
-    </div>
-
-    <!-- ---- composer ---- -->
-    <div class="composer-wrap hidden" id="composerWrap">
-      <div class="composer-inner">
-
-        <!-- first turn of a brand-new "edit" conversation: upload before chatting -->
-        <div class="upload-drop hidden" id="firstUploadDrop">
-          <input type="file" id="firstUploadInput" accept=".apk">
-          <div class="upload-drop-icon">📦</div>
-          <div class="upload-drop-title">גררו לכאן קובץ APK, או לחצו לבחירה</div>
-          <div class="upload-drop-sub">משם אפשר לתאר בצ'אט מה לשנות</div>
+      <details class="proxy-details" style="margin-top:16px;">
+        <summary>כתובת פרוקסי ל-Gemini (אופציונלי — לרשתות עם סינון תוכן)</summary>
+        <div class="field" style="margin-top:10px;">
+          <label for="geminiProxyUrl">Proxy URL</label>
+          <input type="text" id="geminiProxyUrl" class="mono-input" placeholder="https://your-worker.your-subdomain.workers.dev" autocomplete="off">
+          <p class="hint" style="margin:6px 0 0;">
+            בסביבות עם סינון תוכן כמו אתרוג או נטפרי, הפנייה הישירה מהדפדפן ל-generativelanguage.googleapis.com
+            נחסמת לפעמים ברמת הרשת עצמה (לא קשור למפתחות או לקוד) — הפילטר מיירט את הבקשה ומחזיר עמוד
+            חסימה במקום את התשובה האמיתית מ-Google. אם זה קורה אצלכם: הריצו את הפרוקסי החינמי המצורף
+            (gemini-proxy-worker.js) כ-Cloudflare Worker משלכם, והדביקו כאן את כתובת ה-worker. שדה ריק =
+            פנייה ישירה כרגיל, בלי שום שינוי בהתנהגות.
+          </p>
         </div>
+      </details>
 
-        <div id="pendingFileRow" class="hidden" style="margin-bottom:10px;">
-          <span class="upload-file-chip">
-            <span id="pendingFileName"></span>
-            <button type="button" class="icon-btn" id="pendingFileClear" style="width:22px;height:22px;">✕</button>
-          </span>
-        </div>
-
-        <!-- translate sub-panel -->
-        <div class="inline-panel hidden" id="translatePanel">
-          <div class="inline-panel-head">
-            <span class="inline-panel-title">🌐 תרגום האפליקציה הנוכחית</span>
-            <button type="button" class="icon-btn" id="translatePanelClose">✕</button>
-          </div>
-          <div class="lang-row">
-            <input type="text" class="text-input" id="translateLangInput" placeholder="לאיזו שפה? לדוגמה: אנגלית, ספרדית…">
-            <button type="button" class="btn primary" id="translateSendBtn">תרגום</button>
-          </div>
-        </div>
-
-        <!-- censor sub-panel -->
-        <div class="inline-panel hidden" id="censorPanel">
-          <div class="inline-panel-head">
-            <span class="inline-panel-title">🖼️ עריכת תמונות / צנזור</span>
-            <button type="button" class="icon-btn" id="censorPanelClose">✕</button>
-          </div>
-          <p class="hint-text" id="censorScanStatus" style="margin-bottom:10px;">סורק תמונות…</p>
-          <div class="image-grid" id="imageGridEl"></div>
-          <button type="button" class="btn primary block" id="censorSendBtn" disabled>צור APK מצונזר</button>
-        </div>
-
-        <div class="composer-actions-row" id="composerActionsRow">
-          <button type="button" class="action-chip" id="chipTranslate">🌐 תרגום</button>
-          <button type="button" class="action-chip" id="chipCensor">🖼️ עריכת תמונות</button>
-          <span class="think-chip-group" id="thinkChipGroup">
-            <button type="button" class="think-chip" data-level="fast">מהיר</button>
-            <button type="button" class="think-chip active" data-level="medium">רגיל</button>
-            <button type="button" class="think-chip" data-level="deep">מעמיק</button>
-          </span>
-        </div>
-
-        <div class="composer-box">
-          <textarea id="composerInput" rows="1" placeholder="תארו את האפליקציה שתרצו לבנות…"></textarea>
-          <button type="button" class="composer-send-btn" id="composerSendBtn">➤</button>
-        </div>
-        <p class="composer-foot-hint" id="composerFootHint">AI App Maker יכול לטעות — בדקו את האפליקציה שנוצרה לפני שימוש בפועל.</p>
-      </div>
-    </div>
-  </main>
-</div>
-
-<!-- ===================== CONNECTIONS MODAL (BYOK settings) ===================== -->
-<div class="modal-overlay hidden" id="connectionsModal">
-  <div class="modal">
-    <div class="modal-head">
-      <h2>חיבורים</h2>
-      <button type="button" class="icon-btn" id="connectionsCloseBtn">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="pro-note hidden" id="proPlusConnectionsNote">מחובר עם הרשאות פרו — המפתחות והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</div>
-
-      <div id="manualCredentialFields">
+      <div class="field-row three" style="margin-top:16px;">
         <div class="field">
-          <label class="field-label" for="geminiKeys">Gemini API Keys (שורה לכל מפתח)</label>
-          <textarea class="textarea" id="geminiKeys" rows="3" placeholder="AIza…&#10;AIza…"></textarea>
+          <label for="owner">בעל הריפו <span class="req">*</span></label>
+          <input type="text" id="owner" placeholder="my-username">
         </div>
         <div class="field">
-          <label class="field-label" for="githubToken">GitHub Token</label>
-          <input type="password" class="text-input" id="githubToken" placeholder="ghp_…">
+          <label for="repo">שם הריפו <span class="req">*</span></label>
+          <input type="text" id="repo" placeholder="ai-app-maker">
         </div>
-        <div class="reveal-row"><button type="button" class="btn ghost small" id="toggleKeys">הצג מפתחות</button></div>
         <div class="field">
-          <label class="field-label" for="geminiProxyUrl">כתובת פרוקסי ל-Gemini (אופציונלי)</label>
-          <input type="text" class="text-input" id="geminiProxyUrl" placeholder="ריק = ישירות לגוגל">
+          <label for="branch">ברנץ'</label>
+          <input type="text" id="branch" value="main">
+        </div>
+      </div>
+    </div>
+
+    <p class="hint" id="proPlusConnectionsNote" hidden>מחובר עם הרשאות פרו - המפתחות והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</p>
+  </section>
+
+  <!-- ===================== BUILD MODE ===================== -->
+  <section class="mode-panel" id="panel-build">
+    <section class="card">
+      <h2>מה בונים?</h2>
+      <p class="hint" data-text-key="hint_build">מסך יחיד, UI שנבנה בקוד (בלי קבצי layout) — כדי שהצנרת תישאר פשוטה ואמינה.</p>
+      <div class="field">
+        <label for="idea">תיאור האפליקציה <span class="req">*</span></label>
+        <textarea id="idea" placeholder="לדוגמה: אפליקציה שמטילה מטבע ומציגה את התוצאה עם אנימציה קצרה"></textarea>
+      </div>
+      <div class="field">
+        <label>רמת חשיבה</label>
+        <div class="think-toggle" id="thinkToggle" role="radiogroup" aria-label="רמת חשיבה">
+          <button type="button" class="think-btn" data-level="fast">מהיר</button>
+          <button type="button" class="think-btn active" data-level="medium">בינוני</button>
+          <button type="button" class="think-btn" data-level="deep">עמוק</button>
+        </div>
+        <p class="hint" style="margin:6px 0 0;">עמוק = Gemini "חושב" יותר לפני שהוא כותב קוד — איכות ומורכבות גבוהות יותר, אבל איטי יותר וצורך יותר קרדיטים. מהיר = מסך בסיסי, כמעט מיידי.</p>
+      </div>
+      <button type="button" class="primary" id="goBtn">Generate &amp; Build</button>
+    </section>
+
+    <section class="card">
+      <h2>צנרת הבנייה</h2>
+      <div class="rail" id="rail">
+        <div class="rail-node" data-key="enhance" data-state="pending">
+          <div class="rail-dot">1</div>
+          <div class="rail-label">enhance</div>
+        </div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="gemini" data-state="pending">
+          <div class="rail-dot">2</div>
+          <div class="rail-label">generate</div>
+        </div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="commit" data-state="pending">
+          <div class="rail-dot">3</div>
+          <div class="rail-label">commit</div>
+        </div>
+        <div class="rail-line" data-key="line-3" data-state="pending"></div>
+        <div class="rail-node" data-key="actions" data-state="pending">
+          <div class="rail-dot">4</div>
+          <div class="rail-label">build</div>
+        </div>
+        <div class="rail-line" data-key="line-4" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending">
+          <div class="rail-dot">5</div>
+          <div class="rail-label">ready</div>
         </div>
       </div>
 
+      <div class="question-card" id="questionCard">
+        <div class="question-head">
+          <p class="question-title" id="qTitle"></p>
+          <div class="question-pager">
+            <button type="button" id="qPrev" aria-label="שאלה קודמת">›</button>
+            <span id="qPagerLabel"></span>
+            <button type="button" id="qNext" aria-label="שאלה הבאה">‹</button>
+          </div>
+        </div>
+        <div class="question-options" id="qOptions"></div>
+        <div class="question-other">
+          <input type="text" id="qOtherInput" placeholder="משהו אחר…">
+          <button type="button" id="qOtherBtn">שלח</button>
+        </div>
+        <div class="question-foot">
+          <button type="button" class="question-skip" id="qSkipBtn">דלג על השאלה</button>
+        </div>
+      </div>
+
+      <div class="enhance-box" id="enhanceBox">
+        <p class="enhance-title">Gemini הציע ניסוח משופר לתיאור שלכם — להשתמש בו?</p>
+        <div class="enhance-compare">
+          <div>
+            <span class="enhance-col-label">מקורי</span>
+            <p class="enhance-text" id="enhanceOriginalText"></p>
+          </div>
+          <div>
+            <span class="enhance-col-label">משופר</span>
+            <p class="enhance-text" id="enhanceImprovedText"></p>
+          </div>
+        </div>
+        <div class="enhance-actions">
+          <button type="button" class="primary" id="useImprovedBtn">השתמש בגרסה המשופרת</button>
+          <button type="button" class="secondary" id="keepOriginalBtn">השאר את המקורי</button>
+        </div>
+      </div>
+
+      <div class="log" id="log">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+
+      <div class="download-box" id="downloadBox">
+        <div class="app-preview">
+          <div class="app-icon-preview" id="appIconPreview"></div>
+          <div class="msg">האפליקציה מוכנה: <strong id="appLabelPreview">app-release.apk</strong></div>
+        </div>
+        <a href="#" class="download-btn" id="downloadLink" download="app-release.apk">הורד אפליקציה מוכנה</a>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== EDIT MODE (real decompile) ===================== -->
+  <section class="mode-panel" id="panel-edit" hidden>
+    <section class="card">
+      <h2>עריכת אפליקציה — שינוי קוד קיים</h2>
+      <p class="hint" data-text-key="hint_edit">
+        עובד על כל APK: מפרק אותו לקוד smali קריא ומשאבים מפוענחים (apktool), נותן ל-Gemini לבחור
+        ולשנות רק את הקבצים הרלוונטיים לבקשה, ובונה APK חדש וחתום. <strong>ניסיוני</strong> — עריכת
+        smali ע"י AI עובדת הכי טוב על שינויים ממוקדים באפליקציות לא-מעורבלות (non-obfuscated);
+        שינויים גדולים או אפליקציות מורכבות עלולים להיכשל למרות ניסיון התיקון האוטומטי. משתמש ברמת
+        החשיבה שנבחרה בטאב "בניית אפליקציה".
+      </p>
+      <div class="field">
+        <label for="editApkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <input type="file" id="editApkFile" accept=".apk">
+      </div>
+      <div class="field">
+        <label for="editInstruction">מה לשנות? <span class="req">*</span></label>
+        <textarea id="editInstruction" placeholder="לדוגמה: תחליפו את הצבע הראשי של הכפתורים לכחול, ותוסיפו רטט קצר בלחיצה"></textarea>
+      </div>
+      <button type="button" class="primary" id="editGoBtn">פרק, ערוך ובנה מחדש</button>
+    </section>
+
+    <section class="card">
+      <h2>צנרת העריכה</h2>
+      <div class="rail" id="railEditDecompile">
+        <div class="rail-node" data-key="decompile" data-state="pending"><div class="rail-dot">1</div><div class="rail-label">decompile</div></div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="locate" data-state="pending"><div class="rail-dot">2</div><div class="rail-label">locate</div></div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="patch" data-state="pending"><div class="rail-dot">3</div><div class="rail-label">patch</div></div>
+        <div class="rail-line" data-key="line-3" data-state="pending"></div>
+        <div class="rail-node" data-key="commit" data-state="pending"><div class="rail-dot">4</div><div class="rail-label">commit</div></div>
+        <div class="rail-line" data-key="line-4" data-state="pending"></div>
+        <div class="rail-node" data-key="rebuild" data-state="pending"><div class="rail-dot">5</div><div class="rail-label">rebuild</div></div>
+        <div class="rail-line" data-key="line-5" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending"><div class="rail-dot">6</div><div class="rail-label">ready</div></div>
+      </div>
+      <div class="log" id="logEditDecompile">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+      <div class="download-box" id="downloadBoxEditDecompile">
+        <div class="msg">ה-APK הערוך מוכן: <strong>app-recompiled-release.apk</strong></div>
+        <a href="#" class="download-btn" id="downloadLinkEditDecompile" download="app-edited-decompiled-release.apk">הורד APK ערוך</a>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== TRANSLATE MODE (real decompile) ===================== -->
+  <section class="mode-panel" id="panel-translate" hidden>
+    <section class="card">
+      <h2>תרגום אפליקציה</h2>
+      <p class="hint" data-text-key="hint_translate">
+        עובד על כל APK: מפרק אותו (apktool), שולף את כל מחרוזות הטקסט מתוך res/values/strings.xml,
+        מתרגם עם Gemini, ומוסיף תיקיית שפה חדשה לצד המקור — כך שהאפליקציה תומכת גם בשפה החדשה וגם
+        במקורית. לא נוגע בקוד בכלל, ולכן אמין משמעותית יותר מ"עריכת אפליקציה".
+      </p>
+      <div class="field">
+        <label for="translateApkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <input type="file" id="translateApkFile" accept=".apk">
+      </div>
+      <div class="field">
+        <label for="targetLanguage">לאיזו שפה לתרגם? <span class="req">*</span></label>
+        <input type="text" id="targetLanguage" placeholder="לדוגמה: אנגלית, ספרדית, French…">
+      </div>
+      <button type="button" class="primary" id="translateGoBtn">פרק, תרגם ובנה מחדש</button>
+    </section>
+
+    <section class="card">
+      <h2>צנרת התרגום</h2>
+      <div class="rail" id="railTranslate">
+        <div class="rail-node" data-key="decompile" data-state="pending"><div class="rail-dot">1</div><div class="rail-label">decompile</div></div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="strings" data-state="pending"><div class="rail-dot">2</div><div class="rail-label">strings</div></div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="translate" data-state="pending"><div class="rail-dot">3</div><div class="rail-label">translate</div></div>
+        <div class="rail-line" data-key="line-3" data-state="pending"></div>
+        <div class="rail-node" data-key="commit" data-state="pending"><div class="rail-dot">4</div><div class="rail-label">commit</div></div>
+        <div class="rail-line" data-key="line-4" data-state="pending"></div>
+        <div class="rail-node" data-key="rebuild" data-state="pending"><div class="rail-dot">5</div><div class="rail-label">rebuild</div></div>
+        <div class="rail-line" data-key="line-5" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending"><div class="rail-dot">6</div><div class="rail-label">ready</div></div>
+      </div>
+      <div class="log" id="logTranslate">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+      <div class="download-box" id="downloadBoxTranslate">
+        <div class="msg">ה-APK המתורגם מוכן: <strong>app-recompiled-release.apk</strong></div>
+        <a href="#" class="download-btn" id="downloadLinkTranslate" download="app-translated-release.apk">הורד APK מתורגם</a>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== CENSOR MODE ===================== -->
+  <section class="mode-panel" id="panel-censor" hidden>
+    <section class="card">
+      <h2>צנזור אפליקציה — תמונות</h2>
+      <p class="hint" data-text-key="hint_censor">
+        העלו APK קיים (למשל אפליקציה שכבר בניתם) כדי לראות את כל קבצי התמונות שבתוכו,
+        ולהחליף או לצנזר (לרוקן) תמונות לא צנועות לפני העלאה לגוגל פליי. הסריקה והעריכה
+        קורות כאן בדפדפן בלבד; ה-APK הערוך נשלח באמצעות ה-GitHub Token והריפו שמולאו למעלה
+        ב"חיבורים" (לא צריך Gemini key לשלב הזה), כדי ש-GitHub Actions ייישר (zipalign) ויחתום
+        (apksigner) אותו מחדש — בלי זה ה-APK לא יתקין, כי כל שינוי בקבצים מבטל את החתימה המקורית.
+        מחיקת תמונה לא מסירה את הקובץ אלא מחליפה אותו בתמונה שקופה ריקה, כדי לא לשבור הפניות
+        למשאב הזה בקוד של האפליקציה.
+      </p>
+
+      <div class="field">
+        <label for="apkFile">קובץ APK להעלאה <span class="req">*</span></label>
+        <input type="file" id="apkFile" accept=".apk">
+      </div>
+      <p class="edit-status muted" id="editScanStatus"></p>
+
+      <div class="image-grid" id="imageGrid" hidden></div>
+
+      <div class="edit-summary" id="editSummary" hidden>
+        <p class="hint" id="editSummaryText">לא סומנו שינויים עדיין.</p>
+        <button type="button" class="primary" id="buildEditedBtn" disabled>צור APK מצונזר</button>
+      </div>
+
+      <div class="rail" id="railEdit">
+        <div class="rail-node" data-key="commit" data-state="pending">
+          <div class="rail-dot">1</div>
+          <div class="rail-label">commit</div>
+        </div>
+        <div class="rail-line" data-key="line-1" data-state="pending"></div>
+        <div class="rail-node" data-key="actions" data-state="pending">
+          <div class="rail-dot">2</div>
+          <div class="rail-label">sign</div>
+        </div>
+        <div class="rail-line" data-key="line-2" data-state="pending"></div>
+        <div class="rail-node" data-key="apk" data-state="pending">
+          <div class="rail-dot">3</div>
+          <div class="rail-label">ready</div>
+        </div>
+      </div>
+
+      <div class="log" id="logEdit">
+        <div class="log-row muted"><span class="log-dot"></span><span class="msg">ממתין להתחלה…</span></div>
+      </div>
+
+      <div class="download-box" id="downloadBoxEdit">
+        <div class="msg">ה-APK המצונזר מוכן: <strong>app-edited-release.apk</strong></div>
+        <a href="#" class="download-btn" id="downloadLinkEdit" download="app-edited-release.apk">הורד APK מצונזר</a>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== ADMIN MODE (visible only to role=admin) ===================== -->
+  <section class="mode-panel" id="panel-admin" hidden>
+    <section class="card">
+      <h2>משתמשים</h2>
+      <p class="hint">שינוי תפקיד, קרדיטים או חסימה נשמר מיד עם לחיצה על "שמור" באותה שורה.</p>
+      <button type="button" class="secondary" id="adminRefreshUsersBtn" style="width:auto; padding:10px 16px;">רענון רשימה</button>
+      <div id="adminUsersTable" class="admin-users-table"></div>
+    </section>
+
+    <section class="card">
+      <h2>מחירים והוראות מערכת</h2>
+      <p class="hint">עלות בקרדיטים לכל פעולה, ברירת המחדל למשתמש חדש, והוראות שיתווספו אוטומטית לכל פנייה ל-Gemini של משתמשי פרו ומעלה.</p>
       <div class="field-row">
-        <div class="field"><label class="field-label" for="owner">בעל ה-Repo</label><input type="text" class="text-input" id="owner"></div>
-        <div class="field"><label class="field-label" for="repo">שם ה-Repo</label><input type="text" class="text-input" id="repo"></div>
+        <div class="field">
+          <label for="adminCostBuild">בניית אפליקציה</label>
+          <input type="text" id="adminCostBuild" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="adminCostEdit">עריכת אפליקציה</label>
+          <input type="text" id="adminCostEdit" inputmode="numeric">
+        </div>
       </div>
-      <div class="field"><label class="field-label" for="branch">Branch</label><input type="text" class="text-input" id="branch" placeholder="main"></div>
-      <p class="hint-text" id="creditCostsHint"></p>
-    </div>
-    <div class="modal-foot">
-      <button type="button" class="btn secondary" id="connectionsDoneBtn">סגירה</button>
-    </div>
-  </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="adminCostTranslate">תרגום אפליקציה</label>
+          <input type="text" id="adminCostTranslate" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="adminCostCensor">צנזור אפליקציה</label>
+          <input type="text" id="adminCostCensor" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field">
+        <label for="adminDefaultCredits">קרדיטים למשתמש רגיל חדש</label>
+        <input type="text" id="adminDefaultCredits" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="adminSystemInstructions">הוראות מערכת (לכל המשתמשים)</label>
+        <textarea id="adminSystemInstructions" rows="4" placeholder="לדוגמה: תמיד תעדיפו פלטת צבעים חמה, ותוסיפו תמיכה בעברית לכל אפליקציה."></textarea>
+      </div>
+      <button type="button" class="primary" id="adminSaveConfigBtn">שמירת הגדרות</button>
+      <p class="edit-status" id="adminConfigStatus"></p>
+    </section>
+
+    <section class="card">
+      <h2>עריכת טקסטים באתר</h2>
+      <p class="hint">כשמצב העריכה פעיל, כל טקסט מסומן (הכותרות, ההסברים והפוטר) הופך לניתן-לעריכה ישירות בעמוד - לוחצים על הטקסט, משנים, ולוחצים מחוץ לו כדי לשמור.</p>
+      <button type="button" class="secondary" id="siteTextEditToggle" style="width:auto; padding:10px 16px;">הפעלת מצב עריכת טקסטים</button>
+      <p class="edit-status" id="siteTextEditStatus"></p>
+    </section>
+  </section>
+
+  <footer class="note" data-text-key="footer_note">
+    הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX וללא XML layouts — זה מה שמאפשר build בלי Gradle.
+    ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
+    ה-APK מטאבים "צנזור אפליקציה", "עריכת אפליקציה" ו"תרגום אפליקציה" נחתם בנפרד עם apksigner, באותה שיטה בדיוק כמו הבנייה
+    הרגילה: מפתח דיבאג <strong>חדש ואקראי בכל ריצה</strong> (לא keystore קבוע). המשמעות: כל APK שיוצא מהכלי הזה — מכל טאב —
+    חתום במפתח שונה מכל APK קודם, כולל קודמים מהכלי הזה עצמו. להתקנה ראשונה זה לא משנה; אבל כדי להתקין גרסה חדשה <em>מעל</em>
+    התקנה קיימת על אותו מכשיר (במקום למחוק ולהתקין מחדש ולאבד נתונים), חובה שיהיה אותו מפתח חתימה — כלומר עדכון-במקום לא
+    יעבוד בין שתי הרצות של הכלי. לפרסום עם עדכונים עתידיים אמיתי (גוגל פליי או התקנה חוזרת על אותו מכשיר) צריך keystore קבוע
+    ולשנות את workflow-י ה-sign כדי שישתמשו בו במקום ביצירת מפתח חדש בכל פעם — תגידו אם תרצו שאבנה את זה.
+  </footer>
+
 </div>
 
-<!-- ===================== conversation transcript modal (admin "view") ===================== -->
-<div class="modal-overlay hidden" id="convViewModal">
-  <div class="modal wide">
-    <div class="modal-head">
-      <div>
-        <h2 id="convViewTitle">שיחה</h2>
-        <p class="hint-text" id="convViewSub"></p>
-      </div>
-      <button type="button" class="icon-btn" id="convViewCloseBtn">✕</button>
-    </div>
-    <div class="modal-body" id="convViewBody"></div>
-  </div>
-</div>
+<script>
+(function () {
+  "use strict";
 
-<!-- ===================== ADMIN SCREEN ===================== -->
-<div class="admin-shell" id="adminScreen">
-  <div class="admin-topbar">
-    <h1>ניהול האתר</h1>
-    <button type="button" class="btn secondary small" id="adminBackBtn">חזרה לצ'אט</button>
-  </div>
-  <div class="admin-body">
-    <div class="admin-inner">
-      <div class="admin-nav" id="adminNav">
-        <button type="button" class="admin-nav-item" data-panel="users">משתמשים</button>
-        <button type="button" class="admin-nav-item" data-panel="config">הגדרות</button>
-        <button type="button" class="admin-nav-item" data-panel="sitetext">טקסטים באתר</button>
-        <button type="button" class="admin-nav-item" data-panel="conversations">כל השיחות</button>
-        <button type="button" class="admin-nav-item" data-panel="apikeys">מפתחות API</button>
-      </div>
+  // Update this if Google renames/deprecates the model — check ai.google.dev/api/models.
+  const GEMINI_MODEL = "gemini-3.5-flash";
+  const WORKFLOW_FILE = "build-apk.yml";
+  const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
+  const POLL_INTERVAL_MS = 5000;
+  const POLL_TIMEOUT_MS = 10 * 60 * 1000;
+  const MAX_AUTO_FIX_ATTEMPTS = 2;
+  const MAX_LOG_CHARS = 6000;
+  const MAX_GITHUB_READ_ATTEMPTS = 3;
+  const GITHUB_RETRY_DELAY_MS = 1500;
 
-      <div class="admin-panel" id="admin-panel-users">
-        <div class="admin-card">
-          <h2>משתמשים</h2>
-          <p class="hint-text">ניהול תפקידים, קרדיטים וחסימות.</p>
-          <button type="button" class="btn secondary small" id="adminRefreshUsersBtn" style="margin-bottom:14px;">רענון</button>
-          <table class="data-table">
-            <thead><tr><th>אימייל</th><th>שם</th><th>תפקיד</th><th>קרדיטים</th><th>חסום</th><th></th></tr></thead>
-            <tbody id="adminUsersTable"></tbody>
-          </table>
-        </div>
-      </div>
+  // ---- backend (Google Apps Script) — holds the real Gemini/GitHub secrets for
+  // pro/superpro/admin users; regular users still bring their own keys directly. ----
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwNtbe8mmUFa6Xq9mUXSG19sNn6oEGdW7Y8iFuDRKGEZo6nAGLKTOju25Dc-XGVwIqI/exec";  const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
+  const UNLIMITED_ROLES = ["superpro", "admin"]; // roles the credit system never touches
 
-      <div class="admin-panel" id="admin-panel-config">
-        <div class="admin-card">
-          <h2>הגדרות</h2>
-          <div class="field-row">
-            <div class="field"><label class="field-label">עלות בנייה</label><input type="number" class="text-input" id="adminCostBuild"></div>
-            <div class="field"><label class="field-label">עלות עריכה</label><input type="number" class="text-input" id="adminCostEdit"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label class="field-label">עלות תרגום</label><input type="number" class="text-input" id="adminCostTranslate"></div>
-            <div class="field"><label class="field-label">עלות צנזור</label><input type="number" class="text-input" id="adminCostCensor"></div>
-          </div>
-          <div class="field"><label class="field-label">קרדיטים התחלתיים</label><input type="number" class="text-input" id="adminDefaultCredits"></div>
-          <div class="field"><label class="field-label">הוראות מערכת נוספות</label><textarea class="textarea" id="adminSystemInstructions" rows="3"></textarea></div>
-          <button type="button" class="btn primary" id="adminSaveConfigBtn">שמירה</button>
-          <p class="status-line" id="adminConfigStatus"></p>
-        </div>
-      </div>
+  // currentUser: null when logged out, else { token, username, role, credits }.
+  // credits is a number for regular/pro, or the string "unlimited" for superpro/admin.
+  let currentUser = null;
+  // publicInfo: fetched once on page load (no login needed) — current credit
+  // costs, the shared github owner/repo/branch (for pro+ users), and any
+  // admin-edited site text. Filled in by loadPublicInfo() at the bottom of this file.
+  let publicInfo = { creditCosts: {}, githubOwner: "", githubRepo: "", githubBranch: "", siteText: {} };
 
-      <div class="admin-panel" id="admin-panel-sitetext">
-        <div class="admin-card">
-          <h2>עריכת טקסטים באתר</h2>
-          <p class="hint-text">כשמצב העריכה פעיל, טקסטים מסומנים באתר הופכים לניתנים-לעריכה ישירות: לוחצים, משנים, ולוחצים מחוץ לטקסט כדי לשמור.</p>
-          <button type="button" class="btn secondary" id="siteTextEditToggle">הפעלת מצב עריכת טקסטים</button>
-          <p class="status-line" id="siteTextEditStatus"></p>
-        </div>
-      </div>
+  // ---- decompile-based pipelines (edit & translate modes) ----
+  const DECOMPILE_WORKFLOW_FILE = "decompile-apk.yml";
+  const REBUILD_WORKFLOW_FILE = "rebuild-apk.yml";
+  const DECOMPILE_SOURCE_PATH = "decompile_source/source.apk";
+  const DECOMPILED_APP_DIR = "decompiled_app";
+  const REBUILD_ARTIFACT_NAME = "app-recompiled-release.apk";
+  const MAX_EDIT_CANDIDATE_FILES = 60; // path list shown to Gemini when it picks what to open
+  const MAX_EDIT_PATCH_FILES = 6;      // hard cap on files Gemini may rewrite per attempt
+  const MAX_DECOMPILE_AUTO_FIX_ATTEMPTS = 2;
+  // Own-app smali usually lives under a path matching the manifest's package name; these
+  // path fragments are common third-party SDKs/libraries that are almost never what a user
+  // means by "edit my app", so they're filtered out even if they happen to match the package.
+  const THIRD_PARTY_PACKAGE_PREFIXES = [
+    "/androidx/", "/com/google/", "/kotlin/", "/kotlinx/", "/okhttp3/", "/okio/", "/retrofit2/",
+    "/com/facebook/", "/com/bumptech/", "/com/squareup/", "/org/jetbrains/",
+  ];
 
-      <div class="admin-panel" id="admin-panel-conversations">
-        <div class="admin-card">
-          <h2>כל השיחות</h2>
-          <p class="hint-text">היסטוריית השיחות של כל המשתמשים באתר.</p>
-          <button type="button" class="btn secondary small" id="adminRefreshConvBtn" style="margin-bottom:14px;">רענון</button>
-          <div id="adminConvListEl"></div>
-        </div>
-      </div>
+  // Thinking-budget tokens per level. Gemini's exact thinking-budget parameter name/limits for
+  // GEMINI_MODEL can change — if you see a 400 error mentioning "thinkingConfig", check the
+  // current AI Studio docs for this model and adjust the field name/values below.
+  const THINK_BUDGETS = { fast: 0, medium: 4096, deep: 16384 };
 
-      <div class="admin-panel" id="admin-panel-apikeys">
-        <div class="admin-card">
-          <h2>מפתחות API — פרו וסופר-פרו</h2>
-          <p class="hint-text">מפתחות Gemini המשמשים אוטומטית את כל משתמשי הפרו/סופר-פרו/מנהל דרך השרת. אף פעם לא נחשפים למשתמשים רגילים.</p>
-          <div id="adminApiKeysListEl"></div>
-          <div class="add-row">
-            <input type="text" class="text-input" id="adminNewApiKeyInput" placeholder="AIza…">
-            <button type="button" class="btn secondary" id="adminAddApiKeyBtn">הוספה</button>
-          </div>
-          <button type="button" class="btn primary" id="adminSaveApiKeysBtn" style="margin-top:14px;">שמירת מפתחות</button>
-          <p class="status-line" id="adminApiKeysStatus"></p>
-        </div>
-      </div>
+  const STAGE_ORDER = ["enhance", "gemini", "commit", "actions", "apk"];
+  const EDIT_STAGE_ORDER = ["commit", "actions", "apk"];
 
-    </div>
-  </div>
-</div>
+  const IMAGE_EXT_RE = /\.(png|jpg|jpeg|gif|webp|bmp)$/i;
+  // 1x1 fully-transparent PNG, used to "censor" (blank out) a deleted image
+  // without removing its zip entry — removing it outright could crash the
+  // app if some resource lookup still points at that exact path.
+  const TRANSPARENT_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=";
+  const TRANSPARENT_PNG_BYTES = Uint8Array.from(atob(TRANSPARENT_PNG_BASE64), (c) => c.charCodeAt(0));
 
-<footer style="display:none" data-text-key="footer_note">
-  הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX וללא XML layouts — זה מה שמאפשר build בלי Gradle.
-  ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
-  ה-APK מטאבים "צנזור אפליקציה", "עריכת אפליקציה" ו"תרגום אפליקציה" נחתם בנפרד עם apksigner, באותה שיטה בדיוק כמו הבנייה
-  הרגילה: מפתח דיבאג <strong>חדש ואקראי בכל ריצה</strong> (לא keystore קבוע). המשמעות: כל APK שיוצא מהכלי הזה — מכל טאב —
-  חתום במפתח שונה מכל APK קודם, כולל קודמים מהכלי הזה עצמו. להתקנה ראשונה זה לא משנה; אבל כדי להתקין גרסה חדשה <em>מעל</em>
-  התקנה קיימת על אותו מכשיר (במקום למחוק ולהתקין מחדש ולאבד נתונים), חובה שיהיה אותו מפתח חתימה — כלומר עדכון-במקום לא
-  יעבוד בין שתי הרצות של הכלי. לפרסום עם עדכונים עתידיים אמיתי (גוגל פליי או התקנה חוזרת על אותו מכשיר) צריך keystore קבוע
-  ולשנות את workflow-י ה-sign כדי שישתמשו בו במקום ביצירת מפתח חדש בכל פעם — תגידו אם תרצו שאבנה את זה.
-</footer>
+  const SYSTEM_INSTRUCTIONS = `You are an Android app code generator for a from-scratch build pipeline
+(no Gradle, no AndroidX, no external dependencies, no XML layout resources). Output ONLY a raw JSON
+object - no markdown fences, no commentary - with exactly three string fields: "manifest", "kotlin",
+and "icon".
 
+Hard constraints (never break these - the build pipeline depends on them):
+- Package name must be exactly: com.aiapp.generated
+- The Kotlin file must start with "package com.aiapp.generated" and define a single class
+  "MainActivity" that extends android.app.Activity (NOT AppCompatActivity, NOT anything from
+  androidx.* or com.google.android.material.* - those libraries are not available in this build).
+- Build the entire UI programmatically inside onCreate() via setContentView(...) using plain
+  android.widget / android.view views. The Kotlin code must not reference any @layout/@id/@string/
+  @drawable resource - build everything in code. The only resource file in this project is the
+  launcher icon described below; nothing else in res/ exists, so all colors/shapes/states must be
+  set with code-built Drawables (GradientDrawable, ColorDrawable, StateListDrawable, LayerDrawable),
+  never with XML drawable resources.
+- The manifest must declare xmlns:android, must NOT include a <uses-sdk> element (the build script
+  sets min/target SDK itself), must declare MainActivity with an intent-filter containing action
+  MAIN and category LAUNCHER so the app appears on the home screen, and must set
+  android:icon="@drawable/ic_launcher" on <application> to use the generated icon below.
+- Give <application> a short, human-friendly android:label (a literal string, not a @string
+  reference) that reflects the app idea.
+- Keep it to this single Activity/screen. No network calls, no permissions beyond what the
+  requested feature strictly needs, no third-party libraries, nothing that needs a Gradle/Maven
+  dependency.
+
+Quality bar - within the constraints above, make the app feel like a genuinely finished product,
+not a skeleton:
+- A real, considered layout: nested LinearLayout/FrameLayout, sensible padding/margins converted
+  to pixels via resources.displayMetrics.density (never raw hardcoded pixels), a ScrollView when
+  content might overflow, and a clear visual hierarchy instead of default-styled stacked views.
+- Polished visuals built entirely in code: rounded corners and fills via GradientDrawable,
+  pressed/focused feedback via StateListDrawable, elevation for depth, a coherent small color
+  palette that fits the app's theme rather than default gray widgets.
+- Real interactivity and state: the app should actually respond to input, validate it, show clear
+  feedback (Toast, text/color changes, simple animations via ValueAnimator or view.animate()), and
+  persist anything that should survive a restart with SharedPreferences.
+- Correct lifecycle handling: restore transient UI state in onCreate from savedInstanceState and
+  implement onSaveInstanceState so rotation doesn't lose progress; guard anything that could throw
+  (parsing input, array/index access, nullable results) with sensible checks instead of crashing.
+- Use the specific framework APIs the idea calls for, always via plain android.* packages, never
+  androidx.* - e.g. a custom View overriding onDraw()+Canvas for drawing/visualization/games,
+  Handler.postDelayed or ValueAnimator for timers and animation loops, SensorManager for motion,
+  MediaPlayer/SoundPool/Vibrator for feedback, TextWatcher for live input validation.
+- If the idea is small, keep it complete and polished rather than padding it with unrelated
+  features; if it leaves room for small, clearly useful additions (a reset button, a short history
+  of past results, a settings toggle), include them as long as they fit on one screen and don't
+  need anything outside the constraints above.
+
+"icon": a complete, valid Android vector drawable XML document for the launcher icon - a simple,
+colorful symbol that visually reflects the app idea. Must be a single root <vector> element with
+xmlns:android="http://schemas.android.com/apk/res/android", android:width="108dp",
+android:height="108dp", android:viewportWidth="108", android:viewportHeight="108", containing
+one background <path> (e.g. a filled rounded square or circle) plus 1-3 simple foreground
+<path> elements, each with android:fillColor as a hex color and android:pathData. No text, no
+gradients, no raster images, no references to other resources - only <vector> and <path>.`;
+
+  const ANALYZE_INSTRUCTIONS = `You are a product analyst preparing a short Android app idea before
+it is turned into real code by another AI step. Output ONLY a raw JSON object - no markdown fences,
+no commentary - with exactly two fields: "questions" and "improved".
+
+"questions": an array of AT MOST 3 short clarifying multiple-choice questions to ask the user - ONLY
+include a question if the answer would meaningfully change what gets built (a real fork in
+functionality, not a cosmetic detail). If the idea is already clear and specific enough to build,
+return an empty array. Each question object has exactly two fields:
+  - "question": one short sentence, in the same language the user wrote in.
+  - "options": 3 or 4 short answer choices (a few words each), in the same language as the
+    question, covering the realistic range of what the user might mean. Do not add a "something
+    else" or "skip" option yourself - the interface already adds those automatically.
+
+"improved": a clearer, more complete rewrite of the SAME app idea - same core concept, same
+single-screen scope - spelling out concrete UI elements, states/behavior and edge cases, written in
+the same language the user used. If you returned any questions, still fill this in using your best
+default assumption for anything you asked about. Do not turn it into a different app, do not add
+features the user didn't imply, do not mention that you are an AI or that this is a rewritten
+prompt. No preamble, no markdown, no quotes around it.`;
+
+  const FIX_INSTRUCTIONS = `You are fixing an Android app build that failed. You will get the
+original app idea, the manifest/kotlin/icon that were generated for it, and a build error log.
+Output ONLY a raw JSON object - no markdown fences, no commentary - with exactly three string
+fields: "manifest", "kotlin", and "icon", following the exact same hard constraints as the original
+generation: package com.aiapp.generated, a single MainActivity extending android.app.Activity built
+entirely in code with plain android.widget/android.view views (no AndroidX, no XML layouts, no
+@layout/@id/@string/@drawable references besides the one launcher icon), a manifest with no
+<uses-sdk> and a MAIN/LAUNCHER intent-filter, and a single <vector> icon.
+
+Find the actual root cause in the error log (a real compile error, not a warning) and fix ONLY what
+is needed to make it build, while keeping the app's functionality and intent as close as possible
+to the original. If the log does not clearly show a fixable Kotlin/manifest problem, make the code
+more defensive and conservative (simpler view tree, no risky APIs) rather than guessing randomly.`;
+
+  const TRANSLATE_INSTRUCTIONS = `You are localizing an Android app's string resources. You will
+receive a target language (as free text, possibly in Hebrew or any other language) and a JSON object
+mapping Android string-resource names to their original text. Output ONLY a raw JSON object - no
+markdown fences, no commentary - with exactly two fields:
+
+"langCode": the correct Android resource-qualifier language code for the requested target language
+(e.g. "en", "es", "fr", "de", "ar", "ru", "pt", "ja") - lowercase ISO 639-1 when one exists.
+
+"translations": an object with EXACTLY the same keys as the input mapping, where each value is the
+natural, idiomatic translation of the corresponding original text into the target language. Preserve
+any placeholders exactly as-is (things like %s, %1$s, %d, {0}, \\n) in the same position/role they had
+in the original - these are format specifiers the app fills in at runtime and must survive untouched.
+Keep roughly the same tone/length category (a short button label should stay short). Do not translate
+the resource NAMES (the JSON keys), only the values. No preamble, no markdown.`;
+
+  const LOCATE_FILES_INSTRUCTIONS = `You are about to edit an Android app that has been decompiled
+with apktool (smali code + decoded XML resources). You will receive the app's package name, the
+change the user wants, and a list of file paths that plausibly belong to the app's own code and
+resources (third-party libraries have already been filtered out). Output ONLY a raw JSON object - no
+markdown fences, no commentary - with exactly one field: "paths", an array of AT MOST ${MAX_EDIT_PATCH_FILES}
+of the given paths (copy them exactly, do not invent new ones) that you would need to open in full to
+make the requested change. Prefer the smallest set of files that could plausibly need editing. If
+nothing in the list looks relevant, return an empty array.`;
+
+  const PATCH_FILES_INSTRUCTIONS = `You are editing a decompiled Android app (apktool output - smali
+code and/or decoded XML resources) to make a specific change the user requested. You will receive the
+app's package name, the requested change, and the full current content of a small set of files.
+Output ONLY a raw JSON object - no markdown fences, no commentary - with exactly one field: "files",
+an array of objects with "path" (exactly matching one of the given paths) and "content" (the COMPLETE
+new content of that file, not a diff). Only include files you are actually changing - omit any file
+you decide not to touch. Make the smallest change that accomplishes the request:
+- In smali, preserve method/field signatures, register counts (.locals), and control-flow structure
+  unless the change specifically requires altering them - a wrong .locals count or a bad label/branch
+  target will make the whole app fail to rebuild or crash at runtime.
+- In XML resources, keep the file well-formed and keep unrelated attributes/elements untouched.
+- If the requested change genuinely cannot be made safely from the files you were given, return an
+  empty "files" array rather than guessing destructively.`;
+
+  const PATCH_FIX_INSTRUCTIONS = `You are fixing a rebuild failure after patching a decompiled Android
+app (apktool: smali + decoded XML resources). You will get the package name, the original requested
+change, the files you previously patched, and the rebuild error log. Output ONLY a raw JSON object -
+no markdown fences, no commentary - with exactly one field: "files", an array of {"path","content"}
+objects with corrected COMPLETE content for any of the previously-patched files that need fixing. Find
+the real cause in the log (a real apktool/smali/aapt2 error, not a warning) and fix only what's needed
+to make it rebuild, keeping as much of the intended change as possible. If the log suggests the change
+is not safely fixable, return the files with content reverted to something you're confident will
+rebuild, even if that means dropping part of the requested change.`;
+
+  // ---------- small DOM helpers ----------
+  const $ = (id) => document.getElementById(id);
+  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken"), geminiProxyUrlEl = $("geminiProxyUrl");
+  const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch"), ideaEl = $("idea");
+  const goBtn = $("goBtn"), logEl = $("log"), railEl = $("rail");
+  const downloadBox = $("downloadBox"), downloadLink = $("downloadLink");
+  const appIconPreview = $("appIconPreview"), appLabelPreview = $("appLabelPreview");
+  const thinkToggle = $("thinkToggle");
+
+  const questionCard = $("questionCard"), qTitle = $("qTitle"), qPagerLabel = $("qPagerLabel");
+  const qPrev = $("qPrev"), qNext = $("qNext"), qOptionsEl = $("qOptions");
+  const qOtherInput = $("qOtherInput"), qOtherBtn = $("qOtherBtn"), qSkipBtn = $("qSkipBtn");
+
+  const enhanceBox = $("enhanceBox");
+  const enhanceOriginalText = $("enhanceOriginalText"), enhanceImprovedText = $("enhanceImprovedText");
+  const useImprovedBtn = $("useImprovedBtn"), keepOriginalBtn = $("keepOriginalBtn");
+
+  const apkFileEl = $("apkFile"), editScanStatus = $("editScanStatus");
+  const imageGrid = $("imageGrid"), editSummary = $("editSummary"), editSummaryText = $("editSummaryText");
+  const buildEditedBtn = $("buildEditedBtn");
+  const railEditEl = $("railEdit"), logEditEl = $("logEdit");
+  const downloadBoxEdit = $("downloadBoxEdit"), downloadLinkEdit = $("downloadLinkEdit");
+
+  const modeTabsEl = $("modeTabs"), newChatBtn = $("newChatBtn");
+  const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor"), admin: $("panel-admin") };
+
+  // ---- auth / user badge / admin DOM references ----
+  const authScreen = $("authScreen"), mainWrapEl = $("mainWrap");
+  const userBadge = $("userBadge"), userBadgeName = $("userBadgeName"), userBadgeRole = $("userBadgeRole"), userBadgeCredits = $("userBadgeCredits"), logoutBtn = $("logoutBtn");
+  const authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton");
+  const adminTabBtn = $("adminTabBtn"), manualCredentialFields = $("manualCredentialFields"), proPlusConnectionsNote = $("proPlusConnectionsNote");
+  const creditCostsHint = $("creditCostsHint");
+  const adminUsersTable = $("adminUsersTable"), adminRefreshUsersBtn = $("adminRefreshUsersBtn");
+  const adminCostBuild = $("adminCostBuild"), adminCostEdit = $("adminCostEdit"), adminCostTranslate = $("adminCostTranslate"), adminCostCensor = $("adminCostCensor");
+  const adminDefaultCredits = $("adminDefaultCredits"), adminSystemInstructions = $("adminSystemInstructions");
+  const adminSaveConfigBtn = $("adminSaveConfigBtn"), adminConfigStatus = $("adminConfigStatus");
+  const siteTextEditToggle = $("siteTextEditToggle"), siteTextEditStatus = $("siteTextEditStatus");
+  // Not a secret — this only names which OAuth app a sign-in belongs to; the backend
+  // independently re-checks every token's audience against this same value.
+  const GOOGLE_CLIENT_ID = "733141570620-4elai2igmu1a22ftiqm7pfltvm7vhuhg.apps.googleusercontent.com";
+  let siteTextEditActive = false;
+
+  const editApkFileEl = $("editApkFile"), editInstructionEl = $("editInstruction"), editGoBtn = $("editGoBtn");
+  const railEditDecompileEl = $("railEditDecompile"), logEditDecompileEl = $("logEditDecompile");
+  const downloadBoxEditDecompileEl = $("downloadBoxEditDecompile"), downloadLinkEditDecompileEl = $("downloadLinkEditDecompile");
+
+  const translateApkFileEl = $("translateApkFile"), targetLanguageEl = $("targetLanguage"), translateGoBtn = $("translateGoBtn");
+  const railTranslateEl = $("railTranslate"), logTranslateEl = $("logTranslate");
+  const downloadBoxTranslateEl = $("downloadBoxTranslate"), downloadLinkTranslateEl = $("downloadLinkTranslate");
+
+  const EDIT2_STAGE_ORDER = ["decompile", "locate", "patch", "commit", "rebuild", "apk"];
+  const TRANSLATE_STAGE_ORDER = ["decompile", "strings", "translate", "commit", "rebuild", "apk"];
+
+  function setBusyBtn(btn, busy, busyLabel, idleLabel) {
+    btn.disabled = busy;
+    btn.textContent = busy ? busyLabel : idleLabel;
+  }
+
+  let loadedApkZip = null;
+  const pendingChanges = new Map(); // path -> { type: "replace", data: ArrayBuffer } | { type: "delete" }
+  let selectedThinkLevel = "medium";
+
+  $("toggleKeys").addEventListener("click", () => {
+    const showing = githubTokenEl.type === "text"; // currently revealed?
+    githubTokenEl.type = showing ? "password" : "text";
+    geminiKeysEl.classList.toggle("key-mask", showing);
+    $("toggleKeys").textContent = showing ? "הצג מפתחות" : "הסתר מפתחות";
+  });
+
+  function log(msg, cls, targetLogEl = logEl) {
+    const row = document.createElement("div");
+    row.className = "log-row" + (cls ? " " + cls : "");
+    const dot = document.createElement("span");
+    dot.className = "log-dot";
+    const span = document.createElement("span");
+    span.className = "msg";
+    span.textContent = msg;
+    row.append(dot, span);
+    targetLogEl.appendChild(row);
+    targetLogEl.scrollTop = targetLogEl.scrollHeight;
+  }
+
+  function resetPipeline() {
+    logEl.innerHTML = "";
+    downloadBox.classList.remove("show");
+    enhanceBox.classList.remove("show");
+    questionCard.classList.remove("show");
+    appIconPreview.innerHTML = "";
+    appLabelPreview.textContent = "app-release.apk";
+    railEl.querySelectorAll("[data-state]").forEach(el => (el.dataset.state = "pending"));
+  }
+
+  function resetEditPipeline() {
+    logEditEl.innerHTML = "";
+    downloadBoxEdit.classList.remove("show");
+    railEditEl.querySelectorAll("[data-state]").forEach(el => (el.dataset.state = "pending"));
+  }
+
+  function setStage(key, state, targetRailEl = railEl, stageOrder = STAGE_ORDER) {
+    const node = targetRailEl.querySelector(`.rail-node[data-key="${key}"]`);
+    if (node) node.dataset.state = state;
+    const idx = stageOrder.indexOf(key);
+    if (state === "done" && idx >= 0 && idx < stageOrder.length - 1) {
+      const line = targetRailEl.querySelector(`[data-key="line-${idx + 1}"]`);
+      if (line) line.dataset.state = "done";
+    }
+  }
+
+  function markCurrentStageError(targetRailEl = railEl) {
+    const active = targetRailEl.querySelector('.rail-node[data-state="active"]');
+    if (active) active.dataset.state = "error";
+  }
+
+  function setBusy(isBusy) {
+    goBtn.disabled = isBusy;
+    goBtn.textContent = isBusy ? "בונה…" : "Generate & Build";
+  }
+
+  function setEditBusy(isBusy) {
+    buildEditedBtn.disabled = isBusy;
+    buildEditedBtn.textContent = isBusy ? "בונה APK מצונזר…" : "צור APK מצונזר";
+  }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // ---------- backend (Apps Script) helper ----------
+  // Every call to the backend goes through here. Sent as text/plain (not
+  // application/json) on purpose: Apps Script Web Apps don't handle the CORS
+  // preflight that application/json triggers, and text/plain avoids it
+  // entirely — doPost() on the backend parses the body as JSON regardless.
+  async function backendCall(action, params = {}) {
+    const payload = Object.assign({ action, token: currentUser ? currentUser.token : undefined }, params);
+    let res;
+    try {
+      res = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+    } catch (networkErr) {
+      throw new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
+    }
+    if (!res.ok) throw new Error(`שגיאת שרת (HTTP ${res.status}).`);
+    return res.json();
+  }
+
+  // ---------- GitHub REST helper ----------
+  function githubNetworkError(path, error, attempts) {
+    const detail = error?.message ? ` (${error.message})` : "";
+    return new Error(
+      `Could not reach the GitHub API at ${path} after ${attempts} attempt${attempts === 1 ? "" : "s"}. ` +
+      `This is a network/CORS problem, not an APK or AI code error. Check the internet connection, ` +
+      `VPN/firewall/browser extensions, and serve this page from HTTPS or localhost instead of file://.${detail}`
+    );
+  }
+
+  // Retrying a failed POST/PATCH could create more than one commit if GitHub accepted
+  // the first request but the browser lost its response, so only safe read requests retry.
+  async function githubFetch(path, token, options = {}) {
+    const method = (options.method || "GET").toUpperCase();
+    const attempts = method === "GET" ? MAX_GITHUB_READ_ATTEMPTS : 1;
+    let lastError;
+
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        return await fetch(`https://api.github.com${path}`, {
+          ...options,
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json",
+            // GitHub serves the current stable REST API by default. Omitting the optional
+            // version header avoids an extra non-simple CORS header that some web filters
+            // block, while retaining the required Authorization and JSON headers.
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...(options.headers || {}),
+          },
+        });
+      } catch (error) {
+        lastError = error;
+        if (attempt < attempts) await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+      }
+    }
+    throw githubNetworkError(path, lastError, attempts);
+  }
+
+  async function gh(path, token, options = {}) {
+    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+      const method = (options.method || "GET").toUpperCase();
+      const body = options.body ? JSON.parse(options.body) : undefined;
+      const result = await backendCall("githubJson", { path, method, body });
+      if (!result.ok) {
+        const err = new Error(result.error || `GitHub request failed on ${path}`);
+        if (result.status) err.status = result.status;
+        throw err;
+      }
+      return result.data;
+    }
+    const res = await githubFetch(path, token, options);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      const err = new Error(`GitHub API ${res.status} on ${path} — ${text.slice(0, 300)}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.status === 204 ? null : res.json();
+  }
+
+  // Raw-bytes GitHub downloads (artifact zips, log zips) as a Blob, for both
+  // regular (direct fetch) and pro+ (via the backend's base64 relay) users.
+  async function githubFetchBlob(path, token) {
+    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+      const result = await backendCall("githubBinary", { path });
+      if (!result.ok) throw new Error(result.error || `GitHub binary request failed on ${path}`);
+      const binary = atob(result.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes]);
+    }
+    const res = await githubFetch(path, token, {});
+    if (!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
+    return res.blob();
+  }
+
+  // ---------- Gemini key rotation ----------
+  function parseGeminiKeys(raw) {
+    return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  }
+
+  // Round-robins the starting key across successive calls, and — within a single
+  // call — automatically retries on the next key if one comes back rate-limited
+  // (429), unauthorized (401/403) or erroring server-side (5xx). This is what
+  // lets several free AI Studio keys act like one bigger shared quota.
+  let nextKeyOffset = 0;
+  async function callGemini(geminiKeys, body, logTarget = logEl) {
+    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+      const result = await backendCall("geminiGenerate", { body, model: GEMINI_MODEL });
+      if (!result.ok) throw new Error(result.error || "בקשת Gemini דרך השרת נכשלה.");
+      return result.data;
+    }
+    if (!geminiKeys || geminiKeys.length === 0) {
+      throw new Error("אין אף Gemini API Key מוגדר.");
+    }
+    const startOffset = nextKeyOffset % geminiKeys.length;
+    nextKeyOffset = (nextKeyOffset + 1) % geminiKeys.length;
+
+    // Empty by default → direct to Google, exactly as before. Only used if the user has pasted
+    // in their own relay (see the "כתובת פרוקסי ל-Gemini" field) because their network blocks
+    // generativelanguage.googleapis.com outright — see the comment on the fetch call below.
+    const geminiBase = (geminiProxyUrlEl.value || "").trim().replace(/\/+$/, "") || "https://generativelanguage.googleapis.com";
+
+    let lastErr;
+    for (let i = 0; i < geminiKeys.length; i++) {
+      const keyIdx = (startOffset + i) % geminiKeys.length;
+      const key = geminiKeys[keyIdx];
+      const keyLabel = `מפתח #${keyIdx + 1}`;
+
+      let res;
+      try {
+        res = await fetch(
+          // המפתח עובר כפרמטר query (?key=), לא ככותרת x-goog-api-key — בדיוק כמו שכבר נעשה
+          // למטה עבור GitHub: כותרת מותאמת-אישית כזו הופכת את הבקשה ל-"non-simple" ומחייבת
+          // preflight מסוג OPTIONS, וה-preflight הזה נחסם/נכשל אצל חלק מסינוני התוכן ברמת הרשת
+          // (כמו אתרוג ונטפרי) — שם הבעיה שגרמה לפעולות ה-AI, בניגוד לפעולות ה-GitHub, לא לעבוד
+          // בסביבות האלה. פרמטר ה-query הוא דרך האימות הרשמית והנתמכת של Gemini API למפתחות API,
+          // ולא דורש preflight. עם זאת, בחלק מהרשתות עם סינון תוכן החסימה היא ברמת הדומיין עצמו
+          // (generativelanguage.googleapis.com) ולא קשורה לכותרות בכלל — geminiBase מאפשר לנתב
+          // דרך פרוקסי (Cloudflare Worker) על דומיין אחר שלא חסום, במקום ישירות לגוגל.
+          `${geminiBase}/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          }
+        );
+      } catch (networkErr) {
+        lastErr = networkErr;
+        if (geminiKeys.length > 1) log(`${keyLabel}: שגיאת רשת, עובר למפתח הבא…`, null, logTarget);
+        continue;
+      }
+
+      if (res.status === 429 || res.status === 401 || res.status === 403 || res.status >= 500) {
+        const text = await res.text().catch(() => "");
+        lastErr = new Error(`Gemini API ${res.status} (${keyLabel}) — ${text.slice(0, 200)}`);
+        if (geminiKeys.length > 1) log(`${keyLabel} חזר עם ${res.status}, עובר למפתח הבא…`, null, logTarget);
+        continue;
+      }
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Gemini API error ${res.status} — ${text.slice(0, 300)}`);
+      }
+      try {
+        return await res.json();
+      } catch (parseErr) {
+        // A 2xx response that isn't valid JSON almost never comes from Gemini itself (its errors
+        // are JSON too) — it's the fingerprint of something between the browser and Google
+        // returning its own content instead, most commonly a network-level content filter (like
+        // Etrog/Netfree) substituting a block page. Point at the fix instead of surfacing a raw
+        // "Unexpected token '<'" parse error.
+        throw new Error(
+          "התקבלה תשובה שאינה JSON מ-" + geminiBase.replace(/^https?:\/\//, "") + " — כנראה שהרשת חוסמת את הפנייה " +
+          "(לדוגמה סינון תוכן כמו אתרוג/נטפרי) ומחזירה עמוד חסימה במקום את התשובה האמיתית מגוגל. נסו להגדיר " +
+          "כתובת פרוקסי בשדה \"כתובת פרוקסי ל-Gemini\" למעלה (יש הוראות והקובץ הנדרש מצורפים)."
+        );
+      }
+    }
+    throw lastErr || new Error("כל מפתחות ה-Gemini נכשלו.");
+  }
+
+  function extractGeminiText(data) {
+    const candidate = data?.candidates?.[0];
+    const finishReason = candidate?.finishReason || "unknown";
+    // Join ALL parts (not just the first) — some responses split text across
+    // more than one part, and grabbing only parts[0] silently drops the rest.
+    const raw = (candidate?.content?.parts || []).map((p) => p.text || "").join("");
+    return { raw, finishReason };
+  }
+
+  function parseJsonLoose(raw) {
+    // JSON mode should prevent this, but strip ```json fences defensively —
+    // models occasionally add them anyway.
+    const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) { try { return JSON.parse(match[0]); } catch { /* fall through */ } }
+    }
+    return null;
+  }
+
+  // ---------- 1. Gemini: generate the app ----------
+  async function generateAppCode(geminiKeys, idea, thinkLevel, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.4,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) {
+      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}). Try again or simplify the prompt.`);
+    }
+    const parsed = parseJsonLoose(raw);
+    if (!parsed) {
+      throw new Error(
+        `Could not parse Gemini's reply as JSON (finishReason: ${finishReason}). ` +
+        `First 200 chars received: ${raw.slice(0, 200) || "(empty)"}`
+      );
+    }
+    if (!parsed.manifest || !parsed.kotlin || !parsed.icon) {
+      throw new Error(`Gemini's reply is missing "manifest", "kotlin" or "icon". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
+    }
+    return parsed;
+  }
+
+  // ---------- 1b. Gemini: decide whether to ask clarifying questions, and/or improve the idea ----------
+  async function analyzeIdea(geminiKeys, idea, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${ANALYZE_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+      // thinkingBudget: 0 — this is a quick classification/rewrite step (same spirit as the
+      // "fast" thinking preset used elsewhere), not something that benefits from reasoning
+      // tokens. Without it, some of maxOutputTokens can get spent on invisible thinking before
+      // any JSON is emitted, truncating the reply (finishReason: MAX_TOKENS) before it parses.
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) {
+      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}).`);
+    }
+    const parsed = parseJsonLoose(raw);
+    if (!parsed) {
+      throw new Error(`Could not parse Gemini's reply as JSON (finishReason: ${finishReason}).`);
+    }
+    const questions = Array.isArray(parsed.questions)
+      ? parsed.questions.filter((q) => q && typeof q.question === "string" && Array.isArray(q.options) && q.options.length).slice(0, 3)
+      : [];
+    const improved = typeof parsed.improved === "string" ? parsed.improved.trim() : "";
+    return { questions, improved };
+  }
+
+  // Shows the original vs. the AI-improved idea and waits for the user to pick one.
+  function askEnhanceChoice(original, improved) {
+    return new Promise((resolve) => {
+      enhanceOriginalText.textContent = original;
+      enhanceImprovedText.textContent = improved;
+      enhanceBox.classList.add("show");
+      function cleanup() {
+        enhanceBox.classList.remove("show");
+        useImprovedBtn.removeEventListener("click", onUse);
+        keepOriginalBtn.removeEventListener("click", onKeep);
+      }
+      function onUse() { cleanup(); resolve(improved); }
+      function onKeep() { cleanup(); resolve(original); }
+      useImprovedBtn.addEventListener("click", onUse);
+      keepOriginalBtn.addEventListener("click", onKeep);
+    });
+  }
+
+  // Shows Gemini's clarifying multiple-choice questions one at a time (numbered,
+  // clickable options, free-text "something else", skip, and prev/next paging
+  // through already-answered questions) and resolves with the answers given.
+  function askClarifyingQuestions(questions) {
+    return new Promise((resolve) => {
+      const answers = new Array(questions.length).fill(null);
+      let idx = 0;
+
+      function render() {
+        const q = questions[idx];
+        qTitle.textContent = q.question;
+        qPagerLabel.textContent = `${idx + 1} מתוך ${questions.length}`;
+        qPrev.disabled = idx === 0;
+        qNext.disabled = idx === questions.length - 1 || answers[idx] === null;
+        qOptionsEl.innerHTML = "";
+        q.options.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "question-option";
+          const num = document.createElement("span");
+          num.className = "question-num";
+          num.textContent = String(i + 1);
+          const label = document.createElement("span");
+          label.className = "question-option-label";
+          label.textContent = opt;
+          btn.append(num, label);
+          btn.addEventListener("click", () => choose(opt));
+          qOptionsEl.appendChild(btn);
+        });
+        qOtherInput.value = "";
+      }
+
+      function choose(answerText) {
+        answers[idx] = { question: questions[idx].question, answer: answerText };
+        advance();
+      }
+
+      function skip() {
+        answers[idx] = answers[idx] || null;
+        advance();
+      }
+
+      function advance() {
+        if (idx < questions.length - 1) { idx++; render(); }
+        else finish();
+      }
+
+      function finish() {
+        cleanup();
+        resolve(answers.filter(Boolean));
+      }
+
+      function onPrev() { if (idx > 0) { idx--; render(); } }
+      function onNext() { if (idx < questions.length - 1 && answers[idx] !== null) { idx++; render(); } }
+      function onOtherSubmit() {
+        const val = qOtherInput.value.trim();
+        if (val) choose(val);
+      }
+
+      function cleanup() {
+        questionCard.classList.remove("show");
+        qPrev.removeEventListener("click", onPrev);
+        qNext.removeEventListener("click", onNext);
+        qOtherBtn.removeEventListener("click", onOtherSubmit);
+        qSkipBtn.removeEventListener("click", skip);
+      }
+
+      qPrev.addEventListener("click", onPrev);
+      qNext.addEventListener("click", onNext);
+      qOtherBtn.addEventListener("click", onOtherSubmit);
+      qSkipBtn.addEventListener("click", skip);
+
+      questionCard.classList.add("show");
+      render();
+    });
+  }
+
+  // Renders the generated launcher icon (Android vector drawable -> inline SVG)
+  // and the app's label next to the download button once they're known.
+  function renderAppPreview(manifestXml, iconXml) {
+    try {
+      const iconDoc = new DOMParser().parseFromString(iconXml, "application/xml");
+      if (iconDoc.querySelector("parsererror")) throw new Error("bad icon xml");
+      const vectorEl = iconDoc.documentElement;
+      const vw = parseFloat(vectorEl.getAttribute("android:viewportWidth")) || 108;
+      const vh = parseFloat(vectorEl.getAttribute("android:viewportHeight")) || 108;
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+      iconDoc.querySelectorAll("path").forEach((p) => {
+        const d = p.getAttribute("android:pathData");
+        if (!d) return;
+        const pathEl = document.createElementNS(svgNS, "path");
+        pathEl.setAttribute("d", d);
+        pathEl.setAttribute("fill", p.getAttribute("android:fillColor") || "#888");
+        svg.appendChild(pathEl);
+      });
+      appIconPreview.innerHTML = "";
+      appIconPreview.appendChild(svg);
+    } catch {
+      appIconPreview.innerHTML = ""; // preview is cosmetic only — never block the build on it
+    }
+
+    try {
+      const manDoc = new DOMParser().parseFromString(manifestXml, "application/xml");
+      const label = manDoc.querySelector("application")?.getAttribute("android:label");
+      appLabelPreview.textContent = label || "app-release.apk";
+    } catch {
+      appLabelPreview.textContent = "app-release.apk";
+    }
+  }
+
+  // ---------- shared Git Data API helpers (used by both the generate- and edit-flows) ----------
+  async function getBranchHead({ owner, repo, branch, token }) {
+    let refData;
+    try {
+      refData = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`, token);
+    } catch (e) {
+      if (e.status === 404) {
+        throw new Error(`Branch "${branch}" has no commits yet — push at least one commit (e.g. a README) before generating.`);
+      }
+      throw e;
+    }
+    const latestSha = refData.object.sha;
+    const commitData = await gh(`/repos/${owner}/${repo}/git/commits/${latestSha}`, token);
+    return { latestSha, baseTreeSha: commitData.tree.sha };
+  }
+
+  async function commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message }) {
+    const tree = await gh(`/repos/${owner}/${repo}/git/trees`, token, {
+      method: "POST",
+      body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
+    });
+    const newCommit = await gh(`/repos/${owner}/${repo}/git/commits`, token, {
+      method: "POST",
+      body: JSON.stringify({ message, tree: tree.sha, parents: [latestSha] }),
+    });
+    await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, token, {
+      method: "PATCH",
+      body: JSON.stringify({ sha: newCommit.sha, force: false }),
+    });
+    return newCommit.sha;
+  }
+
+  // ---------- 2. Commit (atomic, via the Git Data API) ----------
+  async function commitGeneratedApp({ owner, repo, branch, token, manifestXml, kotlinSource, iconXml }) {
+    const { latestSha, baseTreeSha } = await getBranchHead({ owner, repo, branch, token });
+    const treeEntries = [
+      { path: "generated_app/AndroidManifest.xml", mode: "100644", type: "blob", content: manifestXml },
+      { path: "generated_app/src/MainActivity.kt", mode: "100644", type: "blob", content: kotlinSource },
+      { path: "generated_app/res/drawable/ic_launcher.xml", mode: "100644", type: "blob", content: iconXml },
+    ];
+    return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message: "AI App Maker: update generated_app/" });
+  }
+
+  // Commits several files in one atomic commit. Each file is either
+  // { path, content } for text (UTF-8, committed inline) or
+  // { path, contentBase64 } for binary data (committed via an explicit blob) -
+  // mixing both kinds in the same call is fine.
+  async function commitRepoFiles({ owner, repo, branch, token, files, message }) {
+    const { latestSha, baseTreeSha } = await getBranchHead({ owner, repo, branch, token });
+    const treeEntries = [];
+    for (const f of files) {
+      if (f.contentBase64 !== undefined) {
+        const blob = await gh(`/repos/${owner}/${repo}/git/blobs`, token, {
+          method: "POST",
+          body: JSON.stringify({ content: f.contentBase64, encoding: "base64" }),
+        });
+        treeEntries.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+      } else {
+        treeEntries.push({ path: f.path, mode: "100644", type: "blob", content: f.content });
+      }
+    }
+    return commitTreeEntries({ owner, repo, branch, token, latestSha, baseTreeSha, treeEntries, message });
+  }
+
+  // ---------- 2b. Commit an edited (censored) APK as a binary blob ----------
+  async function commitEditedApk({ owner, repo, branch, token, apkBase64 }) {
+    return commitRepoFiles({
+      owner, repo, branch, token,
+      files: [{ path: "edited_app/app-edited.apk", contentBase64: apkBase64 }],
+      message: "AI App Maker: censor images in uploaded APK",
+    });
+  }
+
+  // ---------- reading & listing files already committed to the repo (decompile-based flows) ----------
+  async function fetchRepoFile({ owner, repo, branch, token, path }) {
+    const data = await gh(`/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, token);
+    if (Array.isArray(data) || data.type !== "file" || typeof data.content !== "string") {
+      throw new Error(`"${path}" אינו קובץ טקסט קריא בענף הזה.`);
+    }
+    const bytes = Uint8Array.from(atob(data.content.replace(/\n/g, "")), (c) => c.charCodeAt(0));
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  // Same as fetchRepoFile but returns the raw base64 content untouched, instead of decoding it as
+  // UTF-8 text — needed for binary files (e.g. a launcher icon image) where text-decoding would
+  // corrupt the bytes.
+  async function fetchRepoFileBase64({ owner, repo, branch, token, path }) {
+    const data = await gh(`/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, token);
+    if (Array.isArray(data) || data.type !== "file" || typeof data.content !== "string") {
+      throw new Error(`"${path}" אינו קובץ קריא בענף הזה.`);
+    }
+    return data.content.replace(/\n/g, "");
+  }
+
+  // Full recursive path listing of a branch via the Git Trees API — one call,
+  // much cheaper than walking directories one by one via the Contents API.
+  async function listRepoTree({ owner, repo, branch, token }) {
+    const data = await gh(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, token);
+    if (data.truncated) {
+      console.warn("Git tree listing was truncated by GitHub (very large repo) — some files may be missing from candidates.");
+    }
+    return (data.tree || []).filter((e) => e.type === "blob").map((e) => e.path);
+  }
+
+  function extractManifestPackage(manifestXml) {
+    const doc = new DOMParser().parseFromString(manifestXml, "application/xml");
+    if (doc.querySelector("parsererror")) throw new Error("apktool's decompiled AndroidManifest.xml did not parse as XML.");
+    const pkg = doc.documentElement.getAttribute("package");
+    if (!pkg) throw new Error("Decompiled AndroidManifest.xml has no package attribute.");
+    return pkg;
+  }
+
+  // Commits the raw uploaded APK to DECOMPILE_SOURCE_PATH and waits for
+  // decompile-apk.yml to unpack it and commit decompiled_app/ back to the branch.
+  async function triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget = logEl }) {
+    log(`מעלה את ה-APK לפירוק (${DECOMPILE_SOURCE_PATH})…`, null, logTarget);
+    const commitSha = await commitRepoFiles({
+      owner, repo, branch, token,
+      files: [{ path: DECOMPILE_SOURCE_PATH, contentBase64: apkBase64 }],
+      message: "AI App Maker: decompile source APK",
+    });
+    log(`Commit נוצר: ${commitSha.slice(0, 7)}, ממתין לפירוק (apktool)…`, "ok", logTarget);
+    await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: DECOMPILE_WORKFLOW_FILE, logTarget });
+    log("הפירוק הושלם ✓", "ok", logTarget);
+  }
+
+  // ---------- string-resource XML helpers (translate mode) ----------
+  // Parses an apktool-decoded strings.xml into { name: text } — only plain
+  // <string> entries; string-array/plurals are left untouched for now, to
+  // keep the round-trip simple and reliable.
+  function parseStringsXml(xmlText) {
+    const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+    if (doc.querySelector("parsererror")) throw new Error("strings.xml did not parse as XML.");
+    const map = {};
+    doc.querySelectorAll("resources > string").forEach((el) => {
+      const name = el.getAttribute("name");
+      if (name) map[name] = el.textContent;
+    });
+    return map;
+  }
+
+  // Builds a new strings.xml with the same <string name="x"> entries but
+  // translated text, by cloning the ORIGINAL document and only swapping text
+  // content — this guarantees well-formed XML regardless of what Gemini
+  // returns, since Gemini only ever supplies plain translated text, never markup.
+  function buildTranslatedStringsXml(originalXmlText, translations) {
+    const doc = new DOMParser().parseFromString(originalXmlText, "application/xml");
+    doc.querySelectorAll("resources > string").forEach((el) => {
+      const name = el.getAttribute("name");
+      if (name && Object.prototype.hasOwnProperty.call(translations, name)) {
+        el.textContent = translations[name];
+      }
+    });
+    return new XMLSerializer().serializeToString(doc);
+  }
+
+  async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(stringsMap)}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !parsed.langCode || typeof parsed.translations !== "object") {
+      throw new Error(`Gemini's translation reply is missing "langCode" or "translations".`);
+    }
+    return parsed;
+  }
+
+  // ---------- file selection & patching helpers (edit mode) ----------
+  function filterEditCandidatePaths(allPaths, pkg) {
+    const pkgPath = pkg.split(".").join("/");
+    const ownSmali = allPaths
+      .filter((p) => /^decompiled_app\/smali(_classes\d+)?\//.test(p))
+      .filter((p) => p.includes(`/${pkgPath}/`) || p.includes(`/${pkgPath}.smali`))
+      .filter((p) => !THIRD_PARTY_PACKAGE_PREFIXES.some((frag) => p.includes(frag)));
+    const resPaths = allPaths.filter((p) => p.startsWith(`${DECOMPILED_APP_DIR}/res/`) && /\.xml$/i.test(p));
+    const manifestPath = allPaths.find((p) => p === `${DECOMPILED_APP_DIR}/AndroidManifest.xml`);
+    return [...ownSmali, ...resPaths, ...(manifestPath ? [manifestPath] : [])].slice(0, MAX_EDIT_CANDIDATE_FILES);
+  }
+
+  async function locateEditFiles(geminiKeys, pkg, instruction, candidatePaths, logTarget = logEl) {
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${LOCATE_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${instruction}\n\nCandidate paths:\n${candidatePaths.join("\n")}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 1024 },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable file list (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    const paths = Array.isArray(parsed?.paths) ? parsed.paths.filter((p) => candidatePaths.includes(p)).slice(0, MAX_EDIT_PATCH_FILES) : [];
+    return paths;
+  }
+
+  async function patchEditFiles(geminiKeys, pkg, instruction, fileContents, thinkLevel, logTarget = logEl) {
+    const filesBlock = fileContents.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${PATCH_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${instruction}\n\nFiles:\n${filesBlock}` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable patch (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    return Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
+  }
+
+  async function patchEditFilesFix(geminiKeys, pkg, instruction, previousFiles, errorLog, thinkLevel, logTarget = logEl) {
+    const filesBlock = previousFiles.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${PATCH_FIX_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nOriginal requested change:\n${instruction}\n\nPreviously patched files:\n${filesBlock}\n\nRebuild error log:\n${errorLog}` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    const files = Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
+    if (files.length === 0) throw new Error("Gemini's fix reply had no usable files.");
+    return files;
+  }
+
+  // ---------- 3. Poll the workflow run tied to this exact commit ----------
+  async function waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile, logTarget = logEl }) {
+    const start = Date.now();
+    let runId = null, runUrl = null, runNumber = null;
+
+    while (Date.now() - start < POLL_TIMEOUT_MS) {
+      if (!runId) {
+        const runs = await gh(
+          `/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs?head_sha=${commitSha}&per_page=5`,
+          token
+        );
+        if (runs.workflow_runs && runs.workflow_runs.length > 0) {
+          runId = runs.workflow_runs[0].id;
+          runUrl = runs.workflow_runs[0].html_url;
+          runNumber = runs.workflow_runs[0].run_number;
+          log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
+        } else {
+          log("ממתין ש-GitHub Actions יתפוס את ה-commit…", null, logTarget);
+          await sleep(POLL_INTERVAL_MS);
+          continue;
+        }
+      }
+
+      const run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
+      log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`, null, logTarget);
+
+      if (run.status === "completed") {
+        if (run.conclusion === "success") return run;
+        const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
+        err.runUrl = runUrl;
+        err.runId = runId;
+        throw err;
+      }
+      await sleep(POLL_INTERVAL_MS);
+    }
+    const timeoutErr = new Error("עברו 10 דקות בלי שה-build הסתיים.");
+    timeoutErr.runUrl = runUrl;
+    timeoutErr.runId = runId;
+    throw timeoutErr;
+  }
+
+  // ---------- 3b. Fetch a failed run's logs, trimmed down for a fix prompt ----------
+  async function fetchWorkflowRunLog({ owner, repo, token, runId }) {
+    if (!runId) throw new Error("אין runId זמין לשליפת לוג.");
+    const zipBlob = await githubFetchBlob(`/repos/${owner}/${repo}/actions/runs/${runId}/logs`, token);
+    const zip = await JSZip.loadAsync(zipBlob);
+    const entries = Object.values(zip.files).filter((f) => !f.dir && f.name.toLowerCase().endsWith(".txt"));
+    let combined = "";
+    for (const entry of entries) {
+      combined += (await entry.async("text")) + "\n";
+    }
+    if (!combined) throw new Error("קובץ הלוגים היה ריק.");
+    // Keep this short and pointed — a full log can be huge, and only the error
+    // tail actually helps Gemini fix the code.
+    return combined.length > MAX_LOG_CHARS ? "…\n" + combined.slice(-MAX_LOG_CHARS) : combined;
+  }
+
+  // ---------- 3c. Gemini: fix generated code against a real build error ----------
+  async function generateAppCodeFix(geminiKeys, idea, previous, errorLog, thinkLevel, logTarget = logEl) {
+    const prompt = `${FIX_INSTRUCTIONS}\n\nOriginal app idea:\n${idea}\n\nPrevious manifest:\n${previous.manifest}\n\nPrevious kotlin:\n${previous.kotlin}\n\nPrevious icon:\n${previous.icon}\n\nBuild error log:\n${errorLog}`;
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+      },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !parsed.manifest || !parsed.kotlin || !parsed.icon) {
+      throw new Error(`Gemini's fix reply is missing "manifest", "kotlin" or "icon".`);
+    }
+    return parsed;
+  }
+
+  // ---------- 4. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
+  async function downloadApk({ owner, repo, token, runId, artifactName = "app-release.apk", logTarget = logEl }) {
+    const artifactsData = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}/artifacts`, token);
+    const artifact = (artifactsData.artifacts || []).find((a) => a.name === artifactName);
+    if (!artifact) throw new Error(`לא נמצא artifact בשם "${artifactName}" בריצה הזו.`);
+
+    log("מוריד את ה-artifact…", null, logTarget);
+    const zipBlob = await githubFetchBlob(`/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`, token);
+
+    log("מחלץ את ה-APK מתוך ה-zip…", null, logTarget);
+    const zip = await JSZip.loadAsync(zipBlob);
+    const apkName = Object.keys(zip.files).find((n) => n.toLowerCase().endsWith(".apk"));
+    if (!apkName) throw new Error("קובץ ה-zip של ה-artifact לא הכיל קובץ .apk.");
+    const apkBlob = await zip.files[apkName].async("blob");
+
+    return URL.createObjectURL(new Blob([apkBlob], { type: "application/vnd.android.package-archive" }));
+  }
+
+  // ---------- orchestration ----------
+  async function runPipeline() {
+    const geminiKeys = parseGeminiKeys(geminiKeysEl.value);
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+    const thinkLevel = selectedThinkLevel;
+    let idea = ideaEl.value.trim();
+
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !idea) {
+      resetPipeline();
+      log("חסר שדה — צריך לפחות Gemini key אחד, GitHub token, בעל ריפו, שם ריפו, ותיאור אפליקציה.", "error");
+      return;
+    }
+
+    resetPipeline();
+    const spend = await backendCall("spendCredits", { pipelineAction: "build" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error"); return; }
+    refreshCreditsDisplay(spend);
+
+    setBusy(true);
+    try {
+      setStage("enhance", "active");
+      log("בודק אם צריך לשאול משהו לפני שממשיכים…");
+      try {
+        const { questions, improved } = await analyzeIdea(geminiKeys, idea);
+        if (questions.length > 0) {
+          log(`יש ${questions.length} שאלות הבהרה לפני הבנייה…`);
+          const answers = await askClarifyingQuestions(questions);
+          if (answers.length > 0) {
+            const clarifications = answers.map((a) => `- ${a.question} → ${a.answer}`).join("\n");
+            idea = `${idea}\n\nהבהרות:\n${clarifications}`;
+            log("התשובות נוספו לתיאור, ממשיכים.", "ok");
+          } else {
+            log("כל השאלות דולגו, ממשיכים עם התיאור המקורי.");
+          }
+        } else if (improved && improved !== idea) {
+          idea = await askEnhanceChoice(idea, improved);
+          ideaEl.value = idea;
+          log("התיאור עודכן.", "ok");
+        } else {
+          log("Gemini לא הציע שינוי משמעותי, ממשיכים כרגיל.");
+        }
+      } catch (enhanceErr) {
+        console.error(enhanceErr);
+        log("שיפור התיאור נכשל, ממשיכים עם התיאור המקורי (" + enhanceErr.message + ")", "error");
+      }
+      setStage("enhance", "done");
+
+      setStage("gemini", "active");
+      log("שולח את הפרומפט ל-Gemini…");
+      let { manifest, kotlin, icon } = await generateAppCode(geminiKeys, idea, thinkLevel);
+      setStage("gemini", "done");
+      renderAppPreview(manifest, icon);
+
+      let commitSha, run;
+      for (let attempt = 1; attempt <= MAX_AUTO_FIX_ATTEMPTS + 1; attempt++) {
+        setStage("commit", "active");
+        log(`מבצע commit ל-${owner}/${repo} (${branch})…`);
+        commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin, iconXml: icon });
+        log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok");
+        setStage("commit", "done");
+
+        setStage("actions", "active");
+        try {
+          run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: WORKFLOW_FILE });
+          log("ה-build הצליח ✓", "ok");
+          setStage("actions", "done");
+          break;
+        } catch (buildErr) {
+          if (attempt > MAX_AUTO_FIX_ATTEMPTS) throw buildErr;
+          log(`✗ ה-build נכשל (ניסיון ${attempt} מתוך ${MAX_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error");
+          log("שולף את יומן השגיאה ומנסה לתקן אוטומטית עם Gemini…");
+          let errorLog;
+          try {
+            errorLog = await fetchWorkflowRunLog({ owner, repo, token, runId: buildErr.runId });
+          } catch (logFetchErr) {
+            console.error(logFetchErr);
+            errorLog = `(לא הצלחתי לשלוף לוג מפורט: ${logFetchErr.message}) conclusion error: ${buildErr.message}`;
+          }
+          try {
+            const fixed = await generateAppCodeFix(geminiKeys, idea, { manifest, kotlin, icon }, errorLog, thinkLevel);
+            manifest = fixed.manifest; kotlin = fixed.kotlin; icon = fixed.icon;
+            renderAppPreview(manifest, icon);
+            log("Gemini החזיר גרסה מתוקנת, מנסה לבנות שוב…", "ok");
+          } catch (fixErr) {
+            console.error(fixErr);
+            throw buildErr; // auto-fix itself failed — surface the original build error
+          }
+        }
+      }
+
+      setStage("apk", "active");
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id });
+      setStage("apk", "done");
+
+      downloadLink.href = apkUrl;
+      downloadBox.classList.add("show");
+      log("מוכן — האפליקציה שלך מחכה להורדה.", "ok");
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error");
+      markCurrentStageError();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // ---------- APK image editor ("censor" flow) ----------
+  function formatBytes(n) {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+      reader.onerror = () => reject(reader.error || new Error("FileReader failed"));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function updateEditSummary() {
+    editSummaryText.textContent = pendingChanges.size === 0
+      ? "לא סומנו שינויים עדיין."
+      : `${pendingChanges.size} תמונות סומנו לעריכה.`;
+    buildEditedBtn.disabled = pendingChanges.size === 0;
+  }
+
+  // Builds one image row via safe DOM APIs (textContent, not innerHTML) —
+  // entry paths come from inside an uploaded zip and must never be treated
+  // as trusted markup.
+  function buildImageRow(entryPath, originalUrl, sizeBytes) {
+    const row = document.createElement("div");
+    row.className = "image-row";
+
+    const thumb = document.createElement("img");
+    thumb.className = "image-thumb";
+    thumb.src = originalUrl;
+    thumb.alt = entryPath;
+    thumb.loading = "lazy";
+
+    const pathEl = document.createElement("div");
+    pathEl.className = "image-path";
+    pathEl.textContent = entryPath;
+
+    const sizeEl = document.createElement("div");
+    sizeEl.className = "image-size";
+    sizeEl.textContent = formatBytes(sizeBytes);
+
+    const statusEl = document.createElement("span");
+    statusEl.className = "image-status";
+    statusEl.hidden = true;
+
+    const actions = document.createElement("div");
+    actions.className = "image-actions";
+
+    const replaceBtn = document.createElement("button");
+    replaceBtn.type = "button";
+    replaceBtn.className = "chip-btn";
+    replaceBtn.textContent = "החלף";
+
+    const replaceInput = document.createElement("input");
+    replaceInput.type = "file";
+    replaceInput.accept = "image/*";
+    replaceInput.hidden = true;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "chip-btn danger";
+    deleteBtn.textContent = "צנזר (רוקן)";
+
+    const undoBtn = document.createElement("button");
+    undoBtn.type = "button";
+    undoBtn.className = "chip-btn";
+    undoBtn.textContent = "בטל";
+
+    replaceBtn.addEventListener("click", () => replaceInput.click());
+    replaceInput.addEventListener("change", async () => {
+      const file = replaceInput.files[0];
+      if (!file) return;
+      const buf = await file.arrayBuffer();
+      pendingChanges.set(entryPath, { type: "replace", data: buf });
+      thumb.src = URL.createObjectURL(file);
+      statusEl.textContent = "יוחלף";
+      statusEl.hidden = false;
+      row.classList.add("pending");
+      updateEditSummary();
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      pendingChanges.set(entryPath, { type: "delete" });
+      thumb.src = `data:image/png;base64,${TRANSPARENT_PNG_BASE64}`;
+      statusEl.textContent = "יצונזר (יתרוקן)";
+      statusEl.hidden = false;
+      row.classList.add("pending");
+      updateEditSummary();
+    });
+
+    undoBtn.addEventListener("click", () => {
+      pendingChanges.delete(entryPath);
+      thumb.src = originalUrl;
+      statusEl.hidden = true;
+      row.classList.remove("pending");
+      updateEditSummary();
+    });
+
+    actions.append(replaceBtn, replaceInput, deleteBtn, undoBtn);
+    row.append(thumb, pathEl, sizeEl, statusEl, actions);
+    return row;
+  }
+
+  async function scanApkImages(file) {
+    const buf = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+    loadedApkZip = zip;
+    const entries = Object.values(zip.files).filter((f) => !f.dir && IMAGE_EXT_RE.test(f.name));
+
+    imageGrid.innerHTML = "";
+    pendingChanges.clear();
+    for (const entry of entries) {
+      const blob = await entry.async("blob");
+      const url = URL.createObjectURL(blob);
+      imageGrid.appendChild(buildImageRow(entry.name, url, blob.size));
+    }
+    return entries.length;
+  }
+
+  apkFileEl.addEventListener("change", async () => {
+    const file = apkFileEl.files[0];
+    imageGrid.innerHTML = "";
+    imageGrid.hidden = true;
+    editSummary.hidden = true;
+    pendingChanges.clear();
+    loadedApkZip = null;
+    downloadBoxEdit.classList.remove("show");
+
+    if (!file) { editScanStatus.textContent = ""; return; }
+
+    editScanStatus.textContent = "סורק את ה-APK…";
+    if (file.size > 50 * 1024 * 1024) {
+      editScanStatus.textContent += " (קובץ גדול מ-50MB — ייתכן שההעלאה ל-GitHub תיכשל בגלל מגבלת גודל.)";
+    }
+    try {
+      const count = await scanApkImages(file);
+      if (count === 0) {
+        editScanStatus.textContent = "לא נמצאו קבצי תמונה (png/jpg/gif/webp/bmp) ב-APK הזה.";
+      } else {
+        editScanStatus.textContent = `נמצאו ${count} תמונות. אפשר להחליף או לצנזר כל אחת.`;
+        imageGrid.hidden = false;
+        editSummary.hidden = false;
+        updateEditSummary();
+      }
+    } catch (e) {
+      console.error(e);
+      editScanStatus.textContent = "✗ לא הצלחתי לקרוא את הקובץ — ודאו שזה APK תקין. (" + e.message + ")";
+      loadedApkZip = null;
+    }
+  });
+
+  async function runEditPipeline() {
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && !token) || !owner || !repo) {
+      resetEditPipeline();
+      log("חסר שדה — צריך GitHub Token, בעל ריפו ושם ריפו (בכרטיסיית \"חיבורים\" למעלה).", "error", logEditEl);
+      return;
+    }
+    if (!loadedApkZip) {
+      resetEditPipeline();
+      log("קודם צריך להעלות ולסרוק קובץ APK.", "error", logEditEl);
+      return;
+    }
+    if (pendingChanges.size === 0) {
+      resetEditPipeline();
+      log("לא סימנתם אף תמונה להחלפה/צנזור.", "error", logEditEl);
+      return;
+    }
+
+    resetEditPipeline();
+    const spend = await backendCall("spendCredits", { pipelineAction: "censor" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error", logEditEl); return; }
+    refreshCreditsDisplay(spend);
+
+    setEditBusy(true);
+    try {
+      log(`מחיל ${pendingChanges.size} שינויים על ה-APK…`, null, logEditEl);
+      for (const [path, change] of pendingChanges) {
+        if (change.type === "replace") {
+          loadedApkZip.file(path, change.data, { compression: "DEFLATE" });
+        } else {
+          loadedApkZip.file(path, TRANSPARENT_PNG_BYTES, { compression: "DEFLATE" });
+        }
+      }
+      const apkBlob = await loadedApkZip.generateAsync({ type: "blob" });
+      const apkBase64 = await blobToBase64(apkBlob);
+
+      setStage("commit", "active", railEditEl, EDIT_STAGE_ORDER);
+      log(`מבצע commit ל-${owner}/${repo} (${branch})…`, null, logEditEl);
+      const commitSha = await commitEditedApk({ owner, repo, branch, token, apkBase64 });
+      log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok", logEditEl);
+      setStage("commit", "done", railEditEl, EDIT_STAGE_ORDER);
+
+      setStage("actions", "active", railEditEl, EDIT_STAGE_ORDER);
+      const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: RESIGN_WORKFLOW_FILE, logTarget: logEditEl });
+      log("היישור (zipalign) והחתימה מחדש (apksigner) הצליחו ✓", "ok", logEditEl);
+      setStage("actions", "done", railEditEl, EDIT_STAGE_ORDER);
+
+      setStage("apk", "active", railEditEl, EDIT_STAGE_ORDER);
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id, artifactName: "app-edited-release.apk", logTarget: logEditEl });
+      setStage("apk", "done", railEditEl, EDIT_STAGE_ORDER);
+
+      downloadLinkEdit.href = apkUrl;
+      downloadBoxEdit.classList.add("show");
+      log("מוכן — ה-APK המצונזר מחכה להורדה.", "ok", logEditEl);
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditEl);
+      markCurrentStageError(railEditEl);
+    } finally {
+      setEditBusy(false);
+    }
+  }
+
+  // ---------- translate mode: decompile → extract strings → translate → rebuild ----------
+  async function runTranslatePipeline() {
+    const geminiKeys = parseGeminiKeys(geminiKeysEl.value);
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+    const targetLanguage = targetLanguageEl.value.trim();
+    const file = translateApkFileEl.files[0];
+
+    logTranslateEl.innerHTML = "";
+    downloadBoxTranslateEl.classList.remove("show");
+    railTranslateEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !targetLanguage || !file) {
+      log("חסר שדה — צריך Gemini key, GitHub token, בעל/שם ריפו, קובץ APK ושפת יעד.", "error", logTranslateEl);
+      return;
+    }
+
+    const spend = await backendCall("spendCredits", { pipelineAction: "translate" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error", logTranslateEl); return; }
+    refreshCreditsDisplay(spend);
+
+    setBusyBtn(translateGoBtn, true, "מתרגם…", "פרק, תרגם ובנה מחדש");
+    try {
+      setStage("decompile", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const apkBase64 = await blobToBase64(file);
+      await triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget: logTranslateEl });
+      setStage("decompile", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("strings", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const stringsPath = `${DECOMPILED_APP_DIR}/res/values/strings.xml`;
+      log(`שולף ${stringsPath}…`, null, logTranslateEl);
+      const originalXml = await fetchRepoFile({ owner, repo, branch, token, path: stringsPath });
+      const stringsMap = parseStringsXml(originalXml);
+      const count = Object.keys(stringsMap).length;
+      if (count === 0) throw new Error("res/values/strings.xml לא הכיל אף <string> לתרגום.");
+      log(`נמצאו ${count} מחרוזות.`, "ok", logTranslateEl);
+      setStage("strings", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("translate", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      log(`מתרגם ל"${targetLanguage}" עם Gemini…`, null, logTranslateEl);
+      const { langCode, translations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logTranslateEl);
+      const translatedXml = buildTranslatedStringsXml(originalXml, translations);
+      log(`תורגם, קוד שפה: ${langCode}`, "ok", logTranslateEl);
+      setStage("translate", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("commit", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const targetPath = `${DECOMPILED_APP_DIR}/res/values-${langCode}/strings.xml`;
+      const commitSha = await commitRepoFiles({
+        owner, repo, branch, token,
+        files: [{ path: targetPath, content: translatedXml }],
+        message: `AI App Maker: add ${langCode} translation`,
+      });
+      log(`Commit נוצר: ${commitSha.slice(0, 7)} (${targetPath})`, "ok", logTranslateEl);
+      setStage("commit", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("rebuild", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logTranslateEl });
+      log("הבנייה מחדש הצליחה ✓", "ok", logTranslateEl);
+      setStage("rebuild", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      setStage("apk", "active", railTranslateEl, TRANSLATE_STAGE_ORDER);
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id, artifactName: REBUILD_ARTIFACT_NAME, logTarget: logTranslateEl });
+      setStage("apk", "done", railTranslateEl, TRANSLATE_STAGE_ORDER);
+
+      downloadLinkTranslateEl.href = apkUrl;
+      downloadBoxTranslateEl.classList.add("show");
+      log("מוכן — ה-APK המתורגם מחכה להורדה.", "ok", logTranslateEl);
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logTranslateEl);
+      markCurrentStageError(railTranslateEl);
+    } finally {
+      setBusyBtn(translateGoBtn, false, "מתרגם…", "פרק, תרגם ובנה מחדש");
+    }
+  }
+
+  // ---------- edit mode: decompile → locate → patch → rebuild (with auto-fix retry) ----------
+  async function runDecompileEditPipeline() {
+    const geminiKeys = parseGeminiKeys(geminiKeysEl.value);
+    const token = githubTokenEl.value.trim();
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const branch = (branchEl.value.trim() || "main");
+    const thinkLevel = selectedThinkLevel;
+    const instruction = editInstructionEl.value.trim();
+    const file = editApkFileEl.files[0];
+
+    logEditDecompileEl.innerHTML = "";
+    downloadBoxEditDecompileEl.classList.remove("show");
+    railEditDecompileEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !instruction || !file) {
+      log("חסר שדה — צריך Gemini key, GitHub token, בעל/שם ריפו, קובץ APK ותיאור השינוי.", "error", logEditDecompileEl);
+      return;
+    }
+
+    const spend = await backendCall("spendCredits", { pipelineAction: "edit" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { log("✗ " + spend.error, "error", logEditDecompileEl); return; }
+    refreshCreditsDisplay(spend);
+
+    setBusyBtn(editGoBtn, true, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
+    try {
+      setStage("decompile", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const apkBase64 = await blobToBase64(file);
+      await triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget: logEditDecompileEl });
+      setStage("decompile", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      setStage("locate", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const manifestXml = await fetchRepoFile({ owner, repo, branch, token, path: `${DECOMPILED_APP_DIR}/AndroidManifest.xml` });
+      const pkg = extractManifestPackage(manifestXml);
+      log(`חבילה: ${pkg}`, null, logEditDecompileEl);
+      const allPaths = await listRepoTree({ owner, repo, branch, token });
+      const candidatePaths = filterEditCandidatePaths(allPaths, pkg);
+      log(`${candidatePaths.length} קבצים אפשריים, שואל את Gemini אילו רלוונטיים…`, null, logEditDecompileEl);
+      const paths = await locateEditFiles(geminiKeys, pkg, instruction, candidatePaths, logEditDecompileEl);
+      if (paths.length === 0) throw new Error("Gemini לא מצא קבצים רלוונטיים לשינוי הזה בין קבצי האפליקציה שזוהו.");
+      log(`נבחרו: ${paths.join(", ")}`, "ok", logEditDecompileEl);
+      setStage("locate", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      setStage("patch", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const fileContents = await Promise.all(paths.map(async (p) => ({ path: p, content: await fetchRepoFile({ owner, repo, branch, token, path: p }) })));
+      let patchedFiles = await patchEditFiles(geminiKeys, pkg, instruction, fileContents, thinkLevel, logEditDecompileEl);
+      if (patchedFiles.length === 0) throw new Error("Gemini לא הציע שינוי בקבצים שנבחרו — נסו לנסח את הבקשה אחרת.");
+      log(`Gemini שינה ${patchedFiles.length} קבצים.`, "ok", logEditDecompileEl);
+      setStage("patch", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      let run;
+      for (let attempt = 1; attempt <= MAX_DECOMPILE_AUTO_FIX_ATTEMPTS + 1; attempt++) {
+        setStage("commit", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+        const commitSha = await commitRepoFiles({ owner, repo, branch, token, files: patchedFiles, message: "AI App Maker: patch decompiled app" });
+        log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok", logEditDecompileEl);
+        setStage("commit", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+        setStage("rebuild", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+        try {
+          run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logEditDecompileEl });
+          log("הבנייה מחדש הצליחה ✓", "ok", logEditDecompileEl);
+          setStage("rebuild", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+          break;
+        } catch (buildErr) {
+          if (attempt > MAX_DECOMPILE_AUTO_FIX_ATTEMPTS) throw buildErr;
+          log(`✗ הבנייה מחדש נכשלה (ניסיון ${attempt} מתוך ${MAX_DECOMPILE_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logEditDecompileEl);
+          log("שולף לוג שגיאה ומנסה לתקן את הטלאי עם Gemini…", null, logEditDecompileEl);
+          let errorLog;
+          try {
+            errorLog = await fetchWorkflowRunLog({ owner, repo, token, runId: buildErr.runId });
+          } catch (logFetchErr) {
+            errorLog = `(לא הצלחתי לשלוף לוג מפורט: ${logFetchErr.message}) conclusion error: ${buildErr.message}`;
+          }
+          try {
+            patchedFiles = await patchEditFilesFix(geminiKeys, pkg, instruction, patchedFiles, errorLog, thinkLevel, logEditDecompileEl);
+            log("Gemini החזיר טלאי מתוקן, מנסה שוב…", "ok", logEditDecompileEl);
+          } catch (fixErr) {
+            console.error(fixErr);
+            throw buildErr;
+          }
+        }
+      }
+
+      setStage("apk", "active", railEditDecompileEl, EDIT2_STAGE_ORDER);
+      const apkUrl = await downloadApk({ owner, repo, token, runId: run.id, artifactName: REBUILD_ARTIFACT_NAME, logTarget: logEditDecompileEl });
+      setStage("apk", "done", railEditDecompileEl, EDIT2_STAGE_ORDER);
+
+      downloadLinkEditDecompileEl.href = apkUrl;
+      downloadBoxEditDecompileEl.classList.add("show");
+      log("מוכן — ה-APK הערוך מחכה להורדה.", "ok", logEditDecompileEl);
+    } catch (err) {
+      console.error(err);
+      log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditDecompileEl);
+      markCurrentStageError(railEditDecompileEl);
+    } finally {
+      setBusyBtn(editGoBtn, false, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
+    }
+  }
+
+  // ---------- mode tabs ----------
+  function switchMode(mode) {
+    Object.entries(modePanels).forEach(([key, el]) => { if (el) el.hidden = key !== mode; });
+    modeTabsEl.querySelectorAll(".mode-tab").forEach((btn) => {
+      btn.setAttribute("aria-selected", btn.dataset.mode === mode ? "true" : "false");
+    });
+    if (mode === "admin") { loadAdminUsers(); loadAdminConfig(); }
+  }
+  modeTabsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".mode-tab");
+    if (!btn) return;
+    switchMode(btn.dataset.mode);
+  });
+
+  // ---------- thinking-level toggle ----------
+  thinkToggle.addEventListener("click", (e) => {
+    const btn = e.target.closest(".think-btn");
+    if (!btn) return;
+    selectedThinkLevel = btn.dataset.level;
+    thinkToggle.querySelectorAll(".think-btn").forEach((b) => b.classList.toggle("active", b === btn));
+  });
+
+  // ---------- new chat: clears the current task, keeps saved connections ----------
+  newChatBtn.addEventListener("click", () => {
+    ideaEl.value = "";
+    resetPipeline();
+
+    apkFileEl.value = "";
+    imageGrid.innerHTML = "";
+    imageGrid.hidden = true;
+    editSummary.hidden = true;
+    pendingChanges.clear();
+    loadedApkZip = null;
+    editScanStatus.textContent = "";
+    resetEditPipeline();
+
+    selectedThinkLevel = "medium";
+    thinkToggle.querySelectorAll(".think-btn").forEach((b) => b.classList.toggle("active", b.dataset.level === "medium"));
+
+    editApkFileEl.value = "";
+    editInstructionEl.value = "";
+    logEditDecompileEl.innerHTML = "";
+    downloadBoxEditDecompileEl.classList.remove("show");
+    railEditDecompileEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    translateApkFileEl.value = "";
+    targetLanguageEl.value = "";
+    logTranslateEl.innerHTML = "";
+    downloadBoxTranslateEl.classList.remove("show");
+    railTranslateEl.querySelectorAll("[data-state]").forEach((el) => (el.dataset.state = "pending"));
+
+    switchMode("build");
+    ideaEl.focus();
+  });
+
+  // ---------- user badge + credits display ----------
+  const ROLE_LABELS = { regular: "רגיל", pro: "פרו", superpro: "סופר-פרו", admin: "מנהל" };
+
+  function renderUserBadge() {
+    if (!currentUser) { userBadge.hidden = true; return; }
+    userBadge.hidden = false;
+    userBadgeName.textContent = currentUser.displayName || currentUser.username;
+    userBadgeRole.textContent = ROLE_LABELS[currentUser.role] || currentUser.role;
+    userBadgeCredits.textContent = currentUser.credits === "unlimited" ? "קרדיטים: ללא הגבלה" : `קרדיטים: ${currentUser.credits}`;
+  }
+
+  function refreshCreditsDisplay(spendResult) {
+    if (!currentUser) return;
+    if (spendResult && spendResult.unlimited) currentUser.credits = "unlimited";
+    else if (spendResult && typeof spendResult.remainingCredits === "number") currentUser.credits = spendResult.remainingCredits;
+    renderUserBadge();
+  }
+
+  // ---------- role-based UI (manual fields vs. backend-managed) ----------
+  function applyRoleUI() {
+    const role = currentUser ? currentUser.role : "regular";
+    const isProPlus = PRO_PLUS_ROLES.includes(role);
+    manualCredentialFields.hidden = isProPlus;
+    proPlusConnectionsNote.hidden = !isProPlus;
+    adminTabBtn.hidden = role !== "admin";
+    if (isProPlus) {
+      ownerEl.value = publicInfo.githubOwner || "";
+      repoEl.value = publicInfo.githubRepo || "";
+      branchEl.value = publicInfo.githubBranch || "main";
+    }
+  }
+
+  // ---------- public info (no login needed): site text + current prices ----------
+  function applySiteText() {
+    document.querySelectorAll("[data-text-key]").forEach((el) => {
+      const key = el.dataset.textKey;
+      if (publicInfo.siteText && publicInfo.siteText[key]) el.innerHTML = publicInfo.siteText[key];
+    });
+  }
+
+  function applyCreditCostsHint() {
+    const c = publicInfo.creditCosts || {};
+    creditCostsHint.textContent =
+      `עלות בקרדיטים: בנייה ${c.build ?? "?"} · עריכה ${c.edit ?? "?"} · תרגום ${c.translate ?? "?"} · צנזור ${c.censor ?? "?"}` +
+      (currentUser ? "" : ` · משתמש חדש מתחיל עם ${publicInfo.regularDefaultCredits ?? "?"} קרדיטים`);
+  }
+
+  async function loadPublicInfo() {
+    try {
+      const res = await fetch(BACKEND_URL + "?action=getPublicInfo");
+      const data = await res.json();
+      if (data.ok) {
+        publicInfo = data;
+        applySiteText();
+        applyCreditCostsHint();
+      }
+    } catch (err) {
+      console.error("loadPublicInfo failed:", err);
+    }
+  }
+
+  // ---------- auth screen ----------
+  function showApp() {
+    authScreen.hidden = true;
+    mainWrapEl.hidden = false;
+    newChatBtn.hidden = false;
+    applyRoleUI();
+    renderUserBadge();
+    applyCreditCostsHint();
+  }
+
+  function showAuthScreenView() {
+    authScreen.hidden = false;
+    mainWrapEl.hidden = true;
+    newChatBtn.hidden = true;
+    userBadge.hidden = true;
+  }
+
+  // ---------- Google Sign-In ----------
+  async function handleGoogleCredential(response) {
+    authErrorEl.hidden = true;
+    try {
+      const result = await backendCall("googleLogin", { idToken: response.credential });
+      if (!result.ok) throw new Error(result.error);
+      currentUser = { token: result.token, username: result.username, displayName: result.displayName, role: result.role, credits: result.credits };
+      showApp();
+    } catch (err) {
+      authErrorEl.textContent = err.message;
+      authErrorEl.hidden = false;
+    }
+  }
+
+  // Called once by the script tag's onload, and once defensively here in case the
+  // GIS script already finished loading (e.g. from cache) before this ran.
+  function initGoogleSignIn() {
+    if (!window.google || !google.accounts || !google.accounts.id || !googleSignInButtonEl) return;
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
+    google.accounts.id.renderButton(googleSignInButtonEl, {
+      type: "standard", theme: "outline", size: "large", text: "signin_with", shape: "pill", locale: "iw",
+    });
+  }
+  window.__gisLoaded = initGoogleSignIn;
+  initGoogleSignIn();
+
+  logoutBtn.addEventListener("click", async () => {
+    try { await backendCall("logout", {}); } catch (err) { console.error(err); }
+    if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();
+    currentUser = null;
+    showAuthScreenView();
+  });
+
+  // ---------- admin: users table ----------
+  function buildAdminUserRow(u) {
+    const row = document.createElement("div");
+    row.className = "admin-user-row";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "admin-user-name";
+    nameEl.textContent = u.displayName ? `${u.displayName} (${u.username})` : u.username;
+
+    const roleSelect = document.createElement("select");
+    ["regular", "pro", "superpro", "admin"].forEach((r) => {
+      const opt = document.createElement("option");
+      opt.value = r;
+      opt.textContent = ROLE_LABELS[r];
+      if (r === u.role) opt.selected = true;
+      roleSelect.appendChild(opt);
+    });
+
+    const creditsInput = document.createElement("input");
+    creditsInput.type = "text";
+    creditsInput.inputMode = "numeric";
+    creditsInput.value = u.credits;
+
+    const blockedLabel = document.createElement("label");
+    blockedLabel.className = "admin-blocked-label";
+    const blockedCheckbox = document.createElement("input");
+    blockedCheckbox.type = "checkbox";
+    blockedCheckbox.checked = u.blocked;
+    blockedLabel.append(blockedCheckbox, document.createTextNode(" חסום"));
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "chip-btn";
+    saveBtn.textContent = "שמור";
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "שומר…";
+      try {
+        const result = await backendCall("adminSetUser", {
+          targetUsername: u.username,
+          role: roleSelect.value,
+          credits: Number(creditsInput.value) || 0,
+          blocked: blockedCheckbox.checked,
+        });
+        if (!result.ok) throw new Error(result.error);
+        saveBtn.textContent = "נשמר ✓";
+      } catch (err) {
+        saveBtn.textContent = "✗ שגיאה";
+        console.error(err);
+      } finally {
+        saveBtn.disabled = false;
+        setTimeout(() => { saveBtn.textContent = "שמור"; }, 2000);
+      }
+    });
+
+    row.append(nameEl, roleSelect, creditsInput, blockedLabel, saveBtn);
+    return row;
+  }
+
+  async function loadAdminUsers() {
+    adminUsersTable.innerHTML = '<p class="hint">טוען…</p>';
+    try {
+      const result = await backendCall("adminListUsers", {});
+      if (!result.ok) throw new Error(result.error);
+      adminUsersTable.innerHTML = "";
+      result.users.forEach((u) => adminUsersTable.appendChild(buildAdminUserRow(u)));
+    } catch (err) {
+      adminUsersTable.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "✗ " + err.message;
+      adminUsersTable.appendChild(p);
+    }
+  }
+  adminRefreshUsersBtn.addEventListener("click", loadAdminUsers);
+
+  // ---------- admin: credit costs + system instructions ----------
+  async function loadAdminConfig() {
+    try {
+      const result = await backendCall("adminGetConfig", {});
+      if (!result.ok) throw new Error(result.error);
+      adminCostBuild.value = result.config.creditCost_build;
+      adminCostEdit.value = result.config.creditCost_edit;
+      adminCostTranslate.value = result.config.creditCost_translate;
+      adminCostCensor.value = result.config.creditCost_censor;
+      adminDefaultCredits.value = result.config.regularDefaultCredits;
+      adminSystemInstructions.value = result.config.systemInstructions || "";
+      adminConfigStatus.textContent = "";
+    } catch (err) {
+      adminConfigStatus.textContent = "✗ " + err.message;
+    }
+  }
+
+  adminSaveConfigBtn.addEventListener("click", async () => {
+    adminSaveConfigBtn.disabled = true;
+    adminConfigStatus.textContent = "שומר…";
+    try {
+      await Promise.all([
+        backendCall("adminSetConfig", { key: "creditCost_build", value: Number(adminCostBuild.value) || 0 }),
+        backendCall("adminSetConfig", { key: "creditCost_edit", value: Number(adminCostEdit.value) || 0 }),
+        backendCall("adminSetConfig", { key: "creditCost_translate", value: Number(adminCostTranslate.value) || 0 }),
+        backendCall("adminSetConfig", { key: "creditCost_censor", value: Number(adminCostCensor.value) || 0 }),
+        backendCall("adminSetConfig", { key: "regularDefaultCredits", value: Number(adminDefaultCredits.value) || 0 }),
+        backendCall("adminSetConfig", { key: "systemInstructions", value: adminSystemInstructions.value }),
+      ]);
+      adminConfigStatus.textContent = "נשמר ✓";
+      loadPublicInfo();
+    } catch (err) {
+      adminConfigStatus.textContent = "✗ " + err.message;
+    } finally {
+      adminSaveConfigBtn.disabled = false;
+    }
+  });
+
+  // ---------- admin: edit any marked site text directly on the page ----------
+  function onSiteTextBlur(e) {
+    const el = e.currentTarget;
+    backendCall("adminSetSiteText", { key: el.dataset.textKey, value: el.innerHTML.trim() }).catch((err) => console.error(err));
+  }
+  siteTextEditToggle.addEventListener("click", () => {
+    siteTextEditActive = !siteTextEditActive;
+    document.body.classList.toggle("site-text-editing", siteTextEditActive);
+    siteTextEditToggle.textContent = siteTextEditActive ? "כיבוי מצב עריכת טקסטים" : "הפעלת מצב עריכת טקסטים";
+    siteTextEditStatus.textContent = siteTextEditActive ? "לחצו על כל טקסט מסומן, ערכו, ולחצו מחוץ לו כדי לשמור." : "";
+    document.querySelectorAll("[data-text-key]").forEach((el) => {
+      el.contentEditable = siteTextEditActive ? "true" : "false";
+      el.removeEventListener("blur", onSiteTextBlur);
+      if (siteTextEditActive) el.addEventListener("blur", onSiteTextBlur);
+    });
+  });
+
+  goBtn.addEventListener("click", runPipeline);
+  buildEditedBtn.addEventListener("click", runEditPipeline);
+  editGoBtn.addEventListener("click", runDecompileEditPipeline);
+  translateGoBtn.addEventListener("click", runTranslatePipeline);
+  switchMode("build");
+  loadPublicInfo();
+})();
+</script>
 </body>
 </html>
