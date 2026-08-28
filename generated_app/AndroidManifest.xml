@@ -7,13 +7,15 @@
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <application
-        android:label="מראה לתפילין"
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
+        android:label="מראה לתפילין"
         android:theme="@android:style/Theme.Holo.Light.NoActionBar">
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize">
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

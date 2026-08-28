@@ -1,27 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Background: Clean White Rounded Square -->
+    <!-- Background -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M12,12 H96 A12,12 0 0 1 108,24 V92 A12,12 0 0 1 96,108 H12 A12,12 0 0 1 0,96 V24 A12,12 0 0 1 12,12 Z" />
-        
-    <!-- Outer Frame (Gold) -->
+        android:fillColor="#1A237E"
+        android:pathData="M12,0 L96,0 A12,12 0 0 1 108,12 L108,96 A12,12 0 0 1 96,108 L12,108 A12,12 0 0 1 0,96 L0,12 A12,12 0 0 1 12,0 z" />
+    <!-- Mirror Frame (Gold) -->
     <path
-        android:fillColor="#D4AF37"
-        android:pathData="M18,18 H90 V90 H18 Z M22,22 V86 H86 V22 Z" />
-        
-    <!-- Tefillin Box Symbol (Dark Slate Blue) -->
+        android:fillColor="#8D6E63"
+        android:pathData="M24,24 L84,24 A8,8 0 0 1 92,32 L92,76 A8,8 0 0 1 84,84 L24,84 A8,8 0 0 1 16,76 L16,32 A8,8 0 0 1 24,24 z" />
+    <!-- Mirror Glass (Light Blue) -->
     <path
-        android:fillColor="#1A252F"
-        android:pathData="M38,38 H70 V70 H38 Z" />
-        
-    <!-- Tefillin Straps (Dark Slate Blue) -->
+        android:fillColor="#E0F7FA"
+        android:pathData="M28,28 L80,28 A4,4 0 0 1 84,32 L84,72 A4,4 0 0 1 80,76 L28,76 A4,4 0 0 1 24,72 L24,32 A4,4 0 0 1 28,28 z" />
+    <!-- Tefillin Shel Rosh (Black Box) -->
     <path
-        android:fillColor="#1A252F"
-        android:pathData="M48,70 L30,90 H40 L54,70 Z M60,70 L78,90 H68 L54,70 Z" />
+        android:fillColor="#212121"
+        android:pathData="M42,38 L66,38 A4,4 0 0 1 70,42 L70,62 A4,4 0 0 1 66,66 L42,66 A4,4 0 0 1 38,62 L38,42 A4,4 0 0 1 42,38 z" />
+    <!-- Shin Letter (Gold) on Tefillin -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M46,44 L48,44 L48,56 L52,56 L52,44 L54,44 L54,56 L58,56 L58,44 L60,44 L60,58 A2,2 0 0 1 58,60 L48,60 A2,2 0 0 1 46,58 z" />
 </vector>
