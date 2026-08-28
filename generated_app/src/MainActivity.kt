@@ -25,6 +25,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import java.util.ArrayList
 
 class MainActivity : Activity(), SurfaceHolder.Callback {
 
@@ -51,13 +52,13 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         // Main layout containing top tabs, content area, and bottom credit
         val root = LinearLayout(this)
         root.orientation = LinearLayout.VERTICAL
-        root.backgroundColor = Color.parseColor("#F9F9F9")
+        root.setBackgroundColor(Color.parseColor("#F9F9F9"))
 
         // 1. Top Navigation Tabs
         val tabLayout = LinearLayout(this)
         tabLayout.orientation = LinearLayout.HORIZONTAL
         tabLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(55))
-        tabLayout.backgroundColor = Color.parseColor("#FFFFFF")
+        tabLayout.setBackgroundColor(Color.parseColor("#FFFFFF"))
         
         tabMirror = createTab("מראה לתפילין", true)
         tabOrder = createTab("סדר הנחה", false)
@@ -82,12 +83,12 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         // 3. Bottom Credit Bar
         val bottomBar = LinearLayout(this)
         bottomBar.orientation = LinearLayout.HORIZONTAL
-        bottomBar.backgroundColor = Color.parseColor("#1A237E")
+        bottomBar.setBackgroundColor(Color.parseColor("#1A237E"))
         bottomBar.setPadding(dp(10), dp(8), dp(10), dp(8))
         bottomBar.gravity = Gravity.CENTER_VERTICAL
 
         val creditText = TextView(this)
-        creditText.text = "פותח ע"י רביב דיגיטל"
+        creditText.text = "פותח ע\"י רביב דיגיטל"
         creditText.setTextColor(Color.parseColor("#FFD700"))
         creditText.textSize = 14f
         creditText.typeface = Typeface.DEFAULT_BOLD
@@ -186,7 +187,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         val controls = LinearLayout(this)
         controls.orientation = LinearLayout.HORIZONTAL
         controls.gravity = Gravity.CENTER
-        controls.backgroundColor = Color.parseColor("#CC000000")
+        controls.setBackgroundColor(Color.parseColor("#CC000000"))
         controls.setPadding(dp(8), dp(8), dp(8), dp(8))
         
         val btnLight = createStyledButton("תאורה", Color.parseColor("#FFC107"))
@@ -218,7 +219,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
     private fun buildOrderLayout() {
         orderLayout = LinearLayout(this)
         orderLayout?.orientation = LinearLayout.VERTICAL
-        orderLayout?.backgroundColor = Color.WHITE
+        orderLayout?.setBackgroundColor(Color.WHITE)
         orderLayout?.setPadding(dp(12), dp(12), dp(12), dp(12))
 
         // Nusach Selector Header
@@ -227,7 +228,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         selectorLayout.gravity = Gravity.CENTER
         selectorLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val nusachs = arrayOf("ע"מ (ספרדי)", "אשכנז", "ספרד", "חב"ד")
+        val nusachs = arrayOf("ע\"מ (ספרדי)", "אשכנז", "ספרד", "חב\"ד")
         val buttons = ArrayList<Button>()
 
         for (i in nusachs.indices) {
@@ -267,7 +268,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         prayerTextView?.textSize = 18f
         prayerTextView?.setTextColor(Color.parseColor("#212121"))
         prayerTextView?.gravity = Gravity.RIGHT
-        prayerTextView?.setLineSpacing(1.3f, 1.0f)
+        prayerTextView?.setLineSpacing(1.0f, 1.3f)
         scrollView.addView(prayerTextView)
 
         // Select first Nusach by default
@@ -316,7 +317,8 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         if (isFaceLightOn) {
             faceLightBorder?.visibility = View.VISIBLE
             lp.screenBrightness = 1.0f
-        } else {
+        }
+        else {
             faceLightBorder?.visibility = View.GONE
             lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
         }
@@ -366,7 +368,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
                 sb.append("ג. כורכים על האצבע ואומרים 'וארשתיך...'")
             }
             3 -> { // Chabad
-                sb.append("סדר הנחת תפילין - חב"ד\n\n")
+                sb.append("סדר הנחת תפילין - חב\"ד\n\n")
                 sb.append("א. תפילין של יד:\n")
                 sb.append("מניח על הקיבורת, ומברך:\n\n")
                 sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
@@ -377,7 +379,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
                 sb.append("ג. כריכת הרצועות על האצבע האמצעית ואומר 'וארשתיך...'")
             }
         }
-        prayerTextView?.text = sb.toString()
+        prayerTextView?.text = sb.toString() 
     }
 
     private fun showAboutDialog() {
@@ -403,7 +405,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == CAMERA_REQ_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCameraPreview()
@@ -424,7 +426,7 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
                     if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                         frontCameraId = i
                         break
-                    }
+                    } 
                 }
                 
                 camera = if (frontCameraId != -1) {
@@ -562,6 +564,6 @@ class MainActivity : Activity(), SurfaceHolder.Callback {
                 return true
             }
             return super.onTouchEvent(event)
-        }
+        } 
     }
 }
