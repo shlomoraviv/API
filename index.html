@@ -34,27 +34,6 @@
     --radius: 16px;
     --radius-sm: 10px;
     --shadow-card: 0 1px 2px rgba(43,41,36,0.06), 0 1px 1px rgba(43,41,36,0.04);
-    
-    --sidebar-width: 260px;
-  }
-  body.dark-mode {
-    --bg: #1E1E1E;
-    --bg-inset: #121212;
-    --surface: #252526;
-    --surface-2: #2D2D30;
-    --border: #3E3E42;
-    --border-strong: #55555A;
-    --text: #E0E0E0;
-    --text-muted: #9E9E9E;
-    --accent: #D97757;
-    --accent-hover: #E88B6E;
-    --accent-soft: #4A2B20;
-    --on-accent: #FFFFFF;
-    --success: #77875F;
-    --success-soft: #2B3322;
-    --on-success: #FFFFFF;
-    --error: #B3483B;
-    --error-soft: #421A15;
   }
 
   * { box-sizing: border-box; }
@@ -133,80 +112,7 @@
     max-width: 62ch;
   }
 
-  /* --- mode tabs & layout --- */
-
-  body { min-height: 100vh; display: flex; flex-direction: column; }
-  .app-layout { display: flex; flex: 1; overflow: hidden; height: 100vh; }
-  .sidebar {
-    width: var(--sidebar-width);
-    background: var(--surface-2);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    gap: 8px;
-    overflow-y: auto;
-  }
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    position: relative;
-    background: var(--bg);
-  }
-  .settings-btn {
-    margin-top: auto;
-    background: transparent;
-    border: 1px solid var(--border-strong);
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    cursor: pointer;
-    font-family: var(--sans);
-    font-weight: 600;
-    text-align: right;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .settings-btn:hover { background: var(--border); }
-  
-  /* Chat Studio Styles */
-  .chat-studio-wrap { display: flex; flex-direction: column; height: 100%; max-width: 800px; margin: 0 auto; width: 100%; padding: 20px; }
-  .chat-history { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 20px; }
-  .chat-msg { display: flex; flex-direction: column; max-width: 85%; padding: 12px 16px; border-radius: var(--radius); line-height: 1.5; font-size: 15px; }
-  .chat-msg.user { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); }
-  .chat-msg.ai { align-self: flex-end; background: var(--accent-soft); color: var(--text); border: 1px solid var(--border); }
-  .chat-input-area { display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 8px; box-shadow: var(--shadow-card); }
-  .chat-input-area textarea { flex: 1; border: none; background: transparent; resize: none; min-height: 44px; outline: none; padding: 10px; font-family: var(--sans); color: var(--text); }
-  .chat-input-area button { background: var(--accent); color: var(--on-accent); border: none; border-radius: var(--radius-sm); padding: 0 20px; font-weight: 600; cursor: pointer; }
-  .chat-input-area button:hover { background: var(--accent-hover); }
-
-  /* Modal Styles */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
-  .modal-overlay[hidden] { display: none; }
-  .modal-content { background: var(--surface); width: 90%; max-width: 700px; max-height: 90vh; border-radius: var(--radius); display: flex; flex-direction: row; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-  .modal-sidebar { width: 200px; background: var(--surface-2); border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px; gap: 8px; }
-  .modal-main { flex: 1; padding: 24px; overflow-y: auto; }
-  .modal-tab-btn { background: transparent; border: none; text-align: right; padding: 10px; font-family: var(--sans); font-weight: 500; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); }
-  .modal-tab-btn:hover { background: var(--border); }
-  .modal-tab-btn.active { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow-card); }
-  .modal-panel { display: none; }
-  .modal-panel.active { display: block; }
-  .modal-close { position: absolute; top: 16px; left: 16px; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
-  
-  .mode-tabs {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 22px;
-  }
-  .mode-tab {
-    flex: none;
-  }
-  .topbar { display: none; } /* Hide old topbar if we move it to sidebar */
-
+  /* --- mode tabs --- */
   .mode-tabs {
     display: flex;
     gap: 8px;
@@ -947,6 +853,193 @@
     cursor: text;
     background: var(--accent-soft);
   }
+
+  /* ===================== history sidebar (conversation list) ===================== */
+  .history-toggle-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .history-toggle-btn:hover { background: var(--bg-inset); border-color: var(--accent); }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(43, 41, 36, 0.32);
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+  }
+  .sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 84vw;
+    background: var(--surface);
+    border-inline-end: 1px solid var(--border);
+    box-shadow: 2px 0 18px rgba(43,41,36,0.14);
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sidebar-drawer.open { transform: translateX(0); }
+
+  .sidebar-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-drawer-title { font-family: var(--display); font-weight: 600; font-size: 15px; }
+  .sidebar-close-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+  }
+  .sidebar-close-btn:hover { background: var(--bg-inset); color: var(--text); }
+
+  .sidebar-new-btn {
+    margin: 12px 16px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--accent-hover);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .sidebar-new-btn:hover { background: var(--accent); color: var(--on-accent); }
+
+  .conv-list { flex: 1; overflow-y: auto; padding: 8px 10px 16px; }
+  .conv-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-bottom: 2px;
+  }
+  .conv-item:hover { background: var(--bg-inset); }
+  .conv-item.active { background: var(--accent-soft); }
+  .conv-item-body { flex: 1 1 auto; min-width: 0; }
+  .conv-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .conv-item.active .conv-item-title { color: var(--accent-hover); }
+  .conv-item-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+  .conv-item-delete {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    opacity: 0;
+    cursor: pointer;
+    font-size: 13px;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+  .conv-item:hover .conv-item-delete { opacity: 1; }
+  .conv-item-delete:hover { background: var(--error-soft); color: var(--error); }
+  .conv-empty-hint { padding: 18px 14px; color: var(--text-muted); font-size: 12.5px; line-height: 1.6; text-align: center; }
+
+  .conv-thread { display: flex; flex-direction: column; gap: 8px; }
+  .conv-turn {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    background: var(--surface-2);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .conv-turn.role-user { background: var(--accent-soft); border-color: var(--accent); }
+  .conv-turn-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px; display: flex; gap: 8px; }
+
+  /* ===================== admin: all conversations ===================== */
+  .admin-conv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .admin-conv-row-info { min-width: 0; overflow-wrap: anywhere; }
+  .admin-conv-row-title { font-weight: 600; }
+  .admin-conv-row-meta { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+  .admin-conv-row-actions { flex: 0 0 auto; display: flex; gap: 6px; }
+
+  .conv-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(43,41,36,0.4);
+    display: flex; align-items: center; justify-content: center; z-index: 30; padding: 20px;
+  }
+  .conv-modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    width: 560px; max-width: 100%;
+    max-height: 82vh;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-card);
+  }
+  .conv-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .conv-modal-body { padding: 16px 18px; overflow-y: auto; }
+
+  /* ===================== admin: API keys for pro / super-pro ===================== */
+  .api-key-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 12px; margin-bottom: 8px;
+  }
+  .api-key-mask { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.4px; }
+  .api-key-add-row { display: flex; gap: 8px; margin-top: 12px; }
+  .api-key-add-row input { flex: 1 1 auto; }
+  .api-key-add-row button { flex: 0 0 auto; width: auto; padding: 10px 16px; }
+
+  @media (max-width: 640px) {
+    .sidebar-drawer { width: 86vw; }
+  }
 </style>
 </head>
 <body>
@@ -962,10 +1055,28 @@
     <span class="user-badge-credits" id="userBadgeCredits"></span>
     <button type="button" class="user-badge-logout" id="logoutBtn">התנתקות</button>
   </div>
+  <button type="button" class="history-toggle-btn" id="historyToggleBtn" hidden>
+    <span aria-hidden="true">☰</span> שיחות
+  </button>
   <button type="button" class="new-chat-btn" id="newChatBtn" hidden>
     <span class="plus" aria-hidden="true">+</span> שיחה חדשה
   </button>
 </div>
+
+<!-- ===================== conversation history sidebar (new) ===================== -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="sidebar-drawer" id="sidebarDrawer" aria-label="היסטוריית שיחות">
+  <div class="sidebar-drawer-head">
+    <span class="sidebar-drawer-title">היסטוריית שיחות</span>
+    <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="סגירה">✕</button>
+  </div>
+  <button type="button" class="sidebar-new-btn" id="sidebarNewConvBtn">
+    <span class="plus" aria-hidden="true">+</span> שיחה חדשה
+  </button>
+  <div class="conv-list" id="convListEl">
+    <p class="conv-empty-hint">עוד אין שיחות שמורות. כל בקשה שתשלחו תישמר כאן אוטומטית.</p>
+  </div>
+</aside>
 
 <!-- ===================== AUTH SCREEN (shown until logged in) ===================== -->
 <div class="auth-wrap" id="authScreen">
@@ -977,12 +1088,16 @@
   </section>
 </div>
 
-<div class="app-layout" id="mainWrap" hidden>
-  <div class="sidebar">
-    <div class="brand">
-      <span class="brand-mark">AI App Maker</span>
-    </div>
-<div class="mode-tabs" role="tablist" aria-label="מצב עבודה" id="modeTabs">
+<div class="wrap" id="mainWrap" hidden>
+
+  <header class="page-head">
+    <p class="lede" data-text-key="lede">
+      תארו אפליקציית אנדרואיד, ערכו, תרגמו או צנזרו APK קיים. Gemini עושה את החשיבה והכתיבה,
+      GitHub Actions מקמפל וחותם APK אמיתי, והכל יורד אליכם ישירות מהדפדפן.
+    </p>
+  </header>
+
+  <div class="mode-tabs" role="tablist" aria-label="מצב עבודה" id="modeTabs">
     <button type="button" class="mode-tab" role="tab" data-mode="build" aria-selected="true">
       <span class="mode-tab-title" data-text-key="tab_build_title">בניית אפליקציה</span>
       <span class="mode-tab-sub" data-text-key="tab_build_sub">תיאור → APK חדש</span>
@@ -999,28 +1114,11 @@
       <span class="mode-tab-title" data-text-key="tab_censor_title">צנזור אפליקציה</span>
       <span class="mode-tab-sub" data-text-key="tab_censor_sub">החלפת / הסתרת תמונות</span>
     </button>
-    
-      <button type="button" class="mode-tab" role="tab" data-mode="chat" aria-selected="false">
-      <span class="mode-tab-title">צ'אט סטודיו</span>
-      <span class="mode-tab-sub">התייעצות ובנייה חופשית</span>
+    <button type="button" class="mode-tab" role="tab" data-mode="admin" id="adminTabBtn" aria-selected="false" hidden>
+      <span class="mode-tab-title">ניהול</span>
+      <span class="mode-tab-sub">משתמשים, מחירים, טקסטים</span>
     </button>
   </div>
-    <button type="button" class="settings-btn" id="openSettingsBtn">
-      ⚙️ הגדרות
-    </button>
-  </div>
-  
-  <div class="main-content wrap">
-
-
-  <header class="page-head">
-    <p class="lede" data-text-key="lede">
-      תארו אפליקציית אנדרואיד, ערכו, תרגמו או צנזרו APK קיים. Gemini עושה את החשיבה והכתיבה,
-      GitHub Actions מקמפל וחותם APK אמיתי, והכל יורד אליכם ישירות מהדפדפן.
-    </p>
-  </header>
-
-  
 
   <section class="card" id="creditCostsCard">
     <p class="hint" id="creditCostsHint"></p>
@@ -1325,9 +1423,7 @@
     </section>
   </section>
 
-  </div><!-- end main-content -->
-
-  <!-- ===================== ADMIN MODE
+  <!-- ===================== ADMIN MODE (visible only to role=admin) ===================== -->
   <section class="mode-panel" id="panel-admin" hidden>
     <section class="card">
       <h2>משתמשים</h2>
@@ -1377,6 +1473,25 @@
       <button type="button" class="secondary" id="siteTextEditToggle" style="width:auto; padding:10px 16px;">הפעלת מצב עריכת טקסטים</button>
       <p class="edit-status" id="siteTextEditStatus"></p>
     </section>
+
+    <section class="card">
+      <h2>כל השיחות</h2>
+      <p class="hint">היסטוריית השיחות של כל המשתמשים באתר. אפשר לפתוח כל שיחה לצפייה, או למחוק אותה לצמיתות.</p>
+      <button type="button" class="secondary" id="adminRefreshConvBtn" style="width:auto; padding:10px 16px;">רענון רשימה</button>
+      <div id="adminConvListEl" style="margin-top:14px;"></div>
+    </section>
+
+    <section class="card">
+      <h2>מפתחות API — פרו וסופר-פרו</h2>
+      <p class="hint">מפתחות ה-Gemini המשמשים אוטומטית את כל משתמשי הפרו והסופר-פרו (ומנהלים) דרך השרת. המפתחות נשמרים באחסון הסודי של הסקריפט ולעולם לא נחשפים למשתמשים רגילים/פרו — רק כאן, למנהל.</p>
+      <div id="adminApiKeysListEl"></div>
+      <div class="api-key-add-row">
+        <input type="text" id="adminNewApiKeyInput" class="mono-input" placeholder="AIza…" autocomplete="off">
+        <button type="button" class="secondary" id="adminAddApiKeyBtn">הוספה</button>
+      </div>
+      <button type="button" class="primary" id="adminSaveApiKeysBtn" style="margin-top:14px;">שמירת מפתחות</button>
+      <p class="edit-status" id="adminApiKeysStatus"></p>
+    </section>
   </section>
 
   <footer class="note" data-text-key="footer_note">
@@ -1392,67 +1507,6 @@
 
 </div>
 
-
-<div class="modal-overlay" id="settingsModal" hidden>
-  <div class="modal-content">
-    <button class="modal-close" id="closeSettingsBtn">×</button>
-    <div class="modal-sidebar">
-      <button class="modal-tab-btn active" data-target="settings-general">הגדרות כלליות</button>
-      <button class="modal-tab-btn" data-target="settings-subscription">שדרוג מנוי</button>
-      <button class="modal-tab-btn" data-target="settings-admin" id="adminSettingsTabBtn" hidden>הגדרות מנהל</button>
-    </div>
-    <div class="modal-main">
-      
-      <div class="modal-panel active" id="settings-general">
-        <h2>הגדרות כלליות</h2>
-        <div class="field" style="margin-top:20px;">
-          <label>מצב תצוגה</label>
-          <button type="button" class="secondary" id="themeToggleBtn">החלף למצב לילה</button>
-        </div>
-        <div class="field" style="margin-top:20px;">
-          <label for="userSystemInstructions">הוראות מערכת אישיות</label>
-          <textarea id="userSystemInstructions" rows="4" placeholder="למשל: הוסף תמיד תמיכה בעברית לכל קוד..."></textarea>
-          <p class="hint">הוראות אלו נשלחות ל-AI בכל בקשה. אם יש סתירה, ה-AI יקשיב להוראות המנהל.</p>
-        </div>
-        <div class="field" style="margin-top:20px;">
-          <label for="promptQuestionsCount">כמות שאלות בפרומפט (אוטומטי)</label>
-          <input type="number" id="promptQuestionsCount" value="3" min="0" max="10">
-        </div>
-        <div class="field" style="margin-top:20px;">
-          <label>
-            <input type="checkbox" id="autoImprovePromptCheck" checked>
-            שיפור פרומפט אוטומטי
-          </label>
-        </div>
-        <button type="button" class="primary" id="saveGeneralSettingsBtn" style="margin-top:20px;">שמור הגדרות</button>
-      </div>
-
-      <div class="modal-panel" id="settings-subscription">
-        <h2>שדרוג מנוי</h2>
-        <div style="display:flex; gap:16px; margin-top:20px;">
-          <div class="card" style="flex:1; border: 2px solid var(--border);">
-            <h3>Pro</h3>
-            <p id="proCreditsDisplay">1000 קרדיטים</p>
-            <p id="proCostDisplay" style="font-size:24px; font-weight:bold;">50₪</p>
-            <button class="primary" style="width:100%" onclick="window.open('https://mail.google.com/mail/u/0/?fs=1&to=0556798858b@gmail.com&tf=cm')">שדרג עכשיו</button>
-          </div>
-          <div class="card" style="flex:1; border: 2px solid var(--accent); background: var(--accent-soft);">
-            <h3 style="color:var(--accent-hover)">Super Pro</h3>
-            <p id="superproCreditsDisplay">5000 קרדיטים</p>
-            <p id="superproCostDisplay" style="font-size:24px; font-weight:bold; color:var(--text);">100₪</p>
-            <button class="primary" style="width:100%; background:var(--accent-hover);" onclick="window.open('https://mail.google.com/mail/u/0/?fs=1&to=0556798858b@gmail.com&tf=cm')">שדרג עכשיו</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-panel" id="settings-admin">
-        <!-- We will move the existing panel-admin content here later via JS, or we can inject it directly -->
-        <div id="adminPanelContainer"></div>
-      </div>
-
-    </div>
-  </div>
-</div>
 <script>
 (function () {
   "use strict";
@@ -1676,7 +1730,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const downloadBoxEdit = $("downloadBoxEdit"), downloadLinkEdit = $("downloadLinkEdit");
 
   const modeTabsEl = $("modeTabs"), newChatBtn = $("newChatBtn");
-  const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor"), admin: $("panel-admin"), chat: $("panel-chat") };
+  const modePanels = { build: $("panel-build"), edit: $("panel-edit"), translate: $("panel-translate"), censor: $("panel-censor"), admin: $("panel-admin") };
 
   // ---- auth / user badge / admin DOM references ----
   const authScreen = $("authScreen"), mainWrapEl = $("mainWrap");
@@ -1704,6 +1758,17 @@ rebuild, even if that means dropping part of the requested change.`;
 
   const EDIT2_STAGE_ORDER = ["decompile", "locate", "patch", "commit", "rebuild", "apk"];
   const TRANSLATE_STAGE_ORDER = ["decompile", "strings", "translate", "commit", "rebuild", "apk"];
+
+  // ---- conversation history (new) ----
+  const historyToggleBtn = $("historyToggleBtn"), sidebarBackdrop = $("sidebarBackdrop"), sidebarDrawer = $("sidebarDrawer");
+  const sidebarCloseBtn = $("sidebarCloseBtn"), sidebarNewConvBtn = $("sidebarNewConvBtn"), convListEl = $("convListEl");
+  const adminRefreshConvBtn = $("adminRefreshConvBtn"), adminConvListEl = $("adminConvListEl");
+  const adminApiKeysListEl = $("adminApiKeysListEl"), adminNewApiKeyInput = $("adminNewApiKeyInput");
+  const adminAddApiKeyBtn = $("adminAddApiKeyBtn"), adminSaveApiKeysBtn = $("adminSaveApiKeysBtn"), adminApiKeysStatus = $("adminApiKeysStatus");
+  const MODE_LABELS_HE = { build: "בנייה", edit: "עריכה", translate: "תרגום", censor: "צנזור" };
+  let activeConversationId = null;
+  let conversationsCache = [];
+  let adminApiKeysDraft = [];
 
   function setBusyBtn(btn, busy, busyLabel, idleLabel) {
     btn.disabled = busy;
@@ -2512,6 +2577,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const spend = await backendCall("spendCredits", { pipelineAction: "build" }).catch((e) => ({ ok: false, error: e.message }));
     if (!spend.ok) { log("✗ " + spend.error, "error"); return; }
     refreshCreditsDisplay(spend);
+    recordTurn("user", "build", idea);
 
     setBusy(true);
     try {
@@ -2592,9 +2658,11 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLink.href = apkUrl;
       downloadBox.classList.add("show");
       log("מוכן — האפליקציה שלך מחכה להורדה.", "ok");
+      recordTurn("assistant", "build", "✓ נבנה בהצלחה: " + appLabelPreview.textContent);
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error");
+      recordTurn("assistant", "build", "✗ הבנייה נכשלה: " + err.message);
       markCurrentStageError();
     } finally {
       setBusy(false);
@@ -2782,6 +2850,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const spend = await backendCall("spendCredits", { pipelineAction: "censor" }).catch((e) => ({ ok: false, error: e.message }));
     if (!spend.ok) { log("✗ " + spend.error, "error", logEditEl); return; }
     refreshCreditsDisplay(spend);
+    recordTurn("user", "censor", pendingChanges.size + " תמונות סומנו לצנזור/החלפה");
 
     setEditBusy(true);
     try {
@@ -2814,9 +2883,11 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkEdit.href = apkUrl;
       downloadBoxEdit.classList.add("show");
       log("מוכן — ה-APK המצונזר מחכה להורדה.", "ok", logEditEl);
+      recordTurn("assistant", "censor", "✓ נוצר APK מצונזר בהצלחה");
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditEl);
+      recordTurn("assistant", "censor", "✗ הצנזור נכשל: " + err.message);
       markCurrentStageError(railEditEl);
     } finally {
       setEditBusy(false);
@@ -2846,6 +2917,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const spend = await backendCall("spendCredits", { pipelineAction: "translate" }).catch((e) => ({ ok: false, error: e.message }));
     if (!spend.ok) { log("✗ " + spend.error, "error", logTranslateEl); return; }
     refreshCreditsDisplay(spend);
+    recordTurn("user", "translate", "תרגום לשפה: " + targetLanguage);
 
     setBusyBtn(translateGoBtn, true, "מתרגם…", "פרק, תרגם ובנה מחדש");
     try {
@@ -2893,9 +2965,11 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkTranslateEl.href = apkUrl;
       downloadBoxTranslateEl.classList.add("show");
       log("מוכן — ה-APK המתורגם מחכה להורדה.", "ok", logTranslateEl);
+      recordTurn("assistant", "translate", "✓ תורגם בהצלחה");
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logTranslateEl);
+      recordTurn("assistant", "translate", "✗ התרגום נכשל: " + err.message);
       markCurrentStageError(railTranslateEl);
     } finally {
       setBusyBtn(translateGoBtn, false, "מתרגם…", "פרק, תרגם ובנה מחדש");
@@ -2926,6 +3000,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const spend = await backendCall("spendCredits", { pipelineAction: "edit" }).catch((e) => ({ ok: false, error: e.message }));
     if (!spend.ok) { log("✗ " + spend.error, "error", logEditDecompileEl); return; }
     refreshCreditsDisplay(spend);
+    recordTurn("user", "edit", instruction);
 
     setBusyBtn(editGoBtn, true, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
     try {
@@ -2993,9 +3068,11 @@ rebuild, even if that means dropping part of the requested change.`;
       downloadLinkEditDecompileEl.href = apkUrl;
       downloadBoxEditDecompileEl.classList.add("show");
       log("מוכן — ה-APK הערוך מחכה להורדה.", "ok", logEditDecompileEl);
+      recordTurn("assistant", "edit", "✓ נערך בהצלחה");
     } catch (err) {
       console.error(err);
       log("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error", logEditDecompileEl);
+      recordTurn("assistant", "edit", "✗ העריכה נכשלה: " + err.message);
       markCurrentStageError(railEditDecompileEl);
     } finally {
       setBusyBtn(editGoBtn, false, "מפרק ועורך…", "פרק, ערוך ובנה מחדש");
@@ -3143,6 +3220,8 @@ rebuild, even if that means dropping part of the requested change.`;
       if (!result.ok) throw new Error(result.error);
       currentUser = { token: result.token, username: result.username, displayName: result.displayName, role: result.role, credits: result.credits };
       showApp();
+      historyToggleBtn.hidden = false;
+      loadConversationsList();
     } catch (err) {
       authErrorEl.textContent = err.message;
       authErrorEl.hidden = false;
@@ -3299,262 +3378,361 @@ rebuild, even if that means dropping part of the requested change.`;
     });
   });
 
+  // ======================================================================
+  // Conversation history (new): a left-side sidebar that remembers every
+  // build/edit/translate/censor request per user, so using the tool feels
+  // like an ongoing chat instead of one prompt that disappears. Every
+  // recordTurn() call below is best-effort and never throws into the
+  // pipeline it's attached to — history logging must never be able to
+  // break an actual build/edit/translate/censor run.
+  // ======================================================================
+
+  function formatRelHe(iso) {
+    if (!iso) return "";
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.round(diffMs / 60000);
+    if (mins < 1) return "עכשיו";
+    if (mins < 60) return `לפני ${mins} דק׳`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `לפני ${hours} שע׳`;
+    const days = Math.round(hours / 24);
+    if (days < 30) return `לפני ${days} ימים`;
+    return new Date(iso).toLocaleDateString("he-IL");
+  }
+
+  async function ensureActiveConversation() {
+    if (activeConversationId) return activeConversationId;
+    try {
+      const result = await backendCall("createConversation", { title: "שיחה חדשה" });
+      if (result.ok) { activeConversationId = result.id; loadConversationsList(); }
+    } catch (err) {
+      console.error("ensureActiveConversation failed:", err);
+    }
+    return activeConversationId;
+  }
+
+  // Fire-and-forget: records one turn (user request or assistant outcome) into
+  // the active conversation. Never awaited by pipeline code, never throws.
+  async function recordTurn(role, mode, content) {
+    if (!currentUser) return;
+    try {
+      const id = await ensureActiveConversation();
+      if (!id) return;
+      await backendCall("appendMessage", { id, message: { role, mode, content } });
+      loadConversationsList();
+    } catch (err) {
+      console.error("recordTurn failed:", err);
+    }
+  }
+
+  function renderConversationList() {
+    convListEl.innerHTML = "";
+    if (conversationsCache.length === 0) {
+      const p = document.createElement("p");
+      p.className = "conv-empty-hint";
+      p.textContent = "עוד אין שיחות שמורות. כל בקשה שתשלחו תישמר כאן אוטומטית.";
+      convListEl.appendChild(p);
+      return;
+    }
+    conversationsCache.forEach((c) => {
+      const item = document.createElement("div");
+      item.className = "conv-item" + (c.id === activeConversationId ? " active" : "");
+
+      const body = document.createElement("div");
+      body.className = "conv-item-body";
+      const title = document.createElement("div");
+      title.className = "conv-item-title";
+      title.textContent = c.title || "שיחה חדשה";
+      const meta = document.createElement("div");
+      meta.className = "conv-item-meta";
+      meta.textContent = formatRelHe(c.updatedAt);
+      body.append(title, meta);
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "conv-item-delete";
+      delBtn.title = "מחיקת שיחה";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", (e) => { e.stopPropagation(); deleteConversationById(c.id, false); });
+
+      item.append(body, delBtn);
+      item.addEventListener("click", () => switchActiveConversation(c.id));
+      convListEl.appendChild(item);
+    });
+  }
+
+  async function loadConversationsList() {
+    if (!currentUser) return;
+    try {
+      const result = await backendCall("listConversations", {});
+      if (result.ok) { conversationsCache = result.conversations; renderConversationList(); }
+    } catch (err) {
+      console.error("loadConversationsList failed:", err);
+    }
+  }
+
+  function closeConvModal() {
+    const existing = document.getElementById("convModalBackdrop");
+    if (existing) existing.remove();
+  }
+
+  // Shared read-only transcript viewer, used both when a user opens one of
+  // their own past conversations and when an admin views anyone's.
+  function renderConvModal(conv) {
+    closeConvModal();
+    const backdrop = document.createElement("div");
+    backdrop.className = "conv-modal-backdrop";
+    backdrop.id = "convModalBackdrop";
+    backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeConvModal(); });
+
+    const modal = document.createElement("div");
+    modal.className = "conv-modal";
+
+    const head = document.createElement("div");
+    head.className = "conv-modal-head";
+    const titleWrap = document.createElement("div");
+    const titleEl = document.createElement("div");
+    titleEl.style.fontFamily = "var(--display)";
+    titleEl.style.fontWeight = "600";
+    titleEl.textContent = conv.title || "שיחה חדשה";
+    const subEl = document.createElement("div");
+    subEl.className = "admin-conv-row-meta";
+    subEl.textContent = conv.username || "";
+    titleWrap.append(titleEl, subEl);
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "sidebar-close-btn";
+    closeBtn.textContent = "✕";
+    closeBtn.addEventListener("click", closeConvModal);
+    head.append(titleWrap, closeBtn);
+
+    const body = document.createElement("div");
+    body.className = "conv-modal-body conv-thread";
+    if (!conv.messages || conv.messages.length === 0) {
+      const p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "אין עדיין הודעות בשיחה הזו.";
+      body.appendChild(p);
+    } else {
+      conv.messages.forEach((m) => {
+        const turn = document.createElement("div");
+        turn.className = "conv-turn role-" + (m.role === "user" ? "user" : "assistant");
+        const meta = document.createElement("div");
+        meta.className = "conv-turn-meta";
+        const roleLabel = m.role === "user" ? "אתם" : "המערכת";
+        const modeLabel = m.mode ? (MODE_LABELS_HE[m.mode] || m.mode) : "";
+        meta.textContent = [roleLabel, modeLabel, formatRelHe(m.timestamp)].filter(Boolean).join(" · ");
+        const content = document.createElement("div");
+        content.textContent = m.content || "";
+        turn.append(meta, content);
+        body.appendChild(turn);
+      });
+    }
+
+    modal.append(head, body);
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+  }
+
+  async function switchActiveConversation(id) {
+    activeConversationId = id;
+    renderConversationList();
+    closeSidebar();
+    try {
+      const result = await backendCall("getConversation", { id });
+      if (result.ok) renderConvModal(result.conversation);
+    } catch (err) {
+      console.error("switchActiveConversation failed:", err);
+    }
+  }
+
+  async function deleteConversationById(id, isAdmin) {
+    if (!confirm("למחוק את השיחה הזו לצמיתות? אי אפשר לשחזר.")) return;
+    try {
+      const result = await backendCall("deleteConversation", { id });
+      if (!result.ok) { alert("שגיאה: " + result.error); return; }
+      if (activeConversationId === id) activeConversationId = null;
+      closeConvModal();
+      if (isAdmin) loadAdminConversationsList(); else loadConversationsList();
+    } catch (err) {
+      console.error("deleteConversationById failed:", err);
+    }
+  }
+
+  async function startNewConversation() {
+    try {
+      const result = await backendCall("createConversation", { title: "שיחה חדשה" });
+      if (result.ok) {
+        activeConversationId = result.id;
+        closeSidebar();
+        await loadConversationsList();
+      }
+    } catch (err) {
+      console.error("startNewConversation failed:", err);
+    }
+  }
+
+  function openSidebar() {
+    sidebarDrawer.classList.add("open");
+    sidebarBackdrop.classList.add("open");
+    loadConversationsList();
+  }
+  function closeSidebar() {
+    sidebarDrawer.classList.remove("open");
+    sidebarBackdrop.classList.remove("open");
+  }
+
+  historyToggleBtn.addEventListener("click", () => {
+    if (sidebarDrawer.classList.contains("open")) closeSidebar(); else openSidebar();
+  });
+  sidebarCloseBtn.addEventListener("click", closeSidebar);
+  sidebarBackdrop.addEventListener("click", closeSidebar);
+  sidebarNewConvBtn.addEventListener("click", startNewConversation);
+
+  // "שיחה חדשה" already resets the working form via the listener declared
+  // above — this second listener (both fire on the same click) additionally
+  // starts a fresh saved conversation, so a new chat is also a new sidebar entry.
+  newChatBtn.addEventListener("click", startNewConversation);
+
+  logoutBtn.addEventListener("click", () => {
+    activeConversationId = null;
+    conversationsCache = [];
+    historyToggleBtn.hidden = true;
+    closeSidebar();
+    closeConvModal();
+  });
+
+  // ---------- admin: all users' conversations ----------
+  async function loadAdminConversationsList() {
+    adminConvListEl.innerHTML = '<p class="hint">טוען…</p>';
+    try {
+      const result = await backendCall("adminListAllConversations", {});
+      if (!result.ok) throw new Error(result.error);
+      adminConvListEl.innerHTML = "";
+      if (result.conversations.length === 0) {
+        const p = document.createElement("p");
+        p.className = "hint";
+        p.textContent = "אין עדיין שיחות במערכת.";
+        adminConvListEl.appendChild(p);
+        return;
+      }
+      result.conversations.forEach((c) => {
+        const row = document.createElement("div");
+        row.className = "admin-conv-row";
+        const info = document.createElement("div");
+        info.className = "admin-conv-row-info";
+        const t = document.createElement("div");
+        t.className = "admin-conv-row-title";
+        t.textContent = c.title || "שיחה חדשה";
+        const m = document.createElement("div");
+        m.className = "admin-conv-row-meta";
+        m.textContent = `${c.username} · ${formatRelHe(c.updatedAt)}`;
+        info.append(t, m);
+
+        const actions = document.createElement("div");
+        actions.className = "admin-conv-row-actions";
+        const viewBtn = document.createElement("button");
+        viewBtn.type = "button";
+        viewBtn.className = "chip-btn";
+        viewBtn.textContent = "צפייה";
+        viewBtn.addEventListener("click", async () => {
+          const res = await backendCall("getConversation", { id: c.id }).catch((e) => ({ ok: false, error: e.message }));
+          if (res.ok) renderConvModal(res.conversation); else alert("שגיאה: " + res.error);
+        });
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "chip-btn danger";
+        delBtn.textContent = "מחיקה";
+        delBtn.addEventListener("click", () => deleteConversationById(c.id, true));
+        actions.append(viewBtn, delBtn);
+
+        row.append(info, actions);
+        adminConvListEl.appendChild(row);
+      });
+    } catch (err) {
+      adminConvListEl.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "✗ " + err.message;
+      adminConvListEl.appendChild(p);
+    }
+  }
+  adminRefreshConvBtn.addEventListener("click", loadAdminConversationsList);
+
+  // ---------- admin: Gemini API keys used automatically for pro / super-pro ----------
+  function renderAdminApiKeysDraft() {
+    adminApiKeysListEl.innerHTML = "";
+    if (adminApiKeysDraft.length === 0) {
+      const p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "לא הוגדרו עדיין מפתחות.";
+      adminApiKeysListEl.appendChild(p);
+      return;
+    }
+    adminApiKeysDraft.forEach((key, idx) => {
+      const row = document.createElement("div");
+      row.className = "api-key-row";
+      const mask = document.createElement("span");
+      mask.className = "api-key-mask";
+      mask.textContent = key.length > 8 ? `${key.slice(0, 4)}${"•".repeat(Math.max(4, key.length - 8))}${key.slice(-4)}` : "••••••";
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "chip-btn danger";
+      delBtn.textContent = "הסרה";
+      delBtn.addEventListener("click", () => { adminApiKeysDraft.splice(idx, 1); renderAdminApiKeysDraft(); });
+      row.append(mask, delBtn);
+      adminApiKeysListEl.appendChild(row);
+    });
+  }
+
+  async function loadAdminApiKeysList() {
+    try {
+      const result = await backendCall("adminGetApiKeys", {});
+      if (!result.ok) throw new Error(result.error);
+      adminApiKeysDraft = result.keys;
+      renderAdminApiKeysDraft();
+      adminApiKeysStatus.textContent = "";
+    } catch (err) {
+      adminApiKeysStatus.textContent = "✗ " + err.message;
+    }
+  }
+
+  adminAddApiKeyBtn.addEventListener("click", () => {
+    const val = adminNewApiKeyInput.value.trim();
+    if (!val) return;
+    adminApiKeysDraft.push(val);
+    adminNewApiKeyInput.value = "";
+    renderAdminApiKeysDraft();
+  });
+
+  adminSaveApiKeysBtn.addEventListener("click", async () => {
+    adminSaveApiKeysBtn.disabled = true;
+    adminApiKeysStatus.textContent = "שומר…";
+    try {
+      const result = await backendCall("adminSetApiKeys", { keys: adminApiKeysDraft });
+      if (!result.ok) throw new Error(result.error);
+      adminApiKeysStatus.textContent = `נשמר ✓ (${result.count} מפתחות)`;
+    } catch (err) {
+      adminApiKeysStatus.textContent = "✗ " + err.message;
+    } finally {
+      adminSaveApiKeysBtn.disabled = false;
+    }
+  });
+
+  // Admin users/config already load when the "ניהול" tab opens (see switchMode
+  // above) — this second, independent listener on the same tab bar additionally
+  // loads the two new admin panels, without touching switchMode itself.
+  modeTabsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".mode-tab");
+    if (btn && btn.dataset.mode === "admin") { loadAdminConversationsList(); loadAdminApiKeysList(); }
+  });
+
   goBtn.addEventListener("click", runPipeline);
   buildEditedBtn.addEventListener("click", runEditPipeline);
   editGoBtn.addEventListener("click", runDecompileEditPipeline);
   translateGoBtn.addEventListener("click", runTranslatePipeline);
   switchMode("build");
   loadPublicInfo();
-
-  // ===================== NEW UI & CHAT STUDIO LOGIC =====================
-  const openSettingsBtn = $("openSettingsBtn");
-  const closeSettingsBtn = $("closeSettingsBtn");
-  const settingsModal = $("settingsModal");
-  const modalTabBtns = document.querySelectorAll(".modal-tab-btn");
-  const modalPanels = document.querySelectorAll(".modal-panel");
-  const adminPanelContainer = $("adminPanelContainer");
-  const panelAdmin = $("panel-admin");
-  const themeToggleBtn = $("themeToggleBtn");
-  const userSystemInstructions = $("userSystemInstructions");
-  const saveGeneralSettingsBtn = $("saveGeneralSettingsBtn");
-  
-  // Move admin panel content into modal
-  if (panelAdmin && adminPanelContainer) {
-    adminPanelContainer.appendChild(panelAdmin);
-    panelAdmin.hidden = false;
-    panelAdmin.style.display = 'block';
-  }
-
-  openSettingsBtn.addEventListener("click", () => settingsModal.hidden = false);
-  closeSettingsBtn.addEventListener("click", () => settingsModal.hidden = true);
-  settingsModal.addEventListener("click", (e) => {
-    if (e.target === settingsModal) settingsModal.hidden = true;
-  });
-
-  modalTabBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      modalTabBtns.forEach(b => b.classList.remove("active"));
-      modalPanels.forEach(p => p.classList.remove("active"));
-      btn.classList.add("active");
-      const target = btn.getAttribute("data-target");
-      if ($(target)) $(target).classList.add("active");
-    });
-  });
-
-  // Settings / LocalStorage
-  function loadSettings() {
-    const isDark = localStorage.getItem("theme_dark") === "true";
-    if (isDark) {
-      document.body.classList.add("dark-mode");
-      themeToggleBtn.textContent = "החלף למצב יום";
-    }
-    const inst = localStorage.getItem("userSystemInstructions");
-    if (inst) userSystemInstructions.value = inst;
-    
-    // load history
-    const history = localStorage.getItem("chatHistory");
-    if (history) {
-       const chatHistoryEl = $("chatHistory");
-       chatHistoryEl.innerHTML = history;
-    }
-  }
-
-  themeToggleBtn.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    const isDark = document.body.classList.contains("dark-mode");
-    localStorage.setItem("theme_dark", isDark);
-    themeToggleBtn.textContent = isDark ? "החלף למצב יום" : "החלף למצב לילה";
-  });
-
-  saveGeneralSettingsBtn.addEventListener("click", () => {
-    localStorage.setItem("userSystemInstructions", userSystemInstructions.value);
-    alert("הגדרות נשמרו בהצלחה!");
-  });
-
-  loadSettings();
-
-  // Override backend call to include userSystemInstructions
-  // Note: the original code calls UrlFetchApp via POST to BACKEND_URL with body
-  // We need to inject userSystemInstructions into req payload before sending.
-  const originalFetch = window.fetch;
-  window.fetch = async function() {
-    if (arguments[0] === BACKEND_URL && arguments[1] && arguments[1].body) {
-      try {
-        let reqBody = JSON.parse(arguments[1].body);
-        reqBody.userSystemInstructions = localStorage.getItem("userSystemInstructions") || "";
-        arguments[1].body = JSON.stringify(reqBody);
-      } catch (e) {}
-    }
-    return originalFetch.apply(this, arguments);
-  };
-
-  // Chat Studio Logic
-  const chatInput = $("chatInput");
-  const chatSendBtn = $("chatSendBtn");
-  const chatHistory = $("chatHistory");
-  
-  function saveChatHistory() {
-     localStorage.setItem("chatHistory", chatHistory.innerHTML);
-  }
-
-  async function sendChatMessage() {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    
-    // Add user msg
-    const uMsg = document.createElement("div");
-    uMsg.className = "chat-msg user";
-    uMsg.textContent = text;
-    chatHistory.appendChild(uMsg);
-    chatInput.value = "";
-    saveChatHistory();
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-
-    // Add loading AI msg
-    const aiMsg = document.createElement("div");
-    aiMsg.className = "chat-msg ai";
-    aiMsg.textContent = "חושב...";
-    chatHistory.appendChild(aiMsg);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-
-    // Call API (either directly to Gemini or via backend if PRO)
-    // We will use the existing backend proxy logic or direct keys
-    const bodyObj = {
-      contents: [{ parts: [{ text: text }] }]
-    };
-    
-    let resData;
-    
-    if (currentUser && PRO_PLUS_ROLES.indexOf(currentUser.role) !== -1) {
-       // Backend
-       const payload = {
-          action: "geminiGenerate",
-          token: currentUser.token,
-          body: bodyObj,
-          model: GEMINI_MODEL,
-          userSystemInstructions: localStorage.getItem("userSystemInstructions") || ""
-       };
-       try {
-           const resp = await fetch(BACKEND_URL, {
-               method: "POST",
-               body: JSON.stringify(payload)
-           });
-           const j = await resp.json();
-           if (j.ok) {
-               resData = j.data;
-           } else {
-               aiMsg.textContent = "שגיאה מהשרת: " + j.error;
-               return;
-           }
-       } catch(err) {
-           aiMsg.textContent = "שגיאה ברשת: " + err.message;
-           return;
-       }
-    } else {
-       // Direct
-       const keysRaw = geminiKeysEl.value;
-       const keys = keysRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
-       if (!keys.length) {
-           aiMsg.textContent = "אנא הכנס מפתחות Gemini קודם.";
-           return;
-       }
-       const key = keys[0];
-       try {
-           const finalBody = {
-               contents: [{parts: [{text: (localStorage.getItem("userSystemInstructions") || "") + "\n" + text}]}]
-           };
-           const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
-               method: "POST",
-               headers: {"Content-Type": "application/json"},
-               body: JSON.stringify(finalBody)
-           });
-           resData = await resp.json();
-       } catch (err) {
-           aiMsg.textContent = "שגיאה בגישה ל-Gemini API.";
-           return;
-       }
-    }
-    
-    if (resData && resData.candidates && resData.candidates.length > 0) {
-        aiMsg.textContent = resData.candidates[0].content.parts[0].text;
-    } else {
-        aiMsg.textContent = "לא התקבלה תשובה מ-Gemini.";
-    }
-    saveChatHistory();
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-    
-    // Auto trigger build? The user said "אני רוצה שהוא יוכל לחתום ולבנות גם בצאט"
-    // So if the output is JSON with manifest, kotlin, icon, we trigger the build rail!
-    if (aiMsg.textContent.includes('"manifest"') && aiMsg.textContent.includes('"kotlin"')) {
-        const buildBtn = document.createElement("button");
-        buildBtn.className = "primary";
-        buildBtn.style.marginTop = "10px";
-        buildBtn.textContent = "בנה אפליקציה מקוד זה";
-        buildBtn.onclick = () => {
-            const jsonMatch = aiMsg.textContent.match(/\{.*\}/s);
-            if (jsonMatch) {
-                try {
-                    const parsed = JSON.parse(jsonMatch[0]);
-                    startBuildFromJSON(parsed);
-                } catch(e) { alert("הקוד לא בפורמט JSON תקין"); }
-            }
-        };
-        aiMsg.appendChild(buildBtn);
-    }
-  }
-
-  function startBuildFromJSON(parsedContent) {
-      // Switches to build tab and forces the rail sequence starting from commit
-      const btn = document.querySelector('.mode-tab[data-mode="build"]');
-      if (btn) btn.click();
-      
-      const st = {
-         prompt: "נבנה מהצ'אט סטודיו",
-         token: currentUser ? currentUser.token : null,
-         startTime: Date.now()
-      };
-      
-      // Setup UI
-      $("goBtn").disabled = true;
-      railEl.style.display = "flex";
-      downloadBox.style.display = "none";
-      Array.from(railEl.querySelectorAll(".rail-node, .rail-line")).forEach(el => el.setAttribute("data-state", "pending"));
-      $("log").innerHTML = "";
-      setNodeState(railEl, "enhance", "active");
-      setNodeState(railEl, "enhance", "done");
-      setLineState(railEl, "line-1", "done");
-      setNodeState(railEl, "gemini", "active");
-      setNodeState(railEl, "gemini", "done");
-      setLineState(railEl, "line-2", "done");
-      
-      // Inject to commit phase
-      commitAndBuild(st, parsedContent).catch(err => {
-         // handle error gracefully if needed
-      });
-  }
-
-  chatSendBtn.addEventListener("click", sendChatMessage);
-  chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          sendChatMessage();
-      }
-  });
-
-  // Expose admin tab if role is admin
-  // This happens in updateAuthUI() usually. Let's intercept it.
-  const oldUpdateAuthUI = window.updateAuthUI;
-  if (!oldUpdateAuthUI) {
-      // In case it's declared after, we use DOM mutation observer or just interval
-      setInterval(() => {
-          if (currentUser && currentUser.role === "admin") {
-              $("adminSettingsTabBtn").hidden = false;
-          } else {
-              $("adminSettingsTabBtn").hidden = true;
-          }
-      }, 1000);
-  }
-
 })();
 </script>
 </body>
