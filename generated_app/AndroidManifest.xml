@@ -1,16 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aiapp.generated">
-
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="יומן תודה ומצב רוח"
-        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.aiapp.generated">
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <application android:label="מנהל רוט ומערכת" android:icon="@drawable/ic_launcher" android:theme="@android:style/Theme.NoTitleBar">
+        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
