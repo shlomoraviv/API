@@ -1,4 +1,4 @@
-.class public final synthetic Lcom/aiapp/generated/MainActivity$$ExternalSyntheticLambda1;
+.class public final synthetic Lcom/aiapp/generated/MainActivity$$ExternalSyntheticLambda2;
 .super Ljava/lang/Object;
 .source "D8$$SyntheticClass"
 
@@ -16,7 +16,7 @@
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    iput-object p1, p0, Lcom/aiapp/generated/MainActivity$$ExternalSyntheticLambda1;->f$0:Lcom/aiapp/generated/MainActivity;
+    iput-object p1, p0, Lcom/aiapp/generated/MainActivity$$ExternalSyntheticLambda2;->f$0:Lcom/aiapp/generated/MainActivity;
 
     return-void
 .end method
@@ -26,9 +26,9 @@
 .method public final onClick(Landroid/view/View;)V
     .locals 1
 
-    iget-object v0, p0, Lcom/aiapp/generated/MainActivity$$ExternalSyntheticLambda1;->f$0:Lcom/aiapp/generated/MainActivity;
+    iget-object v0, p0, Lcom/aiapp/generated/MainActivity$$ExternalSyntheticLambda2;->f$0:Lcom/aiapp/generated/MainActivity;
 
-    invoke-static {v0, p1}, Lcom/aiapp/generated/MainActivity;->$r8$lambda$oac0H668RE039a4X3oAYhWF0XpQ(Lcom/aiapp/generated/MainActivity;Landroid/view/View;)V
+    invoke-static {v0, p1}, Lcom/aiapp/generated/MainActivity;->$r8$lambda$RoS4-xWSY2Y82v9eYyFpZGnbGug(Lcom/aiapp/generated/MainActivity;Landroid/view/View;)V
 
     return-void
 .end method

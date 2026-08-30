@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest android:compileSdkVersion="37" android:compileSdkVersionCodename="DEV" package="com.aiapp.generated" platformBuildVersionCode="37" platformBuildVersionName="DEV"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.TRANSMIT_IR" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <application android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" android:label="שלט שבת למזגן" android:icon="@drawable/ic_launcher" android:allowBackup="true">
-        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:screenOrientation="portrait">
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <application android:theme="@android:style/Theme.NoTitleBar" android:label="מנהל רוט ומערכת" android:icon="@drawable/ic_launcher">
+        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

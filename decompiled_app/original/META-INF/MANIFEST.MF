@@ -1,16 +1,15 @@
 Manifest-Version: 1.0
-Built-By: Signflinger
-Created-By: Android Gradle 8.0.2
+Created-By: 17.0.20.1 (Eclipse Adoptium)
 
 Name: AndroidManifest.xml
-SHA-256-Digest: lV7gHFB/hx9sKzEzL3BS8ovuumA82HJHl22WaehEK8w=
-
-Name: classes.dex
-SHA-256-Digest: ont/slLkgQwsTipbTJxn3AKo8SmE/oT3rOQ3o+0w6qE=
-
-Name: res/drawable/ic_launcher.xml
-SHA-256-Digest: d1oq3evzHeb2PY3CI73t0+bkCUaSz6a+2B6bja4zigg=
+SHA-256-Digest: Ll19PHVXRnPJc4qQF8gu7CCVRiovjUu8KzZI3K7tiOE=
 
 Name: resources.arsc
 SHA-256-Digest: 6UBPPXB43AZwQ7tbMJgh8dNS5Fs8cu6favyry7Q+rFo=
+
+Name: classes.dex
+SHA-256-Digest: Ho+uNu6EY2THmL2U8f0EOygo39FGD7r5YJwXZuG3Hds=
+
+Name: res/drawable/ic_launcher.xml
+SHA-256-Digest: 5IHSXnFFv+vMUvoKUpNiFl/zx7/x6c+xHW3mfFmm/OI=
 

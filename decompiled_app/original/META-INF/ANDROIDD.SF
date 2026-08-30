@@ -1,0 +1,18 @@
+Signature-Version: 1.0
+Created-By: 17.0.20.1 (Eclipse Adoptium)
+SHA-256-Digest-Manifest: IbJ7kJUxaUhqYnSgPmBiA6OVZQalezLioeDRCXzIE4Y=
+SHA-256-Digest-Manifest-Main-Attributes: C0QpAlhryMHdI8GX3uD25AnmHXHMYpK
+ sdVrVIDsketQ=
+
+Name: AndroidManifest.xml
+SHA-256-Digest: h+aMvVVV+iJVohZRHSt8Mclg48B5pZqEGOsoSsxkDv8=
+
+Name: resources.arsc
+SHA-256-Digest: YxVauNL7fW89aPkhVz+beJZAq+8MQCR2+0G8etIROMw=
+
+Name: classes.dex
+SHA-256-Digest: CBcQ2EDvyhx+ujmk0OkxDCVCh87F5nbFRwxdx7szcfE=
+
+Name: res/drawable/ic_launcher.xml
+SHA-256-Digest: DVNF9T/L6ABDpzs2TfPxhgIoZq89rHpXDOKfr49dK0c=
+
