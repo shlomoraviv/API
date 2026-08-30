@@ -152,6 +152,19 @@
     width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff;
     display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; flex: 0 0 auto;
   }
+  .side-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 6px 2px; }
+  .side-tool-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px;
+    padding: 8px 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .side-tool-btn span { font-size: 13px; }
+  .side-tool-btn:hover { border-color: var(--accent); color: var(--accent-hover); background: var(--accent-soft); }
+  .mode-badge {
+    display: inline-flex; align-items: center; gap: 5px; background: var(--accent-soft); color: var(--accent-hover);
+    font-size: 11.5px; font-weight: 700; padding: 4px 11px; border-radius: var(--radius-pill);
+  }
   .side-search {
     display: flex; align-items: center; gap: 8px; margin: 12px 6px 4px; padding: 9px 12px;
     background: transparent; border: 1px solid transparent; border-radius: var(--radius-pill);
@@ -213,19 +226,6 @@
   .empty-greeting { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; }
   .empty-greeting .accent-word { color: var(--accent); }
   .empty-sub { color: var(--text-muted); font-size: 14.5px; margin: 0 0 34px; }
-  .picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .picker-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 24px 20px; text-align: right; cursor: pointer; box-shadow: var(--shadow-sm);
-    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
-  }
-  .picker-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .picker-card-icon {
-    width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
-    font-size: 20px; margin-bottom: 14px; background: var(--accent-soft); color: var(--accent-hover);
-  }
-  .picker-card-title { font-size: 15.5px; font-weight: 700; margin: 0 0 6px; }
-  .picker-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; margin: 0; }
 
   /* ---- chat thread ---- */
   .thread-wrap { flex: 1; overflow-y: auto; }
@@ -419,7 +419,6 @@
     .side-toggle-btn { display: inline-flex; }
     .side-backdrop { display: block; position: fixed; inset: 0; background: rgba(33,31,46,0.32); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 39; }
     .side-backdrop.open { opacity: 1; pointer-events: auto; }
-    .picker-grid { grid-template-columns: 1fr; }
     .composer-wrap, .thread, .resume-box { padding-inline: 14px; }
   }
 </style>
@@ -451,6 +450,12 @@
       <button type="button" class="side-new-btn" id="sideNewBtn">
         <span class="plus-badge">+</span> שיחה חדשה
       </button>
+      <div class="side-tools" id="sideTools">
+        <button type="button" class="side-tool-btn" data-type="build"><span>🏗️</span>בנייה</button>
+        <button type="button" class="side-tool-btn" data-type="edit"><span>🛠️</span>עריכה</button>
+        <button type="button" class="side-tool-btn" data-type="translate"><span>🌐</span>תרגום</button>
+        <button type="button" class="side-tool-btn" data-type="censor"><span>🖼️</span>צנזור</button>
+      </div>
       <label class="side-search" id="sideSearchWrap">
         🔍<input type="text" id="sideSearchInput" placeholder="חיפוש שיחות">
       </label>
@@ -486,26 +491,15 @@
     <div class="main-topbar">
       <button type="button" class="icon-btn side-toggle-btn" id="sideToggleBtn">☰</button>
       <div class="main-topbar-title" id="mainTopbarTitle"></div>
-      <span></span>
+      <span class="mode-badge hidden" id="modeBadge"></span>
     </div>
 
     <!-- ---- empty state: project-type picker ---- -->
     <div class="empty-wrap" id="emptyWrap">
       <div class="empty-inner">
         <h1 class="empty-greeting">מה <span class="accent-word">בונים</span> היום?</h1>
-        <p class="empty-sub">בוחרים סוג פרויקט, ואז ממשיכים בשיחה חופשית עם ה-AI — בדיוק כמו צ'אט.</p>
-        <div class="picker-grid">
-          <div class="picker-card" id="pickerBuildCard">
-            <div class="picker-card-icon">✨</div>
-            <p class="picker-card-title">בניית אפליקציה חדשה</p>
-            <p class="picker-card-desc">מתארים במילים מה האפליקציה צריכה לעשות, ומקבלים APK מוכן. אחר כך אפשר להמשיך ולבקש שדרוגים באותה שיחה.</p>
-          </div>
-          <div class="picker-card" id="pickerEditCard">
-            <div class="picker-card-icon">🛠️</div>
-            <p class="picker-card-title">עריכת אפליקציה קיימת</p>
-            <p class="picker-card-desc">מעלים קובץ APK קיים ומבקשים כל שינוי — צבעים, טקסטים, תכונות חדשות, תרגום או צנזור תמונות.</p>
-          </div>
-        </div>
+        <p class="empty-sub">אפשר פשוט לכתוב למטה, או לבחור כלי מהסיידבר.</p>
+        <button type="button" class="btn primary" id="emptyStartBtn">התחלת שיחה</button>
       </div>
     </div>
 
@@ -760,7 +754,7 @@
   const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
   const POLL_TIMEOUT_MS = 10 * 60 * 1000;
-  const MAX_AUTO_FIX_ATTEMPTS = 2;
+  const MAX_AUTO_FIX_ATTEMPTS = 3;
   const MAX_LOG_CHARS = 6000;
   const MAX_GITHUB_READ_ATTEMPTS = 3;
   const GITHUB_RETRY_DELAY_MS = 1500;
@@ -787,7 +781,7 @@
   const REBUILD_ARTIFACT_NAME = "app-recompiled-release.apk";
   const MAX_EDIT_CANDIDATE_FILES = 60; // path list shown to Gemini when it picks what to open
   const MAX_EDIT_PATCH_FILES = 6;      // hard cap on files Gemini may rewrite per attempt
-  const MAX_DECOMPILE_AUTO_FIX_ATTEMPTS = 2;
+  const MAX_DECOMPILE_AUTO_FIX_ATTEMPTS = 3;
   // Own-app smali usually lives under a path matching the manifest's package name; these
   // path fragments are common third-party SDKs/libraries that are almost never what a user
   // means by "edit my app", so they're filtered out even if they happen to match the package.
@@ -959,7 +953,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
   const GOOGLE_CLIENT_ID = "733141570620-4elai2igmu1a22ftiqm7pfltvm7vhuhg.apps.googleusercontent.com";
   const ROLE_LABELS = { regular: "רגיל", pro: "פרו", superpro: "סופר-פרו", admin: "מנהל" };
-  const MODE_LABELS_HE = { build: "בנייה", edit: "עריכה", translate: "תרגום", censor: "צנזור" };
+  const MODE_LABELS_HE = { build: "בנייה", edit: "עריכה", translate: "תרגום", censor: "צנזור", chat: "שיחה" };
 
   // ---------- DOM refs (new UI shell) ----------
   const $ = (id) => document.getElementById(id);
@@ -974,7 +968,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const sideUserRow = $("sideUserRow"), sideAvatarInitial = $("sideAvatarInitial"), sideUserName = $("sideUserName"), sideUserSub = $("sideUserSub"), sideLogoutBtn = $("sideLogoutBtn");
 
   const mainTopbarTitle = $("mainTopbarTitle");
-  const emptyWrap = $("emptyWrap"), pickerBuildCard = $("pickerBuildCard"), pickerEditCard = $("pickerEditCard");
+  const emptyWrap = $("emptyWrap"), emptyStartBtn = $("emptyStartBtn"), sideTools = $("sideTools"), modeBadge = $("modeBadge");
   const resumeBox = $("resumeBox"), resumeUploadBtn = $("resumeUploadBtn"), resumeFileInput = $("resumeFileInput");
   const threadWrap = $("threadWrap"), threadEl = $("threadEl");
 
@@ -1146,12 +1140,22 @@ rebuild, even if that means dropping part of the requested change.`;
   // regular (direct fetch) and pro+ (via the backend's base64 relay) users.
   async function githubFetchBlob(path, token) {
     if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
-      const result = await backendCall("githubBinary", { path });
-      if (!result.ok) throw new Error(result.error || `GitHub binary request failed on ${path}`);
-      const binary = atob(result.base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      return new Blob([bytes]);
+      // This call fetches large binaries (artifact zips, log zips) through the backend relay, which
+      // occasionally times out or hiccups on a single attempt even though the file is right there —
+      // unlike every other GitHub call in this file, this one previously had zero retry.
+      let lastErr;
+      for (let attempt = 1; attempt <= MAX_GITHUB_READ_ATTEMPTS; attempt++) {
+        const result = await backendCall("githubBinary", { path }).catch((e) => ({ ok: false, error: e.message }));
+        if (result.ok) {
+          const binary = atob(result.base64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          return new Blob([bytes]);
+        }
+        lastErr = new Error(result.error || `GitHub binary request failed on ${path}`);
+        if (attempt < MAX_GITHUB_READ_ATTEMPTS) await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+      }
+      throw lastErr;
     }
     const res = await githubFetch(path, token, {});
     if (!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
@@ -1271,7 +1275,7 @@ rebuild, even if that means dropping part of the requested change.`;
       generationConfig: {
         responseMimeType: "application/json",
         temperature: 0.4,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 32768,
         thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
       },
     }, logTarget);
@@ -1518,7 +1522,7 @@ rebuild, even if that means dropping part of the requested change.`;
       generationConfig: {
         responseMimeType: "application/json",
         temperature: 0.3,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 32768,
         thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
       },
     }, logTarget);
@@ -1535,7 +1539,7 @@ rebuild, even if that means dropping part of the requested change.`;
       generationConfig: {
         responseMimeType: "application/json",
         temperature: 0.3,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 32768,
         thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
       },
     }, logTarget);
@@ -1612,7 +1616,7 @@ rebuild, even if that means dropping part of the requested change.`;
       generationConfig: {
         responseMimeType: "application/json",
         temperature: 0.3,
-        maxOutputTokens: 16384,
+        maxOutputTokens: 32768,
         thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
       },
     }, logTarget);
@@ -2299,6 +2303,87 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   // ==========================================================================
+  // GENERIC CHAT — the entry point when "שיחה חדשה" is opened with no fixed
+  // type (or a specific tool wasn't picked from the sidebar). A lightweight,
+  // free Gemini call reads the message and decides: is this an actual request
+  // to build an app (route straight into runBuildTurn), or just talking/asking
+  // a question (answer conversationally and keep the chat open, untyped)?
+  // ==========================================================================
+
+  const CLASSIFY_INSTRUCTIONS = `You are the friendly front-of-house chat layer for an Android
+app-building tool. The user just sent a message in an open chat where no build/edit/translate/censor
+mode has been picked yet. Output ONLY a raw JSON object - no markdown fences, no commentary - with
+exactly two fields: "intent" and "reply".
+
+"intent": the string "build" if the message is a genuine request to build/create a NEW Android app -
+even a short, casual one like "build me a timer app" - otherwise the string "chat".
+
+"reply": your own short, warm, natural reply in the same language and register the user wrote in, as
+a friendly assistant actually chatting (not a form, not a script). If intent is "chat": really answer
+what they said - greetings get a greeting back, questions get a real answer, small talk gets small
+talk - and if relevant, mention in passing that you can build a new app from a short description, or
+edit/translate/censor images in an existing APK once they upload one. If intent is "build": one brief
+warm line acknowledging you're starting the build now (shown right before the build begins).`;
+
+  async function classifyIntent(geminiKeys, text) {
+    const dummyLog = document.createElement("div"); // detached on purpose - callGemini's retry logging has nowhere user-visible to go for this quick call
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}\n\nUser message:\n${text}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
+    }, dummyLog);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable reply (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || typeof parsed.reply !== "string") throw new Error("תשובת הצ'אט לא הייתה תקינה.");
+    return { intent: parsed.intent === "build" ? "build" : "chat", reply: parsed.reply };
+  }
+
+  function appendTypingIndicator() {
+    const turn = document.createElement("div");
+    turn.className = "turn role-assistant";
+    turn.innerHTML =
+      '<div class="turn-bubble"><div class="assistant-card" style="padding:14px 16px;">' +
+      '<div style="display:flex; gap:4px;">' +
+      '<span style="width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:pulse-ring 1s infinite;"></span>' +
+      '<span style="width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:pulse-ring 1s .15s infinite;"></span>' +
+      '<span style="width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:pulse-ring 1s .3s infinite;"></span>' +
+      "</div></div></div>";
+    threadEl.appendChild(turn);
+    scrollThreadToEnd();
+    return turn;
+  }
+
+  async function runChatOrBuild(text) {
+    const { geminiKeys } = readConnections();
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if (isRegular && geminiKeys.length === 0) {
+      const turn = appendAssistantTurn("עוזר");
+      turn.setStatus('צריך לפחות Gemini API key אחד כדי להתחיל (מהתפריט "חיבורים").', "error-text");
+      return;
+    }
+    recordTurn("user", "chat", text);
+    const thinking = appendTypingIndicator();
+    try {
+      const routed = await classifyIntent(geminiKeys, text);
+      thinking.remove();
+      if (routed.intent === "build") {
+        activeConversationType = "build";
+        updateComposerForState();
+        await runBuildTurn(text);
+      } else {
+        const turn = appendAssistantTurn("עוזר");
+        turn.setStatus(routed.reply, null);
+        recordTurn("assistant", "chat", routed.reply);
+      }
+    } catch (err) {
+      thinking.remove();
+      console.error(err);
+      const turn = appendAssistantTurn("עוזר");
+      turn.setStatus("✗ " + err.message, "error-text");
+    }
+  }
+
+  // ==========================================================================
   // CENSOR IMAGE GRID — scans the live APK's image entries into JSZip and lets
   // the user mark each one for replacement (transparent) or deletion before
   // runCensorTurn() commits the result. Same logic as before, now rendering
@@ -2401,25 +2486,25 @@ rebuild, even if that means dropping part of the requested change.`;
 
   let conversationIsLive = false; // true once this conversation can accept new turns in THIS session
 
-  function showEmptyView() {
-    emptyWrap.classList.remove("hidden");
-    threadWrap.classList.add("hidden");
-    composerWrap.classList.add("hidden");
-    resumeBox.classList.add("hidden");
-    mainTopbarTitle.textContent = "";
-  }
-
-  function showThreadView(title) {
+  function showThreadView(title, type) {
     emptyWrap.classList.add("hidden");
     threadWrap.classList.remove("hidden");
     mainTopbarTitle.textContent = title || "";
+    if (type && MODE_LABELS_HE[type]) {
+      modeBadge.textContent = MODE_LABELS_HE[type];
+      modeBadge.classList.remove("hidden");
+    } else {
+      modeBadge.classList.add("hidden");
+    }
     resumeBox.classList.toggle("hidden", conversationIsLive);
     composerWrap.classList.toggle("hidden", !conversationIsLive);
     if (conversationIsLive) updateComposerForState();
   }
 
+  const UPLOAD_FIRST_TYPES = ["edit", "translate", "censor"];
+
   function updateComposerForState() {
-    const needsFirstUpload = activeConversationType === "edit" && !currentApk;
+    const needsFirstUpload = UPLOAD_FIRST_TYPES.includes(activeConversationType) && !currentApk;
     firstUploadDrop.classList.toggle("hidden", !needsFirstUpload);
     pendingFileRow.classList.toggle("hidden", !pendingFirstUploadFile);
     composerActionsRow.classList.toggle("hidden", needsFirstUpload);
@@ -2428,10 +2513,16 @@ rebuild, even if that means dropping part of the requested change.`;
     chipCensor.disabled = !currentApk;
     composerInput.placeholder = currentApk
       ? "מה לשנות באפליקציה? (או לבקש שדרוג חדש)"
-      : "תארו את האפליקציה שתרצו לבנות…";
+      : activeConversationType === "build"
+        ? "תארו את האפליקציה שתרצו לבנות…"
+        : "כתבו הודעה — אפשר גם סתם לשאול משהו…";
   }
 
   function onLiveApkReady() {
+    if (activeConversationType && MODE_LABELS_HE[activeConversationType]) {
+      modeBadge.textContent = MODE_LABELS_HE[activeConversationType];
+      modeBadge.classList.remove("hidden");
+    }
     updateComposerForState();
   }
 
@@ -2459,7 +2550,9 @@ rebuild, even if that means dropping part of the requested change.`;
     autosizeComposer();
     pendingFirstUploadFile = null;
     appendUserTurn(text);
-    if (activeConversationType === "build" && !currentApk) {
+    if (!activeConversationType && !currentApk) {
+      await runChatOrBuild(text);
+    } else if (activeConversationType === "build" && !currentApk) {
       await runBuildTurn(text);
     } else if (currentApk) {
       await runEditTurn(text);
@@ -2471,7 +2564,7 @@ rebuild, even if that means dropping part of the requested change.`;
     loadConversationsList();
   }
 
-  // ---- first-upload (brand-new "edit" conversation) ----
+  // ---- first-upload (brand-new edit / translate / censor conversation) ----
   firstUploadDrop.addEventListener("click", () => firstUploadInput.click());
   firstUploadDrop.addEventListener("dragover", (e) => { e.preventDefault(); firstUploadDrop.classList.add("drag"); });
   firstUploadDrop.addEventListener("dragleave", () => firstUploadDrop.classList.remove("drag"));
@@ -2491,9 +2584,13 @@ rebuild, even if that means dropping part of the requested change.`;
     const base64 = await blobToBase64(file);
     currentApk = { base64, name: file.name };
     appendUserTurn(`📎 הועלה קובץ: ${file.name} (${formatBytes(file.size)})`);
-    recordTurn("user", "edit", `📎 הועלה קובץ: ${file.name}`);
+    recordTurn("user", activeConversationType || "edit", `📎 הועלה קובץ: ${file.name}`);
     updateComposerForState();
-    composerInput.focus();
+    // translate/censor act on the file directly — jump straight into their panel
+    // instead of waiting for a typed instruction that wouldn't make sense here.
+    if (activeConversationType === "translate") chipTranslate.click();
+    else if (activeConversationType === "censor") chipCensor.click();
+    else composerInput.focus();
   }
   pendingFileClear.addEventListener("click", () => {
     pendingFirstUploadFile = null;
@@ -2558,11 +2655,6 @@ rebuild, even if that means dropping part of the requested change.`;
     thinkChipGroup.querySelectorAll(".think-chip").forEach((c) => c.classList.toggle("active", c === btn));
   });
 
-  // ---- project-type picker ----
-  pickerBuildCard.addEventListener("click", () => startNewConversationPicker("build"));
-  pickerEditCard.addEventListener("click", () => startNewConversationPicker("edit"));
-  sideNewBtn.addEventListener("click", () => { activeConversationId = null; activeConversationType = null; currentApk = null; showEmptyView(); closeSidebarMobile(); });
-
   // ---- user badge / credits ----
   function renderUserBadge() {
     if (!currentUser) return;
@@ -2583,10 +2675,31 @@ rebuild, even if that means dropping part of the requested change.`;
   // stored transcript as static (non-live) turns when reopening one.
   // ==========================================================================
 
-  async function recordTurn(role, mode, content) {
-    if (!currentUser || !activeConversationId) return;
+  const TYPE_TITLES = { build: "אפליקציה חדשה", edit: "עריכת אפליקציה", translate: "תרגום אפליקציה", censor: "צנזור אפליקציה" };
+
+  // Creates the backend conversation row only when there's real content to save -
+  // not on every "new chat" click - so closing a chat you never actually used
+  // doesn't leave an empty row behind in the sidebar or the admin conversation list.
+  // Always created with the default title so the backend's own auto-title-from-
+  // first-message logic (see actionAppendMessage in Code.gs) gives it a real,
+  // distinctive name instead of a generic "אפליקציה חדשה" repeated for every entry.
+  async function ensureActiveConversation() {
+    if (activeConversationId) return activeConversationId;
     try {
-      await backendCall("appendMessage", { id: activeConversationId, message: { role, mode, content } });
+      const res = await backendCall("createConversation", { title: "שיחה חדשה" });
+      if (res.ok) { activeConversationId = res.id; loadConversationsList(); }
+    } catch (err) {
+      console.error("ensureActiveConversation failed:", err);
+    }
+    return activeConversationId;
+  }
+
+  async function recordTurn(role, mode, content) {
+    if (!currentUser) return;
+    const id = await ensureActiveConversation();
+    if (!id) return;
+    try {
+      await backendCall("appendMessage", { id, message: { role, mode, content } });
     } catch (err) {
       console.error("recordTurn failed:", err);
     }
@@ -2633,7 +2746,7 @@ rebuild, even if that means dropping part of the requested change.`;
     try {
       const res = await backendCall("deleteConversation", { id });
       if (!res.ok) { alert("שגיאה: " + res.error); return; }
-      if (activeConversationId === id) { activeConversationId = null; currentApk = null; showEmptyView(); }
+      if (activeConversationId === id) { activeConversationId = null; currentApk = null; startNewConversationPicker(null); }
       loadConversationsList();
     } catch (err) {
       console.error("deleteConversationById failed:", err);
@@ -2657,7 +2770,6 @@ rebuild, even if that means dropping part of the requested change.`;
     activeConversationId = id;
     currentApk = null;
     pendingFirstUploadFile = null;
-    conversationIsLive = false;
     closeCensorPanel();
     translatePanel.classList.add("hidden");
     renderConversationList();
@@ -2671,8 +2783,14 @@ rebuild, even if that means dropping part of the requested change.`;
       const res = await backendCall("getConversation", { id });
       if (!res.ok) throw new Error(res.error);
       const conv = res.conversation;
-      const firstUserMsg = conv.messages.find((m) => m.role === "user");
-      activeConversationType = firstUserMsg && firstUserMsg.mode === "build" ? "build" : "edit";
+      const firstTypedMsg = conv.messages.find((m) => m.role === "user" && m.mode && m.mode !== "chat");
+      activeConversationType = firstTypedMsg ? firstTypedMsg.mode : null;
+      // A conversation only needs a re-upload to continue if it actually produced a
+      // live APK before (compiled binaries aren't stored anywhere durable) — pure
+      // chat, or a conversation that never got past a failed first attempt, can
+      // just keep going live immediately.
+      const everSucceeded = conv.messages.some((m) => m.role === "assistant" && (m.content || "").startsWith("✓"));
+      conversationIsLive = !everSucceeded;
       threadEl.innerHTML = "";
       conv.messages.forEach(renderStoredMessage);
       if (conv.messages.length === 0) {
@@ -2681,19 +2799,19 @@ rebuild, even if that means dropping part of the requested change.`;
         p.textContent = "אין עדיין הודעות בשיחה הזו.";
         threadEl.appendChild(p);
       }
-      showThreadView(conv.title);
+      showThreadView(conv.title, activeConversationType);
     } catch (err) {
       threadEl.innerHTML = "";
       const p = document.createElement("p");
       p.className = "side-empty";
       p.textContent = "✗ שגיאה בטעינת השיחה: " + err.message;
       threadEl.appendChild(p);
-      showThreadView("");
+      showThreadView("", null);
     }
   }
 
-  async function startNewConversationPicker(type) {
-    activeConversationType = type;
+  function startNewConversationPicker(type) {
+    activeConversationType = type || null;
     currentApk = null;
     pendingFirstUploadFile = null;
     conversationIsLive = true;
@@ -2701,17 +2819,17 @@ rebuild, even if that means dropping part of the requested change.`;
     translatePanel.classList.add("hidden");
     threadEl.innerHTML = "";
     activeConversationId = null;
-    try {
-      const res = await backendCall("createConversation", { title: type === "build" ? "אפליקציה חדשה" : "עריכת אפליקציה" });
-      if (res.ok) activeConversationId = res.id;
-    } catch (err) {
-      console.error("startNewConversationPicker failed:", err);
-    }
     closeSidebarMobile();
-    showThreadView(type === "build" ? "אפליקציה חדשה" : "עריכת אפליקציה");
-    loadConversationsList();
-    if (type === "build") composerInput.focus();
+    showThreadView(TYPE_TITLES[type] || "שיחה חדשה", activeConversationType);
+    composerInput.focus();
   }
+
+  emptyStartBtn.addEventListener("click", () => startNewConversationPicker(null));
+  sideNewBtn.addEventListener("click", () => startNewConversationPicker(null));
+  sideTools.addEventListener("click", (e) => {
+    const btn = e.target.closest(".side-tool-btn");
+    if (btn) startNewConversationPicker(btn.dataset.type);
+  });
 
   sideSearchInput.addEventListener("input", renderConversationList);
 
@@ -2742,8 +2860,8 @@ rebuild, even if that means dropping part of the requested change.`;
     appShell.hidden = false;
     renderUserBadge();
     applyRoleUI();
-    showEmptyView();
     loadConversationsList();
+    startNewConversationPicker(null); // real chat, ready to type, right from login
   }
 
   function showAuthScreenView() {
