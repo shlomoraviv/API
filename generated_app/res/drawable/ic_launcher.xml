@@ -3,16 +3,13 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Background: Deep Spiritual Blue -->
     <path
         android:fillColor="#1A237E"
-        android:pathData="M12,0 L96,0 A12,12 0 0 1 108,12 L108,96 A12,12 0 0 1 96,108 L12,108 A12,12 0 0 1 0,96 L0,12 A12,12 0 0 1 12,0 Z" />
-    <!-- Mirror Frame / Glowing Guides -->
+        android:pathData="M12,12 h84 v84 h-84 z" />
     <path
-        android:fillColor="#00E5FF"
-        android:pathData="M20,25 L88,25 L88,27 L20,27 Z M53,25 L55,25 L55,85 L53,85 Z M20,25 L22,25 L22,55 L20,55 Z M86,25 L88,25 L88,55 L86,55 Z" />
-    <!-- Tefillin Box (Bayit) in Gold -->
+        android:fillColor="#00C853"
+        android:pathData="M12,12 M 24,12 C 17.3,12 12,17.3 12,24 L 12,84 C 12,90.7 17.3,96 24,96 L 84,96 C 90.7,96 96,90.7 96,84 L 96,24 C 96,17.3 90.7,12 84,12 Z" />
     <path
-        android:fillColor="#FFD700"
-        android:pathData="M39,45 L69,45 L69,75 L39,75 Z M34,75 L74,75 L74,80 L34,80 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M 54 25 C 43 25 35 33 35 44 L 45 44 C 45 39 49 35 54 35 C 59 35 63 39 63 44 C 63 54 49 52 49 67 L 59 67 C 59 57 73 55 73 44 C 73 33 65 25 54 25 Z M 49 75 L 59 75 L 59 85 L 49 85 Z" />
 </vector>

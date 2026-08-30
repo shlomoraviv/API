@@ -3,567 +3,523 @@ package com.aiapp.generated
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.Canvas
+import android.content.SharedPreferences
 import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
-import android.hardware.Camera
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
-import android.view.MotionEvent
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
-import java.util.ArrayList
+import android.view.animation.AlphaAnimation
+import android.widget.*
 
-class MainActivity : Activity(), SurfaceHolder.Callback {
+class MainActivity : Activity() {
 
-    private var camera: Camera? = null
-    private var surfaceView: SurfaceView? = null
-    private var surfaceHolder: SurfaceHolder? = null
-    private var guideView: GuideView? = null
-    private var faceLightBorder: View? = null
-    private var isFaceLightOn = false
+    private lateinit var prefs: SharedPreferences
+    private var highScore = 0
+    private var score = 0
+    private var currentQuestionIndex = 0
+    private var activeQuestions = listOf<Question>()
+    private var gameState = GameState.START
 
-    private var mainContainer: FrameLayout? = null
-    private var mirrorLayout: FrameLayout? = null
-    private var orderLayout: LinearLayout? = null
+    private lateinit var cardContainer: LinearLayout
+    private lateinit var highScoreTextView: TextView
 
-    private var tabMirror: TextView? = null
-    private var tabOrder: TextView? = null
-    private var prayerTextView: TextView? = null
+    enum class GameState {
+        START, PLAYING, FINISHED
+    }
 
-    private val CAMERA_REQ_CODE = 101
+    data class Question(
+        val text: String,
+        val options: List<String>,
+        val correctAnswerIndex: Int
+    )
+
+    private val allQuestions = listOf(
+        Question("מהי המדינה הגדולה ביותר בעולם בשטחה?", listOf("קנדה", "רוסיה", "ארה\"ב", "סין"), 1),
+        Question("כמה כוכבי לכת יש במערכת השמש שלנו?", listOf("7", "8", "9", "10"), 1),
+        Question("מי צייר את \"המונליזה\"?", listOf("מיכלאנג'לו", "ואן גוך", "לאונרדו דה וינצ'י", "פיקאסו"), 2),
+        Question("מהו האיבר הגדול ביותר בגוף האדם?", listOf("העור", "הכבד", "המוח", "הריאות"), 0),
+        Question("באיזו שנה קמה מדינת ישראל?", listOf("1947", "1948", "1949", "1950"), 1),
+        Question("מהו האוקיינוס הגדול ביותר בעולם?", listOf("האוקיינוס האטלנטי", "האוקיינוס ההודי", "האוקיינוס השקט", "אוקיינוס הקרח הצפוני"), 2),
+        Question("איזה גז מהווה את מרבית האטמוספירה של כדור הארץ?", listOf("חמצן", "חנקן", "פחמן דו-חמצני", "מימן"), 1),
+        Question("מהי בירת יפן?", listOf("קיוטו", "אוסקה", "סיאול", "טוקיו"), 3),
+        Question("כמה יבשות יש בכדור הארץ?", listOf("5", "6", "7", "8"), 2),
+        Question("מהו המאכל הלאומי של איטליה?", listOf("סושי", "המבורגר", "פיצה", "טאקו"), 2)
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) 
         
-        // Main layout containing top tabs, content area, and bottom credit
-        val root = LinearLayout(this)
-        root.orientation = LinearLayout.VERTICAL
-        root.setBackgroundColor(Color.parseColor("#F9F9F9"))
+        prefs = getSharedPreferences("TriviaPrefs", Context.MODE_PRIVATE)
+        highScore = prefs.getInt("high_score", 0)
 
-        // 1. Top Navigation Tabs
-        val tabLayout = LinearLayout(this)
-        tabLayout.orientation = LinearLayout.HORIZONTAL
-        tabLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(55))
-        tabLayout.setBackgroundColor(Color.parseColor("#FFFFFF"))
-        
-        tabMirror = createTab("מראה לתפילין", true)
-        tabOrder = createTab("סדר הנחה", false)
+        val density = resources.displayMetrics.density
+        val dp = { value: Int -> (value * density).toInt() }
 
-        tabMirror?.setOnClickListener { switchTab(true) }
-        tabOrder?.setOnClickListener { switchTab(false) }
-
-        tabLayout.addView(tabMirror, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
-        tabLayout.addView(tabOrder, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
-        root.addView(tabLayout)
-
-        // 2. Content Area
-        mainContainer = FrameLayout(this)
-        val contentParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
-        root.addView(mainContainer, contentParams)
-
-        // Build Mirror View
-        buildMirrorLayout()
-        // Build Order View
-        buildOrderLayout()
-
-        // 3. Bottom Credit Bar
-        val bottomBar = LinearLayout(this)
-        bottomBar.orientation = LinearLayout.HORIZONTAL
-        bottomBar.setBackgroundColor(Color.parseColor("#1A237E"))
-        bottomBar.setPadding(dp(10), dp(8), dp(10), dp(8))
-        bottomBar.gravity = Gravity.CENTER_VERTICAL
-
-        val creditText = TextView(this)
-        creditText.text = "פותח ע\"י רביב דיגיטל"
-        creditText.setTextColor(Color.parseColor("#FFD700"))
-        creditText.textSize = 14f
-        creditText.typeface = Typeface.DEFAULT_BOLD
-        creditText.gravity = Gravity.RIGHT
-        
-        val aboutButton = Button(this)
-        aboutButton.text = "אודות"
-        aboutButton.textSize = 12f
-        aboutButton.setTextColor(Color.WHITE)
-        aboutButton.background = createButtonDrawable(Color.parseColor("#283593"), Color.parseColor("#3F51B5"))
-        aboutButton.setPadding(dp(12), dp(4), dp(12), dp(4))
-        aboutButton.isFocusable = true
-        aboutButton.setOnClickListener {
-            showAboutDialog()
+        // Main Root Layout
+        val rootLayout = FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(Color.parseColor("#1A237E"), Color.parseColor("#311B92"))
+            )
         }
 
-        val creditParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        bottomBar.addView(aboutButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        bottomBar.addView(creditText, creditParams)
-        root.addView(bottomBar)
+        // Scroll Container
+        val scrollView = ScrollView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            isFillViewport = true
+        }
 
-        setContentView(root)
+        val contentLayout = LinearLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(24), dp(32), dp(24), dp(32))
+        }
 
-        // Default view: Mirror
-        switchTab(true)
-        checkCameraPermission()
-    }
+        // Top Header Bar with Info Button
+        val headerLayout = RelativeLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, dp(24))
+            }
+        }
 
-    private fun createTab(text: String, active: Boolean): TextView {
-        val tab = TextView(this)
-        tab.text = text
-        tab.gravity = Gravity.CENTER
-        tab.textSize = 16f
-        tab.typeface = Typeface.DEFAULT_BOLD
-        tab.isFocusable = true
-        tab.isFocusableInTouchMode = true
-        updateTabStyle(tab, active)
-        return tab
-    }
+        val titleLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val params = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+            }
+            layoutParams = params
+            gravity = Gravity.RIGHT
+        }
 
-    private fun updateTabStyle(tab: TextView?, active: Boolean) {
-        if (tab == null) return
-        if (active) {
-            tab.setTextColor(Color.parseColor("#1A237E"))
-            val gd = GradientDrawable()
-            gd.setColor(Color.parseColor("#E8EAF6"))
-            gd.setStroke(dp(2), Color.parseColor("#1A237E"))
-            tab.background = gd
+        val appTitle = TextView(this).apply {
+            text = "טריוויה מהירה"
+            textSize = 26f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+        }
+
+        val appSubtitle = TextView(this).apply {
+            text = "אתגר הידע היומי שלך"
+            textSize = 14f
+            setTextColor(Color.parseColor("#B0BEC5"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        }
+
+        titleLayout.addView(appTitle)
+        titleLayout.addView(appSubtitle)
+
+        // Info Button (Settings/About)
+        val infoButton = FrameLayout(this).apply {
+            val params = RelativeLayout.LayoutParams(dp(40), dp(40)).apply {
+                addRule(RelativeLayout.ALIGN_PARENT_LEFT)
+                addRule(RelativeLayout.CENTER_VERTICAL)
+            }
+            layoutParams = params
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#33FFFFFF"))
+                cornerRadius = dp(20).toFloat()
+            }
+            setOnClickListener {
+                showAboutDialog()
+            }
+        }
+
+        val infoText = TextView(this).apply {
+            text = "i"
+            textSize = 18f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.create("serif", Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+        infoButton.addView(infoText, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+
+        headerLayout.addView(titleLayout)
+        headerLayout.addView(infoButton)
+        contentLayout.addView(headerLayout)
+
+        // High Score Display
+        highScoreTextView = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, dp(16))
+            }
+            text = "שיא אישי: $highScore מתוך 5"
+            textSize = 16f
+            setTextColor(Color.parseColor("#FFD700"))
+            typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+        }
+        contentLayout.addView(highScoreTextView)
+
+        // Main Interactive Card
+        cardContainer = LinearLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                weight = 1f
+            }
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.WHITE)
+                cornerRadius = dp(16).toFloat()
+            }
+            elevation = dp(8).toFloat()
+            setPadding(dp(20), dp(24), dp(20), dp(24))
+            gravity = Gravity.CENTER
+        }
+        contentLayout.addView(cardContainer)
+
+        // Footer (Raviv Digital Credit)
+        val footerTextView = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, dp(24), 0, 0)
+            }
+            text = "נבנה ע\"י רביב דיגיטל"
+            textSize = 13f
+            setTextColor(Color.parseColor("#B0BEC5"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+            setOnClickListener {
+                showAboutDialog()
+            }
+        }
+        contentLayout.addView(footerTextView)
+
+        scrollView.addView(contentLayout)
+        rootLayout.addView(scrollView)
+        setContentView(rootLayout)
+
+        // Restore State or Init
+        if (savedInstanceState != null) {
+            val stateOrdinal = savedInstanceState.getInt("gameState", 0)
+            gameState = GameState.values()[stateOrdinal]
+            score = savedInstanceState.getInt("score", 0)
+            currentQuestionIndex = savedInstanceState.getInt("currentQuestionIndex", 0)
+            val indices = savedInstanceState.getIntArray("activeQuestionIndices")
+            if (indices != null) {
+                activeQuestions = indices.map { allQuestions[it] }
+            } else {
+                generateNewChallenge()
+            }
+            loadState(gameState)
         } else {
-            tab.setTextColor(Color.parseColor("#757575"))
-            val gd = GradientDrawable()
-            gd.setColor(Color.parseColor("#FFFFFF"))
-            gd.setStroke(dp(1), Color.parseColor("#E0E0E0"))
-            tab.background = gd
+            loadState(GameState.START)
         }
     }
 
-    private fun switchTab(isMirror: Boolean) {
-        updateTabStyle(tabMirror, isMirror)
-        updateTabStyle(tabOrder, !isMirror)
-        
-        if (isMirror) {
-            mirrorLayout?.visibility = View.VISIBLE
-            orderLayout?.visibility = View.GONE
-            startCameraPreview()
-        } else {
-            mirrorLayout?.visibility = View.GONE
-            orderLayout?.visibility = View.VISIBLE
-            stopCameraPreview()
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("gameState", gameState.ordinal)
+        outState.putInt("score", score)
+        outState.putInt("currentQuestionIndex", currentQuestionIndex)
+        outState.putIntArray("activeQuestionIndices", activeQuestions.map { allQuestions.indexOf(it) }.toIntArray())
     }
 
-    private fun buildMirrorLayout() {
-        mirrorLayout = FrameLayout(this)
-        
-        // Camera Surface
-        surfaceView = SurfaceView(this)
-        surfaceHolder = surfaceView?.holder
-        surfaceHolder?.addCallback(this)
-        mirrorLayout?.addView(surfaceView, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-
-        // Custom Guide Overlay
-        guideView = GuideView(this)
-        mirrorLayout?.addView(guideView, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-
-        // Face Light Frame (thick white border, hidden by default)
-        faceLightBorder = View(this)
-        val borderDrawable = GradientDrawable()
-        borderDrawable.setColor(Color.TRANSPARENT)
-        borderDrawable.setStroke(dp(30), Color.WHITE)
-        faceLightBorder?.background = borderDrawable
-        faceLightBorder?.visibility = View.GONE
-        mirrorLayout?.addView(faceLightBorder, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-
-        // Control Panel Overlay (Bottom of the mirror screen)
-        val controls = LinearLayout(this)
-        controls.orientation = LinearLayout.HORIZONTAL
-        controls.gravity = Gravity.CENTER
-        controls.setBackgroundColor(Color.parseColor("#CC000000"))
-        controls.setPadding(dp(8), dp(8), dp(8), dp(8))
-        
-        val btnLight = createStyledButton("תאורה", Color.parseColor("#FFC107"))
-        btnLight.setOnClickListener {
-            toggleFaceLight()
-        }
-
-        val btnUp = createStyledButton("▲ קו מעלה", Color.parseColor("#2196F3"))
-        btnUp.setOnClickListener {
-            guideView?.moveUp()
-        }
-
-        val btnDown = createStyledButton("▼ קו מטה", Color.parseColor("#2196F3"))
-        btnDown.setOnClickListener {
-            guideView?.moveDown()
-        }
-
-        controls.addView(btnLight, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        controls.addView(btnUp, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        controls.addView(btnDown, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-
-        val controlParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        controlParams.gravity = Gravity.BOTTOM
-        mirrorLayout?.addView(controls, controlParams)
-
-        mainContainer?.addView(mirrorLayout)
+    private fun generateNewChallenge() {
+        activeQuestions = allQuestions.shuffled().take(5)
     }
 
-    private fun buildOrderLayout() {
-        orderLayout = LinearLayout(this)
-        orderLayout?.orientation = LinearLayout.VERTICAL
-        orderLayout?.setBackgroundColor(Color.WHITE)
-        orderLayout?.setPadding(dp(12), dp(12), dp(12), dp(12))
+    private fun loadState(state: GameState) {
+        gameState = state
+        cardContainer.removeAllViews()
+        val density = resources.displayMetrics.density
+        val dp = { value: Int -> (value * density).toInt() }
 
-        // Nusach Selector Header
-        val selectorLayout = LinearLayout(this)
-        selectorLayout.orientation = LinearLayout.HORIZONTAL
-        selectorLayout.gravity = Gravity.CENTER
-        selectorLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val fadeAnimation = AlphaAnimation(0f, 1f).apply {
+            duration = 300
+        }
+        cardContainer.startAnimation(fadeAnimation)
 
-        val nusachs = arrayOf("ע\"מ (ספרדי)", "אשכנז", "ספרד", "חב\"ד")
-        val buttons = ArrayList<Button>()
-
-        for (i in nusachs.indices) {
-            val btn = Button(this)
-            btn.text = nusachs[i]
-            btn.textSize = 12f
-            btn.isFocusable = true
-            btn.setPadding(dp(4), dp(6), dp(4), dp(6))
-            
-            val params = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            params.setMargins(dp(2), 0, dp(2), 0)
-            selectorLayout.addView(btn, params)
-            buttons.add(btn)
-
-            btn.setOnClickListener {
-                for (b in buttons) {
-                    b.background = createButtonDrawable(Color.parseColor("#E0E0E0"), Color.parseColor("#BDBDBD"))
-                    b.setTextColor(Color.BLACK)
+        when (state) {
+            GameState.START -> {
+                val emojiView = TextView(this).apply {
+                    text = "🧠"
+                    textSize = 64f
+                    gravity = Gravity.CENTER
                 }
-                btn.background = createButtonDrawable(Color.parseColor("#1A237E"), Color.parseColor("#3F51B5"))
-                btn.setTextColor(Color.WHITE)
-                loadNusachText(i)
+
+                val welcomeTitle = TextView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, dp(16), 0, dp(8))
+                    }
+                    text = "מוכנים לאתגר היומי?"
+                    textSize = 22f
+                    setTextColor(Color.parseColor("#1A237E"))
+                    typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                    gravity = Gravity.CENTER
+                }
+
+                val welcomeDesc = TextView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, dp(24))
+                    }
+                    text = "5 שאלות טריוויה מהירות ומעניינות שיבחנו את הידע הכללי שלכם. האם תצליחו לקבל ציון מושלם?"
+                    textSize = 15f
+                    setTextColor(Color.parseColor("#555555"))
+                    gravity = Gravity.CENTER
+                    lineSpacingMultiplier = 1.2f
+                }
+
+                val startButton = Button(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        dp(54)
+                    )
+                    text = "התחל באתגר!"
+                    textSize = 18f
+                    setTextColor(Color.WHITE)
+                    typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                    background = getButtonDrawable(Color.parseColor("#00C853"), Color.parseColor("#00E676"), 12f)
+                    setOnClickListener {
+                        generateNewChallenge()
+                        score = 0
+                        currentQuestionIndex = 0
+                        loadState(GameState.PLAYING)
+                    }
+                }
+
+                cardContainer.addView(emojiView)
+                cardContainer.addView(welcomeTitle)
+                cardContainer.addView(welcomeDesc)
+                cardContainer.addView(startButton)
+            }
+
+            GameState.PLAYING -> {
+                val currentQuestion = activeQuestions[currentQuestionIndex]
+
+                val progressText = TextView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, dp(12))
+                    }
+                    text = "שאלה ${currentQuestionIndex + 1} מתוך 5"
+                    textSize = 14f
+                    setTextColor(Color.parseColor("#757575"))
+                    typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                    gravity = Gravity.RIGHT
+                }
+
+                val questionText = TextView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, dp(24))
+                    }
+                    text = currentQuestion.text
+                    textSize = 20f
+                    setTextColor(Color.parseColor("#212121"))
+                    typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                    gravity = Gravity.RIGHT
+                    lineSpacingMultiplier = 1.2f
+                }
+
+                cardContainer.addView(progressText)
+                cardContainer.addView(questionText)
+
+                val optionButtons = mutableListOf<Button>()
+                for (i in 0 until 4) {
+                    val optionText = currentQuestion.options[i]
+                    val optionButton = Button(this).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            dp(50)
+                        ).apply {
+                            setMargins(0, 0, 0, dp(12))
+                        }
+                        text = optionText
+                        textSize = 16f
+                        setTextColor(Color.parseColor("#212121"))
+                        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                        transformationMethod = null
+                        background = getButtonDrawable(Color.parseColor("#F5F5F5"), Color.parseColor("#E0E0E0"), 8f)
+                        
+                        setOnClickListener {
+                            // Disable all buttons immediately
+                            optionButtons.forEach { it.isEnabled = false }
+                            
+                            val isCorrect = i == currentQuestion.correctAnswerIndex
+                            if (isCorrect) {
+                                score++
+                                background = getSolidDrawable(Color.parseColor("#C8E6C9"), 8f)
+                                setTextColor(Color.parseColor("#1B5E20"))
+                                typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                            } else {
+                                background = getSolidDrawable(Color.parseColor("#FFCDD2"), 8f)
+                                setTextColor(Color.parseColor("#B71C1C"))
+                                typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                                
+                                // Highlight correct answer
+                                val correctButton = optionButtons[currentQuestion.correctAnswerIndex]
+                                correctButton.background = getSolidDrawable(Color.parseColor("#C8E6C9"), 8f)
+                                correctButton.setTextColor(Color.parseColor("#1B5E20"))
+                                correctButton.typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                            }
+
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                currentQuestionIndex++
+                                if (currentQuestionIndex < 5) {
+                                    loadState(GameState.PLAYING)
+                                } else {
+                                    loadState(GameState.FINISHED)
+                                }
+                            }, 1500)
+                        }
+                    }
+                    optionButtons.add(optionButton)
+                    cardContainer.addView(optionButton)
+                }
+            }
+
+            GameState.FINISHED -> {
+                val isPerfect = score == 5
+                val emoji = if (isPerfect) "🏆" else "🎉"
+                
+                val emojiView = TextView(this).apply {
+                    text = emoji
+                    textSize = 64f
+                    gravity = Gravity.CENTER
+                }
+
+                val finishedTitle = TextView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, dp(16), 0, dp(8))
+                    }
+                    text = if (isPerfect) "ציון מושלם! כל הכבוד!" else "המשחק הסתיים!"
+                    textSize = 22f
+                    setTextColor(Color.parseColor("#1A237E"))
+                    typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                    gravity = Gravity.CENTER
+                }
+
+                val scoreDesc = TextView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, dp(24))
+                    }
+                    text = "ענית נכון על $score מתוך 5 שאלות."
+                    textSize = 16f
+                    setTextColor(Color.parseColor("#555555"))
+                    gravity = Gravity.CENTER
+                }
+
+                // Check and save high score
+                if (score > highScore) {
+                    highScore = score
+                    prefs.edit().putInt("high_score", highScore).apply()
+                    highScoreTextView.text = "שיא אישי: $highScore מתוך 5"
+                    
+                    val newRecordText = TextView(this).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            setMargins(0, 0, 0, dp(16))
+                        }
+                        text = "שיא אישי חדש! 🌟"
+                        textSize = 18f
+                        setTextColor(Color.parseColor("#FFD700"))
+                        typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                        gravity = Gravity.CENTER
+                    }
+                    cardContainer.addView(newRecordText)
+                }
+
+                val restartButton = Button(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        dp(54)
+                    )
+                    text = "שחק שוב"
+                    textSize = 18f
+                    setTextColor(Color.WHITE)
+                    typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
+                    background = getButtonDrawable(Color.parseColor("#1A237E"), Color.parseColor("#311B92"), 12f)
+                    setOnClickListener {
+                        loadState(GameState.START)
+                    }
+                }
+
+                cardContainer.addView(emojiView)
+                cardContainer.addView(finishedTitle)
+                cardContainer.addView(scoreDesc)
+                cardContainer.addView(restartButton)
             }
         }
-
-        orderLayout?.addView(selectorLayout)
-
-        // Scrollable Prayer Text
-        val scrollView = ScrollView(this)
-        scrollView.isFocusable = true
-        scrollView.isFocusableInTouchMode = true
-        val scrollParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
-        scrollParams.setMargins(0, dp(12), 0, 0)
-        orderLayout?.addView(scrollView, scrollParams)
-
-        prayerTextView = TextView(this)
-        prayerTextView?.textSize = 18f
-        prayerTextView?.setTextColor(Color.parseColor("#212121"))
-        prayerTextView?.gravity = Gravity.RIGHT
-        prayerTextView?.setLineSpacing(1.0f, 1.3f)
-        scrollView.addView(prayerTextView)
-
-        // Select first Nusach by default
-        if (buttons.isNotEmpty()) {
-            buttons[0].performClick()
-        }
-
-        mainContainer?.addView(orderLayout)
-    }
-
-    private fun createStyledButton(text: String, color: Int): Button {
-        val btn = Button(this)
-        btn.text = text
-        btn.textSize = 13f
-        btn.setTextColor(Color.WHITE)
-        btn.isFocusable = true
-        btn.isFocusableInTouchMode = true
-        btn.background = createButtonDrawable(color, Color.parseColor("#33000000"))
-        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        params.setMargins(dp(4), dp(4), dp(4), dp(4))
-        btn.layoutParams = params
-        return btn
-    }
-
-    private fun createButtonDrawable(normalColor: Int, focusedColor: Int): StateListDrawable {
-        val res = StateListDrawable()
-        
-        val focused = GradientDrawable()
-        focused.setColor(focusedColor)
-        focused.setCornerRadius(dp(6).toFloat())
-        focused.setStroke(dp(2), Color.parseColor("#FFD700"))
-        
-        val normal = GradientDrawable()
-        normal.setColor(normalColor)
-        normal.setCornerRadius(dp(6).toFloat())
-
-        res.addState(intArrayOf(android.R.attr.state_focused), focused)
-        res.addState(intArrayOf(android.R.attr.state_pressed), focused)
-        res.addState(intArrayOf(), normal)
-        return res
-    }
-
-    private fun toggleFaceLight() {
-        isFaceLightOn = !isFaceLightOn
-        val lp = window.attributes
-        if (isFaceLightOn) {
-            faceLightBorder?.visibility = View.VISIBLE
-            lp.screenBrightness = 1.0f
-        }
-        else {
-            faceLightBorder?.visibility = View.GONE
-            lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
-        }
-        window.attributes = lp
-    }
-
-    private fun loadNusachText(index: Int) {
-        val sb = StringBuilder()
-        when (index) {
-            0 -> { // Edot HaMizrach
-                sb.append("סדר הנחת תפילין - עדות המזרח\n\n")
-                sb.append("א. הנחת תפילין של יד:\n")
-                sb.append("מניח את התפילה על הקיבורת של יד שמאל (או ימין לאטרליים) ומטה אותה מעט כלפי הלב. לפני ההדקה מברך:\n\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
-                sb.append("מיד לאחר הברכה מהדק את הרצועה וכורך שבע כריכות על הזרוע.\n\n")
-                sb.append("ב. הנחת תפילין של ראש:\n")
-                sb.append("מניח את תפילין של ראש על מקום גידול השיער, בדיוק מעל בין העיניים. הקצה התחתון של התפילין לא ירד מקו גידול השיער. הקשר מאחור יונח בגומחה שבעורף.\n")
-                sb.append("לפי מנהג עדות המזרח אין מברכים על של ראש, אלא אם כן הפסיק בדיבור בין היד לראש. ואם הפסיק מברך:\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין. (ואומר: ברוך שם כבוד מלכותו לעולם ועד).\n\n")
-                sb.append("ג. כריכת הרצועה על האצבע:\n")
-                sb.append("כורך שלוש כריכות על האצבע האמצעית (האמה) ואומר:\n")
-                sb.append("וְאֵרַשְׂתִּיךְ לִי לְעוֹלָם, וְאֵרַשְׂתִּיךְ לִי בְּצֶדֶק וּבְמִשְׁפָּט וּבְחֶסֶד וּבְרַחֲמִים, וְאֵרַשְׂתִּיךְ לִי בֶּאֱמוּנָה וְיָדַעַתְּ אֶת יְהֹוָה.")
-            }
-            1 -> { // Ashkenaz
-                sb.append("סדר הנחת תפילין - אשכנז\n\n")
-                sb.append("א. תפילין של יד:\n")
-                sb.append("מניח על הקיבורת ומברך:\n\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
-                sb.append("ומהדק וכורך שבע כריכות.\n\n")
-                sb.append("ב. תפילין של ראש:\n")
-                sb.append("מניח על הראש במקום גידול השיער ומברך לפני ההדקה:\n\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין.\n\n")
-                sb.append("ומהדק מיד ואומר:\n")
-                sb.append("בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n")
-                sb.append("ג. כריכת הרצועה על האצבע האמצעית ואומר 'וארשתיך...'")
-            }
-            2 -> { // Sefard
-                sb.append("סדר הנחת תפילין - נוסח ספרד\n\n")
-                sb.append("א. תפילין של יד:\n")
-                sb.append("מניח על הקיבורת ומברך:\n\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
-                sb.append("ב. תפילין של ראש:\n")
-                sb.append("מניח במקום גידול השיער ומברך:\n\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין.\n\n")
-                sb.append("ומהדק ואומר מיד:\n")
-                sb.append("בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n")
-                sb.append("ג. כורכים על האצבע ואומרים 'וארשתיך...'")
-            }
-            3 -> { // Chabad
-                sb.append("סדר הנחת תפילין - חב\"ד\n\n")
-                sb.append("א. תפילין של יד:\n")
-                sb.append("מניח על הקיבורת, ומברך:\n\n")
-                sb.append("בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין.\n\n")
-                sb.append("מהדק וכורך חצי כריכה על הזרוע, ואז כורך כריכה אחת על כף היד, ואז כורך שבע כריכות על הזרוע.\n\n")
-                sb.append("ב. תפילין של ראש:\n")
-                sb.append("מניח על הראש במקום גידול השיער ואינו מברך (אלא אם כן הפסיק בדיבור). לאחר שהניח והדק, אומר בלחש:\n\n")
-                sb.append("בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד.\n\n")
-                sb.append("ג. כריכת הרצועות על האצבע האמצעית ואומר 'וארשתיך...'")
-            }
-        }
-        prayerTextView?.text = sb.toString() 
     }
 
     private fun showAboutDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("אודות האפליקציה")
-        
-        val tv = TextView(this)
-        tv.text = "אפליקציית מראה חכמה לתפילין עם סדר הנחה מובנה.\n\nפותח בצורה מקצועית ומכובדת על ידי רביב דיגיטל.\n\nהאפליקציה מותאמת באופן מלא למכשירים בעלי מקשים (D-pad) ומסכים קטנים."
-        tv.textSize = 16f
-        tv.setTextColor(Color.BLACK)
-        tv.gravity = Gravity.RIGHT
-        tv.setPadding(dp(20), dp(20), dp(20), dp(20))
-        
-        builder.setView(tv)
-        builder.setPositiveButton("סגור") { dialog, _ -> dialog.dismiss() }
-        builder.show()
+        AlertDialog.Builder(this)
+            .setTitle("אודות האפליקציה")
+            .setMessage("טריוויה יומית מהירה ומעניינת לבחינת הידע הכללי.\
+\
+נבנה ע\"י רביב דיגיטל.")
+            .setPositiveButton("סגור") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
-    // Camera Handling
-    private fun checkCameraPermission() {
-        if (checkCallingOrSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), CAMERA_REQ_CODE)
+    private fun getButtonDrawable(normalColor: Int, pressedColor: Int, radiusDp: Float): StateListDrawable {
+        val density = resources.displayMetrics.density
+        val radius = radiusDp * density
+        val normal = GradientDrawable().apply {
+            setColor(normalColor)
+            cornerRadius = radius
+        }
+        val pressed = GradientDrawable().apply {
+            setColor(pressedColor)
+            cornerRadius = radius
+        }
+        return StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_pressed), pressed)
+            addState(intArrayOf(), normal)
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == CAMERA_REQ_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startCameraPreview()
-            } else {
-                Toast.makeText(this, "נדרשת הרשאת מצלמה עבור המראה", Toast.LENGTH_LONG).show()
-            }
+    private fun getSolidDrawable(color: Int, radiusDp: Float): GradientDrawable {
+        val density = resources.displayMetrics.density
+        return GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = radiusDp * density
         }
-    }
-
-    private fun startCameraPreview() {
-        if (camera == null && surfaceHolder != null) {
-            try {
-                // Open front camera
-                val info = Camera.CameraInfo()
-                var frontCameraId = -1
-                for (i in 0 until Camera.getNumberOfCameras()) {
-                    Camera.getCameraInfo(i, info)
-                    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                        frontCameraId = i
-                        break
-                    } 
-                }
-                
-                camera = if (frontCameraId != -1) {
-                    Camera.open(frontCameraId)
-                } else {
-                    Camera.open()
-                }
-
-                camera?.setDisplayOrientation(90)
-                camera?.setPreviewDisplay(surfaceHolder)
-                camera?.startPreview()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun stopCameraPreview() {
-        try {
-            camera?.stopPreview()
-            camera?.release()
-            camera = null
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    override fun surfaceCreated(holder: SurfaceHolder) {
-        surfaceHolder = holder
-        startCameraPreview()
-    }
-
-    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        if (holder.surface == null) return
-        try {
-            camera?.stopPreview()
-        } catch (e: Exception) {}
-        
-        try {
-            camera?.setPreviewDisplay(holder)
-            camera?.startPreview()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    override fun surfaceDestroyed(holder: SurfaceHolder) {
-        stopCameraPreview()
-        surfaceHolder = null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (mirrorLayout?.visibility == View.VISIBLE) {
-            startCameraPreview()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopCameraPreview()
-    }
-
-    private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
-    }
-
-    // Custom View to Draw Tefillin Alignment Guides
-    inner class GuideView(context: Context) : View(context) {
-        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private var yOffset = 0f
-        private var isInitialized = false
-
-        init {
-            paint.color = Color.parseColor("#00E5FF") // Cyan
-            paint.strokeWidth = dp(2).toFloat()
-            paint.style = Paint.Style.STROKE
-
-            glowPaint.color = Color.parseColor("#4000E5FF") // Semi-transparent Cyan for glow
-            glowPaint.strokeWidth = dp(6).toFloat()
-            glowPaint.style = Paint.Style.STROKE
-        }
-
-        override fun onDraw(canvas: Canvas) {
-            super.onDraw(canvas)
-            val w = width.toFloat()
-            val h = height.toFloat()
-
-            if (!isInitialized) {
-                yOffset = h * 0.3f // Start at top 30%
-                isInitialized = true
-            }
-
-            val startX = w * 0.15f
-            val endX = w * 0.85f
-            val centerX = w * 0.5f
-            
-            val centerLength = h * 0.4f
-            val sideLength = centerLength * 0.5f
-
-            // 1. Horizontal Header Line
-            canvas.drawLine(startX, yOffset, endX, yOffset, glowPaint)
-            canvas.drawLine(startX, yOffset, endX, yOffset, paint)
-
-            // 2. Center Vertical Line
-            canvas.drawLine(centerX, yOffset, centerX, yOffset + centerLength, glowPaint)
-            canvas.drawLine(centerX, yOffset, centerX, yOffset + centerLength, paint)
-
-            // 3. Left Side Guide
-            canvas.drawLine(startX, yOffset, startX, yOffset + sideLength, glowPaint)
-            canvas.drawLine(startX, yOffset, startX, yOffset + sideLength, paint)
-
-            // 4. Right Side Guide
-            canvas.drawLine(endX, yOffset, endX, yOffset + sideLength, glowPaint)
-            canvas.drawLine(endX, yOffset, endX, yOffset + sideLength, paint)
-        }
-
-        fun moveUp() {
-            yOffset -= dp(15).toFloat()
-            if (yOffset < 0) yOffset = 0f
-            invalidate()
-        }
-
-        fun moveDown() {
-            yOffset += dp(15).toFloat()
-            if (yOffset > height) yOffset = height.toFloat()
-            invalidate()
-        }
-
-        override fun onTouchEvent(event: MotionEvent): Boolean {
-            if (event.action == MotionEvent.ACTION_MOVE || event.action == MotionEvent.ACTION_DOWN) {
-                yOffset = event.y
-                invalidate()
-                return true
-            }
-            return super.onTouchEvent(event)
-        } 
     }
 }
