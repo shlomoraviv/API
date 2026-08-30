@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:background="@color/grey_c" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutDirection="locale"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout android:id="@id/adViewContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="0.0dp" />
+    <ScrollView android:scrollbars="none" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0">
+        <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatTextView android:textSize="17.0sp" android:textStyle="bold" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dp" android:text="@string/string_select_option" android:layout_marginStart="5.0dp" android:layout_marginEnd="5.0dp" app:drawableStartCompat="@drawable/select" />
+            <RadioGroup android:orientation="vertical" android:id="@id/rgOption" android:background="@drawable/shadow_rectangle_white" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="5.0dp" android:layout_marginEnd="5.0dp">
+                <androidx.appcompat.widget.AppCompatRadioButton android:id="@id/rbOption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/string_select_option_1" />
+                <androidx.appcompat.widget.AppCompatRadioButton android:id="@id/rbOption2" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/string_select_option_2" />
+                <androidx.appcompat.widget.AppCompatRadioButton android:id="@id/rbOption3" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/string_select_option_3" />
+            </RadioGroup>
+            <LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:id="@id/layoutSettings" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5.0dp" android:layout_marginStart="5.0dp" android:layout_marginEnd="5.0dp">
+                <androidx.appcompat.widget.AppCompatTextView android:textSize="17.0sp" android:textStyle="bold" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_quality" app:drawableStartCompat="@drawable/microphone_settings" />
+                <LinearLayout android:orientation="vertical" android:background="@drawable/shadow_rectangle_white" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5.0dp" android:baselineAligned="false" android:layout_marginStart="5.0dp" android:layout_marginEnd="5.0dp">
+                        <LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginStart="3.0dp" android:layout_marginEnd="3.0dp">
+                            <androidx.appcompat.widget.AppCompatTextView android:textStyle="bold" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_audio_mode" />
+                            <androidx.appcompat.widget.AppCompatSpinner android:id="@id/spinnerAudioMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:prompt="@string/app_audio_mode" android:dropDownVerticalOffset="35.0dp" android:spinnerMode="dropdown" android:paddingStart="5.0dp" android:paddingEnd="5.0dp" style="@style/Widget.AppCompat.Spinner.Underlined" />
+                        </LinearLayout>
+                        <LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginStart="3.0dp" android:layout_marginEnd="3.0dp">
+                            <androidx.appcompat.widget.AppCompatTextView android:textStyle="bold" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_source_input" />
+                            <androidx.appcompat.widget.AppCompatSpinner android:id="@id/spinnerSourceInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:prompt="@string/app_source_input" android:dropDownVerticalOffset="35.0dp" android:spinnerMode="dropdown" android:paddingStart="5.0dp" android:paddingEnd="5.0dp" style="@style/Widget.AppCompat.Spinner.Underlined" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5.0dp">
+                        <androidx.appcompat.widget.AppCompatTextView android:textStyle="bold" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_volume" android:layout_marginStart="5.0dp" />
+                        <androidx.appcompat.widget.AppCompatSeekBar android:id="@id/seekBarVolume" android:background="@android:color/transparent" android:clickable="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dp" android:max="100" android:layout_marginStart="10.0dp" android:layout_marginEnd="10.0dp" style="@style/Widget.AppCompat.SeekBar" />
+                    </LinearLayout>
+                    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dp" android:layout_marginBottom="5.0dp">
+                        <androidx.appcompat.widget.AppCompatTextView android:textStyle="bold" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_sound_effect" android:layout_marginStart="5.0dp" />
+                        <androidx.appcompat.widget.AppCompatSeekBar android:id="@id/seekBarSound" android:background="@android:color/transparent" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dp" android:max="100" android:layout_marginStart="10.0dp" android:layout_marginEnd="10.0dp" style="@style/Widget.AppCompat.SeekBar" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:orientation="vertical" android:id="@id/layoutVisualizer" android:background="#00000000" android:layout_width="match_parent" android:layout_height="60.0dp" android:layout_marginTop="5.0dp" android:minHeight="40.0dp" android:layout_marginStart="5.0dp" android:layout_marginEnd="5.0dp">
+        <com.pheelicks.visualizer.VisualizerView android:id="@id/visualizerView" android:layout_width="match_parent" android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center" android:orientation="horizontal" android:padding="10.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false">
+        <LinearLayout android:gravity="center" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0">
+            <androidx.appcompat.widget.AppCompatButton android:gravity="center" android:id="@id/btnTurnOffScreen" android:background="@drawable/btn_lock" android:padding="5.0dp" android:layout_width="@dimen/icon_size_button" android:layout_height="@dimen/icon_size_button" />
+        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatToggleButton android:id="@id/playBtn" android:background="@drawable/toggle_selector" android:layout_width="@dimen/icon_size_play" android:layout_height="@dimen/icon_size_play" android:textOn="" android:textOff="" />
+        <LinearLayout android:gravity="center" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0">
+            <androidx.appcompat.widget.AppCompatToggleButton android:id="@id/speakerBtn" android:background="@drawable/toggle_speaker_selector" android:padding="5.0dp" android:layout_width="@dimen/icon_size_button" android:layout_height="@dimen/icon_size_button" android:textOn="" android:textOff="" android:onClick="setSpeakerBtn" android:scaleX="@dimen/angle_rtl_180" android:scaleY="@dimen/angle_rtl_180" />
+        </LinearLayout>
+    </LinearLayout>
+    <include android:id="@id/navigation" android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/bottom_navigation" />
+</LinearLayout>

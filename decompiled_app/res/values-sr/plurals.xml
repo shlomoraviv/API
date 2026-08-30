@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="hiad_dismiss_dilaog">
+        <item quantity="one">Прозор ће се затворити за %1$s секунду.</item>
+        <item quantity="few">Прозор ће се затворити за %1$s секунди.</item>
+        <item quantity="other">Прозор ће се затворити за %1$s секунде(и).</item>
+    </plurals>
+    <plurals name="hiad_no_prompt_in_days">
+        <item quantity="one">Запамти избор %1$s дан</item>
+        <item quantity="few">Запамти избор %1$s дана</item>
+        <item quantity="other">Запамти избор %1$s дана</item>
+    </plurals>
+    <plurals name="hiad_reward_countdown">
+        <item quantity="one">%1$d сек.</item>
+        <item quantity="few">%1$d сек.</item>
+        <item quantity="other">%1$d сек.</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+        <item quantity="one">%d ново обавештење</item>
+        <item quantity="few">%d нова обавештења</item>
+        <item quantity="other">%d нових обавештења</item>
+    </plurals>
+</resources>

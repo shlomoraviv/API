@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>సాధారణం</item>
+        <item>స్ట్రీమ్ మ్యూజిక్</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>డిఫాల్ట్</item>
+        <item>స్వర గుర్తింపు</item>
+        <item>మైక్</item>
+        <item>వాయిస్ కాల్</item>
+        <item>కామ్‌కార్డర్</item>
+    </string-array>
+</resources>

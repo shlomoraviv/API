@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>普通</item>
+        <item>ストリーミング音楽</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>デフォルト</item>
+        <item>音声認識</item>
+        <item>マイク</item>
+        <item>音声電話</item>
+        <item>ビデオカメラ</item>
+    </string-array>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Նորմալ</item>
+        <item>Stroom երաժշտություն</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Վերստեկ</item>
+        <item>Ստեմհերկենինգ</item>
+        <item>Խոսափող</item>
+        <item>Emողունային արտահոսք</item>
+        <item>Տեսախցիկավորիչ</item>
+    </string-array>
+</resources>

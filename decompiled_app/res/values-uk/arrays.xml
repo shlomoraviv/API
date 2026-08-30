@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Нормальна</item>
+        <item>Stroom musiek</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Верстек</item>
+        <item>Штемхеркінг</item>
+        <item>Мікрофон</item>
+        <item>Стовбурове опромінення</item>
+        <item>Відеокамера</item>
+    </string-array>
+</resources>

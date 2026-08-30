@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>இயல்பானது</item>
+        <item>ஸ்ட்ரீம் இசை</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>இயல்புநிலை</item>
+        <item>குரல் அங்கீகாரம்</item>
+        <item>மைக்</item>
+        <item>குரல் அழைப்பு</item>
+        <item>கேம்கோடர்</item>
+    </string-array>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>সাধারণ</item>
+        <item>স্ট্রিম সংগীত</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>ডিফল্ট</item>
+        <item>ভয়েস স্বীকৃতি</item>
+        <item>মাইক</item>
+        <item>ভয়েস কল</item>
+        <item>ক্যামকর্ডার</item>
+    </string-array>
+</resources>

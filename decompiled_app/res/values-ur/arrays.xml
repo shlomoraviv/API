@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>عام</item>
+        <item>اسٹریم میوزک</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>پہلے سے طے شدہ</item>
+        <item>آواز کی پہچان</item>
+        <item>مائک</item>
+        <item>صوتی کال</item>
+        <item>کیمکارڈر</item>
+    </string-array>
+</resources>

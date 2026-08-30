@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>साधारण</item>
+        <item>स्ट्रीम संगीत</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>चूक</item>
+        <item>आवाज की पहचान</item>
+        <item>माइक</item>
+        <item>आवाज कॉल</item>
+        <item>कैमकॉर्डर</item>
+    </string-array>
+</resources>

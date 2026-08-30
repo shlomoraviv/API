@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>normal</item>
+        <item>oda müziği</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Verstek</item>
+        <item>kök salma</item>
+        <item>mikrofon</item>
+        <item>kök oproep</item>
+        <item>kamera</item>
+    </string-array>
+</resources>

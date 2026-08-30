@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>නොර්මාල්</item>
+        <item>ස්ටූම් මියුසික්</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>වර්ස්ටෙක්</item>
+        <item>Stemherkenning</item>
+        <item>මයික්</item>
+        <item>කඳ ඔප්රෝප්</item>
+        <item>කැම්කෝඩර්</item>
+    </string-array>
+</resources>

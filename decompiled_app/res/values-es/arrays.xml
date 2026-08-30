@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Normal</item>
+        <item>Stream Music</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Defecto</item>
+        <item>Reconocimiento de voz</item>
+        <item>Micrófono</item>
+        <item>Llamada de voz</item>
+        <item>Videocámara</item>
+    </string-array>
+</resources>

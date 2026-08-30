@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:background="@color/grey_c" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutDirection="locale"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <FrameLayout android:id="@id/adViewSettingContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="0.0dp" android:layout_alignParentTop="true" />
+    <ScrollView android:paddingBottom="80.0dp" android:scrollbars="none" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_above="@id/navigation" android:layout_below="@id/adViewSettingContainer">
+        <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_settings" style="@style/LabelSetting" />
+            <LinearLayout android:id="@id/layoutFilenamePrefix" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_filename_prefix" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:id="@id/textFilePrefix" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutLanguage" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_language" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:id="@id/textLanguage" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutShare" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_share" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_share_content" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutRate" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_rate_5_star" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_rate_5_star_content" android:maxLines="3" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutFeedback" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_feedback" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_feedback_content" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutTranslate" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_translate" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_translate_content" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutPrivacy" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_privacy" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_privacy_content" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/layoutVersion" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_version" style="@style/ItemSetting" />
+                <androidx.appcompat.widget.AppCompatTextView android:id="@id/textVersion" style="@style/ItemContentSetting" />
+            </LinearLayout>
+            <View android:background="@color/grey_e" android:layout_width="match_parent" android:layout_height="20.0dp" android:layout_marginTop="10.0dp" />
+            <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_our_apps" style="@style/LabelSetting" />
+            <LinearLayout android:id="@id/layoutScreenRecorder" style="@style/LayoutItemSetting">
+                <androidx.appcompat.widget.AppCompatTextView android:text="@string/string_screen_recorder" style="@style/ItemSetting" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <include android:id="@id/navigation" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" layout="@layout/bottom_navigation" />
+</RelativeLayout>

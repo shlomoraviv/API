@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Ordinaire</item>
+        <item>Musique en streaming</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Défaut</item>
+        <item>Reconnaissance vocale</item>
+        <item>Micro</item>
+        <item>Appel vocal</item>
+        <item>Caméscope</item>
+    </string-array>
+</resources>

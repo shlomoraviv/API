@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Normaal</item>
+        <item>Stroom muziek</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Verstek</item>
+        <item>Stemherkenning</item>
+        <item>Microfoon</item>
+        <item>Stem oproep</item>
+        <item>Camcorder</item>
+    </string-array>
+</resources>

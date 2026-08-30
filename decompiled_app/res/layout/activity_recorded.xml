@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:background="@color/grey_c" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutDirection="locale"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <FrameLayout android:id="@id/adViewRecordContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="0.0dp" android:layout_alignParentTop="true" />
+    <ListView android:id="@id/listFiles" android:layout_width="match_parent" android:layout_height="wrap_content" android:cacheColorHint="@android:color/transparent" android:dividerHeight="1.0dp" android:layout_above="@id/navigation" android:layout_below="@id/adViewRecordContainer" />
+    <androidx.appcompat.widget.AppCompatTextView android:id="@id/emptyView" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/app_no_record_file" android:layout_centerInParent="true" />
+    <include android:id="@id/navigation" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" layout="@layout/bottom_navigation" />
+</RelativeLayout>

@@ -1,0 +1,11 @@
+.class public interface abstract Lcom/huawei/hms/ads/kh;
+.super Ljava/lang/Object;
+.source ""
+
+# interfaces
+.implements Lcom/huawei/hms/ads/kn;
+
+
+# virtual methods
+.method public abstract Code(Lcom/huawei/hms/ads/dk;)V
+.end method

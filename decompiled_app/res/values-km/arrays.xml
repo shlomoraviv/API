@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>ធម្មតា</item>
+        <item>ស្ទ្រីមតន្ត្រី</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>លំនាំដើម</item>
+        <item>ការទទួលស្គាល់សំឡេង</item>
+        <item>មី</item>
+        <item>ការហៅជាសំឡេង</item>
+        <item>ម៉ាស៊ីនថតវីដេអូ</item>
+    </string-array>
+</resources>

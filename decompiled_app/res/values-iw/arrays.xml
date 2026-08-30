@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>נורמאל</item>
+        <item>מוזיקת סטריום</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>ורסטק</item>
+        <item>Stemherkenning</item>
+        <item>מיקרופון</item>
+        <item>גזע אופרופ</item>
+        <item>מצלמת וידאו</item>
+    </string-array>
+</resources>

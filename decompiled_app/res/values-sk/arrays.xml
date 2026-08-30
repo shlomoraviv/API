@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Normálne</item>
+        <item>Stroom musiek</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>Verstek</item>
+        <item>Stemherkenning</item>
+        <item>Mic</item>
+        <item>Kmeňový výhonok</item>
+        <item>Kamkordér</item>
+    </string-array>
+</resources>

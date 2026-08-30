@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>正常</item>
+        <item>流音乐</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>默认</item>
+        <item>语音识别</item>
+        <item>麦克风</item>
+        <item>语音通话</item>
+        <item>摄录机</item>
+    </string-array>
+</resources>

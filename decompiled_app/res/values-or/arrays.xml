@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>ସାଧାରଣ</item>
+        <item>ଷ୍ଟ୍ରିମ୍ ମ୍ୟୁଜିକ୍ |</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>ଡିଫଲ୍ଟ |</item>
+        <item>ଭଏସ୍ ସ୍ୱୀକୃତି</item>
+        <item>ମାଇକ୍</item>
+        <item>ଭଏସ୍ କଲ୍</item>
+        <item>କ୍ୟାମକାର୍ଡ |</item>
+    </string-array>
+</resources>

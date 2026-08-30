@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="audio_mode">
+        <item>Обычный</item>
+        <item>Потоковая музыка</item>
+    </string-array>
+    <string-array name="sourceInput">
+        <item>По умолчанию</item>
+        <item>Распознавание голоса</item>
+        <item>микрофон</item>
+        <item>Голосовой звонок</item>
+        <item>видеокамера</item>
+    </string-array>
+</resources>
