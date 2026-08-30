@@ -53,7 +53,7 @@ class MainActivity : Activity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) 
+        super.onCreate(savedInstanceState)
         
         prefs = getSharedPreferences("TriviaPrefs", Context.MODE_PRIVATE)
         highScore = prefs.getInt("high_score", 0)
@@ -290,7 +290,7 @@ class MainActivity : Activity() {
                     textSize = 15f
                     setTextColor(Color.parseColor("#555555"))
                     gravity = Gravity.CENTER
-                    lineSpacingMultiplier = 1.2f
+                    setLineSpacing(0f, 1.2f)
                 }
 
                 val startButton = Button(this).apply {
@@ -346,7 +346,7 @@ class MainActivity : Activity() {
                     setTextColor(Color.parseColor("#212121"))
                     typeface = Typeface.create("sans-serif-bold", Typeface.BOLD)
                     gravity = Gravity.RIGHT
-                    lineSpacingMultiplier = 1.2f
+                    setLineSpacing(0f, 1.2f)
                 }
 
                 cardContainer.addView(progressText)
@@ -399,7 +399,7 @@ class MainActivity : Activity() {
                                     loadState(GameState.FINISHED)
                                 }
                             }, 1500)
-                        }
+                        } 
                     }
                     optionButtons.add(optionButton)
                     cardContainer.addView(optionButton)
@@ -491,9 +491,7 @@ class MainActivity : Activity() {
     private fun showAboutDialog() {
         AlertDialog.Builder(this)
             .setTitle("אודות האפליקציה")
-            .setMessage("טריוויה יומית מהירה ומעניינת לבחינת הידע הכללי.\
-\
-נבנה ע\"י רביב דיגיטל.")
+            .setMessage("טריוויה יומית מהירה ומעניינת לבחינת הידע הכללי.\n\nנבנה ע\"י רביב דיגיטל.")
             .setPositiveButton("סגור") { dialog, _ -> dialog.dismiss() }
             .show()
     }
