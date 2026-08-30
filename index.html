@@ -1153,7 +1153,13 @@ rebuild, even if that means dropping part of the requested change.`;
           return new Blob([bytes]);
         }
         lastErr = new Error(result.error || `GitHub binary request failed on ${path}`);
-        if (attempt < MAX_GITHUB_READ_ATTEMPTS) await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+        // A 4xx status (auth/permissions/not-found) won't fix itself on retry — failing fast on
+        // those instead of burning 3 identical attempts with backoff, and only retrying genuinely
+        // transient conditions (no status at all = network error, 429 rate-limited, or 5xx).
+        const status = result.status;
+        const retryable = !status || status === 429 || status >= 500;
+        if (!retryable || attempt >= MAX_GITHUB_READ_ATTEMPTS) throw lastErr;
+        await sleep(GITHUB_RETRY_DELAY_MS * attempt);
       }
       throw lastErr;
     }
