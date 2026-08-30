@@ -1,532 +1,394 @@
 package com.aiapp.generated
 
 import android.app.Activity
-import android.os.Bundle
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import android.graphics.*
-import android.graphics.drawable.*
-import android.util.TypedValue
-import android.view.Gravity
-import android.animation.ValueAnimator
-import android.os.Build
-import android.content.ClipData
-import android.content.ClipboardManager
 import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.Date
+import java.util.Locale
 
-class MainActivity : Activity(), LocationListener {
-
-    private lateinit var locationManager: LocationManager
+class MainActivity : Activity() {
+    private var selectedMood: Int = 3
+    private lateinit var gratitudeInput: EditText
+    private lateinit var noteInput: EditText
+    private lateinit var historyContainer: LinearLayout
+    private lateinit var moodButtons: Array<TextView>
     private lateinit var prefs: SharedPreferences
-
-    private lateinit var radarView: RadarView
-    private lateinit var statusText: TextView
-    private lateinit var latText: TextView
-    private lateinit var lonText: TextView
-    private lateinit var accText: TextView
-    private lateinit var altText: TextView
-    private lateinit var timeText: TextView
     
-    private lateinit var permissionContainer: LinearLayout
-    private lateinit var mainContainer: LinearLayout
-    private lateinit var actionButtonsContainer: LinearLayout
-
-    private var lastLocation: Location? = null
-    private val PERMISSION_REQUEST_CODE = 1234
-
+    private val moodEmojis = arrayOf("😢", "🙁", "😐", "🙂", "😄")
+    private val moodLabels = arrayOf("גרוע", "פחות טוב", "סביר", "טוב", "מצוין")
+    
+    private fun dp(value: Float): Int = (value * resources.displayMetrics.density).toInt()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        prefs = getSharedPreferences("GratitudeJournalPrefs", Context.MODE_PRIVATE)
         
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        prefs = getSharedPreferences("GPS_TEST_PREFS", Context.MODE_PRIVATE)
-
-        // Root Layout
-        val root = FrameLayout(this).apply {
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            setBackgroundColor(0xFF121214.toInt())
-        }
-
         val scrollView = ScrollView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             isFillViewport = true
+            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(
+                0xFFFFF5EE.toInt(),
+                0xFFFFE4E1.toInt()
+            ))
         }
-
-        val contentLayout = LinearLayout(this).apply {
-            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        
+        val mainLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(20f), dp(30f), dp(20f), dp(30f))
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+            setPadding(dp(20f), dp(24f), dp(20f), dp(24f))
         }
-
-        // Header
+        
         val titleView = TextView(this).apply {
-            text = "בדיקת GPS"
-            textSize = 28f
-            setTextColor(0xFFFFFFFF.toInt())
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            text = "יומן תודה ומצב רוח"
+            textSize = 26f
+            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+            setTextColor(0xFF4A3728.toInt())
             gravity = Gravity.CENTER
+            setPadding(0, 0, 0, dp(20f))
         }
-        contentLayout.addView(titleView)
-
-        val subtitleView = TextView(this).apply {
-            text = "האם רכיב ה-GPS שלך תקין ועובד?"
-            textSize = 15f
-            setTextColor(0xFF8E8E93.toInt())
-            gravity = Gravity.CENTER
-            setPadding(0, dp(4f), 0, dp(24f))
-        }
-        contentLayout.addView(subtitleView)
-
-        // Radar View
-        radarView = RadarView(this).apply {
-            val size = dp(180f)
-            layoutParams = LinearLayout.LayoutParams(size, size).apply {
-                bottomMargin = dp(24f)
-            }
-        }
-        contentLayout.addView(radarView)
-
-        // Permission Request UI Container
-        permissionContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            visibility = View.GONE
-            setPadding(dp(16f), dp(16f), dp(16f), dp(16f))
-            val bg = GradientDrawable().apply {
-                setColor(0x1AFF3B30.toInt())
-                cornerRadius = dp(12f).toFloat()
-                setStroke(dp(1f), 0xFFFF3B30.toInt())
-            }
-            background = bg
-        }
-
-        val permTitle = TextView(this).apply {
-            text = "נדרשת הרשאת מיקום"
-            textSize = 18f
-            setTextColor(0xFFFF3B30.toInt())
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            gravity = Gravity.CENTER
-        }
-        permissionContainer.addView(permTitle)
-
-        val permDesc = TextView(this).apply {
-            text = "כדי לבדוק אם ה-GPS עובד, יש לאשר גישה למיקום המכשיר בדיוק גבוה."
-            textSize = 14f
-            setTextColor(0xFFFFFFFF.toInt())
-            gravity = Gravity.CENTER
-            setPadding(0, dp(8f), 0, dp(16f))
-        }
-        permissionContainer.addView(permDesc)
-
-        val permButton = Button(this).apply {
-            text = "הענק הרשאה"
-            setTextColor(0xFFFFFFFF.toInt())
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            val normalBg = GradientDrawable().apply {
-                setColor(0xFFFF3B30.toInt())
-                cornerRadius = dp(8f).toFloat()
-            }
-            val pressedBg = GradientDrawable().apply {
-                setColor(0xFFC70000.toInt())
-                cornerRadius = dp(8f).toFloat()
-            }
-            background = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), pressedBg)
-                addState(intArrayOf(), normalBg)
-            }
-            setOnClickListener {
-                requestGpsPermission()
-            }
-        }
-        permissionContainer.addView(permButton)
-        contentLayout.addView(permissionContainer)
-
-        // Main Info Container
-        mainContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val bg = GradientDrawable().apply {
-                setColor(0xFF1C1C1E.toInt())
-                cornerRadius = dp(16f).toFloat()
-                setStroke(dp(1.5f), 0xFF2C2C2E.toInt())
-            }
-            background = bg
-            setPadding(dp(16f), dp(16f), dp(16f), dp(16f))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        }
-
-        statusText = TextView(this).apply {
-            text = "מחפש אות לוויינים..."
-            textSize = 18f
-            setTextColor(0xFFFFCC00.toInt())
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dp(12f))
-        }
-        mainContainer.addView(statusText)
-
-        // Divider
-        val divider = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1f)).apply {
-                bottomMargin = dp(12f)
-            }
-            setBackgroundColor(0xFF2C2C2E.toInt())
-        }
-        mainContainer.addView(divider)
-
-        // Grid-like details
-        latText = createDetailRow("קו רוחב (Latitude):", "--")
-        lonText = createDetailRow("קו אורך (Longitude):", "--")
-        accText = createDetailRow("רמת דיוק (Accuracy):", "--")
-        altText = createDetailRow("גובה מעל פני הים:", "--")
-        timeText = createDetailRow("עדכון אחרון:", "--")
-
-        mainContainer.addView(latText)
-        mainContainer.addView(lonText)
-        mainContainer.addView(accText)
-        mainContainer.addView(altText)
-        mainContainer.addView(timeText)
-
-        contentLayout.addView(mainContainer)
-
-        // Action Buttons
-        actionButtonsContainer = LinearLayout(this).apply {
+        mainLayout.addView(titleView)
+        
+        val moodCard = createCard()
+        val moodTitle = createCardTitle("איך ההרגשה שלך עכשיו?")
+        moodCard.addView(moodTitle)
+        
+        val moodContainer = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(16f)
+                topMargin = dp(12f)
             }
-            weightSum = 2f
+            weightSum = 5f
         }
-
-        val btnCopy = createActionButton("העתק מיקום", 0xFF2C2C2E.toInt(), 0xFF48484A.toInt()) {
-            copyToClipboard()
+        
+        moodButtons = Array(5) { index ->
+            val moodVal = index + 1
+            TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    marginEnd = if (index < 4) dp(4f) else 0
+                }
+                text = "${moodEmojis[index]}\n${moodLabels[index]}"
+                textSize = 12f
+                gravity = Gravity.CENTER
+                setTextColor(0xFF4A3728.toInt())
+                setPadding(dp(6f), dp(10f), dp(6f), dp(10f))
+                setOnClickListener {
+                    selectMood(moodVal)
+                }
+            }
         }
-        val btnShare = createActionButton("שתף מיקום", 0xFF0A84FF.toInt(), 0xFF0066CC.toInt()) {
-            shareLocation()
+        
+        for (btn in moodButtons) {
+            moodContainer.addView(btn)
         }
-
-        actionButtonsContainer.addView(btnCopy)
-        actionButtonsContainer.addView(btnShare)
-        contentLayout.addView(actionButtonsContainer)
-
-        // Footer (Mandatory Branding)
+        moodCard.addView(moodContainer)
+        mainLayout.addView(moodCard)
+        
+        val gratitudeCard = createCard()
+        gratitudeCard.addView(createCardTitle("על מה אני מודה היום? (לפחות דבר אחד)"))
+        gratitudeInput = EditText(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(100f)).apply {
+                topMargin = dp(10f)
+            }
+            hint = "היום אני מודה על..."
+            gravity = Gravity.TOP or Gravity.RIGHT
+            background = GradientDrawable().apply {
+                setColor(0xFFFAFAFA.toInt())
+                setStroke(dp(1f), 0xFFE0E0E0.toInt())
+                cornerRadius = dp(8f).toFloat()
+            }
+            setPadding(dp(12f), dp(12f), dp(12f), dp(12f))
+            textSize = 15f
+            setTextColor(0xFF333333.toInt())
+            setHintTextColor(0xFF9E9E9E.toInt())
+            textDirection = View.TEXT_DIRECTION_RTL
+        }
+        gratitudeCard.addView(gratitudeInput)
+        mainLayout.addView(gratitudeCard)
+        
+        val noteCard = createCard()
+        noteCard.addView(createCardTitle("מחשבות, תובנות או פריקת רגשות"))
+        noteInput = EditText(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(80f)).apply {
+                topMargin = dp(10f)
+            }
+            hint = "איך עבר היום שלי..."
+            gravity = Gravity.TOP or Gravity.RIGHT
+            background = GradientDrawable().apply {
+                setColor(0xFFFAFAFA.toInt())
+                setStroke(dp(1f), 0xFFE0E0E0.toInt())
+                cornerRadius = dp(8f).toFloat()
+            }
+            setPadding(dp(12f), dp(12f), dp(12f), dp(12f))
+            textSize = 15f
+            setTextColor(0xFF333333.toInt())
+            setHintTextColor(0xFF9E9E9E.toInt())
+            textDirection = View.TEXT_DIRECTION_RTL
+        }
+        noteCard.addView(noteInput)
+        mainLayout.addView(noteCard)
+        
+        val saveButton = Button(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(50f)).apply {
+                topMargin = dp(16f)
+                bottomMargin = dp(24f)
+            }
+            text = "שמור ביומן"
+            textSize = 18f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            background = GradientDrawable().apply {
+                setColor(0xFFE91E63.toInt())
+                cornerRadius = dp(25f).toFloat()
+            }
+            setOnClickListener {
+                saveEntry()
+            }
+        }
+        mainLayout.addView(saveButton)
+        
+        val historyTitle = TextView(this).apply {
+            text = "היסטוריית רישומים"
+            textSize = 18f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(0xFF4A3728.toInt())
+            gravity = Gravity.RIGHT
+            setPadding(0, 0, dp(8f), dp(8f))
+        }
+        mainLayout.addView(historyTitle)
+        
+        historyContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+        mainLayout.addView(historyContainer)
+        
         val footerText = TextView(this).apply {
             text = "נבנה ע\"י רביב דיגיטל"
-            textSize = 13f
-            setTextColor(0xFF8E8E93.toInt())
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+            textSize = 12f
+            setTextColor(0xFF888888.toInt())
             gravity = Gravity.CENTER
-            setPadding(0, dp(32f), 0, 0)
+            setPadding(0, dp(32f), 0, dp(16f))
         }
-        contentLayout.addView(footerText)
-
-        scrollView.addView(contentLayout)
-        root.addView(scrollView)
-        setContentView(root)
-
-        // Restore last saved location from SharedPreferences
-        loadSavedLocation()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        checkPermissionsAndStartGps()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopGpsUpdates()
-    }
-
-    private fun dp(value: Float): Int {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics).toInt()
-    }
-
-    private fun createDetailRow(label: String, initialValue: String): TextView {
-        val tv = TextView(this).apply {
-            text = "$label $initialValue"
-            textSize = 14f
-            setTextColor(0xFFE5E5EA.toInt())
-            setPadding(0, dp(4f), 0, dp(4f))
-            gravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
-        }
-        return tv
-    }
-
-    private fun createActionButton(label: String, normalColor: Int, pressedColor: Int, onClick: () -> Unit): Button {
-        return Button(this).apply {
-            text = label
-            setTextColor(0xFFFFFFFF.toInt())
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                marginEnd = dp(4f)
-                marginStart = dp(4f)
-            }
-            val normalBg = GradientDrawable().apply {
-                setColor(normalColor)
-                cornerRadius = dp(10f).toFloat()
-            }
-            val pressedBg = GradientDrawable().apply {
-                setColor(pressedColor)
-                cornerRadius = dp(10f).toFloat()
-            }
-            background = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), pressedBg)
-                addState(intArrayOf(), normalBg)
-            }
-            setOnClickListener { onClick() }
-        }
-    }
-
-    private fun checkPermissionsAndStartGps() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                showMainUi()
-                startGpsUpdates()
-            } else {
-                showPermissionUi()
-            }
-        } else {
-            showMainUi()
-            startGpsUpdates()
-        }
-    }
-
-    private fun requestGpsPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_CODE)
-        } 
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showMainUi()
-                startGpsUpdates()
-            } else {
-                Toast.makeText(this, "נדרשת הרשאת מיקום להפעלת הבדיקה", Toast.LENGTH_LONG).show()
-                showPermissionUi()
-            }
-        }
-    }
-
-    private fun showPermissionUi() {
-        permissionContainer.visibility = View.VISIBLE
-        mainContainer.visibility = View.GONE
-        actionButtonsContainer.visibility = View.GONE
-        radarView.stopScan()
-    }
-
-    private fun showMainUi() {
-        permissionContainer.visibility = View.GONE
-        mainContainer.visibility = View.VISIBLE
-        actionButtonsContainer.visibility = View.VISIBLE
-        radarView.startScan()
-    }
-
-    private fun startGpsUpdates() {
-        try {
-            val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-            if (!isGpsEnabled && !isNetworkEnabled) {
-                statusText.text = "רכיב ה-GPS כבוי בהגדרות המכשיר!"
-                statusText.setTextColor(0xFFFF3B30.toInt())
-                radarView.setSignal(false)
-                return
-            }
-
-            if (isGpsEnabled) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 1f, this)
-            }
-            if (isNetworkEnabled) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000L, 1f, this)
-            }
-            
-            statusText.text = "מחפש אות לוויינים..."
-            statusText.setTextColor(0xFFFFCC00.toInt())
-        } catch (e: SecurityException) {
-            statusText.text = "שגיאת הרשאה"
-            statusText.setTextColor(0xFFFF3B30.toInt())
-        }
-    }
-
-    private fun stopGpsUpdates() {
-        locationManager.removeUpdates(this)
-        radarView.stopScan()
-    }
-
-    override fun onLocationChanged(location: Location) {
-        lastLocation = location
-        radarView.setSignal(true)
+        mainLayout.addView(footerText)
         
-        statusText.text = "חיבור GPS תקין ועובד!"
-        statusText.setTextColor(0xFF30D158.toInt())
-
-        latText.text = "קו רוחב (Latitude): ${location.latitude}"
-        lonText.text = "קו אורך (Longitude): ${location.longitude}"
-        accText.text = "רמת דיוק (Accuracy): ${location.accuracy} מטרים"
-        altText.text = "גובה מעל פני הים: ${location.altitude} מטרים"
+        scrollView.addView(mainLayout)
+        setContentView(scrollView)
         
-        val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        timeText.text = "עדכון אחרון: ${sdf.format(Date(location.time))}"
-
-        // Save to cache
-        prefs.edit().apply {
-            putFloat("lat", location.latitude.toFloat())
-            putFloat("lon", location.longitude.toFloat())
-            putFloat("acc", location.accuracy)
-            putFloat("alt", location.altitude.toFloat())
-            putLong("time", location.time)
-            apply()
+        selectMood(3)
+        loadHistory()
+        
+        if (savedInstanceState != null) {
+            selectedMood = savedInstanceState.getInt("selectedMood", 3)
+            selectMood(selectedMood)
+            gratitudeInput.setText(savedInstanceState.getString("gratitudeText", ""))
+            noteInput.setText(savedInstanceState.getString("noteText", ""))
         }
     }
-
-    private fun loadSavedLocation() {
-        if (prefs.contains("lat")) {
-            val lat = prefs.getFloat("lat", 0f)
-            val lon = prefs.getFloat("lon", 0f)
-            val acc = prefs.getFloat("acc", 0f)
-            val alt = prefs.getFloat("alt", 0f)
-            val time = prefs.getLong("time", 0L)
-
-            val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-            
-            statusText.text = "נמצא מיקום שמור (היסטוריה)"
-            statusText.setTextColor(0xFF8E8E93.toInt())
-            
-            latText.text = "קו רוחב (Latitude): $lat"
-            lonText.text = "קו אורך (Longitude): $lon"
-            accText.text = "רמת דיוק (Accuracy): $acc מטרים"
-            altText.text = "גובה מעל פני הים: $alt מטרים"
-            timeText.text = "עדכון אחרון: ${sdf.format(Date(time))}"
-        }
+    
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("selectedMood", selectedMood)
+        outState.putString("gratitudeText", gratitudeInput.text.toString())
+        outState.putString("noteText", noteInput.text.toString())
     }
-
-    private fun copyToClipboard() {
-        val loc = lastLocation
-        if (loc != null) {
-            val textToCopy = "מיקום ה-GPS שלי:\nקו רוחב: ${loc.latitude}\nקו אורך: ${loc.longitude}\nדיוק: ${loc.accuracy} מטרים"
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("GPS Location", textToCopy)
-            clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "המיקום הועתק ללוח!", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "אין מיקום זמין להעתקה", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun shareLocation() {
-        val loc = lastLocation
-        if (loc != null) {
-            val shareText = "https://maps.google.com/?q=${loc.latitude},${loc.longitude}"
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, "המיקום שלי לפי בדיקת GPS: $shareText")
+    
+    private fun createCard(): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = dp(16f)
             }
-            startActivity(Intent.createChooser(intent, "שתף מיקום באמצעות"))
-        } else {
-            Toast.makeText(this, "אין מיקום זמין לשיתוף", Toast.LENGTH_SHORT).show()
+            background = GradientDrawable().apply {
+                setColor(Color.WHITE)
+                cornerRadius = dp(16f).toFloat()
+            }
+            setPadding(dp(16f), dp(16f), dp(16f), dp(16f))
+            elevation = dp(4f).toFloat()
         }
     }
-
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-    override fun onProviderEnabled(provider: String) {}
-    override fun onProviderDisabled(provider: String) {}
-
-    // Custom Radar View for Visual Feedback
-    class RadarView(context: Context) : View(context) {
-        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private var sweepAngle = 0f
-        private var animator: ValueAnimator? = null
-        private var hasSignal = false
-
-        init {
-            animator = ValueAnimator.ofFloat(0f, 360f).apply {
-                duration = 2500
-                repeatCount = ValueAnimator.INFINITE
-                addUpdateListener { animation ->
-                    sweepAngle = animation.animatedValue as Float
-                    invalidate()
+    
+    private fun createCardTitle(title: String): TextView {
+        return TextView(this).apply {
+            text = title
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(0xFF4A3728.toInt())
+            gravity = Gravity.RIGHT
+            textDirection = View.TEXT_DIRECTION_RTL
+        }
+    }
+    
+    private fun selectMood(mood: Int) {
+        selectedMood = mood
+        for (i in 0 until 5) {
+            val btn = moodButtons[i]
+            if (i + 1 == mood) {
+                btn.background = GradientDrawable().apply {
+                    setColor(0xFFFFCDD2.toInt())
+                    cornerRadius = dp(12f).toFloat()
+                    setStroke(dp(2f), 0xFFE91E63.toInt())
                 }
-            }
-        }
-
-        fun startScan() {
-            if (animator?.isRunning == false) {
-                animator?.start()
-            }
-        }
-
-        fun stopScan() {
-            animator?.cancel()
-        }
-
-        fun setSignal(active: Boolean) {
-            hasSignal = active
-            invalidate()
-        }
-
-        override fun onDraw(canvas: Canvas) {
-            super.onDraw(canvas)
-            val cx = width / 2f
-            val cy = height / 2f
-            val radius = Math.min(cx, cy) - 10f
-
-            if (radius <= 0) return
-
-            // Radar background
-            paint.color = 0x150A84FF.toInt()
-            paint.style = Paint.Style.FILL
-            canvas.drawCircle(cx, cy, radius, paint)
-
-            // Concentric circles
-            paint.color = 0x400A84FF.toInt()
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 2f
-            canvas.drawCircle(cx, cy, radius, paint)
-            canvas.drawCircle(cx, cy, radius * 0.66f, paint)
-            canvas.drawCircle(cx, cy, radius * 0.33f, paint)
-
-            // Crosshairs
-            canvas.drawLine(cx - radius, cy, cx + radius, cy, paint)
-            canvas.drawLine(cx, cy - radius, cx, cy + radius, paint)
-
-            // Sweep effect
-            if (animator?.isRunning == true) {
-                val sweepPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    style = Paint.Style.FILL
-                    shader = SweepGradient(cx, cy, intArrayOf(0x000A84FF.toInt(), 0x800A84FF.toInt()), floatArrayOf(0f, 1f))
+                btn.scaleX = 1.05f
+                btn.scaleY = 1.05f
+            } else {
+                btn.background = GradientDrawable().apply {
+                    setColor(0xFFF5F5F5.toInt())
+                    cornerRadius = dp(12f).toFloat()
                 }
-                canvas.save()
-                canvas.rotate(sweepAngle, cx, cy)
-                canvas.drawCircle(cx, cy, radius, sweepPaint)
-                canvas.restore()
+                btn.scaleX = 1.0f
+                btn.scaleY = 1.0f
             }
-
-            // Center indicator
-            if (hasSignal) {
-                paint.color = 0xFF30D158.toInt() // Green for fixed signal
-                paint.style = Paint.Style.FILL
-                canvas.drawCircle(cx, cy, 14f, paint)
+        }
+    }
+    
+    private fun saveEntry() {
+        val gratitude = gratitudeInput.text.toString().trim()
+        val note = noteInput.text.toString().trim()
+        
+        if (gratitude.isEmpty()) {
+            Toast.makeText(this, "אנא שתף לפחות דבר אחד שאתה מודה עליו", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val timestamp = System.currentTimeMillis()
+        val cleanGratitude = gratitude.replace("|", " ").replace("\n", " ")
+        val cleanNote = note.replace("|", " ").replace("\n", " ")
+        
+        val entryString = "$timestamp|$selectedMood|$cleanGratitude|$cleanNote"
+        
+        val existing = prefs.getString("entries", "") ?: ""
+        val updated = if (existing.isEmpty()) entryString else "$entryString\n$existing"
+        
+        prefs.edit().putString("entries", updated).apply()
+        
+        gratitudeInput.text.clear()
+        noteInput.text.clear()
+        selectMood(3)
+        
+        loadHistory()
+        Toast.makeText(this, "הרישום נשמר בהצלחה! ✨", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun loadHistory() {
+        historyContainer.removeAllViews()
+        val entriesStr = prefs.getString("entries", "") ?: ""
+        if (entriesStr.isEmpty()) {
+            val emptyView = TextView(this).apply {
+                text = "אין עדיין רישומים. זה הזמן להתחיל לכתוב!"
+                textSize = 14f
+                setTextColor(0xFF777777.toInt())
+                gravity = Gravity.CENTER
+                setPadding(0, dp(20f), 0, dp(20f))
+            }
+            historyContainer.addView(emptyView)
+            return
+        }
+        
+        val entries = entriesStr.split("\n")
+        for (entry in entries) {
+            if (entry.trim().isEmpty()) continue
+            val parts = entry.split("|")
+            if (parts.size < 3) continue
+            
+            try {
+                val timestamp = parts[0].toLong()
+                val mood = parts[1].toInt()
+                val gratitude = parts[2]
+                val note = if (parts.size > 3) parts[3] else ""
                 
-                paint.style = Paint.Style.STROKE
-                paint.strokeWidth = 4f
-                paint.color = 0x8030D158.toInt()
-                canvas.drawCircle(cx, cy, 24f, paint)
-            } else {
-                paint.color = 0xFFFFCC00.toInt() // Yellow/Orange for searching
-                paint.style = Paint.Style.FILL
-                canvas.drawCircle(cx, cy, 10f, paint)
+                val dateStr = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(timestamp))
+                
+                val itemCard = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        bottomMargin = dp(10f)
+                    }
+                    background = GradientDrawable().apply {
+                        setColor(Color.WHITE)
+                        cornerRadius = dp(12f).toFloat()
+                    }
+                    setPadding(dp(12f), dp(12f), dp(12f), dp(12f))
+                    elevation = dp(2f).toFloat()
+                }
+                
+                val headerLayout = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                }
+                
+                val dateView = TextView(this).apply {
+                    text = dateStr
+                    textSize = 11f
+                    setTextColor(0xFF888888.toInt())
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    gravity = Gravity.LEFT
+                }
+                
+                val moodView = TextView(this).apply {
+                    text = "מצב רוח: ${if (mood in 1..5) moodEmojis[mood - 1] else "😐"}"
+                    textSize = 13f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(0xFF4A3728.toInt())
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    gravity = Gravity.RIGHT
+                }
+                
+                headerLayout.addView(dateView)
+                headerLayout.addView(moodView)
+                itemCard.addView(headerLayout)
+                
+                val gratTitle = TextView(this).apply {
+                    text = "תודה על:"
+                    textSize = 13f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(0xFFE91E63.toInt())
+                    gravity = Gravity.RIGHT
+                    setPadding(0, dp(6f), 0, 0)
+                }
+                itemCard.addView(gratTitle)
+                
+                val gratContent = TextView(this).apply {
+                    text = gratitude
+                    textSize = 14f
+                    setTextColor(0xFF333333.toInt())
+                    gravity = Gravity.RIGHT
+                    textDirection = View.TEXT_DIRECTION_RTL
+                }
+                itemCard.addView(gratContent)
+                
+                if (note.isNotEmpty()) {
+                    val noteTitle = TextView(this).apply {
+                        text = "מחשבות:"
+                        textSize = 13f
+                        typeface = Typeface.DEFAULT_BOLD
+                        setTextColor(0xFF757575.toInt())
+                        gravity = Gravity.RIGHT
+                        setPadding(0, dp(6f), 0, 0)
+                    }
+                    itemCard.addView(noteTitle)
+                    
+                    val noteContent = TextView(this).apply {
+                        text = note
+                        textSize = 14f
+                        setTextColor(0xFF555555.toInt())
+                        gravity = Gravity.RIGHT
+                        textDirection = View.TEXT_DIRECTION_RTL
+                    }
+                    itemCard.addView(noteContent)
+                }
+                
+                historyContainer.addView(itemCard)
+            } catch (e: Exception) {
+                // Skip malformed entries
             }
         }
     }

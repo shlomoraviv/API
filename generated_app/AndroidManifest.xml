@@ -2,14 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aiapp.generated">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="בדיקת GPS - עובד?"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        android:label="יומן תודה ומצב רוח"
+        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
         <activity
             android:name=".MainActivity"
             android:exported="true"

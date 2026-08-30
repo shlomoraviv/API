@@ -1,31 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Dark Background -->
     <path
-        android:fillColor="#121214"
-        android:pathData="M0,16 C0,7.16 7.16,0 16,0 L92,0 C100.84,0 108,7.16 108,16 L108,92 C108,100.84 100.84,108 92,108 L16,108 C7.16,108 0,100.84 0,92 Z" />
-    
-    <!-- Radar Outer Ring -->
+        android:fillColor="#FFE4E1"
+        android:pathData="M16,8h76c4.4,0,8,3.6,8,8v76c0,4.4,-3.6,8,-8,8H16c-4.4,0,-8,-3.6,-8,-8V16C8,11.6,11.6,8,16,8z" />
     <path
-        android:strokeColor="#2979FF"
-        android:strokeWidth="3"
-        android:fillColor="#00000000"
-        android:pathData="M54,18 A36,36 0 1,1 53.9,18 Z" />
-        
-    <!-- Radar Inner Ring -->
+        android:fillColor="#FF5252"
+        android:pathData="M54,30 C54,30 44,18 32,18 C20,18 14,28 14,40 C14,58 54,84 54,84 C54,84 94,58 94,40 C94,28 88,18 76,18 C64,18 54,30 54,30 Z" />
     <path
-        android:strokeColor="#2979FF"
-        android:strokeWidth="1.5"
-        android:fillColor="#00000000"
-        android:pathData="M54,36 A18,18 0 1,1 53.9,36 Z" />
-
-    <!-- Location Pin Symbol -->
-    <path
-        android:fillColor="#00E676"
-        android:pathData="M54,28 C45.16,28 38,35.16 38,44 C38,56 54,76 54,76 C54,76 70,56 70,44 C70,35.16 62.84,28 54,28 Z M54,50 C50.69,50 48,47.31 48,44 C48,40.69 50.69,38 54,38 C57.31,38 60,40.69 60,44 C60,47.31 57.31,50 54,50 Z" />
+        android:fillColor="#FFD700"
+        android:pathData="M80,25 L83,31 L90,32 L85,37 L86,44 L80,40 L74,44 L75,37 L70,32 L77,31 Z" />
 </vector>
