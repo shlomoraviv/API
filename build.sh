@@ -68,9 +68,19 @@ log "Finalizing APK"
 cp "$OUT_DIR/app-unsigned.apk" "$OUT_DIR/app-release.apk"
 ( cd "$OUT_DIR/dex" && zip -q -u "$OUT_DIR/app-release.apk" ./*.dex )
 
-# 6) Sign (Debug key)
+# 6) Sign (persistent release key when RELEASE_KEYSTORE_B64 is set, so every
+#    APK this tool produces - across build/edit/translate/censor - shares one
+#    signing identity and installs as an update over the last one instead of
+#    needing an uninstall each time; falls back to a fresh throwaway key if
+#    the secret hasn't been configured yet, same as before)
 log "Signing"
-keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+if [ -n "${RELEASE_KEYSTORE_B64:-}" ]; then
+  log "Using the persistent release keystore (RELEASE_KEYSTORE_B64)"
+  echo "$RELEASE_KEYSTORE_B64" | base64 -d > debug.keystore
+else
+  log "RELEASE_KEYSTORE_B64 not set - using a fresh throwaway key (this APK will not install over a previous one)"
+  keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+fi
 jarsigner -keystore debug.keystore -storepass android -keypass android "$OUT_DIR/app-release.apk" androiddebugkey
 
 log "Done!"
