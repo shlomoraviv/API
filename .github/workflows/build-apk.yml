@@ -32,6 +32,8 @@ jobs:
           ls -F bin/
 
       - name: Build APK
+        env:
+          RELEASE_KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
         run: |
           chmod +x build.sh
           ./build.sh
