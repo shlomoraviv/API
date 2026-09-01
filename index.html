@@ -42,6 +42,33 @@
     --shadow-lg: 0 20px 48px rgba(33,31,46,0.16), 0 4px 12px rgba(33,31,46,0.08);
     --side-w: 288px;
   }
+  html[data-theme="dark"] {
+    --bg: #17151F;
+    --surface: #1E1B29;
+    --surface-2: #252134;
+    --sidebar-bg: #1B1826;
+    --border: #322D42;
+    --border-strong: #423C58;
+    --text: #EEEDF5;
+    --text-muted: #A9A5BE;
+    --text-faint: #7B7692;
+    --accent: #8A81FF;
+    --accent-hover: #A29AFF;
+    --accent-soft: #2C2745;
+    --accent-soft-strong: #38315C;
+    --on-accent: #17151F;
+    --success: #3ED393;
+    --success-soft: #16301F;
+    --error: #F2766B;
+    --error-soft: #3A1E1C;
+    --warn: #E7B75B;
+    --warn-soft: #362A12;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.45);
+    --shadow-lg: 0 20px 48px rgba(0,0,0,0.55);
+  }
+  html, body { transition: background-color .2s ease; }
+  body, .side, .surface, .assistant-card, .composer-box { transition: background-color .2s ease, border-color .2s ease, color .2s ease; }
 
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
@@ -80,6 +107,8 @@
   .btn.danger:hover { background: var(--error); color: #fff; }
   .btn.small { padding: 7px 14px; font-size: 12.5px; }
   .btn.block { width: 100%; }
+  .icon { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; flex: 0 0 auto; }
+  .icon svg { width: 100%; height: 100%; display: block; }
   .icon-btn {
     width: 34px; height: 34px; border-radius: var(--radius-pill); border: none; background: transparent;
     color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center;
@@ -229,7 +258,23 @@
 
   /* ---- chat thread ---- */
   .thread-wrap { flex: 1; overflow-y: auto; }
-  .thread { max-width: 720px; margin: 0 auto; padding: 10px 24px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .thread { max-width: 720px; margin: 0 auto; padding: 10px 24px 24px; display: flex; flex-direction: column; gap: 18px; min-height: 100%; }
+  .thread-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 10px; gap: 6px; }
+  .thread-empty-icon {
+    width: 52px; height: 52px; border-radius: 16px; margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--accent), #8A7BFF); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+  }
+  .thread-empty h2 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .thread-empty p { color: var(--text-muted); font-size: 13.5px; margin: 0 0 18px; max-width: 380px; }
+  .example-chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 520px; }
+  .example-chip {
+    text-align: right; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 14px; font-size: 12.5px; color: var(--text-muted); cursor: pointer; line-height: 1.5;
+    transition: border-color .15s ease, box-shadow .15s ease, color .15s ease;
+  }
+  .example-chip:hover { border-color: var(--accent); color: var(--text); box-shadow: var(--shadow-sm); }
+  @media (max-width: 560px) { .example-chip-grid { grid-template-columns: 1fr; } }
   .turn { display: flex; }
   .turn.role-user { justify-content: flex-start; }
   .turn.role-assistant { justify-content: flex-start; width: 100%; }
@@ -265,8 +310,7 @@
   .rail-node[data-state="active"] .rail-dot { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); animation: pulse-ring 1.4s ease-in-out infinite; }
   .rail-node[data-state="active"] .rail-label { color: var(--accent-hover); font-weight: 600; }
   .rail-node[data-state="done"] .rail-dot { border-color: var(--success); background: var(--success); color: #fff; }
-  .rail-node[data-state="done"] .rail-dot::after { content: "✓"; }
-  .rail-node[data-state="done"] .rail-label { color: var(--success); }
+    .rail-node[data-state="done"] .rail-label { color: var(--success); }
   .rail-node[data-state="error"] .rail-dot { border-color: var(--error); background: var(--error); color: #fff; }
   .rail-node[data-state="error"] .rail-label { color: var(--error); }
   .rail-line[data-state="done"] { background: var(--success); }
@@ -357,10 +401,10 @@
   .lang-row { display: flex; gap: 8px; }
   .lang-row .text-input { flex: 1; }
 
-  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; max-height: 260px; overflow-y: auto; padding: 2px; margin-bottom: 10px; }
+  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; max-height: 420px; overflow-y: auto; padding: 2px; margin-bottom: 10px; }
   .image-row { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); position: relative; }
   .image-row.pending { border-color: var(--accent); }
-  .image-thumb { width: 100%; height: 72px; object-fit: contain; background: repeating-conic-gradient(#f0f0f4 0% 25%, #fafafc 0% 50%) 50% / 12px 12px; display: block; }
+  .image-thumb { width: 100%; height: 130px; object-fit: contain; background: repeating-conic-gradient(#f0f0f4 0% 25%, #fafafc 0% 50%) 50% / 12px 12px; display: block; }
   .image-path { font-size: 9px; color: var(--text-faint); padding: 3px 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
   .image-size { font-size: 9px; color: var(--text-faint); padding: 0 5px; }
   .image-status { font-size: 9px; color: var(--accent-hover); font-weight: 700; padding: 0 5px; display: block; }
@@ -386,6 +430,47 @@
   .field-row .field { flex: 1; }
   .pro-note { background: var(--accent-soft); color: var(--accent-hover); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; line-height: 1.55; }
   .reveal-row { display: flex; justify-content: flex-end; margin-top: -8px; margin-bottom: 12px; }
+
+  /* ---- settings modal ---- */
+  .theme-choice-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .theme-choice {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--surface-2); border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
+    padding: 12px 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+  }
+  .theme-choice .icon { font-size: 18px; }
+  .theme-choice:hover { border-color: var(--accent); color: var(--accent-hover); }
+  .theme-choice.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+  /* ---- censor: AI filter row ---- */
+  .censor-filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .censor-filter-row .text-input { flex: 1; }
+  .image-row.filtered-out { display: none; }
+  .image-row.ai-match { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* ---- translate: live string-by-string view ---- */
+  .translate-strings-list { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; margin: 10px 0; padding: 2px; }
+  .translate-string-row {
+    display: grid; grid-template-columns: 90px 1fr 16px 1fr; align-items: center; gap: 8px;
+    background: var(--surface-2); border-radius: 8px; padding: 6px 10px; font-size: 12px;
+    opacity: .55; transition: opacity .2s ease, background .2s ease;
+  }
+  .translate-string-row.done { opacity: 1; background: var(--success-soft); }
+  .translate-string-key { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .translate-string-orig { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .translate-string-arrow { color: var(--text-faint); text-align: center; }
+  .translate-string-new { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---- microphone (speech-to-text) ---- */
+  .mic-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: var(--text-faint);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; font-size: 17px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .mic-btn:hover { background: var(--surface-2); color: var(--text); }
+  .mic-btn.listening { color: var(--error); animation: mic-pulse 1.2s ease-in-out infinite; }
+  @keyframes mic-pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--error-soft); } 50% { box-shadow: 0 0 0 6px var(--error-soft); } }
 
   /* ===================== admin screen ===================== */
   .admin-shell { height: 100vh; display: none; flex-direction: column; background: var(--bg); }
@@ -451,13 +536,13 @@
         <span class="plus-badge">+</span> שיחה חדשה
       </button>
       <div class="side-tools" id="sideTools">
-        <button type="button" class="side-tool-btn" data-type="build"><span>🏗️</span>בנייה</button>
-        <button type="button" class="side-tool-btn" data-type="edit"><span>🛠️</span>עריכה</button>
-        <button type="button" class="side-tool-btn" data-type="translate"><span>🌐</span>תרגום</button>
-        <button type="button" class="side-tool-btn" data-type="censor"><span>🖼️</span>צנזור</button>
+        <button type="button" class="side-tool-btn" data-type="build"><i class="icon" data-icon="build" style="font-size:15px;"></i>בנייה</button>
+        <button type="button" class="side-tool-btn" data-type="edit"><i class="icon" data-icon="edit" style="font-size:15px;"></i>עריכה</button>
+        <button type="button" class="side-tool-btn" data-type="translate"><i class="icon" data-icon="translate" style="font-size:15px;"></i>תרגום</button>
+        <button type="button" class="side-tool-btn" data-type="censor"><i class="icon" data-icon="image" style="font-size:15px;"></i>צנזור</button>
       </div>
       <label class="side-search" id="sideSearchWrap">
-        🔍<input type="text" id="sideSearchInput" placeholder="חיפוש שיחות">
+        <i class="icon" data-icon="search"></i><input type="text" id="sideSearchInput" placeholder="חיפוש שיחות">
       </label>
     </div>
     <div class="side-list" id="convListEl">
@@ -465,15 +550,15 @@
     </div>
     <div class="side-foot">
       <button type="button" class="side-foot-row" id="sideConnectionsBtn">
-        <span class="side-avatar">🔌</span>
+        <i class="icon" data-icon="plug" style="font-size:15px;"></i>
         <span class="side-user-info"><span class="side-user-name">חיבורים</span><span class="side-user-sub" id="connectionsSummary">Gemini · GitHub</span></span>
       </button>
-      <button type="button" class="side-foot-row" id="sideInfoBtn">
-        <span class="side-avatar">ℹ️</span>
-        <span class="side-user-info"><span class="side-user-name">איך זה עובד / חתימת APK</span></span>
+      <button type="button" class="side-foot-row" id="sideSettingsBtn">
+        <i class="icon" data-icon="settings" style="font-size:15px;"></i>
+        <span class="side-user-info"><span class="side-user-name">הגדרות</span></span>
       </button>
       <button type="button" class="side-foot-row hidden" id="sideAdminBtn">
-        <span class="side-avatar">⚙️</span>
+        <i class="icon" data-icon="shield" style="font-size:15px;"></i>
         <span class="side-user-info"><span class="side-user-name">ניהול האתר</span></span>
       </button>
       <div class="side-foot-row" id="sideUserRow" style="cursor:default;">
@@ -482,14 +567,14 @@
           <span class="side-user-name" id="sideUserName">—</span>
           <span class="side-user-sub" id="sideUserSub">—</span>
         </span>
-        <button type="button" class="icon-btn" id="sideLogoutBtn" title="התנתקות">⏻</button>
+        <button type="button" class="icon-btn" id="sideLogoutBtn" title="התנתקות"><i class="icon" data-icon="power"></i></button>
       </div>
     </div>
   </aside>
 
   <main class="main">
     <div class="main-topbar">
-      <button type="button" class="icon-btn side-toggle-btn" id="sideToggleBtn">☰</button>
+      <button type="button" class="icon-btn side-toggle-btn" id="sideToggleBtn"><i class="icon" data-icon="menu"></i></button>
       <div class="main-topbar-title" id="mainTopbarTitle"></div>
       <span class="mode-badge hidden" id="modeBadge"></span>
     </div>
@@ -505,7 +590,7 @@
 
     <!-- ---- resume-old-conversation notice (shown when a past conversation has no live APK in memory) ---- -->
     <div class="resume-box hidden" id="resumeBox">
-      <span>📎</span>
+      <i class="icon" data-icon="paperclip"></i>
       <span>זו שיחה ישנה — כדי להמשיך לערוך את האפליקציה הזו צריך להעלות שוב את קובץ ה-APK.</span>
       <button type="button" class="btn secondary small" id="resumeUploadBtn" style="margin-inline-start:auto;">העלאת APK</button>
       <input type="file" id="resumeFileInput" accept=".apk" hidden>
@@ -523,7 +608,7 @@
         <!-- first turn of a brand-new "edit" conversation: upload before chatting -->
         <div class="upload-drop hidden" id="firstUploadDrop">
           <input type="file" id="firstUploadInput" accept=".apk">
-          <div class="upload-drop-icon">📦</div>
+          <div class="upload-drop-icon"><i class="icon" data-icon="package" style="font-size:26px;"></i></div>
           <div class="upload-drop-title">גררו לכאן קובץ APK, או לחצו לבחירה</div>
           <div class="upload-drop-sub">משם אפשר לתאר בצ'אט מה לשנות</div>
         </div>
@@ -531,15 +616,15 @@
         <div id="pendingFileRow" class="hidden" style="margin-bottom:10px;">
           <span class="upload-file-chip">
             <span id="pendingFileName"></span>
-            <button type="button" class="icon-btn" id="pendingFileClear" style="width:22px;height:22px;">✕</button>
+            <button type="button" class="icon-btn" id="pendingFileClear" style="width:22px;height:22px;"><i class="icon" data-icon="close" style="font-size:12px;"></i></button>
           </span>
         </div>
 
         <!-- translate sub-panel -->
         <div class="inline-panel hidden" id="translatePanel">
           <div class="inline-panel-head">
-            <span class="inline-panel-title">🌐 תרגום האפליקציה הנוכחית</span>
-            <button type="button" class="icon-btn" id="translatePanelClose">✕</button>
+            <span class="inline-panel-title"><i class="icon" data-icon="translate" style="font-size:13px;"></i> תרגום האפליקציה הנוכחית</span>
+            <button type="button" class="icon-btn" id="translatePanelClose"><i class="icon" data-icon="close" style="font-size:13px;"></i></button>
           </div>
           <div class="lang-row">
             <input type="text" class="text-input" id="translateLangInput" placeholder="לאיזו שפה? לדוגמה: אנגלית, ספרדית…">
@@ -550,17 +635,23 @@
         <!-- censor sub-panel -->
         <div class="inline-panel hidden" id="censorPanel">
           <div class="inline-panel-head">
-            <span class="inline-panel-title">🖼️ עריכת תמונות / צנזור</span>
-            <button type="button" class="icon-btn" id="censorPanelClose">✕</button>
+            <span class="inline-panel-title"><i class="icon" data-icon="image" style="font-size:13px;"></i> עריכת תמונות / צנזור</span>
+            <button type="button" class="icon-btn" id="censorPanelClose"><i class="icon" data-icon="close" style="font-size:13px;"></i></button>
           </div>
           <p class="hint-text" id="censorScanStatus" style="margin-bottom:10px;">סורק תמונות…</p>
+          <div class="censor-filter-row">
+            <input type="text" class="text-input" id="censorFilterInput" placeholder="סינון עם AI — לדוגמה: ילדים, אלכוהול, טקסט בעברית…">
+            <button type="button" class="btn secondary" id="censorFilterBtn"><i class="icon" data-icon="sparkles-wand" style="font-size:14px;"></i> סינון</button>
+            <button type="button" class="btn ghost hidden" id="censorFilterClearBtn">נקה סינון</button>
+          </div>
+          <p class="hint-text hidden" id="censorFilterStatus" style="margin-bottom:10px;"></p>
           <div class="image-grid" id="imageGridEl"></div>
           <button type="button" class="btn primary block" id="censorSendBtn" disabled>צור APK מצונזר</button>
         </div>
 
         <div class="composer-actions-row" id="composerActionsRow">
-          <button type="button" class="action-chip" id="chipTranslate">🌐 תרגום</button>
-          <button type="button" class="action-chip" id="chipCensor">🖼️ עריכת תמונות</button>
+          <button type="button" class="action-chip" id="chipTranslate"><i class="icon" data-icon="translate" style="font-size:13px;"></i> תרגום</button>
+          <button type="button" class="action-chip" id="chipCensor"><i class="icon" data-icon="image" style="font-size:13px;"></i> עריכת תמונות</button>
           <span class="think-chip-group" id="thinkChipGroup">
             <button type="button" class="think-chip" data-level="fast">מהיר</button>
             <button type="button" class="think-chip active" data-level="medium">רגיל</button>
@@ -570,7 +661,8 @@
 
         <div class="composer-box">
           <textarea id="composerInput" rows="1" placeholder="תארו את האפליקציה שתרצו לבנות…"></textarea>
-          <button type="button" class="composer-send-btn" id="composerSendBtn">➤</button>
+          <button type="button" class="mic-btn" id="micBtn" title="הקלטה קולית" hidden><i class="icon" data-icon="mic"></i></button>
+          <button type="button" class="composer-send-btn" id="composerSendBtn"><i class="icon" data-icon="send" style="font-size:16px;"></i></button>
         </div>
         <p class="composer-foot-hint" id="composerFootHint">AI App Maker יכול לטעות — בדקו את האפליקציה שנוצרה לפני שימוש בפועל.</p>
       </div>
@@ -583,7 +675,7 @@
   <div class="modal">
     <div class="modal-head">
       <h2>חיבורים</h2>
-      <button type="button" class="icon-btn" id="connectionsCloseBtn">✕</button>
+      <button type="button" class="icon-btn" id="connectionsCloseBtn"><i class="icon" data-icon="close"></i></button>
     </div>
     <div class="modal-body">
       <div class="pro-note hidden" id="proPlusConnectionsNote">מחובר עם הרשאות פרו — המפתחות והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</div>
@@ -617,6 +709,34 @@
   </div>
 </div>
 
+<!-- ===================== settings modal (theme + build behavior) ===================== -->
+<div class="modal-overlay hidden" id="settingsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>הגדרות</h2>
+      <button type="button" class="icon-btn" id="settingsCloseBtn"><i class="icon" data-icon="close"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="field-label">ערכת נושא</label>
+        <div class="theme-choice-row" id="themeChoiceRow">
+          <button type="button" class="theme-choice" data-theme="auto"><i class="icon" data-icon="monitor"></i>אוטומטי</button>
+          <button type="button" class="theme-choice" data-theme="light"><i class="icon" data-icon="sun"></i>בהיר</button>
+          <button type="button" class="theme-choice" data-theme="dark"><i class="icon" data-icon="moon"></i>כהה</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="maxQuestionsInput">כמה שאלות הבהרה לשאול על כל פרומפט בנייה (0–5)</label>
+        <input type="range" id="maxQuestionsInput" min="0" max="5" step="1" value="3">
+        <div class="hint-text" id="maxQuestionsValueLabel" style="text-align:center; margin-top:4px; font-weight:600;">3</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn secondary" id="settingsCloseBtn2">סגירה</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== conversation transcript modal (admin "view") ===================== -->
 <div class="modal-overlay hidden" id="convViewModal">
   <div class="modal wide">
@@ -625,7 +745,7 @@
         <h2 id="convViewTitle">שיחה</h2>
         <p class="hint-text" id="convViewSub"></p>
       </div>
-      <button type="button" class="icon-btn" id="convViewCloseBtn">✕</button>
+      <button type="button" class="icon-btn" id="convViewCloseBtn"><i class="icon" data-icon="close"></i></button>
     </div>
     <div class="modal-body" id="convViewBody"></div>
   </div>
@@ -714,27 +834,6 @@
         </div>
       </div>
 
-    </div>
-  </div>
-</div>
-
-<!-- ===================== info modal (technical notes, was the old footer) ===================== -->
-<div class="modal-overlay hidden" id="infoModal">
-  <div class="modal">
-    <div class="modal-head">
-      <h2>איך זה עובד</h2>
-      <button type="button" class="icon-btn" id="infoModalCloseBtn">✕</button>
-    </div>
-    <div class="modal-body">
-      <p class="hint-text" data-text-key="footer_note" style="font-size:13px; line-height:1.7;">
-        הצנרת מייצרת אפליקציית מסך-יחיד עם Activity אחד ואייקון וקטורי, ללא AndroidX וללא XML layouts — זה מה שמאפשר build בלי Gradle.
-        ה-APK נחתם במפתח דיבאג זמני (JAR signing דרך keytool/jarsigner), טוב לבדיקות ולהתקנה ישירה על מכשיר, לא לפרסום בחנות.
-        פעולות עריכה/תרגום/צנזור נחתמות בנפרד עם apksigner, באותה שיטה: מפתח דיבאג <strong>חדש ואקראי בכל ריצה</strong>
-        (לא keystore קבוע). המשמעות: כל APK שיוצא מהכלי הזה חתום במפתח שונה מכל APK קודם, כולל קודמים מהכלי הזה עצמו.
-        להתקנה ראשונה זה לא משנה; אבל כדי להתקין גרסה חדשה <em>מעל</em> התקנה קיימת על אותו מכשיר (במקום למחוק ולהתקין
-        מחדש ולאבד נתונים), חובה שיהיה אותו מפתח חתימה — עדכון-במקום לא יעבוד בין שתי הרצות של הכלי. לפרסום עם עדכונים
-        עתידיים אמיתי (גוגל פליי או התקנה חוזרת) צריך keystore קבוע ולשנות את workflow-י ה-sign בהתאם.
-      </p>
     </div>
   </div>
 </div>
@@ -869,11 +968,13 @@ one background <path> (e.g. a filled rounded square or circle) plus 1-3 simple f
 <path> elements, each with android:fillColor as a hex color and android:pathData. No text, no
 gradients, no raster images, no references to other resources - only <vector> and <path>.`;
 
-  const ANALYZE_INSTRUCTIONS = `You are a product analyst preparing a short Android app idea before
+  function analyzeInstructions(maxQuestions) {
+    return `You are a product analyst preparing a short Android app idea before
 it is turned into real code by another AI step. Output ONLY a raw JSON object - no markdown fences,
 no commentary - with exactly two fields: "questions" and "improved".
 
-"questions": an array of AT MOST 3 short clarifying multiple-choice questions to ask the user - ONLY
+"questions": an array of AT MOST ${maxQuestions} short clarifying multiple-choice questions to ask the
+user${maxQuestions === 0 ? " (always return an empty array - clarifying questions are turned off)" : ""} - ONLY
 include a question if the answer would meaningfully change what gets built (a real fork in
 functionality, not a cosmetic detail). If the idea is already clear and specific enough to build,
 return an empty array. Each question object has exactly two fields:
@@ -888,6 +989,7 @@ the same language the user used. If you returned any questions, still fill this 
 default assumption for anything you asked about. Do not turn it into a different app, do not add
 features the user didn't imply, do not mention that you are an AI or that this is a rewritten
 prompt. No preamble, no markdown, no quotes around it.`;
+  }
 
   const FIX_INSTRUCTIONS = `You are fixing an Android app build that failed. You will get the
 original app idea, the manifest/kotlin/icon that were generated for it, and a build error log.
@@ -955,6 +1057,56 @@ rebuild, even if that means dropping part of the requested change.`;
   const ROLE_LABELS = { regular: "רגיל", pro: "פרו", superpro: "סופר-פרו", admin: "מנהל" };
   const MODE_LABELS_HE = { build: "בנייה", edit: "עריכה", translate: "תרגום", censor: "צנזור", chat: "שיחה" };
 
+  // ==========================================================================
+  // ICON SYSTEM — one consistent set of line icons instead of emoji, which
+  // render inconsistently across platforms/fonts. Static markup uses
+  // <i data-icon="name"></i> placeholders resolved by applyIcons(); dynamic
+  // JS-built content interpolates ICONS.name / iconHtml(name) directly.
+  // ==========================================================================
+  const ICONS = {
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    send: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.6 21 12 3.4 3.4 3.6 10.2 16 12 3.6 13.8Z"/></svg>',
+    build: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v6c0 4.4 3.4 7.4 8 8 4.6-.6 8-3.6 8-8V7Z"/><path d="m9 12 2 2 4-4"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>',
+    translate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z"/></svg>',
+    image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>',
+    plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4M15 2v4M7 8h10l-1 5a4 4 0 0 1-4 3.5A4 4 0 0 1 8 13Z"/><path d="M12 16.5V20M8.5 20h7"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    power: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
+    paperclip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.4 11-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>',
+    "package": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg>',
+    sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5-2-6.5L5.5 11 12 9z"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-4.5 7.4A8.4 8.4 0 0 1 8 19.9L3 21l1.9-5.7A8.4 8.4 0 0 1 12 3.1a8.5 8.5 0 0 1 9 8v.4z"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22"/><line x1="4.2" y1="4.2" x2="6" y2="6"/><line x1="18" y1="18" x2="19.8" y2="19.8"/><line x1="2" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22" y2="12"/><line x1="4.2" y1="19.8" x2="6" y2="18"/><line x1="18" y1="6" x2="19.8" y2="4.2"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>',
+    monitor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+    filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.5 10 19 14 21 14 12.5 22 3"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6Z"/></svg>',
+    mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="1.5" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18.5" x2="12" y2="22.5"/><line x1="8" y1="22.5" x2="16" y2="22.5"/></svg>',
+    "sparkles-wand": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 4-1 2-2 1 2 1 1 2 1-2 2-1-2-1Z"/><path d="M4 20 18 6"/><path d="m20 15-.7 1.3-1.3.7 1.3.7.7 1.3.7-1.3 1.3-.7-1.3-.7Z"/></svg>',
+  };
+  function iconHtml(name, extraClass) {
+    return `<span class="icon${extraClass ? " " + extraClass : ""}">${ICONS[name] || ""}</span>`;
+  }
+  function iconEl(name, extraClass) {
+    const span = document.createElement("span");
+    span.className = "icon" + (extraClass ? " " + extraClass : "");
+    span.innerHTML = ICONS[name] || "";
+    return span;
+  }
+  function applyIcons(root) {
+    (root || document).querySelectorAll("[data-icon]").forEach((el) => {
+      el.innerHTML = ICONS[el.dataset.icon] || "";
+      el.classList.add("icon");
+    });
+  }
+
   // ---------- DOM refs (new UI shell) ----------
   const $ = (id) => document.getElementById(id);
 
@@ -964,7 +1116,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const sidePanel = $("sidePanel"), sideBackdrop = $("sideBackdrop"), sideToggleBtn = $("sideToggleBtn");
   const sideNewBtn = $("sideNewBtn"), sideSearchInput = $("sideSearchInput"), convListEl = $("convListEl");
   const sideConnectionsBtn = $("sideConnectionsBtn"), connectionsSummary = $("connectionsSummary");
-  const sideAdminBtn = $("sideAdminBtn"), sideInfoBtn = $("sideInfoBtn");
+  const sideAdminBtn = $("sideAdminBtn"), sideSettingsBtn = $("sideSettingsBtn");
   const sideUserRow = $("sideUserRow"), sideAvatarInitial = $("sideAvatarInitial"), sideUserName = $("sideUserName"), sideUserSub = $("sideUserSub"), sideLogoutBtn = $("sideLogoutBtn");
 
   const mainTopbarTitle = $("mainTopbarTitle");
@@ -977,8 +1129,12 @@ rebuild, even if that means dropping part of the requested change.`;
   const pendingFileRow = $("pendingFileRow"), pendingFileName = $("pendingFileName"), pendingFileClear = $("pendingFileClear");
   const translatePanel = $("translatePanel"), translatePanelClose = $("translatePanelClose"), translateLangInput = $("translateLangInput"), translateSendBtn = $("translateSendBtn");
   const censorPanel = $("censorPanel"), censorPanelClose = $("censorPanelClose"), censorScanStatus = $("censorScanStatus"), imageGridEl = $("imageGridEl"), censorSendBtn = $("censorSendBtn");
+  const censorFilterInput = $("censorFilterInput"), censorFilterBtn = $("censorFilterBtn"), censorFilterClearBtn = $("censorFilterClearBtn"), censorFilterStatus = $("censorFilterStatus");
   const composerActionsRow = $("composerActionsRow"), chipTranslate = $("chipTranslate"), chipCensor = $("chipCensor"), thinkChipGroup = $("thinkChipGroup");
-  const composerInput = $("composerInput"), composerSendBtn = $("composerSendBtn"), composerFootHint = $("composerFootHint");
+  const composerInput = $("composerInput"), composerSendBtn = $("composerSendBtn"), composerFootHint = $("composerFootHint"), micBtn = $("micBtn");
+
+  const settingsModal = $("settingsModal"), settingsCloseBtn = $("settingsCloseBtn"), settingsCloseBtn2 = $("settingsCloseBtn2");
+  const themeChoiceRow = $("themeChoiceRow"), maxQuestionsInput = $("maxQuestionsInput"), maxQuestionsValueLabel = $("maxQuestionsValueLabel");
 
   const connectionsModal = $("connectionsModal"), connectionsCloseBtn = $("connectionsCloseBtn"), connectionsDoneBtn = $("connectionsDoneBtn");
   const proPlusConnectionsNote = $("proPlusConnectionsNote"), manualCredentialFields = $("manualCredentialFields"), creditCostsHint = $("creditCostsHint");
@@ -986,7 +1142,6 @@ rebuild, even if that means dropping part of the requested change.`;
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch");
 
   const convViewModal = $("convViewModal"), convViewTitle = $("convViewTitle"), convViewSub = $("convViewSub"), convViewCloseBtn = $("convViewCloseBtn"), convViewBody = $("convViewBody");
-  const infoModal = $("infoModal"), infoModalCloseBtn = $("infoModalCloseBtn");
 
   const adminScreen = $("adminScreen"), adminBackBtn = $("adminBackBtn"), adminNav = $("adminNav");
   const adminUsersTable = $("adminUsersTable"), adminRefreshUsersBtn = $("adminRefreshUsersBtn");
@@ -1035,7 +1190,13 @@ rebuild, even if that means dropping part of the requested change.`;
 
   function setStage(key, state, targetRailEl, stageOrder) {
     const node = targetRailEl.querySelector(`.rail-node[data-key="${key}"]`);
-    if (node) node.dataset.state = state;
+    if (node) {
+      node.dataset.state = state;
+      if (state === "done") {
+        const dot = node.querySelector(".rail-dot");
+        if (dot) { dot.innerHTML = ""; dot.appendChild(iconEl("check")); }
+      }
+    }
     const idx = stageOrder.indexOf(key);
     if (state === "done" && idx >= 0 && idx < stageOrder.length - 1) {
       const line = targetRailEl.querySelector(`[data-key="line-${idx + 1}"]`);
@@ -1274,6 +1435,53 @@ rebuild, even if that means dropping part of the requested change.`;
     return null;
   }
 
+  // Builds one row per found string (key + original text, translation pending)
+  // so the person can see exactly what's being translated as it happens,
+  // instead of only a generic "translating..." log line.
+  function renderTranslateStringsList(container, stringsMap) {
+    const list = document.createElement("div");
+    list.className = "translate-strings-list";
+    const rows = {};
+    Object.entries(stringsMap).forEach(([key, text]) => {
+      const row = document.createElement("div");
+      row.className = "translate-string-row";
+      const keyEl = document.createElement("span");
+      keyEl.className = "translate-string-key";
+      keyEl.textContent = key;
+      keyEl.title = key;
+      const origEl = document.createElement("span");
+      origEl.className = "translate-string-orig";
+      origEl.textContent = text;
+      origEl.title = text;
+      const arrowEl = document.createElement("span");
+      arrowEl.className = "translate-string-arrow";
+      arrowEl.textContent = "→";
+      const newEl = document.createElement("span");
+      newEl.className = "translate-string-new";
+      newEl.textContent = "…";
+      row.append(keyEl, origEl, arrowEl, newEl);
+      list.appendChild(row);
+      rows[key] = newEl;
+    });
+    container.appendChild(list);
+    scrollThreadToEnd();
+    return rows;
+  }
+
+  // Reveals each translated value into its row in sequence with a small
+  // stagger, so it visibly happens string-by-string instead of all at once.
+  async function revealTranslationsProgressively(rows, translations) {
+    for (const [key, value] of Object.entries(translations)) {
+      const newEl = rows[key];
+      if (newEl) {
+        newEl.textContent = value;
+        newEl.title = value;
+        newEl.closest(".translate-string-row").classList.add("done");
+      }
+      await sleep(70);
+    }
+  }
+
   // ---------- 1. Gemini: generate the app ----------
   async function generateAppCode(geminiKeys, idea, thinkLevel, logTarget) {
     const data = await callGemini(geminiKeys, {
@@ -1304,8 +1512,10 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // ---------- 1b. Gemini: decide whether to ask clarifying questions, and/or improve the idea ----------
   async function analyzeIdea(geminiKeys, idea, logTarget) {
+    const maxQuestions = loadMaxQuestions();
+    if (maxQuestions === 0) return { questions: [], improved: "" };
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${ANALYZE_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+      contents: [{ role: "user", parts: [{ text: `${analyzeInstructions(maxQuestions)}\n\nApp idea from the user:\n${idea}` }] }],
       // thinkingBudget: 0 — this is a quick classification/rewrite step (same spirit as the
       // "fast" thinking preset used elsewhere), not something that benefits from reasoning
       // tokens. Without it, some of maxOutputTokens can get spent on invisible thinking before
@@ -1321,7 +1531,7 @@ rebuild, even if that means dropping part of the requested change.`;
       throw new Error(`Could not parse Gemini's reply as JSON (finishReason: ${finishReason}).`);
     }
     const questions = Array.isArray(parsed.questions)
-      ? parsed.questions.filter((q) => q && typeof q.question === "string" && Array.isArray(q.options) && q.options.length).slice(0, 3)
+      ? parsed.questions.filter((q) => q && typeof q.question === "string" && Array.isArray(q.options) && q.options.length).slice(0, maxQuestions)
       : [];
     const improved = typeof parsed.improved === "string" ? parsed.improved.trim() : "";
     return { questions, improved };
@@ -1450,7 +1660,7 @@ rebuild, even if that means dropping part of the requested change.`;
     });
     log(`Commit נוצר: ${commitSha.slice(0, 7)}, ממתין לפירוק (apktool)…`, "ok", logTarget);
     await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: DECOMPILE_WORKFLOW_FILE, logTarget });
-    log("הפירוק הושלם ✓", "ok", logTarget);
+    log("הפירוק הושלם", "ok", logTarget);
   }
 
   // ---------- string-resource XML helpers (translate mode) ----------
@@ -1679,12 +1889,20 @@ rebuild, even if that means dropping part of the requested change.`;
     threadWrap.scrollTop = threadWrap.scrollHeight;
   }
 
-  function appendUserTurn(text) {
+  function appendUserTurn(text, iconName) {
+    const emptyPlaceholder = threadEl.querySelector(".thread-empty");
+    if (emptyPlaceholder) emptyPlaceholder.remove();
     const turn = document.createElement("div");
     turn.className = "turn role-user";
     const bubble = document.createElement("div");
     bubble.className = "turn-bubble user-bubble";
-    bubble.textContent = text;
+    if (iconName) {
+      bubble.style.display = "flex";
+      bubble.style.alignItems = "center";
+      bubble.style.gap = "8px";
+      bubble.appendChild(iconEl(iconName));
+    }
+    bubble.appendChild(document.createTextNode(text));
     turn.appendChild(bubble);
     threadEl.appendChild(turn);
     scrollThreadToEnd();
@@ -1725,9 +1943,15 @@ rebuild, even if that means dropping part of the requested change.`;
         if (!statusEl) {
           statusEl = document.createElement("p");
           statusEl.className = "assistant-text";
+          statusEl.style.display = "flex";
+          statusEl.style.alignItems = "center";
+          statusEl.style.gap = "7px";
           body.prepend(statusEl);
         }
-        statusEl.textContent = text;
+        statusEl.innerHTML = "";
+        if (cls === "success-text") statusEl.appendChild(iconEl("check"));
+        else if (cls === "error-text") statusEl.appendChild(iconEl("alert"));
+        statusEl.appendChild(document.createTextNode(text));
         statusEl.className = "assistant-text" + (cls ? " " + cls : "");
         scrollThreadToEnd();
       },
@@ -1771,7 +1995,7 @@ rebuild, even if that means dropping part of the requested change.`;
         box.className = "turn-download";
         const iconWrap = document.createElement("div");
         iconWrap.className = "turn-download-icon";
-        if (iconSvgEl) iconWrap.appendChild(iconSvgEl); else iconWrap.textContent = "📦";
+        if (iconSvgEl) iconWrap.appendChild(iconSvgEl); else iconWrap.appendChild(iconEl("package"));
         const info = document.createElement("div");
         info.className = "turn-download-info";
         const strong = document.createElement("strong");
@@ -1980,7 +2204,7 @@ rebuild, even if that means dropping part of the requested change.`;
     }
 
     const spend = await backendCall("spendCredits", { pipelineAction: "build" }).catch((e) => ({ ok: false, error: e.message }));
-    if (!spend.ok) { turn.setStatus("✗ " + spend.error, "error-text"); return; }
+    if (!spend.ok) { turn.setStatus(spend.error, "error-text"); return; }
     refreshCreditsDisplay(spend);
     recordTurn("user", "build", idea);
 
@@ -2032,12 +2256,12 @@ rebuild, even if that means dropping part of the requested change.`;
         setStage("actions", "active", rail, STAGE_ORDER);
         try {
           run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: WORKFLOW_FILE, logTarget: logBox });
-          log("ה-build הצליח ✓", "ok", logBox);
+          log("ה-build הצליח", "ok", logBox);
           setStage("actions", "done", rail, STAGE_ORDER);
           break;
         } catch (buildErr) {
           if (attempt > MAX_AUTO_FIX_ATTEMPTS) throw buildErr;
-          log(`✗ ה-build נכשל (ניסיון ${attempt} מתוך ${MAX_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logBox);
+          log(`ה-build נכשל (ניסיון ${attempt} מתוך ${MAX_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logBox);
           log("שולף לוג שגיאה ומנסה לתקן את הקוד עם Gemini…", null, logBox);
           let errorLog;
           try {
@@ -2064,13 +2288,13 @@ rebuild, even if that means dropping part of the requested change.`;
       currentApk = { base64, name: preview.label };
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
       turn.setStatus("מוכן — האפליקציה שלך מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
-      recordTurn("assistant", "build", "✓ נבנה בהצלחה: " + preview.label);
+      recordTurn("assistant", "build", "נבנה בהצלחה: " + preview.label, true);
       onLiveApkReady();
     } catch (err) {
       console.error(err);
-      turn.setStatus("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
+      turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
-      recordTurn("assistant", "build", "✗ הבנייה נכשלה: " + err.message);
+      recordTurn("assistant", "build", "הבנייה נכשלה: " + err.message, false);
     } finally {
       setComposerBusy(false);
     }
@@ -2088,7 +2312,7 @@ rebuild, even if that means dropping part of the requested change.`;
     }
 
     const spend = await backendCall("spendCredits", { pipelineAction: "edit" }).catch((e) => ({ ok: false, error: e.message }));
-    if (!spend.ok) { turn.setStatus("✗ " + spend.error, "error-text"); return; }
+    if (!spend.ok) { turn.setStatus(spend.error, "error-text"); return; }
     refreshCreditsDisplay(spend);
     recordTurn("user", "edit", instruction);
 
@@ -2129,12 +2353,12 @@ rebuild, even if that means dropping part of the requested change.`;
         setStage("rebuild", "active", rail, EDIT2_STAGE_ORDER);
         try {
           run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
-          log("הבנייה מחדש הצליחה ✓", "ok", logBox);
+          log("הבנייה מחדש הצליחה", "ok", logBox);
           setStage("rebuild", "done", rail, EDIT2_STAGE_ORDER);
           break;
         } catch (buildErr) {
           if (attempt > MAX_DECOMPILE_AUTO_FIX_ATTEMPTS) throw buildErr;
-          log(`✗ הבנייה מחדש נכשלה (ניסיון ${attempt} מתוך ${MAX_DECOMPILE_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logBox);
+          log(`הבנייה מחדש נכשלה (ניסיון ${attempt} מתוך ${MAX_DECOMPILE_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logBox);
           log("שולף לוג שגיאה ומנסה לתקן את הטלאי עם Gemini…", null, logBox);
           let errorLog;
           try {
@@ -2160,13 +2384,13 @@ rebuild, even if that means dropping part of the requested change.`;
       currentApk = { base64, name: currentApk.name };
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK הערוך מחכה להורדה. אפשר להמשיך לבקש עוד שינויים.", "success-text");
-      recordTurn("assistant", "edit", "✓ נערך בהצלחה");
+      recordTurn("assistant", "edit", "נערך בהצלחה", true);
       onLiveApkReady();
     } catch (err) {
       console.error(err);
-      turn.setStatus("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
+      turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
-      recordTurn("assistant", "edit", "✗ העריכה נכשלה: " + err.message);
+      recordTurn("assistant", "edit", "העריכה נכשלה: " + err.message, false);
     } finally {
       setComposerBusy(false);
     }
@@ -2184,7 +2408,7 @@ rebuild, even if that means dropping part of the requested change.`;
     }
 
     const spend = await backendCall("spendCredits", { pipelineAction: "translate" }).catch((e) => ({ ok: false, error: e.message }));
-    if (!spend.ok) { turn.setStatus("✗ " + spend.error, "error-text"); return; }
+    if (!spend.ok) { turn.setStatus(spend.error, "error-text"); return; }
     refreshCreditsDisplay(spend);
     recordTurn("user", "translate", "תרגום לשפה: " + targetLanguage);
 
@@ -2204,12 +2428,14 @@ rebuild, even if that means dropping part of the requested change.`;
       const count = Object.keys(stringsMap).length;
       if (count === 0) throw new Error("res/values/strings.xml לא הכיל אף <string> לתרגום.");
       log(`נמצאו ${count} מחרוזות.`, "ok", logBox);
+      const stringRows = renderTranslateStringsList(turn.body, stringsMap);
       setStage("strings", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("translate", "active", rail, TRANSLATE_STAGE_ORDER);
       log(`מתרגם ל"${targetLanguage}" עם Gemini…`, null, logBox);
       const { langCode, translations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logBox);
       const translatedXml = buildTranslatedStringsXml(originalXml, translations);
+      await revealTranslationsProgressively(stringRows, translations);
       log(`תורגם, קוד שפה: ${langCode}`, "ok", logBox);
       setStage("translate", "done", rail, TRANSLATE_STAGE_ORDER);
 
@@ -2225,7 +2451,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
       setStage("rebuild", "active", rail, TRANSLATE_STAGE_ORDER);
       const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
-      log("הבנייה מחדש הצליחה ✓", "ok", logBox);
+      log("הבנייה מחדש הצליחה", "ok", logBox);
       setStage("rebuild", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("apk", "active", rail, TRANSLATE_STAGE_ORDER);
@@ -2236,13 +2462,13 @@ rebuild, even if that means dropping part of the requested change.`;
       currentApk = { base64, name: currentApk.name };
       turn.showDownload({ blob: apkBlob, filename: "app-translated-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK המתורגם מחכה להורדה.", "success-text");
-      recordTurn("assistant", "translate", "✓ תורגם בהצלחה (" + langCode + ")");
+      recordTurn("assistant", "translate", "תורגם בהצלחה (" + langCode + ")", true);
       onLiveApkReady();
     } catch (err) {
       console.error(err);
-      turn.setStatus("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
+      turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
-      recordTurn("assistant", "translate", "✗ התרגום נכשל: " + err.message);
+      recordTurn("assistant", "translate", "התרגום נכשל: " + err.message, false);
     } finally {
       setComposerBusy(false);
     }
@@ -2260,7 +2486,7 @@ rebuild, even if that means dropping part of the requested change.`;
     }
 
     const spend = await backendCall("spendCredits", { pipelineAction: "censor" }).catch((e) => ({ ok: false, error: e.message }));
-    if (!spend.ok) { turn.setStatus("✗ " + spend.error, "error-text"); return; }
+    if (!spend.ok) { turn.setStatus(spend.error, "error-text"); return; }
     refreshCreditsDisplay(spend);
     recordTurn("user", "censor", pendingChanges.size + " תמונות סומנו לצנזור/החלפה");
 
@@ -2284,7 +2510,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
       setStage("actions", "active", rail, EDIT_STAGE_ORDER);
       const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: RESIGN_WORKFLOW_FILE, logTarget: logBox });
-      log("היישור (zipalign) והחתימה מחדש (apksigner) הצליחו ✓", "ok", logBox);
+      log("היישור (zipalign) והחתימה מחדש (apksigner) הצליחו", "ok", logBox);
       setStage("actions", "done", rail, EDIT_STAGE_ORDER);
 
       setStage("apk", "active", rail, EDIT_STAGE_ORDER);
@@ -2295,14 +2521,14 @@ rebuild, even if that means dropping part of the requested change.`;
       currentApk = { base64, name: currentApk ? currentApk.name : "app-edited-release.apk" };
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK המצונזר מחכה להורדה.", "success-text");
-      recordTurn("assistant", "censor", "✓ נוצר APK מצונזר בהצלחה");
+      recordTurn("assistant", "censor", "נוצר APK מצונזר בהצלחה", true);
       closeCensorPanel();
       onLiveApkReady();
     } catch (err) {
       console.error(err);
-      turn.setStatus("✗ " + err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
+      turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
-      recordTurn("assistant", "censor", "✗ הצנזור נכשל: " + err.message);
+      recordTurn("assistant", "censor", "הצנזור נכשל: " + err.message, false);
     } finally {
       setComposerBusy(false);
     }
@@ -2385,7 +2611,67 @@ warm line acknowledging you're starting the build now (shown right before the bu
       thinking.remove();
       console.error(err);
       const turn = appendAssistantTurn("עוזר");
-      turn.setStatus("✗ " + err.message, "error-text");
+      turn.setStatus(err.message, "error-text");
+    }
+  }
+
+  const CLASSIFY_EDIT_INSTRUCTIONS = `You are the friendly chat layer for an Android app-building
+tool, in a conversation that already has a working app. The user just sent a new message. Output
+ONLY a raw JSON object - no markdown fences, no commentary - with exactly two fields: "intent" and
+"reply".
+
+"intent": the string "edit" if the message is a genuine request to change/modify/improve/translate/
+extend the app in some way - even a small one, like a color or a single new button - otherwise the
+string "chat" for questions, comments, greetings, or anything not asking for an actual change.
+
+"reply": ONLY meaningful when intent is "chat" - your own short, warm, natural reply in the same
+language and register the user used, genuinely answering what they asked or said. When intent is
+"edit", set this to an empty string - the app starts making the change immediately and doesn't need
+a separate acknowledgement line first.`;
+
+  async function classifyEditIntent(geminiKeys, text) {
+    const dummyLog = document.createElement("div");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}\n\nUser message:\n${text}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
+    }, dummyLog);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable reply (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed) throw new Error("תשובת הצ'אט לא הייתה תקינה.");
+    return { intent: parsed.intent === "chat" ? "chat" : "edit", reply: typeof parsed.reply === "string" ? parsed.reply : "" };
+  }
+
+  // Every message once there's a live app used to go straight into a full
+  // decompile/patch/rebuild - even "why did you pick that color?". This
+  // classifies first so a question gets an actual answer instead of an
+  // unnecessary rebuild, while a real change request still starts immediately.
+  async function runEditOrChat(text) {
+    const { geminiKeys } = readConnections();
+    const isRegular = !currentUser || currentUser.role === "regular";
+    if (isRegular && geminiKeys.length === 0) {
+      const turn = appendAssistantTurn("עוזר");
+      turn.setStatus('צריך לפחות Gemini API key אחד (מהתפריט "חיבורים").', "error-text");
+      return;
+    }
+    const thinking = appendTypingIndicator();
+    try {
+      const routed = await classifyEditIntent(geminiKeys, text);
+      thinking.remove();
+      if (routed.intent === "chat") {
+        recordTurn("user", "chat", text);
+        const turn = appendAssistantTurn("עוזר");
+        turn.setStatus(routed.reply, null);
+        recordTurn("assistant", "chat", routed.reply);
+      } else {
+        await runEditTurn(text);
+      }
+    } catch (err) {
+      thinking.remove();
+      console.error("classifyEditIntent failed, treating as an edit request:", err);
+      // Fails safe toward the more common case in an ongoing build conversation
+      // rather than silently dropping the message.
+      await runEditTurn(text);
     }
   }
 
@@ -2471,6 +2757,9 @@ warm line acknowledging you're starting the build now (shown right before the bu
     imageGridEl.innerHTML = "";
     pendingChanges.clear();
     updateCensorSendState();
+    censorFilterInput.value = "";
+    censorFilterStatus.classList.add("hidden");
+    censorFilterClearBtn.classList.add("hidden");
     try {
       const blob = typeof apkBlobOrBase64 === "string" ? base64ToBlob(apkBlobOrBase64) : apkBlobOrBase64;
       loadedApkZip = await JSZip.loadAsync(blob);
@@ -2482,9 +2771,106 @@ warm line acknowledging you're starting the build now (shown right before the bu
       censorScanStatus.textContent = `${imagePaths.length} תמונות נמצאו — סמנו מה לצנזר:`;
       imagePaths.forEach((p) => imageGridEl.appendChild(buildImageRow(p, loadedApkZip.files[p])));
     } catch (err) {
-      censorScanStatus.textContent = "✗ " + err.message;
+      censorScanStatus.textContent = err.message;
     }
   }
+
+  function guessImageMime(path) {
+    const ext = path.split(".").pop().toLowerCase();
+    if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+    if (ext === "gif") return "image/gif";
+    if (ext === "webp") return "image/webp";
+    if (ext === "bmp") return "image/bmp";
+    return "image/png";
+  }
+
+  const IMAGE_FILTER_INSTRUCTIONS = `You are a precise visual-content classifier helping someone find
+specific images among an Android app's bundled image assets, so they can review or censor them. You
+will be given a short description, then several images in order. Output ONLY a raw JSON object - no
+markdown fences, no commentary - with exactly one field: "matches", an array of booleans, exactly one
+per image, in the SAME order the images were given. true means that specific image genuinely and
+clearly contains/shows what the description asks for; false otherwise. Be conservative and precise -
+a small, ambiguous, or merely-suggestive detail is NOT a match; only mark true when you are confident
+the image actually depicts what was described. App icons, logos, plain colors/gradients, and abstract
+UI chrome are almost never a match for a concrete subject like "people" or "children" unless the
+image clearly and unambiguously depicts it.`;
+
+  async function classifyImageBatch(geminiKeys, query, batch) {
+    const parts = [{ text: `${IMAGE_FILTER_INSTRUCTIONS}\n\nDescription to match: ${query}\n\n${batch.length} images follow, in order (index 0 to ${batch.length - 1}).` }];
+    batch.forEach((item) => parts.push({ inline_data: { mime_type: item.mime, data: item.base64 } }));
+    const dummyLog = document.createElement("div");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.1, maxOutputTokens: 512, thinkingConfig: { thinkingBudget: 0 } },
+    }, dummyLog);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable result (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !Array.isArray(parsed.matches)) throw new Error("תוצאת הסינון לא הייתה תקינה.");
+    return parsed.matches;
+  }
+
+  const IMAGE_FILTER_BATCH_SIZE = 6;
+  const IMAGE_FILTER_MAX_BYTES = 3 * 1024 * 1024; // skip huge images to keep request payloads reasonable
+
+  async function runImageAIFilter(query) {
+    query = (query || "").trim();
+    if (!loadedApkZip || !query) return;
+    const { geminiKeys } = readConnections();
+    const isRegular = !currentUser || currentUser.role === "regular";
+    censorFilterStatus.classList.remove("hidden");
+    if (isRegular && geminiKeys.length === 0) {
+      censorFilterStatus.textContent = 'צריך לפחות Gemini API key אחד (מהתפריט "חיבורים").';
+      return;
+    }
+    const rows = Array.from(imageGridEl.querySelectorAll(".image-row"));
+    if (rows.length === 0) return;
+    censorFilterBtn.disabled = true;
+    censorFilterStatus.textContent = `סורק ${rows.length} תמונות עם AI… (0/${rows.length})`;
+
+    const items = [];
+    for (const row of rows) {
+      const path = row.dataset.path;
+      const entry = loadedApkZip.files[path];
+      if (!entry) continue;
+      const bytes = await entry.async("uint8array");
+      if (bytes.length > IMAGE_FILTER_MAX_BYTES) continue; // left visible/unfiltered — too large to classify cheaply
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      items.push({ row, base64: btoa(binary), mime: guessImageMime(path) });
+    }
+
+    let done = 0;
+    for (let i = 0; i < items.length; i += IMAGE_FILTER_BATCH_SIZE) {
+      const batch = items.slice(i, i + IMAGE_FILTER_BATCH_SIZE);
+      try {
+        const matches = await classifyImageBatch(geminiKeys, query, batch);
+        batch.forEach((it, idx) => {
+          const isMatch = !!matches[idx];
+          it.row.classList.toggle("filtered-out", !isMatch);
+          it.row.classList.toggle("ai-match", isMatch);
+        });
+      } catch (err) {
+        console.error("classifyImageBatch failed:", err); // leave this batch visible rather than hiding on error
+      }
+      done += batch.length;
+      censorFilterStatus.textContent = `סורק ${rows.length} תמונות עם AI… (${done}/${rows.length})`;
+    }
+    const matchCount = imageGridEl.querySelectorAll(".image-row.ai-match").length;
+    censorFilterStatus.textContent = `נמצאו ${matchCount} תמונות שתואמות "${query}".`;
+    censorFilterBtn.disabled = false;
+    censorFilterClearBtn.classList.remove("hidden");
+  }
+
+  function clearImageAIFilter() {
+    imageGridEl.querySelectorAll(".image-row").forEach((row) => row.classList.remove("filtered-out", "ai-match"));
+    censorFilterStatus.classList.add("hidden");
+    censorFilterClearBtn.classList.add("hidden");
+    censorFilterInput.value = "";
+  }
+  censorFilterBtn.addEventListener("click", () => runImageAIFilter(censorFilterInput.value));
+  censorFilterInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); runImageAIFilter(censorFilterInput.value); } });
+  censorFilterClearBtn.addEventListener("click", clearImageAIFilter);
 
   // ==========================================================================
   // COMPOSER & VIEW STATE
@@ -2549,6 +2935,39 @@ warm line acknowledging you're starting the build now (shown right before the bu
   });
   composerSendBtn.addEventListener("click", handleComposerSend);
 
+  // ---- speech-to-text (microphone) ----
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognizer = null;
+  let isListening = false;
+  let textBeforeListening = "";
+  if (SpeechRecognitionCtor) {
+    micBtn.hidden = false;
+    recognizer = new SpeechRecognitionCtor();
+    recognizer.lang = "he-IL";
+    recognizer.interimResults = true;
+    recognizer.continuous = true;
+    recognizer.onresult = (e) => {
+      let finalText = "", interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += t; else interim += t;
+      }
+      if (finalText) textBeforeListening = (textBeforeListening + " " + finalText).trim();
+      composerInput.value = (textBeforeListening + " " + interim).trim();
+      autosizeComposer();
+    };
+    const stopListening = () => { isListening = false; micBtn.classList.remove("listening"); };
+    recognizer.onend = stopListening;
+    recognizer.onerror = stopListening;
+    micBtn.addEventListener("click", () => {
+      if (isListening) { recognizer.stop(); return; }
+      textBeforeListening = composerInput.value;
+      isListening = true;
+      micBtn.classList.add("listening");
+      try { recognizer.start(); } catch { stopListening(); }
+    });
+  }
+
   async function handleComposerSend() {
     const text = composerInput.value.trim();
     if (!text || composerSendBtn.disabled) return;
@@ -2561,7 +2980,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
     } else if (activeConversationType === "build" && !currentApk) {
       await runBuildTurn(text);
     } else if (currentApk) {
-      await runEditTurn(text);
+      await runEditOrChat(text);
     } else {
       const turn = appendAssistantTurn("עוזר");
       turn.setStatus("קודם צריך להעלות קובץ APK כדי להמשיך.", "error-text");
@@ -2589,8 +3008,8 @@ warm line acknowledging you're starting the build now (shown right before the bu
     pendingFileName.textContent = file.name;
     const base64 = await blobToBase64(file);
     currentApk = { base64, name: file.name };
-    appendUserTurn(`📎 הועלה קובץ: ${file.name} (${formatBytes(file.size)})`);
-    recordTurn("user", activeConversationType || "edit", `📎 הועלה קובץ: ${file.name}`);
+    appendUserTurn(`הועלה קובץ: ${file.name} (${formatBytes(file.size)})`, "paperclip");
+    recordTurn("user", activeConversationType || "edit", `הועלה קובץ: ${file.name}`);
     updateComposerForState();
     // translate/censor act on the file directly — jump straight into their panel
     // instead of waiting for a typed instruction that wouldn't make sense here.
@@ -2612,8 +3031,8 @@ warm line acknowledging you're starting the build now (shown right before the bu
     const base64 = await blobToBase64(file);
     currentApk = { base64, name: file.name };
     conversationIsLive = true;
-    appendUserTurn(`📎 הועלה קובץ מחדש כדי להמשיך: ${file.name}`);
-    recordTurn("user", "edit", `📎 הועלה קובץ מחדש: ${file.name}`);
+    appendUserTurn(`הועלה קובץ מחדש כדי להמשיך: ${file.name}`, "paperclip");
+    recordTurn("user", "edit", `הועלה קובץ מחדש: ${file.name}`);
     showThreadView(mainTopbarTitle.textContent);
   });
 
@@ -2629,7 +3048,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
     if (!lang) return;
     translatePanel.classList.add("hidden");
     translateLangInput.value = "";
-    appendUserTurn(`🌐 תרגום ל${lang}`);
+    appendUserTurn(`תרגום ל${lang}`, "translate");
     await runTranslateTurn(lang);
     loadConversationsList();
   });
@@ -2648,7 +3067,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
   });
   censorPanelClose.addEventListener("click", closeCensorPanel);
   censorSendBtn.addEventListener("click", async () => {
-    appendUserTurn(`🖼️ צנזור/החלפת ${pendingChanges.size} תמונות`);
+    appendUserTurn(`צנזור/החלפת ${pendingChanges.size} תמונות`, "image");
     await runCensorTurn();
     loadConversationsList();
   });
@@ -2700,12 +3119,14 @@ warm line acknowledging you're starting the build now (shown right before the bu
     return activeConversationId;
   }
 
-  async function recordTurn(role, mode, content) {
+  async function recordTurn(role, mode, content, ok) {
     if (!currentUser) return;
     const id = await ensureActiveConversation();
     if (!id) return;
     try {
-      await backendCall("appendMessage", { id, message: { role, mode, content } });
+      const message = { role, mode, content };
+      if (typeof ok === "boolean") message.ok = ok;
+      await backendCall("appendMessage", { id, message });
     } catch (err) {
       console.error("recordTurn failed:", err);
     }
@@ -2729,7 +3150,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
       title.className = "side-conv-title";
       title.textContent = c.title || "שיחה חדשה";
       const del = document.createElement("button");
-      del.type = "button"; del.className = "side-conv-del"; del.title = "מחיקת שיחה"; del.textContent = "✕";
+      del.type = "button"; del.className = "side-conv-del"; del.title = "מחיקת שיחה"; del.appendChild(iconEl("close"));
       del.addEventListener("click", (e) => { e.stopPropagation(); deleteConversationById(c.id); });
       item.append(title, del);
       item.addEventListener("click", () => openConversation(c.id));
@@ -2765,9 +3186,8 @@ warm line acknowledging you're starting the build now (shown right before the bu
       appendUserTurn(m.content || "");
     } else {
       const turn = appendAssistantTurn(MODE_LABELS_HE[m.mode] || "עוזר");
-      const text = m.content || "";
-      const cls = text.startsWith("✓") ? "success-text" : text.startsWith("✗") ? "error-text" : "";
-      turn.setStatus(text, cls);
+      const cls = m.ok === true ? "success-text" : m.ok === false ? "error-text" : "";
+      turn.setStatus(m.content || "", cls);
     }
   }
 
@@ -2795,7 +3215,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
       // live APK before (compiled binaries aren't stored anywhere durable) — pure
       // chat, or a conversation that never got past a failed first attempt, can
       // just keep going live immediately.
-      const everSucceeded = conv.messages.some((m) => m.role === "assistant" && (m.content || "").startsWith("✓"));
+      const everSucceeded = conv.messages.some((m) => m.role === "assistant" && m.ok === true);
       conversationIsLive = !everSucceeded;
       threadEl.innerHTML = "";
       conv.messages.forEach(renderStoredMessage);
@@ -2810,10 +3230,59 @@ warm line acknowledging you're starting the build now (shown right before the bu
       threadEl.innerHTML = "";
       const p = document.createElement("p");
       p.className = "side-empty";
-      p.textContent = "✗ שגיאה בטעינת השיחה: " + err.message;
+      p.textContent = "שגיאה בטעינת השיחה: " + err.message;
       threadEl.appendChild(p);
       showThreadView("", null);
     }
+  }
+
+  const EXAMPLE_PROMPTS = [
+    "טיימר פומודורו עם צלילי התראה והיסטוריית מחזורים",
+    "מחשבון טיפים שמחלק חשבון בין כמה אנשים",
+    "יומן מצב רוח יומי עם גרף מגמות",
+    "רשימת קניות עם קטגוריות וסימון הושלם",
+    "מעקב שתיית מים יומית עם תזכורות",
+    "מחולל סיסמאות אקראיות עם בדיקת חוזק",
+  ];
+
+  function renderThreadEmptyPlaceholder() {
+    threadEl.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "thread-empty";
+    const iconWrap = document.createElement("div");
+    iconWrap.className = "thread-empty-icon";
+    iconWrap.appendChild(iconEl("sparkle"));
+    const h2 = document.createElement("h2");
+    const p = document.createElement("p");
+    if (activeConversationType === "build") {
+      h2.textContent = "מה נבנה?";
+      p.textContent = "תארו את האפליקציה שתרצו — ככל שתפרטו יותר, כך התוצאה תהיה מדויקת יותר.";
+    } else if (!activeConversationType) {
+      h2.textContent = "שיחה חדשה";
+      p.textContent = "אפשר לכתוב כל דבר — לבקש לבנות אפליקציה, או סתם לשאול משהו.";
+    } else {
+      h2.textContent = "";
+    }
+    wrap.append(iconWrap, h2, p);
+
+    if (activeConversationType === "build" || !activeConversationType) {
+      const grid = document.createElement("div");
+      grid.className = "example-chip-grid";
+      const shuffled = [...EXAMPLE_PROMPTS].sort(() => Math.random() - 0.5).slice(0, 4);
+      shuffled.forEach((example) => {
+        const chip = document.createElement("div");
+        chip.className = "example-chip";
+        chip.textContent = example;
+        chip.addEventListener("click", () => {
+          composerInput.value = example;
+          autosizeComposer();
+          composerInput.focus();
+        });
+        grid.appendChild(chip);
+      });
+      wrap.appendChild(grid);
+    }
+    threadEl.appendChild(wrap);
   }
 
   function startNewConversationPicker(type) {
@@ -2823,10 +3292,10 @@ warm line acknowledging you're starting the build now (shown right before the bu
     conversationIsLive = true;
     closeCensorPanel();
     translatePanel.classList.add("hidden");
-    threadEl.innerHTML = "";
     activeConversationId = null;
     closeSidebarMobile();
     showThreadView(TYPE_TITLES[type] || "שיחה חדשה", activeConversationType);
+    renderThreadEmptyPlaceholder();
     composerInput.focus();
   }
 
@@ -2936,6 +3405,60 @@ warm line acknowledging you're starting the build now (shown right before the bu
   }
 
   // ==========================================================================
+  // SETTINGS — theme (auto/light/dark) and how many clarifying questions the
+  // build flow asks per prompt. Saved to localStorage: this file is a real,
+  // independently-hosted site the user deploys themselves (not a live-preview
+  // artifact), so normal browser storage is the right tool here.
+  // ==========================================================================
+
+  const THEME_KEY = "aiam_theme";
+  const MAX_Q_KEY = "aiam_max_questions";
+  const prefersDarkMq = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function loadThemePref() {
+    return localStorage.getItem(THEME_KEY) || "auto";
+  }
+  function applyTheme(pref) {
+    const effective = pref === "auto" ? (prefersDarkMq.matches ? "dark" : "light") : pref;
+    document.documentElement.dataset.theme = effective;
+    themeChoiceRow.querySelectorAll(".theme-choice").forEach((b) => b.classList.toggle("active", b.dataset.theme === pref));
+  }
+  function saveThemePref(pref) {
+    localStorage.setItem(THEME_KEY, pref);
+    applyTheme(pref);
+  }
+  prefersDarkMq.addEventListener("change", () => { if (loadThemePref() === "auto") applyTheme("auto"); });
+  themeChoiceRow.addEventListener("click", (e) => {
+    const btn = e.target.closest(".theme-choice");
+    if (btn) saveThemePref(btn.dataset.theme);
+  });
+
+  function loadMaxQuestions() {
+    const v = parseInt(localStorage.getItem(MAX_Q_KEY), 10);
+    return Number.isFinite(v) && v >= 0 && v <= 5 ? v : 3;
+  }
+  function saveMaxQuestions(n) {
+    localStorage.setItem(MAX_Q_KEY, String(n));
+  }
+  maxQuestionsInput.addEventListener("input", () => {
+    maxQuestionsValueLabel.textContent = maxQuestionsInput.value;
+    saveMaxQuestions(parseInt(maxQuestionsInput.value, 10));
+  });
+
+  function openSettingsModal() {
+    applyTheme(loadThemePref());
+    maxQuestionsInput.value = String(loadMaxQuestions());
+    maxQuestionsValueLabel.textContent = maxQuestionsInput.value;
+    settingsModal.classList.remove("hidden");
+    closeSidebarMobile();
+  }
+  sideSettingsBtn.addEventListener("click", openSettingsModal);
+  wireOverlayClose(settingsModal, settingsCloseBtn);
+  settingsCloseBtn2.addEventListener("click", () => settingsModal.classList.add("hidden"));
+
+  applyTheme(loadThemePref()); // apply immediately on load, before login
+
+  // ==========================================================================
   // MODALS — connections (BYOK settings), info, and the admin conversation
   // transcript viewer.
   // ==========================================================================
@@ -2955,9 +3478,6 @@ warm line acknowledging you're starting the build now (shown right before the bu
     githubTokenEl.type = keysRevealed ? "text" : "password";
     toggleKeysBtn.textContent = keysRevealed ? "הסתר מפתחות" : "הצג מפתחות";
   });
-
-  sideInfoBtn.addEventListener("click", () => { infoModal.classList.remove("hidden"); closeSidebarMobile(); });
-  wireOverlayClose(infoModal, infoModalCloseBtn);
 
   wireOverlayClose(convViewModal, convViewCloseBtn);
   function openConvViewModal(conv) {
@@ -2996,6 +3516,13 @@ warm line acknowledging you're starting the build now (shown right before the bu
     const div = document.createElement("div");
     div.textContent = str == null ? "" : String(str);
     return div.innerHTML;
+  }
+
+  function setStatusIcon(el, text, ok) {
+    el.innerHTML = "";
+    if (ok === true) el.appendChild(iconEl("check"));
+    else if (ok === false) el.appendChild(iconEl("alert"));
+    el.appendChild(document.createTextNode(text));
   }
 
   function openAdminScreen() {
@@ -3040,7 +3567,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
       });
       if (res.users.length === 0) adminUsersTable.innerHTML = `<tr><td colspan="6">אין עדיין משתמשים.</td></tr>`;
     } catch (err) {
-      adminUsersTable.innerHTML = `<tr><td colspan="6">✗ ${escapeHtml(err.message)}</td></tr>`;
+      adminUsersTable.innerHTML = `<tr><td colspan="6">${escapeHtml(err.message)}</td></tr>`;
     }
   }
   adminRefreshUsersBtn.addEventListener("click", loadAdminUsers);
@@ -3072,7 +3599,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
       adminGithubBranch.value = c.githubBranch || "main";
       adminSystemInstructions.value = c.systemInstructions || "";
     } catch (err) {
-      adminConfigStatus.textContent = "✗ " + err.message;
+      setStatusIcon(adminConfigStatus, err.message, false);
     }
   }
   adminSaveConfigBtn.addEventListener("click", async () => {
@@ -3089,10 +3616,10 @@ warm line acknowledging you're starting the build now (shown right before the bu
         const res = await backendCall("adminSetConfig", { key, value });
         if (!res.ok) throw new Error(res.error);
       }
-      adminConfigStatus.textContent = "נשמר ✓";
+      setStatusIcon(adminConfigStatus, "נשמר", true);
       loadPublicInfo();
     } catch (err) {
-      adminConfigStatus.textContent = "✗ " + err.message;
+      setStatusIcon(adminConfigStatus, err.message, false);
     }
   });
 
@@ -3115,9 +3642,9 @@ warm line acknowledging you're starting the build now (shown right before the bu
     siteTextEditStatus.textContent = "שומר…";
     try {
       const res = await backendCall("adminSetSiteText", { key, value });
-      siteTextEditStatus.textContent = res.ok ? "נשמר ✓" : "✗ " + res.error;
+      setStatusIcon(siteTextEditStatus, res.ok ? "נשמר" : res.error, res.ok);
     } catch (err) {
-      siteTextEditStatus.textContent = "✗ " + err.message;
+      setStatusIcon(siteTextEditStatus, err.message, false);
     }
   }, true);
 
@@ -3157,7 +3684,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
         adminConvListEl.appendChild(row);
       });
     } catch (err) {
-      adminConvListEl.innerHTML = `<p class="hint-text">✗ ${escapeHtml(err.message)}</p>`;
+      adminConvListEl.innerHTML = `<p class="hint-text">${escapeHtml(err.message)}</p>`;
     }
   }
   adminRefreshConvBtn.addEventListener("click", loadAdminConversationsList);
@@ -3187,7 +3714,7 @@ warm line acknowledging you're starting the build now (shown right before the bu
       renderAdminApiKeysDraft();
       adminApiKeysStatus.textContent = "";
     } catch (err) {
-      adminApiKeysStatus.textContent = "✗ " + err.message;
+      setStatusIcon(adminApiKeysStatus, err.message, false);
     }
   }
   adminAddApiKeyBtn.addEventListener("click", () => {
@@ -3202,15 +3729,16 @@ warm line acknowledging you're starting the build now (shown right before the bu
     try {
       const res = await backendCall("adminSetApiKeys", { keys: adminApiKeysDraft });
       if (!res.ok) throw new Error(res.error);
-      adminApiKeysStatus.textContent = `נשמר ✓ (${res.count} מפתחות)`;
+      setStatusIcon(adminApiKeysStatus, `נשמר (${res.count} מפתחות)`, true);
     } catch (err) {
-      adminApiKeysStatus.textContent = "✗ " + err.message;
+      setStatusIcon(adminApiKeysStatus, err.message, false);
     }
   });
 
   // ==========================================================================
   // INIT
   // ==========================================================================
+  applyIcons();
   initGoogleSignIn();
   loadPublicInfo();
 })();
