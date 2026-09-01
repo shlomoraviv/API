@@ -91,14 +91,14 @@ class MainActivity : Activity() {
 
         val rootLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            backgroundColor = 0xFFF1F5F9.toInt()
+            setBackgroundColor(0xFFF1F5F9.toInt())
             layoutDirection = View.LAYOUT_DIRECTION_RTL
-            padding = dp(16)
+            setPadding(dp(16), dp(16), dp(16), dp(16))
         }
 
         val headerCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            padding = dp(16)
+            setPadding(dp(16), dp(16), dp(16), dp(16))
             background = createRoundedDrawable(Color.WHITE, 12f)
             elevation = dp(4).toFloat()
         }
@@ -125,7 +125,7 @@ class MainActivity : Activity() {
 
         val inputCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            padding = dp(16)
+            setPadding(dp(16), dp(16), dp(16), dp(16))
             background = createRoundedDrawable(Color.WHITE, 12f)
             elevation = dp(4).toFloat()
         }
@@ -215,7 +215,7 @@ class MainActivity : Activity() {
         }
         footerLayout.addView(footerText, lp(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
-        rootLayout.addView(footerLayout, lp(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+        rootLayout.addView(footerLayout, lp(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { 
             topMargin = dp(12)
         })
 
@@ -303,7 +303,7 @@ class MainActivity : Activity() {
             for (keyword in keywords) {
                 if (lower.contains(keyword)) {
                     return cat
-                } 
+                }
             }
         }
         return "אחר"
@@ -460,7 +460,7 @@ class MainActivity : Activity() {
                 val itemRow = LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
-                    padding = dp(12)
+                    setPadding(dp(12), dp(12), dp(12), dp(12))
                     background = if (item.isCompleted) {
                         createRoundedDrawable(0xFFF8FAFC.toInt(), 8f)
                     } else {
