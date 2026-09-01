@@ -150,7 +150,7 @@ class MainActivity : Activity() {
         }
         styleEditText(inputPrice, "מחיר ליחידה")
         val priceLp = lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-            marginRight = dp(8)
+            rightMargin = dp(8)
         }
         rowLayout.addView(inputPrice, priceLp)
 
@@ -165,7 +165,7 @@ class MainActivity : Activity() {
             }
         }
         val btnLp = lp(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.2f).apply {
-            marginRight = dp(8)
+            rightMargin = dp(8)
         }
         rowLayout.addView(btnAdd, btnLp)
         inputCard.addView(rowLayout, lp(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
@@ -203,7 +203,7 @@ class MainActivity : Activity() {
                 confirmClearAll()
             }
         }
-        footerLayout.addView(btnClearAll, lp(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+        footerLayout.addView(btnClearAll, lp(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { 
             bottomMargin = dp(8)
         })
 
@@ -225,9 +225,9 @@ class MainActivity : Activity() {
         refreshList()
 
         if (savedInstanceState != null) {
-            inputName.setText(savedInstanceState.getString("input_name", ""))
-            inputQty.setText(savedInstanceState.getString("input_qty", "1"))
-            inputPrice.setText(savedInstanceState.getString("input_price", ""))
+            inputName.setText(savedInstanceState.getString("input_name") ?: "")
+            inputQty.setText(savedInstanceState.getString("input_qty") ?: "1")
+            inputPrice.setText(savedInstanceState.getString("input_price") ?: "")
         } else {
             inputQty.setText("1")
         }
@@ -287,7 +287,7 @@ class MainActivity : Activity() {
     }
 
     private fun determineCategory(name: String): String {
-        val lower = name.trim().lowercase()
+        val lower = name.trim().toLowerCase()
         if (lower.isEmpty()) return "אחר"
 
         val categories = mapOf(
@@ -303,8 +303,8 @@ class MainActivity : Activity() {
             for (keyword in keywords) {
                 if (lower.contains(keyword)) {
                     return cat
-                }
-            } 
+                } 
+            }
         }
         return "אחר"
     }
@@ -480,8 +480,8 @@ class MainActivity : Activity() {
                 val textContainer = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
                     val textLp = lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-                        marginRight = dp(12)
-                        marginLeft = dp(12)
+                        rightMargin = dp(12)
+                        leftMargin = dp(12)
                     }
                     layoutParams = textLp
                 }
@@ -535,7 +535,10 @@ class MainActivity : Activity() {
             }
         }
 
-        val total = items.sumOf { it.quantity * it.price }
+        var total = 0.0
+        for (item in items) {
+            total += item.quantity * item.price
+        }
         totalSumTextView.text = "סה\"כ לתשלום: ₪${formatDouble(total)}"
     }
 
