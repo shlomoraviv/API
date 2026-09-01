@@ -48,7 +48,9 @@ jobs:
       - name: Rebuild (apktool)
         run: apktool b decompiled_app -o app-unsigned.apk
 
-      - name: Zipalign + sign (fresh debug key, same approach as build.sh)
+      - name: Zipalign + sign (persistent release key when configured, else a fresh throwaway one)
+        env:
+          RELEASE_KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
         run: |
           set -e
           ZIPALIGN_BIN=$(find "$ANDROID_HOME/build-tools" -name "zipalign" -type f | sort -r | head -n1)
@@ -58,8 +60,12 @@ jobs:
 
           "$ZIPALIGN_BIN" -f -p 4 app-unsigned.apk app-aligned.apk
 
-          keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android \
-            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+          if [ -n "${RELEASE_KEYSTORE_B64:-}" ]; then
+            echo "$RELEASE_KEYSTORE_B64" | base64 -d > debug.keystore
+          else
+            keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android \
+              -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+          fi
 
           "$APKSIGNER_BIN" sign \
             --ks debug.keystore --ks-pass pass:android \
