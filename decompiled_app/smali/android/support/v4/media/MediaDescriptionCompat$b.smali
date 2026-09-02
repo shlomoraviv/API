@@ -1,6 +1,6 @@
 .class public final Landroid/support/v4/media/MediaDescriptionCompat$b;
 .super Ljava/lang/Object;
-.source ""
+.source "\ubcfc\ub968 \ucee8\ud2b8\ub864\uc774 \ud45c\uc2dc\ub429\ub2c8\ub2e4. \ub2eb\uc73c\ub824\uba74 \uc704\ub85c \uc2a4\uc640\uc774\ud504\ud569\ub2c8\ub2e4"
 
 
 # annotations
@@ -15,21 +15,21 @@
 
 
 # instance fields
-.field private a:Ljava/lang/String;
+.field public a:Ljava/lang/String;
 
-.field private b:Ljava/lang/CharSequence;
+.field public b:Ljava/lang/CharSequence;
 
-.field private c:Ljava/lang/CharSequence;
+.field public c:Ljava/lang/CharSequence;
 
-.field private d:Ljava/lang/CharSequence;
+.field public d:Ljava/lang/CharSequence;
 
-.field private e:Landroid/graphics/Bitmap;
+.field public e:Landroid/graphics/Bitmap;
 
-.field private f:Landroid/net/Uri;
+.field public f:Landroid/net/Uri;
 
-.field private g:Landroid/os/Bundle;
+.field public g:Landroid/os/Bundle;
 
-.field private h:Landroid/net/Uri;
+.field public h:Landroid/net/Uri;
 
 
 # direct methods
@@ -43,10 +43,50 @@
 
 
 # virtual methods
-.method public a()Landroid/support/v4/media/MediaDescriptionCompat;
-    .locals 10
+.method public a(Landroid/graphics/Bitmap;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+    .locals 0
 
-    new-instance v9, Landroid/support/v4/media/MediaDescriptionCompat;
+    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->e:Landroid/graphics/Bitmap;
+
+    return-object p0
+.end method
+
+.method public a(Landroid/net/Uri;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+    .locals 0
+
+    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->f:Landroid/net/Uri;
+
+    return-object p0
+.end method
+
+.method public a(Landroid/os/Bundle;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+    .locals 0
+
+    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->g:Landroid/os/Bundle;
+
+    return-object p0
+.end method
+
+.method public a(Ljava/lang/CharSequence;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+    .locals 0
+
+    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->d:Ljava/lang/CharSequence;
+
+    return-object p0
+.end method
+
+.method public a(Ljava/lang/String;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+    .locals 0
+
+    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->a:Ljava/lang/String;
+
+    return-object p0
+.end method
+
+.method public a()Landroid/support/v4/media/MediaDescriptionCompat;
+    .locals 8
+
+    new-instance v0, Landroid/support/v4/media/MediaDescriptionCompat;
 
     iget-object v1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->a:Ljava/lang/String;
 
@@ -62,56 +102,14 @@
 
     iget-object v7, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->g:Landroid/os/Bundle;
 
-    iget-object v8, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->h:Landroid/net/Uri;
-
-    move-object v0, v9
+    iget-object p0, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->h:Landroid/net/Uri;
 
     invoke-direct/range {v0 .. v8}, Landroid/support/v4/media/MediaDescriptionCompat;-><init>(Ljava/lang/String;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Landroid/graphics/Bitmap;Landroid/net/Uri;Landroid/os/Bundle;Landroid/net/Uri;)V
 
-    return-object v9
+    return-object v0
 .end method
 
-.method public b(Ljava/lang/CharSequence;)Landroid/support/v4/media/MediaDescriptionCompat$b;
-    .locals 0
-
-    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->d:Ljava/lang/CharSequence;
-
-    return-object p0
-.end method
-
-.method public c(Landroid/os/Bundle;)Landroid/support/v4/media/MediaDescriptionCompat$b;
-    .locals 0
-
-    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->g:Landroid/os/Bundle;
-
-    return-object p0
-.end method
-
-.method public d(Landroid/graphics/Bitmap;)Landroid/support/v4/media/MediaDescriptionCompat$b;
-    .locals 0
-
-    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->e:Landroid/graphics/Bitmap;
-
-    return-object p0
-.end method
-
-.method public e(Landroid/net/Uri;)Landroid/support/v4/media/MediaDescriptionCompat$b;
-    .locals 0
-
-    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->f:Landroid/net/Uri;
-
-    return-object p0
-.end method
-
-.method public f(Ljava/lang/String;)Landroid/support/v4/media/MediaDescriptionCompat$b;
-    .locals 0
-
-    iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->a:Ljava/lang/String;
-
-    return-object p0
-.end method
-
-.method public g(Landroid/net/Uri;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+.method public b(Landroid/net/Uri;)Landroid/support/v4/media/MediaDescriptionCompat$b;
     .locals 0
 
     iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->h:Landroid/net/Uri;
@@ -119,7 +117,7 @@
     return-object p0
 .end method
 
-.method public h(Ljava/lang/CharSequence;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+.method public b(Ljava/lang/CharSequence;)Landroid/support/v4/media/MediaDescriptionCompat$b;
     .locals 0
 
     iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->c:Ljava/lang/CharSequence;
@@ -127,7 +125,7 @@
     return-object p0
 .end method
 
-.method public i(Ljava/lang/CharSequence;)Landroid/support/v4/media/MediaDescriptionCompat$b;
+.method public c(Ljava/lang/CharSequence;)Landroid/support/v4/media/MediaDescriptionCompat$b;
     .locals 0
 
     iput-object p1, p0, Landroid/support/v4/media/MediaDescriptionCompat$b;->b:Ljava/lang/CharSequence;

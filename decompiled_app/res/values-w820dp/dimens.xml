@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin">64.0dp</dimen>
+    <dimen name="horiz_margin">48.0dp</dimen>
+    <dimen name="vert_margin">27.0dp</dimen>
+</resources>

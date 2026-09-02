@@ -1,146 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="30" android:compileSdkVersionCodename="11" package="com.anhhoa.speakerfrommic" platformBuildVersionCode="30" platformBuildVersionName="11">
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="28" android:compileSdkVersionCodename="9" package="flar2.homebutton" platformBuildVersionCode="28" platformBuildVersionName="9">
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
+    <uses-feature android:name="android.hardware.faketouch" android:required="false"/>
+    <uses-feature android:name="android.software.leanback" android:required="false"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.FLASHLIGHT"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.GET_TASKS"/>
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW"/>
-            <category android:name="android.intent.category.BROWSABLE"/>
-            <data android:scheme="https"/>
-        </intent>
-        <intent>
-            <action android:name="android.support.customtabs.action.CustomTabsService"/>
-        </intent>
-    </queries>
-    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <application android:allowBackup="false" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:hardwareAccelerated="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:largeHeap="true" android:name="com.globals.pvtai.MyApplication" android:requestLegacyExternalStorage="true" android:supportsRtl="true" android:theme="@style/AppTheme" android:usesCleartextTraffic="true">
-        <activity android:hardwareAccelerated="true" android:label="@string/app_name" android:launchMode="singleTask" android:name="com.globals.pvtai.MainActivity" android:screenOrientation="portrait"/>
-        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="false" android:name="com.google.android.gms.ads.AdActivity" android:theme="@android:style/Theme.Translucent"/>
-        <activity android:hardwareAccelerated="true" android:name="com.globals.pvtai.RecordedActivity" android:screenOrientation="portrait"/>
-        <activity android:hardwareAccelerated="true" android:name="com.globals.pvtai.PlayAudioActivity" android:screenOrientation="portrait"/>
-        <activity android:hardwareAccelerated="true" android:label="@string/app_name" android:name="com.globals.pvtai.WelcomeActivity">
+    <uses-permission android:name="android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <application android:allowBackup="false" android:appComponentFactory="android.support.v4.app.CoreComponentFactory" android:banner="@drawable/tvbanner" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:name="a.b" android:supportsRtl="true" android:theme="@style/AppTheme">
+        <activity android:label="@string/app_name" android:launchMode="singleTask" android:name="a.a" android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity-alias android:enabled="false" android:icon="@mipmap/ic_launcher_square" android:label="@string/app_name" android:launchMode="singleTask" android:name="a.c" android:targetActivity="a.a" android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
-        <activity android:configChanges="uiMode" android:hardwareAccelerated="true" android:label="@string/app_name" android:name="com.globals.pvtai.PrivacyActivity" android:screenOrientation="portrait"/>
-        <activity android:name="com.globals.pvtai.YoutubePlayerActivity" android:screenOrientation="portrait"/>
-        <activity android:name="com.globals.pvtai.SettingsActivity" android:screenOrientation="portrait"/>
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
-        <meta-data android:name="com.google.android.gms.wallet.api.enabled" android:value="false"/>
-        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/app_ad_unit_id"/>
-        <provider android:authorities="com.anhhoa.speakerfrommic.provider" android:exported="false" android:grantUriPermissions="true" android:name="androidx.core.content.FileProvider">
-            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths"/>
-        </provider>
-        <service android:enabled="true" android:exported="true" android:name="com.globals.pvtai.RecordingService"/>
-        <service android:directBootAware="true" android:exported="false" android:name="com.google.firebase.components.ComponentDiscoveryService">
-            <meta-data android:name="com.google.firebase.components:com.google.firebase.crashlytics.ndk.CrashlyticsNdkRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
-            <meta-data android:name="com.google.firebase.components:com.google.firebase.crashlytics.CrashlyticsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
-            <meta-data android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
-            <meta-data android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
-            <meta-data android:name="com.google.firebase.components:com.google.firebase.dynamicloading.DynamicLoadingRegistrar" android:value="com.google.firebase.components.ComponentRegistrar"/>
-        </service>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-lite" android:value="ads-lite:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-consent" android:value="ads-consent:3.4.37.300"/>
-        <provider android:authorities="com.anhhoa.speakerfrommic.mobileadsinitprovider" android:exported="false" android:initOrder="100" android:name="com.google.android.gms.ads.MobileAdsInitProvider"/>
-        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.ads.AdService"/>
-        <receiver android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementReceiver"/>
-        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService"/>
-        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
-        <provider android:authorities="com.anhhoa.speakerfrommic.firebaseinitprovider" android:directBootAware="true" android:exported="false" android:initOrder="100" android:name="com.google.firebase.provider.FirebaseInitProvider"/>
-        <provider android:authorities="com.anhhoa.speakerfrommic.androidx-startup" android:exported="false" android:name="androidx.startup.InitializationProvider">
-            <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer" android:value="androidx.startup"/>
-            <meta-data android:name="androidx.lifecycle.ProcessLifecycleInitializer" android:value="androidx.startup"/>
-        </provider>
-        <provider android:authorities="com.anhhoa.speakerfrommic.workmanager-init" android:directBootAware="false" android:exported="false" android:multiprocess="true" android:name="androidx.work.impl.WorkManagerInitializer"/>
-        <service android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"/>
-        <service android:directBootAware="false" android:enabled="@bool/enable_system_job_service_default" android:exported="true" android:name="androidx.work.impl.background.systemjob.SystemJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
-        <receiver android:directBootAware="false" android:enabled="true" android:exported="false" android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"/>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy">
+        </activity-alias>
+        <activity android:launchMode="singleTask" android:name="a.h" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:label="@string/app_name" android:name="a.f" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:label="@string/app_name" android:name="a.g" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:excludeFromRecents="true" android:name="a.n" android:process=":screenshot" android:taskAffinity="" android:theme="@android:style/Theme.DeviceDefault.Panel"/>
+        <activity android:label="@string/action_about" android:name="a.ab" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:label="@string/translation" android:name="a.aa" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:label="@string/bypass_apps" android:name="a.z" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="a.y" android:parentActivityName="a.ab" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="a.ag" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="a.d" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="a.x" android:parentActivityName="a.a" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:label="@string/custom_buttons" android:name="a.w" android:parentActivityName="a.f" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name="a.af" android:parentActivityName="a.a" android:theme="@style/Theme.Transparent"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:name="a.o" android:noHistory="true" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <activity android:excludeFromRecents="true" android:label="@string/select_keyboard" android:launchMode="singleInstance" android:name="a.ai" android:theme="@style/Theme.Transparent"/>
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true"/>
+        <meta-data android:name="android.max_aspect" android:value="2.1"/>
+        <receiver android:label="@string/app_name" android:name="a.e" android:permission="android.permission.BIND_DEVICE_ADMIN">
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLE_REQUESTED"/>
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLED"/>
             </intent-filter>
+            <meta-data android:name="android.app.device_admin" android:resource="@xml/policies"/>
         </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy">
-            <intent-filter>
-                <action android:name="android.intent.action.BATTERY_OKAY"/>
-                <action android:name="android.intent.action.BATTERY_LOW"/>
-            </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy">
-            <intent-filter>
-                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
-                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
-            </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-            </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver">
+        <receiver android:enabled="true" android:exported="false" android:name="a.ac"/>
+        <receiver android:name="a.ad"/>
+        <receiver android:enabled="true" android:exported="false" android:name="a.l"/>
+        <receiver android:enabled="true" android:exported="false" android:name="a.k"/>
+        <receiver android:name="a.v">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.TIME_SET"/>
-                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+                <category android:name="android.intent.category.HOME"/>
             </intent-filter>
         </receiver>
-        <receiver android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver">
+        <receiver android:name="a.u">
             <intent-filter>
-                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
             </intent-filter>
         </receiver>
-        <service android:exported="false" android:name="androidx.room.MultiInstanceInvalidationService"/>
-        <service android:exported="false" android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery">
-            <meta-data android:name="backend:com.google.android.datatransport.cct.CctBackendFactory" android:value="cct"/>
+        <receiver android:enabled="true" android:exported="true" android:name="a.r">
+            <intent-filter>
+                <action android:name="flar2.homebutton.TOGGLE_REMAPPING"/>
+                <action android:name="flar2.homebutton.PAUSE_REMAPPING"/>
+                <action android:name="flar2.homebutton.RESUME_REMAPPING"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:enabled="true" android:exported="true" android:name="a.s">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+        </receiver>
+        <service android:exported="true" android:name="a.i" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility"/>
         </service>
-        <service android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" android:permission="android.permission.BIND_JOB_SERVICE"/>
-        <receiver android:exported="false" android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-banner" android:value="ads-banner:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-template" android:value="ads-template:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-native" android:value="ads-native:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-interstitial" android:value="ads-interstitial:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-reward" android:value="ads-reward:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-lang" android:value="ads-lang:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-splash" android:value="ads-splash:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-instream" android:value="ads-instream:13.4.37.300"/>
-        <meta-data android:name="com.huawei.hms.client.service.name:ads-base" android:value="ads-base:13.4.37.300"/>
-        <activity android:exported="true" android:name="com.huawei.openalliance.ad.activity.PPSLauncherActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        <service android:name="a.m">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="com.anhhoa.speakerfrommic" android:scheme="hwpps"/>
+                <action android:name="homebutton.intent.action.TOGGLE_FLASHLIGHT"/>
+                <action android:name="homebutton.intent.action.TOGGLE_FLASHLIGHT_OFF"/>
             </intent-filter>
-            <meta-data android:name="hwc-theme" android:value="androidhwext:style/Theme.Emui.Translucent.NoTitleBar"/>
-        </activity>
-        <activity android:exported="false" android:name="com.huawei.openalliance.ad.activity.PPSBridgeActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <meta-data android:name="hwc-theme" android:value="androidhwext:style/Theme.Emui.Translucent.NoTitleBar"/>
-        </activity>
-        <activity android:exported="false" android:name="com.huawei.openalliance.ad.activity.PPSNotificationActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <meta-data android:name="hwc-theme" android:value="androidhwext:style/Theme.Emui.Translucent.NoTitleBar"/>
-        </activity>
-        <activity android:configChanges="orientation|screenSize" android:exported="false" android:name="com.huawei.openalliance.ad.activity.AgProtocolActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <meta-data android:name="hwc-theme" android:value="androidhwext:style/Theme.Emui.Translucent.NoTitleBar"/>
-        </activity>
-        <meta-data android:name="com.android.dynamic.apk.fused.modules" android:value="base"/>
-        <meta-data android:name="com.android.stamp.source" android:value="https://play.google.com/store"/>
-        <meta-data android:name="com.android.stamp.type" android:value="STAMP_TYPE_STANDALONE_APK"/>
-        <meta-data android:name="com.android.vending.splits" android:resource="@xml/splits0"/>
-        <meta-data android:name="com.android.vending.derived.apk.id" android:value="5"/>
+        </service>
+        <service android:icon="@drawable/ic_button_mapper" android:label="Button Mapper" android:name="a.j" android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+        <service android:name="a.t"/>
+        <service android:name="a.q" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
+        <service android:label="@string/app_name" android:name="flar2.homebutton.utils.BMIME" android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/method"/>
+        </service>
+        <meta-data android:name="com.google.android.play.billingclient.version" android:value="2.0.1"/>
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize" android:name="com.android.billingclient.api.ProxyBillingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
     </application>
 </manifest>

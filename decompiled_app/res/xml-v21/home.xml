@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="home"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/home_button" android:key="pref_cat_home">
+        <SwitchPreference android:title="@string/customize" android:key="pref_home_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/single_tap" android:key="pref_home_single_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/double_tap" android:key="pref_home_double_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/long_press" android:key="pref_home_long_press" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_home_options">
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_home_vibrate" android:defaultValue="0" />
+    </PreferenceCategory>
+</PreferenceScreen>

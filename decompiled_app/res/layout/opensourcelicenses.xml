@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/donate_container" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textStyle="bold" android:id="@id/opensource_tv1" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingTop="24.0dp" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Android Open Source Project" />
+            <TextView android:id="@id/opensource_tv2" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="License: Apache 2.0\nhttp://www.apache.org/licenses/LICENSE-2.0.txt\n" />
+            <TextView android:textStyle="bold" android:id="@id/opensource_tv4" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Material Icons" />
+            <TextView android:id="@id/opensource_tv5" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="https://design.google.com/icons/\n" />
+            <TextView android:id="@id/opensource_tv3" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icons made by Freepik from www.flaticon.com\n" />
+            <TextView android:textStyle="bold" android:id="@id/opensource_tv25" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Android Asset Studio" />
+            <TextView android:id="@id/opensource_tv26" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="By Roman Nurik http://romannurik.github.io/AndroidAssetStudio\n" />
+            <TextView android:textStyle="bold" android:id="@id/opensource_tv99" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AppPickerPreference" />
+            <TextView android:id="@id/opensource_tv100" android:paddingLeft="@dimen/activity_vertical_margin" android:paddingRight="@dimen/activity_vertical_margin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Copyright (c) 2014 Peter Gregus\nLicense: Apache 2.0\nhttp://www.apache.org/licenses/LICENSE-2.0.txt\n" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

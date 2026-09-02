@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="motion_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/motion_button" android:key="pref_cat_motion">
+        <Preference android:key="motion_info" android:summary="@string/motion_msg" />
+        <Preference android:icon="@drawable/ic_system" android:title="Check Motion Sense settings" android:key="pref_motion_settings" />
+        <Preference android:layout="@layout/preference_divider" android:title="divider" android:selectable="false" />
+        <Preference android:selectable="false" />
+        <SwitchPreference android:title="@string/customize" android:key="pref_motion_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/swipe" android:key="pref_motion_single_tap" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_motion_options">
+        <SwitchPreference android:title="@string/screen_on" android:key="pref_motion_screenon" android:summary="@string/screen_on_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/motion_sound" android:key="pref_motion_sound" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/motion_disable_audio" android:key="pref_motion_audio_disable" android:defaultValue="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

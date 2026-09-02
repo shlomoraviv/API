@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="main"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/buttons" android:key="pref_cat_buttons">
+        <PreferenceScreen android:icon="@drawable/ic_home" android:title="@string/home_button" android:key="home" />
+        <PreferenceScreen android:icon="@drawable/ic_back" android:title="@string/back_button" android:key="back" />
+        <PreferenceScreen android:icon="@drawable/ic_recent_apps" android:title="@string/recent_apps_button" android:key="recents" />
+        <PreferenceScreen android:icon="@drawable/ic_camera" android:title="@string/camera_button" android:key="camera" />
+        <PreferenceScreen android:icon="@drawable/ic_mute" android:title="@string/mute_button" android:key="mute" />
+        <PreferenceScreen android:icon="@drawable/ic_bixby" android:title="@string/bixby_button" android:key="bixby" />
+        <PreferenceScreen android:icon="@drawable/ic_edge" android:title="@string/edge_button" android:key="edge" />
+        <PreferenceScreen android:icon="@drawable/ic_motion" android:title="@string/motion_button" android:key="motion" />
+        <PreferenceScreen android:icon="@drawable/ic_volup" android:title="@string/volup_button" android:key="volup" />
+        <PreferenceScreen android:icon="@drawable/ic_voldown" android:title="@string/voldown_button" android:key="voldown" />
+        <PreferenceScreen android:icon="@drawable/ic_volup" android:title="@string/volume_buttons" android:key="volume" />
+        <PreferenceScreen android:icon="@drawable/ic_headset" android:title="@string/headsethook_button" android:key="headsethook" />
+        <PreferenceScreen android:icon="@drawable/ic_fingerprint" android:title="@string/fingerprint" android:key="fingerprint" />
+        <PreferenceScreen android:icon="@drawable/ic_add" android:title="@string/custom_buttons" android:key="custom" />
+        <PreferenceScreen android:icon="@drawable/ic_settings" android:title="@string/advanced_options" android:key="advanced" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_other">
+        <SwitchPreference android:title="@string/swap_back_recents" android:key="pref_swap_backrecents" android:summary="@string/swap_back_recents_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/pocket_detection" android:key="pref_pocket_detection" android:summary="@string/pocket_detection_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/media_volume" android:key="pref_media_stream" android:summary="@string/media_volume_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/swap_vol_orientation" android:key="pref_swap_vol_orientation" android:summary="@string/swap_vol_orientation_summary" android:defaultValue="false" />
+        <Preference android:layout="@layout/preference_divider" android:title="divider" android:selectable="false" />
+        <SwitchPreference android:title="@string/screenoff_lp" android:key="pref_screenoff_lp" android:summary="@string/screenoff_lp_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/screenoff" android:key="pref_screenoff" android:summary="@string/screenoff_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/screen_on" android:key="pref_screenon" android:summary="@string/screen_on_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/screenoff" android:key="pref_screenoff_noroot" android:summary="@string/screenoff_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/screenoff_vol_skip" android:key="pref_screenoff_vol_skip" android:summary="@string/screenoff_vol_skip_summary" android:defaultValue="false" />
+        <Preference android:layout="@layout/preference_divider" android:title="divider" android:selectable="false" />
+        <SwitchPreference android:title="@string/skip_tracks" android:key="pref_vol_skip_tracks" android:summary="@string/skip_tracks_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/skip_tracks_double" android:key="pref_vol_skip_double" android:defaultValue="false" />
+        <Preference android:layout="@layout/preference_divider" android:title="divider" android:selectable="false" />
+        <SwitchPreference android:title="@string/homescreen_lock" android:key="pref_homescreen_off" android:summary="@string/homescreen_lock_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/lockscreen_peek" android:key="pref_lockscreen_off" android:summary="@string/lockscreen_peek_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/zello_ptt" android:key="pref_zello_ptt" android:summary="@string/zello_ptt_summary" android:defaultValue="false" />
+        <SwitchPreference android:title="@string/settings_perm" android:key="pref_write_secure_settings" android:summary="@string/settings_perm_txt" android:defaultValue="false" />
+        <ListPreference android:entries="@array/light_entries" android:title="@string/button_light_duration" android:key="pref_light_selection" android:summary="%s" android:defaultValue="1500" android:entryValues="@array/light_values" />
+        <SwitchPreference android:title="@string/system_button_vibration" android:key="pref_samsung_vibrate2" android:defaultValue="true" />
+        <SwitchPreference android:title="@string/button_sound" android:key="pref_button_sound" android:summary="@string/button_sound_msg" android:defaultValue="false" />
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_vibrate_long" android:defaultValue="15" />
+    </PreferenceCategory>
+</PreferenceScreen>

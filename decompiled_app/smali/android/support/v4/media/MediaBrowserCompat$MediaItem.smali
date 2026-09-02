@@ -1,6 +1,6 @@
 .class public Landroid/support/v4/media/MediaBrowserCompat$MediaItem;
 .super Ljava/lang/Object;
-.source ""
+.source "\ubcfc\ub968 \ucee8\ud2b8\ub864\uc774 \ud45c\uc2dc\ub429\ub2c8\ub2e4. \ub2eb\uc73c\ub824\uba74 \uc704\ub85c \uc2a4\uc640\uc774\ud504\ud569\ub2c8\ub2e4"
 
 # interfaces
 .implements Landroid/os/Parcelable;
@@ -19,13 +19,13 @@
 
 
 # instance fields
-.field private final a:I
+.field public final b:I
 
-.field private final b:Landroid/support/v4/media/MediaDescriptionCompat;
+.field public final c:Landroid/support/v4/media/MediaDescriptionCompat;
 
 
 # direct methods
-.method static constructor <clinit>()V
+.method public static constructor <clinit>()V
     .locals 1
 
     new-instance v0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem$a;
@@ -37,7 +37,7 @@
     return-void
 .end method
 
-.method constructor <init>(Landroid/os/Parcel;)V
+.method public constructor <init>(Landroid/os/Parcel;)V
     .locals 1
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -46,17 +46,17 @@
 
     move-result v0
 
-    iput v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->a:I
+    iput v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->b:I
 
     sget-object v0, Landroid/support/v4/media/MediaDescriptionCompat;->CREATOR:Landroid/os/Parcelable$Creator;
 
     invoke-interface {v0, p1}, Landroid/os/Parcelable$Creator;->createFromParcel(Landroid/os/Parcel;)Ljava/lang/Object;
 
-    move-result-object p1
+    move-result-object v0
 
-    check-cast p1, Landroid/support/v4/media/MediaDescriptionCompat;
+    check-cast v0, Landroid/support/v4/media/MediaDescriptionCompat;
 
-    iput-object p1, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->b:Landroid/support/v4/media/MediaDescriptionCompat;
+    iput-object v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->c:Landroid/support/v4/media/MediaDescriptionCompat;
 
     return-void
 .end method
@@ -64,43 +64,43 @@
 
 # virtual methods
 .method public describeContents()I
-    .locals 1
+    .locals 0
 
-    const/4 v0, 0x0
+    const/4 p0, 0x0
 
-    return v0
+    return p0
 .end method
 
 .method public toString()Ljava/lang/String;
     .locals 2
 
-    new-instance v0, Ljava/lang/StringBuilder;
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    const-string v1, "MediaItem{"
+    const-string v0, "MediaItem{"
 
-    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+    invoke-direct {v1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    const-string v1, "mFlags="
+    const-string v0, "mFlags="
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    iget v1, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->a:I
+    iget v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->b:I
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    const-string v1, ", mDescription="
+    const-string v0, ", mDescription="
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    iget-object v1, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->b:Landroid/support/v4/media/MediaDescriptionCompat;
+    iget-object v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->c:Landroid/support/v4/media/MediaDescriptionCompat;
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    const/16 v1, 0x7d
+    const/16 v0, 0x7d
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
@@ -110,11 +110,11 @@
 .method public writeToParcel(Landroid/os/Parcel;I)V
     .locals 1
 
-    iget v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->a:I
+    iget v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->b:I
 
     invoke-virtual {p1, v0}, Landroid/os/Parcel;->writeInt(I)V
 
-    iget-object v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->b:Landroid/support/v4/media/MediaDescriptionCompat;
+    iget-object v0, p0, Landroid/support/v4/media/MediaBrowserCompat$MediaItem;->c:Landroid/support/v4/media/MediaDescriptionCompat;
 
     invoke-virtual {v0, p1, p2}, Landroid/support/v4/media/MediaDescriptionCompat;->writeToParcel(Landroid/os/Parcel;I)V
 

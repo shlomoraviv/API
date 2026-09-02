@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@id/adb_container" android:background="@drawable/round_background" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <flar2.homebutton.utils.CustomViewPager android:id="@id/viewPager" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/adb_bottom_margin" />
+    <RelativeLayout android:layout_gravity="bottom" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/activity_horizontal_margin" android:layout_marginRight="@dimen/activity_horizontal_margin" android:layout_marginBottom="8.0dp">
+        <flar2.homebutton.utils.CircleIndicator android:id="@id/circle_indicator" android:layout_width="match_parent" android:layout_height="40.0dp" android:layout_centerHorizontal="true" />
+        <Button android:textStyle="bold" android:textColor="@android:color/white" android:id="@id/tut_done" android:background="@null" android:padding="8.0dp" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/next" android:layout_alignParentRight="true" android:layout_centerVertical="true" android:textAllCaps="true" android:layout_marginEnd="16.0dp" />
+    </RelativeLayout>
+</FrameLayout>

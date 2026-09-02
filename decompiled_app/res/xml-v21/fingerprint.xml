@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="fingerprint_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/fingerprint" android:key="pref_cat_fingerprint">
+        <SwitchPreference android:title="@string/customize" android:key="pref_fingerprint_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/swipe_up" android:key="pref_fp_up" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/swipe_down" android:key="pref_fp_down" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/swipe_left" android:key="pref_fp_left" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/swipe_right" android:key="pref_fp_right" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_fingerprint_options">
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_fingerprint_vibrate" android:defaultValue="0" />
+    </PreferenceCategory>
+</PreferenceScreen>
