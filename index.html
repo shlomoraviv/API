@@ -1938,8 +1938,7 @@ rebuild, even if that means dropping part of the requested change.`;
           `/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs?head_sha=${commitSha}&per_page=5`,
           token
         );
-        if (runs.workflow_runs && runs.workflow_runs.length > 0) {
-          runId = runs.workflow_runs[0].id;
+if (runs && runs.workflow_runs && runs.workflow_runs.length > 0) {          runId = runs.workflow_runs[0].id;
           runUrl = runs.workflow_runs[0].html_url;
           runNumber = runs.workflow_runs[0].run_number;
           log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
