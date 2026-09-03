@@ -298,6 +298,13 @@
   .assistant-text.success-text { color: var(--success); font-weight: 600; }
 
   /* ---- dynamic per-turn rail (reused structure/contract from the engine) ---- */
+  .progress-wrap { margin: 4px 2px 2px; }
+  .progress-track { height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #8A7BFF); transition: width .6s ease; }
+  .progress-wrap.done .progress-fill { background: var(--success); }
+  .progress-wrap.error .progress-fill { background: var(--error); }
+  .progress-label { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .progress-wrap.error .progress-label { color: var(--error); }
   .rail { display: flex; align-items: center; margin: 14px 2px 10px; }
   .rail-node { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; }
   .rail-dot {
@@ -457,6 +464,8 @@
     opacity: .55; transition: opacity .2s ease, background .2s ease;
   }
   .translate-string-row.done { opacity: 1; background: var(--success-soft); }
+  .translate-string-row.reverted { background: var(--warn-soft); }
+  .translate-string-row.reverted .translate-string-new { color: var(--warn); }
   .translate-string-key { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .translate-string-orig { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .translate-string-arrow { color: var(--text-faint); text-align: center; }
@@ -899,9 +908,18 @@
   const EDIT2_STAGE_ORDER = ["decompile", "locate", "patch", "commit", "rebuild", "apk"];
   const TRANSLATE_STAGE_ORDER = ["decompile", "strings", "translate", "commit", "rebuild", "apk"];
   const STAGE_LABELS = {
-    enhance: "enhance", gemini: "generate", commit: "commit", actions: "build", apk: "ready",
-    decompile: "decompile", locate: "locate", patch: "patch", rebuild: "rebuild",
-    strings: "strings", translate: "translate",
+    enhance: "שיפור", gemini: "יצירה", commit: "שמירה", actions: "בנייה", apk: "מוכן",
+    decompile: "פירוק", locate: "איתור", patch: "עריכה", rebuild: "בנייה מחדש",
+    strings: "מחרוזות", translate: "תרגום",
+  };
+  // Rough expected-duration weights per stage (seconds) — used only to compute a
+  // live percentage + estimated finish time; the GitHub Actions build stage
+  // dominates and varies most, so the estimate self-corrects against it in
+  // startProgress() below rather than trusting these numbers blindly.
+  const STAGE_WEIGHTS = {
+    enhance: 8, gemini: 16, commit: 3, actions: 90, apk: 10,
+    decompile: 40, locate: 8, patch: 16, rebuild: 75,
+    strings: 4, translate: 14,
   };
 
   const IMAGE_EXT_RE = /\.(png|jpg|jpeg|gif|webp|bmp)$/i;
@@ -1163,6 +1181,7 @@ rebuild, even if that means dropping part of the requested change.`;
   let activeConversationType = null; // "build" | "edit"
   let conversationsCache = [];
   let pendingFirstUploadFile = null; // File chosen before the very first message of a brand-new "edit" conversation
+  let pendingDesignImage = null; // { base64, mime } — optional inspiration image attached before a build starts
   // The one "live" app for the active conversation, kept only in memory for this
   // page session — lets a conversation stay a real back-and-forth chat (build,
   // then "also add this") without re-uploading the APK on every follow-up. Never
@@ -1188,6 +1207,73 @@ rebuild, even if that means dropping part of the requested change.`;
     threadWrap.scrollTop = threadWrap.scrollHeight;
   }
 
+  // Live percentage + estimated finish time, driven entirely through setStage()/
+  // markCurrentStageError() below via a tracker attached to the rail element -
+  // no changes needed at any of the ~20 setStage() call sites across the four
+  // pipelines. The estimate self-corrects: once real stages complete, it starts
+  // pacing the remaining stages off this run's own observed speed rather than
+  // the static STAGE_WEIGHTS baseline.
+  function createProgressBar(container, stageOrder) {
+    const wrap = document.createElement("div");
+    wrap.className = "progress-wrap";
+    const track = document.createElement("div");
+    track.className = "progress-track";
+    const fill = document.createElement("div");
+    fill.className = "progress-fill";
+    track.appendChild(fill);
+    const label = document.createElement("div");
+    label.className = "progress-label";
+    wrap.append(track, label);
+    container.appendChild(wrap);
+
+    const totalWeight = stageOrder.reduce((s, k) => s + (STAGE_WEIGHTS[k] || 20), 0);
+    const startTime = Date.now();
+    let completedWeight = 0;
+    let activeKey = null;
+    let activeStart = startTime;
+    let stopped = false;
+
+    function render() {
+      if (stopped) return;
+      const activeWeight = activeKey ? (STAGE_WEIGHTS[activeKey] || 20) : 0;
+      const elapsedInStage = (Date.now() - activeStart) / 1000;
+      // Creeps toward ~92% of the active stage's own weight even if it runs
+      // long, so the bar keeps visibly moving without ever implying 100%
+      // before setStage(..., "done") for the last stage actually says so.
+      const withinStage = activeWeight * Math.min(0.92, elapsedInStage / activeWeight || 0);
+      const pct = Math.min(97, Math.round(((completedWeight + withinStage) / totalWeight) * 100));
+      fill.style.width = pct + "%";
+
+      const totalElapsedSec = (Date.now() - startTime) / 1000;
+      const secondsPerWeightUnit = completedWeight > 0 ? totalElapsedSec / completedWeight : 1;
+      const remainingWeight = Math.max(0, totalWeight - completedWeight - withinStage);
+      const estRemainingSec = remainingWeight * secondsPerWeightUnit;
+      const finishAt = new Date(Date.now() + estRemainingSec * 1000);
+      const finishLabel = finishAt.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+      label.textContent = `${pct}%  ·  צפוי להסתיים בסביבות ${finishLabel}`;
+    }
+    render();
+    const timer = setInterval(render, 1000);
+
+    return {
+      onStageActive(key) { activeKey = key; activeStart = Date.now(); render(); },
+      onStageDone(key) { completedWeight += STAGE_WEIGHTS[key] || 20; activeKey = null; render(); },
+      finish() {
+        stopped = true;
+        clearInterval(timer);
+        fill.style.width = "100%";
+        label.textContent = "100%  ·  הושלם";
+        wrap.classList.add("done");
+      },
+      error() {
+        stopped = true;
+        clearInterval(timer);
+        wrap.classList.add("error");
+        label.textContent = "נעצר עקב שגיאה";
+      },
+    };
+  }
+
   function setStage(key, state, targetRailEl, stageOrder) {
     const node = targetRailEl.querySelector(`.rail-node[data-key="${key}"]`);
     if (node) {
@@ -1202,11 +1288,19 @@ rebuild, even if that means dropping part of the requested change.`;
       const line = targetRailEl.querySelector(`[data-key="line-${idx + 1}"]`);
       if (line) line.dataset.state = "done";
     }
+    if (targetRailEl._progress) {
+      if (state === "active") targetRailEl._progress.onStageActive(key);
+      if (state === "done") {
+        targetRailEl._progress.onStageDone(key);
+        if (idx === stageOrder.length - 1) targetRailEl._progress.finish();
+      }
+    }
   }
 
   function markCurrentStageError(targetRailEl) {
     const active = targetRailEl.querySelector('.rail-node[data-state="active"]');
     if (active) active.dataset.state = "error";
+    if (targetRailEl._progress) targetRailEl._progress.error();
   }
 
   function setBusyBtn(btn, busy, busyLabel, idleLabel) {
@@ -1470,22 +1564,32 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // Reveals each translated value into its row in sequence with a small
   // stagger, so it visibly happens string-by-string instead of all at once.
-  async function revealTranslationsProgressively(rows, translations) {
+  async function revealTranslationsProgressively(rows, translations, revertedKeys) {
     for (const [key, value] of Object.entries(translations)) {
       const newEl = rows[key];
       if (newEl) {
+        const wasReverted = revertedKeys && revertedKeys.has(key);
         newEl.textContent = value;
-        newEl.title = value;
-        newEl.closest(".translate-string-row").classList.add("done");
+        newEl.title = wasReverted ? "הוחזר למקור לשמירה על תווי קוד" : value;
+        const row = newEl.closest(".translate-string-row");
+        row.classList.add("done");
+        row.classList.toggle("reverted", !!wasReverted);
       }
       await sleep(70);
     }
   }
 
   // ---------- 1. Gemini: generate the app ----------
-  async function generateAppCode(geminiKeys, idea, thinkLevel, logTarget) {
+  async function generateAppCode(geminiKeys, idea, thinkLevel, logTarget, designImage) {
+    const parts = [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }];
+    if (designImage) {
+      parts[0].text += "\n\nThe user also attached an inspiration image (below) - reflect its color " +
+        "palette and general visual mood in your icon and in the color choices you make for the " +
+        "code-built UI, without trying to literally reproduce the image itself.";
+      parts.push({ inline_data: { mime_type: designImage.mime, data: designImage.base64 } });
+    }
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }] }],
+      contents: [{ role: "user", parts }],
       generationConfig: {
         responseMimeType: "application/json",
         temperature: 0.4,
@@ -1673,9 +1777,25 @@ rebuild, even if that means dropping part of the requested change.`;
     const map = {};
     doc.querySelectorAll("resources > string").forEach((el) => {
       const name = el.getAttribute("name");
-      if (name) map[name] = el.textContent;
+      // Respect Android's own convention: translatable="false" marks a string that
+      // must never be translated (e.g. a URL, a technical constant) - skip it
+      // entirely rather than sending it to Gemini.
+      if (name && el.getAttribute("translatable") !== "false") map[name] = el.textContent;
     });
     return map;
+  }
+
+  // Extracts every code-facing token from a string that MUST survive translation
+  // unchanged - printf-style specifiers (%s, %1$s, %.2f...), {0}-style indices,
+  // and escape sequences (\n, \t) - as a sorted list, so two strings can be
+  // compared for "same tokens, same multiplicity" regardless of surrounding text.
+  function extractProtectedTokens(text) {
+    const matches = String(text).match(/%\d*\$?[-+ 0#]*\d*(?:\.\d+)?[sdfeEgGxXocb%]|\{\d+\}|\\[nt]/g) || [];
+    return matches.sort();
+  }
+  function sameProtectedTokens(a, b) {
+    const ta = extractProtectedTokens(a), tb = extractProtectedTokens(b);
+    return ta.length === tb.length && ta.every((t, i) => t === tb[i]);
   }
 
   // Builds a new strings.xml with the same <string name="x"> entries but
@@ -1979,7 +2099,9 @@ rebuild, even if that means dropping part of the requested change.`;
             rail.appendChild(line);
           }
         });
+        const progress = createProgressBar(body, stageOrder);
         body.appendChild(rail);
+        rail._progress = progress;
         scrollThreadToEnd();
         return rail;
       },
@@ -2193,7 +2315,7 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   // ---------- BUILD: enhance/clarify → generate → commit → build (auto-fix retry) ----------
-  async function runBuildTurn(idea) {
+  async function runBuildTurn(idea, designImage) {
     const { geminiKeys, token, owner, repo, branch } = readConnections();
     const isRegular = !currentUser || currentUser.role === "regular";
     const turn = appendAssistantTurn("בונה אפליקציה");
@@ -2206,7 +2328,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const spend = await backendCall("spendCredits", { pipelineAction: "build" }).catch((e) => ({ ok: false, error: e.message }));
     if (!spend.ok) { turn.setStatus(spend.error, "error-text"); return; }
     refreshCreditsDisplay(spend);
-    recordTurn("user", "build", idea);
+    recordTurn("user", "build", idea + (designImage ? " (עם תמונת השראה)" : ""));
 
     const rail = turn.createRail(STAGE_ORDER);
     const logBox = turn.createLog();
@@ -2240,8 +2362,8 @@ rebuild, even if that means dropping part of the requested change.`;
       setStage("enhance", "done", rail, STAGE_ORDER);
 
       setStage("gemini", "active", rail, STAGE_ORDER);
-      log("שולח את הפרומפט ל-Gemini…", null, logBox);
-      let { manifest, kotlin, icon } = await generateAppCode(geminiKeys, workingIdea, selectedThinkLevel, logBox);
+      log(designImage ? "שולח את הפרומפט ותמונת ההשראה ל-Gemini…" : "שולח את הפרומפט ל-Gemini…", null, logBox);
+      let { manifest, kotlin, icon } = await generateAppCode(geminiKeys, workingIdea, selectedThinkLevel, logBox, designImage);
       setStage("gemini", "done", rail, STAGE_ORDER);
       const preview = renderAppPreview(manifest, icon);
 
@@ -2295,6 +2417,106 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
       recordTurn("assistant", "build", "הבנייה נכשלה: " + err.message, false);
+    } finally {
+      setComposerBusy(false);
+    }
+  }
+
+  // ---------- BUILD FROM SOURCE: user's own Kotlin, Gemini only fills manifest+icon ----------
+  // Reuses the exact same commit → build (auto-fix retry) → download flow as a
+  // normal build; the only difference is the "kotlin" field comes from the
+  // uploaded file instead of Gemini generation. If it fails to compile, the same
+  // auto-fix loop kicks in and may adjust the uploaded code to make it build —
+  // the UI discloses this before the upload runs.
+  async function runBuildFromSourceTurn(kotlinSource, manifestProvided) {
+    const { geminiKeys, token, owner, repo, branch } = readConnections();
+    const isRegular = !currentUser || currentUser.role === "regular";
+    const turn = appendAssistantTurn("בונה מקוד מקור שהועלה");
+
+    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !kotlinSource.trim()) {
+      turn.setStatus("חסרים חיבורים, או שקובץ הקוד ריק.", "error-text");
+      return;
+    }
+
+    const spend = await backendCall("spendCredits", { pipelineAction: "build" }).catch((e) => ({ ok: false, error: e.message }));
+    if (!spend.ok) { turn.setStatus(spend.error, "error-text"); return; }
+    refreshCreditsDisplay(spend);
+    recordTurn("user", "build", `העלאת קוד מקור (${kotlinSource.length} תווים)${manifestProvided ? " + manifest" : ""}`);
+
+    const rail = turn.createRail(STAGE_ORDER);
+    const logBox = turn.createLog();
+    setComposerBusy(true);
+    try {
+      setStage("enhance", "active", rail, STAGE_ORDER);
+      log("קוד המקור שהועלה יישמר כמו שהוא — לא נשלח ל-Gemini לשכתוב.", null, logBox);
+      setStage("enhance", "done", rail, STAGE_ORDER);
+
+      setStage("gemini", "active", rail, STAGE_ORDER);
+      log(manifestProvided ? "מבקש מ-Gemini אייקון מתאים לקוד…" : "מבקש מ-Gemini manifest ואייקון מתאימים לקוד…", null, logBox);
+      const sourceIdea =
+        `The user has their OWN complete, working Kotlin MainActivity source (shown below) and wants ` +
+        `ONLY a matching "icon"${manifestProvided ? "" : ' and "manifest"'} generated for it - you do not need to ` +
+        `write real Kotlin yourself, output the "kotlin" field as just the single line ` +
+        `"// provided by user, discarded" since it will be ignored and replaced with their actual ` +
+        `uploaded file. Infer the app's purpose, a fitting android:label, and an appropriate icon from ` +
+        `reading the source below.\n\nUploaded MainActivity.kt:\n${kotlinSource}`;
+      const generated = await generateAppCode(geminiKeys, sourceIdea, selectedThinkLevel, logBox);
+      const manifest0 = manifestProvided || generated.manifest;
+      const icon0 = generated.icon;
+      setStage("gemini", "done", rail, STAGE_ORDER);
+      const preview = renderAppPreview(manifest0, icon0);
+
+      let manifest = manifest0, kotlin = kotlinSource, icon = icon0;
+      let commitSha, run;
+      for (let attempt = 1; attempt <= MAX_AUTO_FIX_ATTEMPTS + 1; attempt++) {
+        setStage("commit", "active", rail, STAGE_ORDER);
+        log(`מבצע commit ל-${owner}/${repo} (${branch})…`, null, logBox);
+        commitSha = await commitGeneratedApp({ owner, repo, branch, token, manifestXml: manifest, kotlinSource: kotlin, iconXml: icon });
+        log(`Commit נוצר: ${commitSha.slice(0, 7)}`, "ok", logBox);
+        setStage("commit", "done", rail, STAGE_ORDER);
+
+        setStage("actions", "active", rail, STAGE_ORDER);
+        try {
+          run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: WORKFLOW_FILE, logTarget: logBox });
+          log("ה-build הצליח", "ok", logBox);
+          setStage("actions", "done", rail, STAGE_ORDER);
+          break;
+        } catch (buildErr) {
+          if (attempt > MAX_AUTO_FIX_ATTEMPTS) throw buildErr;
+          log(`ה-build נכשל (ניסיון ${attempt} מתוך ${MAX_AUTO_FIX_ATTEMPTS + 1}): ${buildErr.message}`, "error", logBox);
+          log("שולף לוג שגיאה ומנסה לתקן את הקוד שהועלה עם Gemini…", null, logBox);
+          let errorLog;
+          try {
+            errorLog = await fetchWorkflowRunLog({ owner, repo, token, runId: buildErr.runId });
+          } catch (logFetchErr) {
+            errorLog = `(לא הצלחתי לשלוף לוג מפורט: ${logFetchErr.message}) conclusion error: ${buildErr.message}`;
+          }
+          try {
+            const fixed = await generateAppCodeFix(geminiKeys, "User-uploaded source code build", { manifest, kotlin, icon }, errorLog, selectedThinkLevel, logBox);
+            manifest = fixed.manifest; kotlin = fixed.kotlin; icon = fixed.icon;
+            log("Gemini החזיר קוד מתוקן (כולל התאמות לקוד שהעלית), מנסה שוב…", "ok", logBox);
+          } catch (fixErr) {
+            console.error(fixErr);
+            throw buildErr;
+          }
+        }
+      }
+
+      setStage("apk", "active", rail, STAGE_ORDER);
+      const apkBlob = await downloadApk({ owner, repo, token, runId: run.id, artifactName: "app-release.apk", logTarget: logBox });
+      setStage("apk", "done", rail, STAGE_ORDER);
+
+      const base64 = await blobToBase64(apkBlob);
+      currentApk = { base64, name: preview.label };
+      turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
+      turn.setStatus("מוכן — האפליקציה מהקוד שהעלית מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
+      recordTurn("assistant", "build", "נבנה בהצלחה מקוד מקור: " + preview.label, true);
+      onLiveApkReady();
+    } catch (err) {
+      console.error(err);
+      turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
+      markCurrentStageError(rail);
+      recordTurn("assistant", "build", "הבנייה מקוד מקור נכשלה: " + err.message, false);
     } finally {
       setComposerBusy(false);
     }
@@ -2433,9 +2655,28 @@ rebuild, even if that means dropping part of the requested change.`;
 
       setStage("translate", "active", rail, TRANSLATE_STAGE_ORDER);
       log(`מתרגם ל"${targetLanguage}" עם Gemini…`, null, logBox);
-      const { langCode, translations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logBox);
+      const { langCode, translations: rawTranslations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logBox);
+      // Safety net beyond the prompt instructions: verify every %s / %1$s / {0} / \n
+      // survived intact before trusting a translation. If Gemini altered one, keep
+      // the original text for that specific string rather than risk a
+      // String.format crash at runtime over a single mistranslated placeholder.
+      const translations = {};
+      const revertedKeys = new Set();
+      let revertedCount = 0;
+      for (const [key, original] of Object.entries(stringsMap)) {
+        const candidate = rawTranslations[key];
+        if (typeof candidate === "string" && sameProtectedTokens(original, candidate)) {
+          translations[key] = candidate;
+        } else {
+          translations[key] = original;
+          if (typeof candidate === "string") { revertedKeys.add(key); revertedCount++; }
+        }
+      }
+      if (revertedCount > 0) {
+        log(`${revertedCount} מחרוזות הוחזרו לטקסט המקורי כי תווי הקוד (כמו %s) לא נשמרו בדיוק בתרגום`, null, logBox);
+      }
       const translatedXml = buildTranslatedStringsXml(originalXml, translations);
-      await revealTranslationsProgressively(stringRows, translations);
+      await revealTranslationsProgressively(stringRows, translations, revertedKeys);
       log(`תורגם, קוד שפה: ${langCode}`, "ok", logBox);
       setStage("translate", "done", rail, TRANSLATE_STAGE_ORDER);
 
@@ -2601,7 +2842,9 @@ warm line acknowledging you're starting the build now (shown right before the bu
       if (routed.intent === "build") {
         activeConversationType = "build";
         updateComposerForState();
-        await runBuildTurn(text);
+        const image = pendingDesignImage;
+        pendingDesignImage = null;
+        await runBuildTurn(text, image);
       } else {
         const turn = appendAssistantTurn("עוזר");
         turn.setStatus(routed.reply, null);
@@ -2978,7 +3221,9 @@ image clearly and unambiguously depicts it.`;
     if (!activeConversationType && !currentApk) {
       await runChatOrBuild(text);
     } else if (activeConversationType === "build" && !currentApk) {
-      await runBuildTurn(text);
+      const image = pendingDesignImage;
+      pendingDesignImage = null;
+      await runBuildTurn(text, image);
     } else if (currentApk) {
       await runEditOrChat(text);
     } else {
@@ -3282,8 +3527,133 @@ image clearly and unambiguously depicts it.`;
       });
       wrap.appendChild(grid);
     }
+
+    if (activeConversationType === "build") {
+      wrap.appendChild(buildAltOptionsRow());
+    }
     threadEl.appendChild(wrap);
   }
+
+  // Two alternative starting points for a build conversation, besides typing an
+  // idea: compiling the user's own uploaded Kotlin source directly, or
+  // attaching an image for Gemini to draw color/style inspiration from.
+  function buildAltOptionsRow() {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex; gap:8px; margin-top:16px;";
+
+    const sourceBtn = document.createElement("button");
+    sourceBtn.type = "button";
+    sourceBtn.className = "action-chip";
+    sourceBtn.appendChild(iconEl("package"));
+    sourceBtn.append(" בנייה מקוד מקור שהעליתי");
+
+    const imageBtn = document.createElement("button");
+    imageBtn.type = "button";
+    imageBtn.className = "action-chip";
+    imageBtn.appendChild(iconEl("image"));
+    imageBtn.append(pendingDesignImage ? " תמונת השראה מצורפת ✓" : " הוספת תמונת השראה לעיצוב");
+    if (pendingDesignImage) imageBtn.classList.add("active");
+
+    const panelHost = document.createElement("div");
+    panelHost.style.marginTop = "10px";
+
+    sourceBtn.addEventListener("click", () => {
+      panelHost.innerHTML = "";
+      panelHost.appendChild(buildSourceCodePanel());
+    });
+    imageBtn.addEventListener("click", () => {
+      if (pendingDesignImage) { pendingDesignImage = null; renderThreadEmptyPlaceholder(); return; }
+      panelHost.innerHTML = "";
+      panelHost.appendChild(buildDesignImagePanel());
+    });
+
+    row.append(sourceBtn, imageBtn);
+    const wrap = document.createElement("div");
+    wrap.style.width = "100%";
+    wrap.style.maxWidth = "520px";
+    wrap.append(row, panelHost);
+    return wrap;
+  }
+
+  function buildSourceCodePanel() {
+    const panel = document.createElement("div");
+    panel.className = "inline-panel";
+    panel.style.textAlign = "right";
+    const head = document.createElement("div");
+    head.className = "inline-panel-head";
+    const title = document.createElement("span");
+    title.className = "inline-panel-title";
+    title.textContent = "בנייה מקוד מקור";
+    head.appendChild(title);
+    const hint = document.createElement("p");
+    hint.className = "hint-text";
+    hint.style.marginBottom = "10px";
+    hint.textContent = "מעלים קובץ MainActivity.kt מוכן — המערכת תקמפל ותחתום אותו ישירות, בלי שכתוב על ידי Gemini. אם הוא לא יתקמפל, תופעל תיקון אוטומטי (שעשוי לשנות את הקוד כדי שיבנה).";
+
+    const ktField = document.createElement("div");
+    ktField.className = "field";
+    ktField.innerHTML = '<label class="field-label">MainActivity.kt (חובה)</label>';
+    const ktInput = document.createElement("input");
+    ktInput.type = "file"; ktInput.accept = ".kt,text/plain";
+    ktField.appendChild(ktInput);
+
+    const manField = document.createElement("div");
+    manField.className = "field";
+    manField.innerHTML = '<label class="field-label">AndroidManifest.xml (אופציונלי — אם לא תעלו, ייווצר אוטומטית)</label>';
+    const manInput = document.createElement("input");
+    manInput.type = "file"; manInput.accept = ".xml,text/xml";
+    manField.appendChild(manInput);
+
+    const goBtn = document.createElement("button");
+    goBtn.type = "button";
+    goBtn.className = "btn primary block";
+    goBtn.textContent = "בנה מהקוד";
+    goBtn.disabled = true;
+    ktInput.addEventListener("change", () => { goBtn.disabled = !ktInput.files[0]; });
+    goBtn.addEventListener("click", async () => {
+      const ktFile = ktInput.files[0];
+      if (!ktFile) return;
+      const kotlinSource = await ktFile.text();
+      const manifestFile = manInput.files[0];
+      const manifestXml = manifestFile ? await manifestFile.text() : null;
+      appendUserTurn(`קוד מקור שהועלה: ${ktFile.name}${manifestFile ? ` + ${manifestFile.name}` : ""}`, "package");
+      panel.remove();
+      await runBuildFromSourceTurn(kotlinSource, manifestXml);
+      loadConversationsList();
+    });
+
+    panel.append(head, hint, ktField, manField, goBtn);
+    return panel;
+  }
+
+  function buildDesignImagePanel() {
+    const panel = document.createElement("div");
+    panel.className = "inline-panel";
+    const head = document.createElement("div");
+    head.className = "inline-panel-head";
+    const title = document.createElement("span");
+    title.className = "inline-panel-title";
+    title.textContent = "תמונת השראה לעיצוב";
+    head.appendChild(title);
+    const hint = document.createElement("p");
+    hint.className = "hint-text";
+    hint.style.marginBottom = "10px";
+    hint.textContent = "התמונה משפיעה על צבעי האייקון והממשק שייווצרו (לא מוטמעת כמו שהיא בתוך האפליקציה).";
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.addEventListener("change", async () => {
+      const file = input.files[0];
+      if (!file) return;
+      const base64 = await blobToBase64(file);
+      pendingDesignImage = { base64, mime: file.type || "image/png" };
+      renderThreadEmptyPlaceholder();
+      composerInput.focus();
+    });
+    panel.append(head, hint, input);
+    return panel;
+  }
+
 
   function startNewConversationPicker(type) {
     activeConversationType = type || null;
