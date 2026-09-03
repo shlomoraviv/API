@@ -1314,20 +1314,60 @@ rebuild, even if that means dropping part of the requested change.`;
   // application/json) on purpose: Apps Script Web Apps don't handle the CORS
   // preflight that application/json triggers, and text/plain avoids it
   // entirely — doPost() on the backend parses the body as JSON regardless.
+  const BACKEND_RETRY_ATTEMPTS = 3;
+  const BACKEND_RETRY_DELAY_MS = 1200;
+  // Read-only / idempotent actions only — a lost response and a blind retry can
+  // never double an effect here. Actions like spendCredits, appendMessage, and
+  // createConversation are deliberately excluded: if the first attempt actually
+  // reached the server and only the response was lost, retrying those could
+  // double-charge credits or duplicate data. Those fail fast on the first miss
+  // instead — safer than a silent duplicate, and the person can just resend.
+  const BACKEND_RETRY_SAFE_ACTIONS = new Set([
+    "whoami", "getPublicInfo", "listConversations", "getConversation",
+    "adminListUsers", "adminGetConfig", "adminGetSiteText", "adminListAllConversations", "adminGetApiKeys",
+    "geminiGenerate", "githubBinary",
+  ]);
+  function isBackendRetrySafe(action, params) {
+    if (BACKEND_RETRY_SAFE_ACTIONS.has(action)) return true;
+    // githubJson proxies arbitrary GitHub REST calls — only its GETs are read-only;
+    // POST/PATCH (creating blobs/trees/commits, moving a ref) must not be retried blindly.
+    if (action === "githubJson") return (params.method || "GET").toUpperCase() === "GET";
+    return false;
+  }
+
   async function backendCall(action, params = {}) {
     const payload = Object.assign({ action, token: currentUser ? currentUser.token : undefined }, params);
-    let res;
-    try {
-      res = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-      });
-    } catch (networkErr) {
-      throw new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
+    const retrySafe = isBackendRetrySafe(action, params);
+    const attempts = retrySafe ? BACKEND_RETRY_ATTEMPTS : 1;
+    let lastErr;
+
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      let res;
+      try {
+        res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+        });
+      } catch (networkErr) {
+        lastErr = new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
+        if (attempt < attempts) {
+          console.warn(`backendCall(${action}) network error, retrying (${attempt}/${attempts})…`, networkErr);
+          await sleep(BACKEND_RETRY_DELAY_MS * attempt);
+          continue;
+        }
+        throw lastErr;
+      }
+      if (res.ok) return res.json();
+      lastErr = new Error(`שגיאת שרת (HTTP ${res.status}).`);
+      // Apps Script Web Apps occasionally 404/500 transiently (cold starts, quota
+      // hiccups) even when the deployment itself is perfectly healthy.
+      const transientStatus = res.status === 404 || res.status === 429 || res.status >= 500;
+      if (!transientStatus || attempt >= attempts) throw lastErr;
+      console.warn(`backendCall(${action}) got HTTP ${res.status}, retrying (${attempt}/${attempts})…`);
+      await sleep(BACKEND_RETRY_DELAY_MS * attempt);
     }
-    if (!res.ok) throw new Error(`שגיאת שרת (HTTP ${res.status}).`);
-    return res.json();
+    throw lastErr;
   }
 
   // ---------- GitHub REST helper ----------
