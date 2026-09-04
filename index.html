@@ -1853,18 +1853,72 @@ rebuild, even if that means dropping part of the requested change.`;
     return new XMLSerializer().serializeToString(doc);
   }
 
-  async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget) {
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(stringsMap)}` }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
-    const parsed = parseJsonLoose(raw);
-    if (!parsed || !parsed.langCode || typeof parsed.translations !== "object") {
-      throw new Error(`Gemini's translation reply is missing "langCode" or "translations".`);
+  const TRANSLATE_BATCH_SIZE = 150;
+
+  // Translates a single batch with up to 3 retries on transient failures.
+  async function translateStringsBatch(geminiKeys, targetLanguage, batchMap, logTarget) {
+    let lastErr;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      let data;
+      try {
+        data = await callGemini(geminiKeys, {
+          contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(batchMap)}` }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+        }, logTarget);
+      } catch (e) {
+        lastErr = e;
+        if (attempt < 3) await sleep(1500 * attempt);
+        continue;
+      }
+      const { raw, finishReason } = extractGeminiText(data);
+      if (!raw) {
+        lastErr = new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
+        if (attempt < 3) await sleep(1500 * attempt);
+        continue;
+      }
+      const parsed = parseJsonLoose(raw);
+      if (!parsed || typeof parsed.translations !== "object") {
+        lastErr = new Error(`Gemini's translation reply is missing "translations" (finishReason: ${finishReason}).`);
+        if (attempt < 3) await sleep(1500 * attempt);
+        continue;
+      }
+      return parsed;
     }
-    return parsed;
+    throw lastErr || new Error("תרגום הקבוצה נכשל לאחר 3 ניסיונות.");
+  }
+
+  // Translates all strings in batches of TRANSLATE_BATCH_SIZE to avoid
+  // MAX_TOKENS errors when an app has many strings. Each batch is retried
+  // independently; the langCode is taken from the first successful batch.
+  async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget) {
+    const allKeys = Object.keys(stringsMap);
+    if (allKeys.length === 0) throw new Error("אין מחרוזות לתרגום.");
+
+    const batches = [];
+    for (let i = 0; i < allKeys.length; i += TRANSLATE_BATCH_SIZE) {
+      const batchKeys = allKeys.slice(i, i + TRANSLATE_BATCH_SIZE);
+      const batchMap = {};
+      batchKeys.forEach((k) => { batchMap[k] = stringsMap[k]; });
+      batches.push(batchMap);
+    }
+
+    const totalBatches = batches.length;
+    let langCode = "";
+    const mergedTranslations = {};
+
+    for (let bi = 0; bi < totalBatches; bi++) {
+      if (totalBatches > 1) {
+        log(`מתרגם קבוצה ${bi + 1} מתוך ${totalBatches} (${Object.keys(batches[bi]).length} מחרוזות)…`, null, logTarget);
+      }
+      const result = await translateStringsBatch(geminiKeys, targetLanguage, batches[bi], logTarget);
+      if (!langCode && result.langCode) langCode = result.langCode;
+      Object.assign(mergedTranslations, result.translations || {});
+      // Brief pause between batches to avoid hammering the API rate limit.
+      if (totalBatches > 1 && bi < totalBatches - 1) await sleep(300);
+    }
+
+    if (!langCode) throw new Error(`Gemini's translation reply is missing "langCode".`);
+    return { langCode, translations: mergedTranslations };
   }
 
   // ---------- file selection & patching helpers (edit mode) ----------
@@ -2693,7 +2747,8 @@ if (runs && runs.workflow_runs && runs.workflow_runs.length > 0) {          runI
       setStage("strings", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("translate", "active", rail, TRANSLATE_STAGE_ORDER);
-      log(`מתרגם ל"${targetLanguage}" עם Gemini…`, null, logBox);
+      const batchCount = Math.ceil(count / TRANSLATE_BATCH_SIZE);
+      log(`מתרגם ל"${targetLanguage}" עם Gemini${batchCount > 1 ? ` (${batchCount} קבוצות של עד ${TRANSLATE_BATCH_SIZE} מחרוזות)` : ""}…`, null, logBox);
       const { langCode, translations: rawTranslations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logBox);
       // Safety net beyond the prompt instructions: verify every %s / %1$s / {0} / \n
       // survived intact before trusting a translation. If Gemini altered one, keep
