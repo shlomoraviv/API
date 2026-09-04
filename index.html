@@ -861,7 +861,7 @@
   const WORKFLOW_FILE = "build-apk.yml";
   const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
-  const POLL_TIMEOUT_MS = 10 * 60 * 1000;
+  const POLL_TIMEOUT_MS = 20 * 60 * 1000;
   const MAX_AUTO_FIX_ATTEMPTS = 3;
   const MAX_LOG_CHARS = 6000;
   const MAX_GITHUB_READ_ATTEMPTS = 3;
@@ -1985,37 +1985,49 @@ rebuild, even if that means dropping part of the requested change.`;
   async function waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile, logTarget }) {
     const start = Date.now();
     let runId = null, runUrl = null, runNumber = null;
+    let consecutiveErrors = 0;
 
     while (Date.now() - start < POLL_TIMEOUT_MS) {
-      if (!runId) {
-        const runs = await gh(
-          `/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs?head_sha=${commitSha}&per_page=5`,
-          token
-        );
-if (runs && runs.workflow_runs && runs.workflow_runs.length > 0) {          runId = runs.workflow_runs[0].id;
-          runUrl = runs.workflow_runs[0].html_url;
-          runNumber = runs.workflow_runs[0].run_number;
-          log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
-        } else {
-          log("ממתין ש-GitHub Actions יתפוס את ה-commit…", null, logTarget);
-          await sleep(POLL_INTERVAL_MS);
-          continue;
+      try {
+        if (!runId) {
+          const runs = await gh(
+            `/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs?head_sha=${commitSha}&per_page=5`,
+            token
+          );
+          if (runs && runs.workflow_runs && runs.workflow_runs.length > 0) {
+            runId = runs.workflow_runs[0].id;
+            runUrl = runs.workflow_runs[0].html_url;
+            runNumber = runs.workflow_runs[0].run_number;
+            log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
+            consecutiveErrors = 0;
+          } else {
+            log("ממתין ש-GitHub Actions יתפוס את ה-commit…", null, logTarget);
+            await sleep(POLL_INTERVAL_MS);
+            continue;
+          }
         }
-      }
 
-      const run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
-      log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`, null, logTarget);
+        const run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
+        consecutiveErrors = 0;
+        log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`, null, logTarget);
 
-      if (run.status === "completed") {
-        if (run.conclusion === "success") return run;
-        const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
-        err.runUrl = runUrl;
-        err.runId = runId;
-        throw err;
+        if (run.status === "completed") {
+          if (run.conclusion === "success") return run;
+          const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
+          err.runUrl = runUrl;
+          err.runId = runId;
+          throw err;
+        }
+      } catch (pollErr) {
+        // Re-throw terminal errors (non-transient) immediately.
+        if (pollErr.runId !== undefined || pollErr.runUrl !== undefined) throw pollErr;
+        consecutiveErrors++;
+        if (consecutiveErrors >= 5) throw pollErr;
+        log(`שגיאת בדיקת סטטוס (${consecutiveErrors}/5): ${pollErr.message} — ממשיך לנסות…`, null, logTarget);
       }
       await sleep(POLL_INTERVAL_MS);
     }
-    const timeoutErr = new Error("עברו 10 דקות בלי שה-build הסתיים.");
+    const timeoutErr = new Error(`עברו ${Math.round(POLL_TIMEOUT_MS / 60000)} דקות בלי שה-build הסתיים.`);
     timeoutErr.runUrl = runUrl;
     timeoutErr.runId = runId;
     throw timeoutErr;
