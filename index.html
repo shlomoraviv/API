@@ -890,6 +890,12 @@
   const MAX_EDIT_CANDIDATE_FILES = 60; // path list shown to Gemini when it picks what to open
   const MAX_EDIT_PATCH_FILES = 6;      // hard cap on files Gemini may rewrite per attempt
   const MAX_DECOMPILE_AUTO_FIX_ATTEMPTS = 3;
+  // A large Android app can easily contain hundreds of string resources. Sending
+  // all of them in one JSON response can exceed Gemini's output limit, leaving
+  // the response truncated and impossible to parse. Keep every translation
+  // request comfortably below that limit instead.
+  const TRANSLATE_MAX_STRINGS_PER_BATCH = 40;
+  const TRANSLATE_MAX_JSON_CHARS_PER_BATCH = 6000;
   // Own-app smali usually lives under a path matching the manifest's package name; these
   // path fragments are common third-party SDKs/libraries that are almost never what a user
   // means by "edit my app", so they're filtered out even if they happen to match the package.
@@ -1859,18 +1865,88 @@ rebuild, even if that means dropping part of the requested change.`;
     return new XMLSerializer().serializeToString(doc);
   }
 
-  async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget) {
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(stringsMap)}` }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
-    const parsed = parseJsonLoose(raw);
-    if (!parsed || !parsed.langCode || typeof parsed.translations !== "object") {
-      throw new Error(`Gemini's translation reply is missing "langCode" or "translations".`);
+  function splitStringsForTranslation(stringsMap) {
+    const batches = [];
+    let batch = {};
+    let batchCount = 0;
+    let batchJsonChars = 2; // the opening and closing braces of a JSON object
+
+    for (const [key, value] of Object.entries(stringsMap)) {
+      // Measure the actual JSON representation, not just the visible text: JSON
+      // escaping can add substantially to the request size for some apps.
+      const entryJsonChars = JSON.stringify({ [key]: value }).length + (batchCount ? 1 : 0);
+      const batchIsFull =
+        batchCount >= TRANSLATE_MAX_STRINGS_PER_BATCH ||
+        batchJsonChars + entryJsonChars > TRANSLATE_MAX_JSON_CHARS_PER_BATCH;
+
+      if (batchCount > 0 && batchIsFull) {
+        batches.push(batch);
+        batch = {};
+        batchCount = 0;
+        batchJsonChars = 2;
+      }
+
+      // A single exceptionally long resource still gets its own request. It is
+      // safer to submit it intact than to split one Android string in the middle.
+      batch[key] = value;
+      batchCount++;
+      batchJsonChars += entryJsonChars;
     }
-    return parsed;
+
+    if (batchCount > 0) batches.push(batch);
+    return batches;
+  }
+
+  function normalizeAndroidLanguageCode(langCode) {
+    const code = String(langCode || "").trim();
+    // The translation prompt asks Gemini for ISO 639 language codes. Permit an
+    // optional Android region qualifier too (for example zh-rCN), but reject
+    // anything that could produce an invalid resource path.
+    if (!/^[a-z]{2,3}(?:-r[A-Z]{2})?$/.test(code)) {
+      throw new Error(`Gemini returned an invalid Android language code: "${code}".`);
+    }
+    return code;
+  }
+
+  async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget) {
+    const batches = splitStringsForTranslation(stringsMap);
+    const translations = {};
+    let langCode = "";
+
+    for (let index = 0; index < batches.length; index++) {
+      const batch = batches[index];
+      const batchNumber = index + 1;
+      log(`מתרגם קבוצת מחרוזות ${batchNumber} מתוך ${batches.length}…`, null, logTarget);
+      const data = await callGemini(geminiKeys, {
+        contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(batch)}` }] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+      }, logTarget);
+      const { raw, finishReason } = extractGeminiText(data);
+      if (!raw) {
+        throw new Error(`Gemini returned no usable translation for batch ${batchNumber}/${batches.length} (finishReason: ${finishReason}).`);
+      }
+      const parsed = parseJsonLoose(raw);
+      if (!parsed || !parsed.langCode || !parsed.translations || typeof parsed.translations !== "object") {
+        throw new Error(`Gemini's translation reply for batch ${batchNumber}/${batches.length} is missing "langCode" or "translations".`);
+      }
+
+      const batchLangCode = normalizeAndroidLanguageCode(parsed.langCode);
+      if (langCode && langCode !== batchLangCode) {
+        throw new Error(`Gemini returned conflicting language codes: "${langCode}" and "${batchLangCode}".`);
+      }
+      langCode = batchLangCode;
+
+      // Ignore any invented keys. Missing or malformed values are deliberately
+      // left absent here; the existing token-safety pass below keeps their
+      // original strings instead of risking invalid Android resources.
+      for (const key of Object.keys(batch)) {
+        if (typeof parsed.translations[key] === "string") {
+          translations[key] = parsed.translations[key];
+        }
+      }
+    }
+
+    return { langCode, translations };
   }
 
   // ---------- file selection & patching helpers (edit mode) ----------
