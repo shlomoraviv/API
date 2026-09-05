@@ -861,7 +861,7 @@
   const WORKFLOW_FILE = "build-apk.yml";
   const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
-  const POLL_TIMEOUT_MS = 20 * 60 * 1000;
+  const POLL_TIMEOUT_MS = 10 * 60 * 1000;
   const MAX_AUTO_FIX_ATTEMPTS = 3;
   const MAX_LOG_CHARS = 6000;
   const MAX_GITHUB_READ_ATTEMPTS = 3;
@@ -1419,6 +1419,12 @@ rebuild, even if that means dropping part of the requested change.`;
         if (result.status) err.status = result.status;
         throw err;
       }
+      if (result.data === undefined || result.data === null) {
+        // הגנה: לא אמור לקרות מול הבקאנד המתוקן, אבל אם בכל זאת יקרה — נכשל
+        // כאן בבירור עם הודעה מובנת, במקום להחזיר undefined ולתת לקורא (למשל
+        // waitForWorkflowRun) לקרוס עם שגיאת JS גולמית וחסרת הקשר.
+        throw new Error(`בקשת GitHub ל-${path} חזרה בלי תוכן.`);
+      }
       return result.data;
     }
     const res = await githubFetch(path, token, options);
@@ -1853,72 +1859,18 @@ rebuild, even if that means dropping part of the requested change.`;
     return new XMLSerializer().serializeToString(doc);
   }
 
-  const TRANSLATE_BATCH_SIZE = 150;
-
-  // Translates a single batch with up to 3 retries on transient failures.
-  async function translateStringsBatch(geminiKeys, targetLanguage, batchMap, logTarget) {
-    let lastErr;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      let data;
-      try {
-        data = await callGemini(geminiKeys, {
-          contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(batchMap)}` }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
-        }, logTarget);
-      } catch (e) {
-        lastErr = e;
-        if (attempt < 3) await sleep(1500 * attempt);
-        continue;
-      }
-      const { raw, finishReason } = extractGeminiText(data);
-      if (!raw) {
-        lastErr = new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
-        if (attempt < 3) await sleep(1500 * attempt);
-        continue;
-      }
-      const parsed = parseJsonLoose(raw);
-      if (!parsed || typeof parsed.translations !== "object") {
-        lastErr = new Error(`Gemini's translation reply is missing "translations" (finishReason: ${finishReason}).`);
-        if (attempt < 3) await sleep(1500 * attempt);
-        continue;
-      }
-      return parsed;
-    }
-    throw lastErr || new Error("תרגום הקבוצה נכשל לאחר 3 ניסיונות.");
-  }
-
-  // Translates all strings in batches of TRANSLATE_BATCH_SIZE to avoid
-  // MAX_TOKENS errors when an app has many strings. Each batch is retried
-  // independently; the langCode is taken from the first successful batch.
   async function translateStrings(geminiKeys, targetLanguage, stringsMap, logTarget) {
-    const allKeys = Object.keys(stringsMap);
-    if (allKeys.length === 0) throw new Error("אין מחרוזות לתרגום.");
-
-    const batches = [];
-    for (let i = 0; i < allKeys.length; i += TRANSLATE_BATCH_SIZE) {
-      const batchKeys = allKeys.slice(i, i + TRANSLATE_BATCH_SIZE);
-      const batchMap = {};
-      batchKeys.forEach((k) => { batchMap[k] = stringsMap[k]; });
-      batches.push(batchMap);
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(stringsMap)}` }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+    }, logTarget);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable translation (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !parsed.langCode || typeof parsed.translations !== "object") {
+      throw new Error(`Gemini's translation reply is missing "langCode" or "translations".`);
     }
-
-    const totalBatches = batches.length;
-    let langCode = "";
-    const mergedTranslations = {};
-
-    for (let bi = 0; bi < totalBatches; bi++) {
-      if (totalBatches > 1) {
-        log(`מתרגם קבוצה ${bi + 1} מתוך ${totalBatches} (${Object.keys(batches[bi]).length} מחרוזות)…`, null, logTarget);
-      }
-      const result = await translateStringsBatch(geminiKeys, targetLanguage, batches[bi], logTarget);
-      if (!langCode && result.langCode) langCode = result.langCode;
-      Object.assign(mergedTranslations, result.translations || {});
-      // Brief pause between batches to avoid hammering the API rate limit.
-      if (totalBatches > 1 && bi < totalBatches - 1) await sleep(300);
-    }
-
-    if (!langCode) throw new Error(`Gemini's translation reply is missing "langCode".`);
-    return { langCode, translations: mergedTranslations };
+    return parsed;
   }
 
   // ---------- file selection & patching helpers (edit mode) ----------
@@ -1985,49 +1937,60 @@ rebuild, even if that means dropping part of the requested change.`;
   async function waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile, logTarget }) {
     const start = Date.now();
     let runId = null, runUrl = null, runNumber = null;
-    let consecutiveErrors = 0;
+    let consecutivePollErrors = 0;
+    const MAX_CONSECUTIVE_POLL_ERRORS = 4;
 
     while (Date.now() - start < POLL_TIMEOUT_MS) {
-      try {
-        if (!runId) {
-          const runs = await gh(
+      if (!runId) {
+        let runs;
+        try {
+          runs = await gh(
             `/repos/${owner}/${repo}/actions/workflows/${workflowFile}/runs?head_sha=${commitSha}&per_page=5`,
             token
           );
-          if (runs && runs.workflow_runs && runs.workflow_runs.length > 0) {
-            runId = runs.workflow_runs[0].id;
-            runUrl = runs.workflow_runs[0].html_url;
-            runNumber = runs.workflow_runs[0].run_number;
-            log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
-            consecutiveErrors = 0;
-          } else {
-            log("ממתין ש-GitHub Actions יתפוס את ה-commit…", null, logTarget);
-            await sleep(POLL_INTERVAL_MS);
-            continue;
-          }
+          consecutivePollErrors = 0;
+        } catch (pollErr) {
+          consecutivePollErrors++;
+          if (consecutivePollErrors > MAX_CONSECUTIVE_POLL_ERRORS) throw pollErr;
+          log(`תקלה זמנית בבדיקת הריצה (${pollErr.message}), מנסה שוב…`, null, logTarget);
+          await sleep(POLL_INTERVAL_MS);
+          continue;
         }
-
-        const run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
-        consecutiveErrors = 0;
-        log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`, null, logTarget);
-
-        if (run.status === "completed") {
-          if (run.conclusion === "success") return run;
-          const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
-          err.runUrl = runUrl;
-          err.runId = runId;
-          throw err;
+        if (runs.workflow_runs && runs.workflow_runs.length > 0) {
+          runId = runs.workflow_runs[0].id;
+          runUrl = runs.workflow_runs[0].html_url;
+          runNumber = runs.workflow_runs[0].run_number;
+          log(`נמצא Workflow Run #${runNumber}`, "actions", logTarget);
+        } else {
+          log("ממתין ש-GitHub Actions יתפוס את ה-commit…", null, logTarget);
+          await sleep(POLL_INTERVAL_MS);
+          continue;
         }
+      }
+
+      let run;
+      try {
+        run = await gh(`/repos/${owner}/${repo}/actions/runs/${runId}`, token);
+        consecutivePollErrors = 0;
       } catch (pollErr) {
-        // Re-throw terminal errors (non-transient) immediately.
-        if (pollErr.runId !== undefined || pollErr.runUrl !== undefined) throw pollErr;
-        consecutiveErrors++;
-        if (consecutiveErrors >= 5) throw pollErr;
-        log(`שגיאת בדיקת סטטוס (${consecutiveErrors}/5): ${pollErr.message} — ממשיך לנסות…`, null, logTarget);
+        consecutivePollErrors++;
+        if (consecutivePollErrors > MAX_CONSECUTIVE_POLL_ERRORS) throw pollErr;
+        log(`תקלה זמנית בבדיקת סטטוס (${pollErr.message}), מנסה שוב…`, null, logTarget);
+        await sleep(POLL_INTERVAL_MS);
+        continue;
+      }
+      log(`סטטוס: ${run.status}${run.conclusion ? " → " + run.conclusion : ""}`, null, logTarget);
+
+      if (run.status === "completed") {
+        if (run.conclusion === "success") return run;
+        const err = new Error(`ה-build הסתיים עם conclusion "${run.conclusion}"`);
+        err.runUrl = runUrl;
+        err.runId = runId;
+        throw err;
       }
       await sleep(POLL_INTERVAL_MS);
     }
-    const timeoutErr = new Error(`עברו ${Math.round(POLL_TIMEOUT_MS / 60000)} דקות בלי שה-build הסתיים.`);
+    const timeoutErr = new Error("עברו 10 דקות בלי שה-build הסתיים.");
     timeoutErr.runUrl = runUrl;
     timeoutErr.runId = runId;
     throw timeoutErr;
@@ -2759,8 +2722,7 @@ rebuild, even if that means dropping part of the requested change.`;
       setStage("strings", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("translate", "active", rail, TRANSLATE_STAGE_ORDER);
-      const batchCount = Math.ceil(count / TRANSLATE_BATCH_SIZE);
-      log(`מתרגם ל"${targetLanguage}" עם Gemini${batchCount > 1 ? ` (${batchCount} קבוצות של עד ${TRANSLATE_BATCH_SIZE} מחרוזות)` : ""}…`, null, logBox);
+      log(`מתרגם ל"${targetLanguage}" עם Gemini…`, null, logBox);
       const { langCode, translations: rawTranslations } = await translateStrings(geminiKeys, targetLanguage, stringsMap, logBox);
       // Safety net beyond the prompt instructions: verify every %s / %1$s / {0} / \n
       // survived intact before trusting a translation. If Gemini altered one, keep
