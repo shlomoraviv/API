@@ -1805,8 +1805,8 @@ rebuild, even if that means dropping part of the requested change.`;
     return pkg;
   }
 
-  // Commits the raw uploaded APK to DECOMPILE_SOURCE_PATH and waits for
-  // decompile-apk.yml to unpack it and commit decompiled_app/ back to the branch.
+  // Commits the raw uploaded APK to DECOMPILE_SOURCE_PATH, explicitly starts
+  // decompile-apk.yml, and waits for it to unpack decompiled_app/ on the branch.
   async function triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget }) {
     log(`מעלה את ה-APK לפירוק (${DECOMPILE_SOURCE_PATH})…`, null, logTarget);
     const commitSha = await commitRepoFiles({
@@ -1814,8 +1814,8 @@ rebuild, even if that means dropping part of the requested change.`;
       files: [{ path: DECOMPILE_SOURCE_PATH, contentBase64: apkBase64 }],
       message: "AI App Maker: decompile source APK",
     });
-    log(`Commit נוצר: ${commitSha.slice(0, 7)}, ממתין לפירוק (apktool)…`, "ok", logTarget);
-    await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: DECOMPILE_WORKFLOW_FILE, logTarget });
+    log(`Commit נוצר: ${commitSha.slice(0, 7)}, מפעיל פירוק (apktool)…`, "ok", logTarget);
+    await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile: DECOMPILE_WORKFLOW_FILE, logTarget });
     log("הפירוק הושלם", "ok", logTarget);
   }
 
@@ -2007,6 +2007,24 @@ rebuild, even if that means dropping part of the requested change.`;
     const files = Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
     if (files.length === 0) throw new Error("Gemini's fix reply had no usable files.");
     return files;
+  }
+
+  // Explicit dispatch avoids relying on GitHub's push-path trigger. That trigger
+  // can be skipped when a repository's token or Actions settings suppress events,
+  // which otherwise leaves the UI waiting for a run that was never created.
+  async function dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile, logTarget }) {
+    log(`מפעיל במפורש את GitHub Actions (${workflowFile})…`, null, logTarget);
+    try {
+      await gh(`/repos/${owner}/${repo}/actions/workflows/${encodeURIComponent(workflowFile)}/dispatches`, token, {
+        method: "POST",
+        body: JSON.stringify({ ref: branch }),
+      });
+    } catch (err) {
+      throw new Error(
+        `לא ניתן להפעיל את ${workflowFile}. ודא שקובץ ה-Workflow עודכן ב-GitHub ושלטוקן יש הרשאת Actions: write. ${err.message}`
+      );
+    }
+    return waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile, logTarget });
   }
 
   // ---------- 3. Poll the workflow run tied to this exact commit ----------
@@ -2718,7 +2736,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
         setStage("rebuild", "active", rail, EDIT2_STAGE_ORDER);
         try {
-          run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
+          run = await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
           log("הבנייה מחדש הצליחה", "ok", logBox);
           setStage("rebuild", "done", rail, EDIT2_STAGE_ORDER);
           break;
@@ -2835,7 +2853,7 @@ rebuild, even if that means dropping part of the requested change.`;
       setStage("commit", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("rebuild", "active", rail, TRANSLATE_STAGE_ORDER);
-      const run = await waitForWorkflowRun({ owner, repo, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
+      const run = await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
       log("הבנייה מחדש הצליחה", "ok", logBox);
       setStage("rebuild", "done", rail, TRANSLATE_STAGE_ORDER);
 
