@@ -1,14 +1,14 @@
 # Decompiles decompile_source/source.apk with apktool (smali code + decoded XML
 # resources) and commits the result to decompiled_app/ on the same branch.
 #
-# Triggered by index.html committing a raw APK to decompile_source/source.apk
-# (via the user's own GitHub token, a PAT). The auto-commit step below uses the
+# Triggered explicitly by index.html after it commits a raw APK to
+# decompile_source/source.apk (via the user's own GitHub token, a PAT). The
+# auto-commit step below uses the
 # workflow-run's own default GITHUB_TOKEN, not that PAT — commits made with the
 # default GITHUB_TOKEN do NOT trigger other workflow runs, which is exactly what
 # stops this workflow from accidentally triggering rebuild-apk.yml the moment it
-# writes to decompiled_app/. rebuild-apk.yml should only fire once index.html
-# itself commits an AI-edited/translated file back into decompiled_app/ (which
-# happens with the user's PAT, and therefore does trigger it normally).
+# writes to decompiled_app/. index.html explicitly starts rebuild-apk.yml only
+# after it commits an AI-edited/translated file back into decompiled_app/.
 #
 # Setup: save this file as .github/workflows/decompile-apk.yml in your repo.
 # No secrets are needed for this workflow (decompiling doesn't touch signing).
@@ -16,9 +16,7 @@
 name: Decompile APK
 
 "on":
-  push:
-    paths:
-      - "decompile_source/**"
+  workflow_dispatch:
 
 permissions:
   contents: write
