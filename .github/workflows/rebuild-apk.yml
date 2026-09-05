@@ -15,9 +15,7 @@
 name: Rebuild APK
 
 "on":
-  push:
-    paths:
-      - "decompiled_app/**"
+  workflow_dispatch:
 
 jobs:
   rebuild:
