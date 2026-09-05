@@ -679,7 +679,7 @@
   </main>
 </div>
 
-<!-- ===================== CONNECTIONS MODAL (BYOK settings) ===================== -->
+<!-- ===================== CONNECTIONS MODAL ===================== -->
 <div class="modal-overlay hidden" id="connectionsModal">
   <div class="modal">
     <div class="modal-head">
@@ -687,18 +687,14 @@
       <button type="button" class="icon-btn" id="connectionsCloseBtn"><i class="icon" data-icon="close"></i></button>
     </div>
     <div class="modal-body">
-      <div class="pro-note hidden" id="proPlusConnectionsNote">מחובר עם הרשאות פרו — המפתחות והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</div>
+      <div class="pro-note" id="sharedGithubConnectionsNote">החיבור ל־GitHub מנוהל באופן מאובטח על ידי השרת לכל המשתמשים. אין להדביק כאן GitHub Token.</div>
+      <div class="pro-note hidden" id="proPlusConnectionsNote">מחובר עם הרשאות פרו — מפתחות Gemini והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</div>
 
       <div id="manualCredentialFields">
         <div class="field">
           <label class="field-label" for="geminiKeys">Gemini API Keys (שורה לכל מפתח)</label>
           <textarea class="textarea" id="geminiKeys" rows="3" placeholder="AIza…&#10;AIza…"></textarea>
         </div>
-        <div class="field">
-          <label class="field-label" for="githubToken">GitHub Token</label>
-          <input type="password" class="text-input" id="githubToken" placeholder="ghp_…">
-        </div>
-        <div class="reveal-row"><button type="button" class="btn ghost small" id="toggleKeys">הצג מפתחות</button></div>
         <div class="field">
           <label class="field-label" for="geminiProxyUrl">כתובת פרוקסי ל-Gemini (אופציונלי)</label>
           <input type="text" class="text-input" id="geminiProxyUrl" placeholder="ריק = ישירות לגוגל">
@@ -841,6 +837,16 @@
           <button type="button" class="btn primary" id="adminSaveApiKeysBtn" style="margin-top:14px;">שמירת מפתחות</button>
           <p class="status-line" id="adminApiKeysStatus"></p>
         </div>
+        <div class="admin-card">
+          <h2>GitHub Token — לכל המשתמשים</h2>
+          <p class="hint-text">הטוקן נשמר רק ב־Script Properties של Google Apps Script. הוא לא נכתב לגיליון, לא נשלח לדפדפנים ולא מוצג שוב לאחר השמירה. יש לתת לטוקן הרשאות Contents ו־Actions מסוג Read and write עבור הריפו של האתר.</p>
+          <div class="field">
+            <label class="field-label" for="adminGithubTokenInput">טוקן GitHub חדש או חלופי</label>
+            <input type="password" class="text-input" id="adminGithubTokenInput" placeholder="github_pat_…" autocomplete="new-password">
+          </div>
+          <button type="button" class="btn primary" id="adminSaveGithubTokenBtn">שמירת GitHub Token</button>
+          <p class="status-line" id="adminGithubTokenStatus"></p>
+        </div>
       </div>
 
     </div>
@@ -867,8 +873,8 @@
   const MAX_GITHUB_READ_ATTEMPTS = 3;
   const GITHUB_RETRY_DELAY_MS = 1500;
 
-  // ---- backend (Google Apps Script) — holds the real Gemini/GitHub secrets for
-  // pro/superpro/admin users; regular users still bring their own keys directly. ----
+  // ---- backend (Google Apps Script) — holds the shared GitHub secret for every
+  // signed-in user, and the Gemini secrets for pro/superpro/admin users. ----
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwNtbe8mmUFa6Xq9mUXSG19sNn6oEGdW7Y8iFuDRKGEZo6nAGLKTOju25Dc-XGVwIqI/exec";
   const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
   const UNLIMITED_ROLES = ["superpro", "admin"]; // roles the credit system never touches
@@ -877,7 +883,7 @@
   // credits is a number for regular/pro, or the string "unlimited" for superpro/admin.
   let currentUser = null;
   // publicInfo: fetched once on page load (no login needed) — current credit
-  // costs, the shared github owner/repo/branch (for pro+ users), and any
+  // costs, the shared github owner/repo/branch (for all signed-in users), and any
   // admin-edited site text. Filled in by loadPublicInfo() at the bottom of this file.
   let publicInfo = { creditCosts: {}, githubOwner: "", githubRepo: "", githubBranch: "", siteText: {} };
 
@@ -1162,7 +1168,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
   const connectionsModal = $("connectionsModal"), connectionsCloseBtn = $("connectionsCloseBtn"), connectionsDoneBtn = $("connectionsDoneBtn");
   const proPlusConnectionsNote = $("proPlusConnectionsNote"), manualCredentialFields = $("manualCredentialFields"), creditCostsHint = $("creditCostsHint");
-  const geminiKeysEl = $("geminiKeys"), githubTokenEl = $("githubToken"), geminiProxyUrlEl = $("geminiProxyUrl"), toggleKeysBtn = $("toggleKeys");
+  const geminiKeysEl = $("geminiKeys"), geminiProxyUrlEl = $("geminiProxyUrl");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch");
 
   const convViewModal = $("convViewModal"), convViewTitle = $("convViewTitle"), convViewSub = $("convViewSub"), convViewCloseBtn = $("convViewCloseBtn"), convViewBody = $("convViewBody");
@@ -1175,6 +1181,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const siteTextEditToggle = $("siteTextEditToggle"), siteTextEditStatus = $("siteTextEditStatus");
   const adminRefreshConvBtn = $("adminRefreshConvBtn"), adminConvListEl = $("adminConvListEl");
   const adminApiKeysListEl = $("adminApiKeysListEl"), adminNewApiKeyInput = $("adminNewApiKeyInput"), adminAddApiKeyBtn = $("adminAddApiKeyBtn"), adminSaveApiKeysBtn = $("adminSaveApiKeysBtn"), adminApiKeysStatus = $("adminApiKeysStatus");
+  const adminGithubTokenInput = $("adminGithubTokenInput"), adminSaveGithubTokenBtn = $("adminSaveGithubTokenBtn"), adminGithubTokenStatus = $("adminGithubTokenStatus");
 
   // ---------- state ----------
   let siteTextEditActive = false;
@@ -1416,7 +1423,7 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   async function gh(path, token, options = {}) {
-    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+    if (currentUser) {
       const method = (options.method || "GET").toUpperCase();
       const body = options.body ? JSON.parse(options.body) : undefined;
       const result = await backendCall("githubJson", { path, method, body });
@@ -1443,10 +1450,10 @@ rebuild, even if that means dropping part of the requested change.`;
     return res.status === 204 ? null : res.json();
   }
 
-  // Raw-bytes GitHub downloads (artifact zips, log zips) as a Blob, for both
-  // regular (direct fetch) and pro+ (via the backend's base64 relay) users.
+  // Raw-bytes GitHub downloads (artifact zips, log zips) are relayed through
+  // the backend so the shared GitHub token never reaches any browser.
   async function githubFetchBlob(path, token) {
-    if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
+    if (currentUser) {
       // This call fetches large binaries (artifact zips, log zips) through the backend relay, which
       // occasionally times out or hiccups on a single attempt even though the file is right there —
       // unlike every other GitHub call in this file, this one previously had zero retry.
@@ -2462,7 +2469,7 @@ rebuild, even if that means dropping part of the requested change.`;
   function readConnections() {
     return {
       geminiKeys: parseGeminiKeys(geminiKeysEl.value),
-      token: githubTokenEl.value.trim(),
+      token: "",
       owner: ownerEl.value.trim(),
       repo: repoEl.value.trim(),
       branch: branchEl.value.trim() || "main",
@@ -2482,8 +2489,8 @@ rebuild, even if that means dropping part of the requested change.`;
     const isRegular = !currentUser || currentUser.role === "regular";
     const turn = appendAssistantTurn("בונה אפליקציה");
 
-    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !idea) {
-      turn.setStatus("חסרים חיבורים — צריך לפחות Gemini key אחד, GitHub token, בעל ריפו ושם ריפו (מהתפריט \"חיבורים\").", "error-text");
+    if ((isRegular && geminiKeys.length === 0) || !owner || !repo || !idea) {
+      turn.setStatus("חסרים חיבורים — צריך לפחות Gemini key אחד, בעל ריפו ושם ריפו (מהתפריט \"חיבורים\").", "error-text");
       return;
     }
 
@@ -2595,7 +2602,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const isRegular = !currentUser || currentUser.role === "regular";
     const turn = appendAssistantTurn("בונה מקוד מקור שהועלה");
 
-    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !kotlinSource.trim()) {
+    if ((isRegular && geminiKeys.length === 0) || !owner || !repo || !kotlinSource.trim()) {
       turn.setStatus("חסרים חיבורים, או שקובץ הקוד ריק.", "error-text");
       return;
     }
@@ -2690,7 +2697,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const isRegular = !currentUser || currentUser.role === "regular";
     const turn = appendAssistantTurn("עורך אפליקציה");
 
-    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !instruction || !currentApk) {
+    if ((isRegular && geminiKeys.length === 0) || !owner || !repo || !instruction || !currentApk) {
       turn.setStatus("חסרים חיבורים, קובץ APK פעיל, או תיאור השינוי.", "error-text");
       return;
     }
@@ -2786,7 +2793,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const isRegular = !currentUser || currentUser.role === "regular";
     const turn = appendAssistantTurn("מתרגם אפליקציה");
 
-    if ((isRegular && (geminiKeys.length === 0 || !token)) || !owner || !repo || !targetLanguage || !currentApk) {
+    if ((isRegular && geminiKeys.length === 0) || !owner || !repo || !targetLanguage || !currentApk) {
       turn.setStatus("חסרים חיבורים, קובץ APK פעיל, או שפת יעד.", "error-text");
       return;
     }
@@ -2883,7 +2890,7 @@ rebuild, even if that means dropping part of the requested change.`;
     const isRegular = !currentUser || currentUser.role === "regular";
     const turn = appendAssistantTurn("מצנזר תמונות");
 
-    if ((isRegular && !token) || !owner || !repo || !loadedApkZip || pendingChanges.size === 0) {
+    if (!owner || !repo || !loadedApkZip || pendingChanges.size === 0) {
       turn.setStatus("חסרים חיבורים, APK טעון, או שלא סומנו שינויים.", "error-text");
       return;
     }
@@ -3855,11 +3862,14 @@ image clearly and unambiguously depicts it.`;
     manualCredentialFields.classList.toggle("hidden", isProPlus);
     proPlusConnectionsNote.classList.toggle("hidden", !isProPlus);
     sideAdminBtn.classList.toggle("hidden", !currentUser || currentUser.role !== "admin");
-    if (isProPlus) {
+    if (currentUser) {
       ownerEl.value = publicInfo.githubOwner || "";
       repoEl.value = publicInfo.githubRepo || "";
       branchEl.value = publicInfo.githubBranch || "main";
     }
+    ownerEl.readOnly = !!currentUser;
+    repoEl.readOnly = !!currentUser;
+    branchEl.readOnly = !!currentUser;
   }
 
   function showApp() {
@@ -3921,6 +3931,7 @@ image clearly and unambiguously depicts it.`;
           `עלויות קרדיטים: בנייה ${info.creditCosts.build} · עריכה ${info.creditCosts.edit} · ` +
           `תרגום ${info.creditCosts.translate} · צנזור ${info.creditCosts.censor}`;
         applySiteText(info.siteText || {});
+        if (currentUser) applyRoleUI();
       }
     } catch (err) {
       console.error("loadPublicInfo failed:", err);
@@ -4004,13 +4015,6 @@ image clearly and unambiguously depicts it.`;
   wireOverlayClose(connectionsModal, connectionsCloseBtn);
   connectionsDoneBtn.addEventListener("click", () => connectionsModal.classList.add("hidden"));
 
-  let keysRevealed = false;
-  toggleKeysBtn.addEventListener("click", () => {
-    keysRevealed = !keysRevealed;
-    githubTokenEl.type = keysRevealed ? "text" : "password";
-    toggleKeysBtn.textContent = keysRevealed ? "הסתר מפתחות" : "הצג מפתחות";
-  });
-
   wireOverlayClose(convViewModal, convViewCloseBtn);
   function openConvViewModal(conv) {
     convViewTitle.textContent = conv.title || "שיחה חדשה";
@@ -4071,7 +4075,10 @@ image clearly and unambiguously depicts it.`;
     if (panel === "users") loadAdminUsers();
     if (panel === "config") loadAdminConfig();
     if (panel === "conversations") loadAdminConversationsList();
-    if (panel === "apikeys") loadAdminApiKeysList();
+    if (panel === "apikeys") {
+      loadAdminApiKeysList();
+      loadAdminGithubTokenStatus();
+    }
   }
   adminNav.addEventListener("click", (e) => {
     const btn = e.target.closest(".admin-nav-item");
@@ -4264,6 +4271,33 @@ image clearly and unambiguously depicts it.`;
       setStatusIcon(adminApiKeysStatus, `נשמר (${res.count} מפתחות)`, true);
     } catch (err) {
       setStatusIcon(adminApiKeysStatus, err.message, false);
+    }
+  });
+
+  // ---- shared GitHub token (admin only) ----
+  async function loadAdminGithubTokenStatus() {
+    try {
+      const res = await backendCall("adminGetGithubTokenStatus", {});
+      if (!res.ok) throw new Error(res.error);
+      setStatusIcon(adminGithubTokenStatus, res.configured ? "GitHub Token שמור ומוכן לשימוש." : "עדיין לא הוגדר GitHub Token.", res.configured);
+    } catch (err) {
+      setStatusIcon(adminGithubTokenStatus, err.message, false);
+    }
+  }
+  adminSaveGithubTokenBtn.addEventListener("click", async () => {
+    const githubToken = adminGithubTokenInput.value.trim();
+    if (!githubToken) {
+      setStatusIcon(adminGithubTokenStatus, "יש להזין GitHub Token לפני השמירה.", false);
+      return;
+    }
+    adminGithubTokenStatus.textContent = "שומר…";
+    try {
+      const res = await backendCall("adminSetGithubToken", { githubToken });
+      if (!res.ok) throw new Error(res.error);
+      adminGithubTokenInput.value = "";
+      setStatusIcon(adminGithubTokenStatus, "GitHub Token נשמר באופן מאובטח.", true);
+    } catch (err) {
+      setStatusIcon(adminGithubTokenStatus, err.message, false);
     }
   });
 
