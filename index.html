@@ -1906,16 +1906,28 @@ rebuild, even if that means dropping part of the requested change.`;
     return ta.length === tb.length && ta.every((t, i) => t === tb[i]);
   }
 
+  // Android's aapt2 resource compiler has its own escaping rules on top of plain
+  // XML validity: an apostrophe or double quote inside a <string> value must be
+  // backslash-escaped, or the build fails with "unescaped apostrophe in string" /
+  // "not a valid string" even though the XML itself is perfectly well-formed.
+  // el.textContent (used below) already handles ordinary XML escaping (&, <, >)
+  // on its own — this adds the extra layer aapt2 itself requires.
+  function escapeAndroidStringValue(text) {
+    return String(text).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
   // Builds a new strings.xml with the same <string name="x"> entries but
   // translated text, by cloning the ORIGINAL document and only swapping text
   // content — this guarantees well-formed XML regardless of what Gemini
   // returns, since Gemini only ever supplies plain translated text, never markup.
+  // Values are also run through escapeAndroidStringValue() first so a translated
+  // string containing an apostrophe or quote doesn't break the apktool rebuild.
   function buildTranslatedStringsXml(originalXmlText, translations) {
     const doc = new DOMParser().parseFromString(originalXmlText, "application/xml");
     doc.querySelectorAll("resources > string").forEach((el) => {
       const name = el.getAttribute("name");
       if (name && Object.prototype.hasOwnProperty.call(translations, name)) {
-        el.textContent = translations[name];
+        el.textContent = escapeAndroidStringValue(translations[name]);
       }
     });
     return new XMLSerializer().serializeToString(doc);
