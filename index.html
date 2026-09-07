@@ -908,6 +908,15 @@
   // (pro/super-pro/admin), where the frontend has no visibility into how many
   // keys the backend is rotating through.
   const TRANSLATE_BACKEND_CONCURRENCY = 4;
+  // If every key fails for the SAME batch at once, that's almost always several
+  // parallel workers tripping a shared per-minute rate limit together, not a
+  // real, permanent failure - wait and retry that one batch instead of failing
+  // the whole translation outright.
+  const TRANSLATE_BATCH_MAX_RETRIES = 3;
+  const TRANSLATE_BATCH_RETRY_DELAY_MS = 10000;
+  // Stagger parallel workers' very first request slightly so they don't all
+  // land on the API in the exact same instant.
+  const TRANSLATE_WORKER_STAGGER_MS = 300;
   // Own-app smali usually lives under a path matching the manifest's package name; these
   // path fragments are common third-party SDKs/libraries that are almost never what a user
   // means by "edit my app", so they're filtered out even if they happen to match the package.
@@ -1987,41 +1996,62 @@ rebuild, even if that means dropping part of the requested change.`;
     async function runWorker(workerNumber) {
       const keyStartOffset = usingOwnKeys ? workerNumber % geminiKeys.length : 0;
       const workerLabel = usingOwnKeys ? `מפתח #${keyStartOffset + 1}` : `חיבור מקבילי #${workerNumber + 1}`;
+      // Small stagger so the workers don't all fire their very first request in
+      // the exact same instant - that initial burst is the likeliest moment to
+      // trip a key's per-minute rate limit, before the workers naturally spread
+      // out on their own based on how long each real call takes.
+      if (workerNumber > 0) await sleep(workerNumber * TRANSLATE_WORKER_STAGGER_MS);
+
       for (;;) {
         const batchIndex = pullNextBatchIndex();
         if (batchIndex === -1) return;
         const batch = batches[batchIndex];
         const batchNumber = batchIndex + 1;
-        log(`${workerLabel}: מתרגם קבוצה ${batchNumber} מתוך ${batches.length}…`, null, logTarget);
 
-        const data = await callGeminiPinned(geminiKeys, keyStartOffset, {
-          contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(batch)}` }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
-        }, logTarget);
-        const { raw, finishReason } = extractGeminiText(data);
-        if (!raw) {
-          throw new Error(`Gemini returned no usable translation for batch ${batchNumber}/${batches.length} (finishReason: ${finishReason}).`);
-        }
-        const parsed = parseJsonLoose(raw);
-        if (!parsed || !parsed.langCode || !parsed.translations || typeof parsed.translations !== "object") {
-          throw new Error(`Gemini's translation reply for batch ${batchNumber}/${batches.length} is missing "langCode" or "translations".`);
-        }
+        for (let attempt = 1; ; attempt++) {
+          try {
+            log(`${workerLabel}: מתרגם קבוצה ${batchNumber} מתוך ${batches.length}${attempt > 1 ? ` (ניסיון ${attempt})` : ""}…`, null, logTarget);
 
-        const batchLangCode = normalizeAndroidLanguageCode(parsed.langCode);
-        if (langCode && langCode !== batchLangCode) {
-          throw new Error(`Gemini returned conflicting language codes: "${langCode}" and "${batchLangCode}".`);
-        }
-        langCode = batchLangCode;
+            const data = await callGeminiPinned(geminiKeys, keyStartOffset, {
+              contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(batch)}` }] }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+            }, logTarget);
+            const { raw, finishReason } = extractGeminiText(data);
+            if (!raw) {
+              throw new Error(`Gemini returned no usable translation for batch ${batchNumber}/${batches.length} (finishReason: ${finishReason}).`);
+            }
+            const parsed = parseJsonLoose(raw);
+            if (!parsed || !parsed.langCode || !parsed.translations || typeof parsed.translations !== "object") {
+              throw new Error(`Gemini's translation reply for batch ${batchNumber}/${batches.length} is missing "langCode" or "translations".`);
+            }
 
-        // Ignore any invented keys. Missing or malformed values are deliberately
-        // left absent here; the existing token-safety pass below keeps their
-        // original strings instead of risking invalid Android resources.
-        for (const key of Object.keys(batch)) {
-          if (typeof parsed.translations[key] === "string") {
-            translations[key] = parsed.translations[key];
+            const batchLangCode = normalizeAndroidLanguageCode(parsed.langCode);
+            if (langCode && langCode !== batchLangCode) {
+              throw new Error(`Gemini returned conflicting language codes: "${langCode}" and "${batchLangCode}".`);
+            }
+            langCode = batchLangCode;
+
+            // Ignore any invented keys. Missing or malformed values are deliberately
+            // left absent here; the existing token-safety pass below keeps their
+            // original strings instead of risking invalid Android resources.
+            for (const key of Object.keys(batch)) {
+              if (typeof parsed.translations[key] === "string") {
+                translations[key] = parsed.translations[key];
+              }
+            }
+            log(`${workerLabel}: קבוצה ${batchNumber} מתוך ${batches.length} הושלמה`, "ok", logTarget);
+            break;
+          } catch (batchErr) {
+            if (attempt > TRANSLATE_BATCH_MAX_RETRIES) throw batchErr;
+            // Getting here means EVERY key just failed for this one batch - almost
+            // always several workers tripping a shared per-minute rate limit at the
+            // same moment, not a real, permanent problem. A short wait usually lets
+            // it reset before trying the full key rotation again for this batch.
+            const delayMs = TRANSLATE_BATCH_RETRY_DELAY_MS * attempt;
+            log(`${workerLabel}: קבוצה ${batchNumber} נכשלה (${batchErr.message}), ממתין ${Math.round(delayMs / 1000)} שניות ומנסה שוב…`, "error", logTarget);
+            await sleep(delayMs);
           }
         }
-        log(`${workerLabel}: קבוצה ${batchNumber} מתוך ${batches.length} הושלמה`, "ok", logTarget);
       }
     }
 
