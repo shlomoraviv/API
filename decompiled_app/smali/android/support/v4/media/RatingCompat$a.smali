@@ -1,6 +1,6 @@
-.class public final Landroid/support/v4/media/RatingCompat$a;
+.class final Landroid/support/v4/media/RatingCompat$a;
 .super Ljava/lang/Object;
-.source "\ubcfc\ub968 \ucee8\ud2b8\ub864\uc774 \ud45c\uc2dc\ub429\ub2c8\ub2e4. \ub2eb\uc73c\ub824\uba74 \uc704\ub85c \uc2a4\uc640\uc774\ud504\ud569\ub2c8\ub2e4"
+.source "RatingCompat.java"
 
 # interfaces
 .implements Landroid/os/Parcelable$Creator;
@@ -12,7 +12,7 @@
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x9
+    accessFlags = 0x8
     name = null
 .end annotation
 
@@ -27,9 +27,10 @@
 
 
 # direct methods
-.method public constructor <init>()V
+.method constructor <init>()V
     .locals 0
 
+    .line 1
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -37,10 +38,11 @@
 
 
 # virtual methods
-.method public createFromParcel(Landroid/os/Parcel;)Landroid/support/v4/media/RatingCompat;
+.method public a(Landroid/os/Parcel;)Landroid/support/v4/media/RatingCompat;
     .locals 2
 
-    new-instance p0, Landroid/support/v4/media/RatingCompat;
+    .line 1
+    new-instance v0, Landroid/support/v4/media/RatingCompat;
 
     invoke-virtual {p1}, Landroid/os/Parcel;->readInt()I
 
@@ -48,37 +50,40 @@
 
     invoke-virtual {p1}, Landroid/os/Parcel;->readFloat()F
 
-    move-result v0
+    move-result p1
 
-    invoke-direct {p0, v1, v0}, Landroid/support/v4/media/RatingCompat;-><init>(IF)V
+    invoke-direct {v0, v1, p1}, Landroid/support/v4/media/RatingCompat;-><init>(IF)V
 
-    return-object p0
+    return-object v0
+.end method
+
+.method public b(I)[Landroid/support/v4/media/RatingCompat;
+    .locals 0
+
+    .line 1
+    new-array p1, p1, [Landroid/support/v4/media/RatingCompat;
+
+    return-object p1
 .end method
 
 .method public bridge synthetic createFromParcel(Landroid/os/Parcel;)Ljava/lang/Object;
     .locals 0
 
-    invoke-virtual {p0, p1}, Landroid/support/v4/media/RatingCompat$a;->createFromParcel(Landroid/os/Parcel;)Landroid/support/v4/media/RatingCompat;
+    .line 1
+    invoke-virtual {p0, p1}, Landroid/support/v4/media/RatingCompat$a;->a(Landroid/os/Parcel;)Landroid/support/v4/media/RatingCompat;
 
-    move-result-object p0
+    move-result-object p1
 
-    return-object p0
-.end method
-
-.method public newArray(I)[Landroid/support/v4/media/RatingCompat;
-    .locals 0
-
-    new-array p0, p1, [Landroid/support/v4/media/RatingCompat;
-
-    return-object p0
+    return-object p1
 .end method
 
 .method public bridge synthetic newArray(I)[Ljava/lang/Object;
     .locals 0
 
-    invoke-virtual {p0, p1}, Landroid/support/v4/media/RatingCompat$a;->newArray(I)[Landroid/support/v4/media/RatingCompat;
+    .line 1
+    invoke-virtual {p0, p1}, Landroid/support/v4/media/RatingCompat$a;->b(I)[Landroid/support/v4/media/RatingCompat;
 
-    move-result-object p0
+    move-result-object p1
 
-    return-object p0
+    return-object p1
 .end method

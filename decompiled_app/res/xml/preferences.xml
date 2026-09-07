@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Preference android:icon="@drawable/ic_rate_us" android:title="@string/rate_us" android:key="rate_us" android:summary="@string/rate_us_summary" app:layout="@layout/preference_item" />
+    <Preference android:icon="@drawable/ic_about_us" android:title="@string/about_us" android:key="about_us" android:summary="@string/learn_more_about_us" app:layout="@layout/preference_item" />
+    <Preference android:icon="@drawable/ic_more_apps" android:title="@string/more_apps" android:key="more_apps" android:summary="@string/more_apps_summary" app:layout="@layout/preference_item" />
+    <Preference android:icon="@drawable/ic_reset_ads" android:title="@string/reset_ad" android:key="reset_ads_preferences" android:summary="@string/reset_ad" app:layout="@layout/preference_item" />
+    <Preference android:icon="@drawable/ic_settings" android:title="@string/settings" android:key="settings" android:summary="@string/settings_summary" app:layout="@layout/preference_item" />
+</PreferenceScreen>
