@@ -1937,6 +1937,14 @@ rebuild, even if that means dropping part of the requested change.`;
   // returns, since Gemini only ever supplies plain translated text, never markup.
   // Values are also run through escapeAndroidStringValue() first so a translated
   // string containing an apostrophe or quote doesn't break the apktool rebuild.
+  //
+  // The Master Bot credit is appended here directly, as an XML comment, rather
+  // than asked for in TRANSLATE_INSTRUCTIONS: Gemini's reply for this pipeline
+  // is always a per-string JSON translations object, never the surrounding XML
+  // document, so it has no path to add anything outside the specific named
+  // string values it's asked for - the credit has to come from this
+  // deterministic code instead to reliably appear in every translated app. It's
+  // a comment (not a <string>), so it's never shown as text in the app itself.
   function buildTranslatedStringsXml(originalXmlText, translations) {
     const doc = new DOMParser().parseFromString(originalXmlText, "application/xml");
     doc.querySelectorAll("resources > string").forEach((el) => {
@@ -1945,6 +1953,7 @@ rebuild, even if that means dropping part of the requested change.`;
         el.textContent = escapeAndroidStringValue(translations[name]);
       }
     });
+    doc.documentElement.appendChild(doc.createComment(' תורגם ע"י מאסטר בוט | לפרטים נוספים: 0556798858b@gmail.com '));
     return new XMLSerializer().serializeToString(doc);
   }
 
