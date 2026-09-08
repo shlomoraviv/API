@@ -1244,7 +1244,21 @@ rebuild, even if that means dropping part of the requested change.`;
   // them), so reopening an older conversation in a fresh session asks to re-upload.
   let currentApk = null; // { base64, name }
 
+  // The most recently created turn log box (set by appendAssistantTurn().createLog()).
+  // Low-level helpers that run inside a pipeline but never receive a logTarget
+  // (the GitHub relay inside gh(), githubFetchBlob()) report their retries here
+  // so they're visible in the conversation, not only in the devtools console.
+  let activeTurnLogEl = null;
+
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // Retry warnings raised by low-level helpers that don't receive a logTarget:
+  // show them in the active turn's log box when one exists, and always keep a
+  // console record too.
+  function logBackground(msg, cls) {
+    if (activeTurnLogEl) log(msg, cls, activeTurnLogEl);
+    else console.warn(msg);
+  }
 
   // ---------- log / rail helpers (every call site now passes its own turn's
   // containers explicitly — there is no single fixed panel anymore) ----------
@@ -1485,7 +1499,7 @@ rebuild, even if that means dropping part of the requested change.`;
             // waitForWorkflowRun) לקרוס עם שגיאת JS גולמית וחסרת הקשר.
             lastEmptyErr = new Error(`בקשת GitHub ל-${path} חזרה בלי תוכן.`);
             if (attempt < MAX_GITHUB_READ_ATTEMPTS) {
-              console.warn(`gh(${method} ${path}) empty relay response, retrying (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`);
+              logBackground(`תקלה זמנית בשרת (${method} ${path}) — מנסה שוב (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`, null);
               await sleep(GITHUB_RETRY_DELAY_MS * attempt);
               continue;
             }
@@ -1501,7 +1515,7 @@ rebuild, even if that means dropping part of the requested change.`;
         // the relay never got through, which is exactly what retries fix.
         const retryable = !result.status || result.status === 429 || result.status >= 500;
         if (!retryable || attempt >= MAX_GITHUB_READ_ATTEMPTS) throw err;
-        console.warn(`gh(${method} ${path}) relay returned ${result.status || "network error"}, retrying (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`);
+        logBackground(`תקלה זמנית בשרת (HTTP ${result.status} ב-${method} ${path}) — מנסה שוב (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`, null);
         await sleep(GITHUB_RETRY_DELAY_MS * attempt);
       }
       throw lastEmptyErr || new Error(`GitHub request failed on ${path}`);
@@ -2631,6 +2645,7 @@ rebuild, even if that means dropping part of the requested change.`;
         const logDiv = document.createElement("div");
         logDiv.className = "log";
         body.appendChild(logDiv);
+        activeTurnLogEl = logDiv; // background retries from gh()/githubFetchBlob() report here
         return logDiv;
       },
       showDownload({ blob, filename, label, iconSvgEl }) {
