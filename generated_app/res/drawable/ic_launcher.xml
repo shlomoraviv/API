@@ -1,19 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    
+    <!-- Background -->
     <path
-        android:fillColor="#00A86B"
-        android:pathData="M54,10 A44,44 0 1 0 54,98 A44,44 0 1 0 54,10 Z" />
+        android:fillColor="#0055A5"
+        android:pathData="M15,10 h78 a10,10 0 0 1 10,10 v78 a10,10 0 0 1 -10,10 h-78 a10,10 0 0 1 -10,-10 v-78 a10,10 0 0 1 10,-10 z" />
+    
+    <!-- Golden Cup (Volume) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M36,32 h36 v22 c0,10 -8,18 -18,18 s-18,-8 -18,-18 z M49,72 v10 h-8 v4 h26 v-4 h-8 v-10 z" />
+    
+    <!-- White Ruler Lines (Length) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M38,48 C38,34 70,34 70,48 L74,48 C74,30 34,30 34,48 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M28,46 H80 L73,76 C72,79 69,81 65,81 H43 C39,81 36,79 35,76 Z" />
-    <path
-        android:fillColor="#FF5722"
-        android:pathData="M46,64 L52,70 L64,56 L67,59 L52,75 L43,67 Z" />
+        android:pathData="M20,88 h68 v3 h-68 z M25,82 h2 v6 h-2 z M35,82 h2 v6 h-2 z M45,82 h2 v6 h-2 z M55,82 h2 v6 h-2 z M65,82 h2 v6 h-2 z M75,82 h2 v6 h-2 z M85,82 h2 v6 h-2 z" />
 </vector>
