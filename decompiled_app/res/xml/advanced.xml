@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="advanced_options"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/button_options" android:key="pref_cat_advanced_button">
+        <ListPreference android:entries="@array/lp_delay_entries" android:title="@string/long_press_delay" android:key="pref_longpress_delay" android:summary="%s" android:defaultValue="500" android:entryValues="@array/delay_values" />
+        <ListPreference android:entries="@array/dt_delay_entries" android:title="@string/double_tap_delay" android:key="pref_doubletap_delay" android:summary="%s" android:defaultValue="500" android:entryValues="@array/delay_values" />
+        <CheckBoxPreference android:title="@string/double_tap_wait" android:key="pref_doubletap_wait" android:summary="@string/double_tap_wait_summary" android:defaultValue="false" />
+        <CheckBoxPreference android:title="@string/alt_input" android:key="pref_alt_input" android:summary="@string/alt_input_msg" android:defaultValue="false" />
+        <CheckBoxPreference android:title="@string/alt_buttonmethod" android:key="pref_alt_buttonmethod" android:summary="@string/alt_buttonmethod_msg" android:defaultValue="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/bypass_options" android:key="pref_cat_advanced">
+        <CheckBoxPreference android:title="@string/bypass_system" android:key="pref_system_bypass" android:summary="@string/bypass_system_msg" android:defaultValue="true" />
+        <CheckBoxPreference android:title="@string/bypass_camera" android:key="pref_camera_bypass" android:summary="@string/bypass_camera_msg" android:defaultValue="true" />
+        <CheckBoxPreference android:title="@string/bypass_clock" android:key="pref_clock_bypass" android:summary="@string/bypass_clock_msg" android:defaultValue="true" />
+        <CheckBoxPreference android:title="@string/bypass_phone" android:key="pref_phone_bypass" android:summary="@string/bypass_phone_msg" android:defaultValue="true" />
+        <CheckBoxPreference android:title="@string/bypass_lockscreen" android:key="pref_lockscreen_bypass" android:summary="@string/bypass_lockscreen_msg" android:defaultValue="false" />
+        <Preference android:title="@string/bypass_apps" android:key="pref_apps_bypass" android:summary="@string/bypass_apps_msg">
+            <intent android:targetPackage="flar2.homebutton" android:targetClass="a.z" />
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/experimental_options" android:key="pref_cat_advanced_experimental">
+        <ListPreference android:entries="@array/flashlight_timeout_entries" android:title="@string/flashlight_timeout" android:key="pref_flashlight_timeout" android:summary="%s" android:defaultValue="300000" android:entryValues="@array/flashlight_timeout_values" />
+        <CheckBoxPreference android:title="@string/screenshot_sound" android:key="pref_screenshot_sound" android:defaultValue="false" />
+        <CheckBoxPreference android:title="@string/show_notification" android:key="pref_show_notification" android:defaultValue="false" />
+        <CheckBoxPreference android:title="@string/dnd_disable" android:key="pref_dnd_disable" android:summary="@string/dnd_disable_summary" android:defaultValue="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

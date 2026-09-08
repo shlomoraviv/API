@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout android:orientation="vertical" android:id="@id/custom_container" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="@dimen/horiz_margin" android:layout_marginTop="@dimen/vert_margin" android:layout_marginRight="@dimen/horiz_margin" android:layout_marginBottom="@dimen/vert_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <android.support.v7.widget.Toolbar android:theme="@style/PopupOverlay" android:id="@id/toolbar" android:background="?colorPrimary" android:layout_width="match_parent" android:layout_height="?actionBarSize" />
+    <TextView android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" android:textColor="@android:color/secondary_text_dark" android:gravity="center" android:layout_gravity="center" android:id="@id/no_buttons" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/no_buttons_added" android:textAlignment="center" />
+    <android.support.v7.widget.RecyclerView android:id="@id/custom_list" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginTop="?actionBarSize" />
+    <android.support.design.widget.FloatingActionButton android:layout_gravity="right|bottom" android:id="@id/custom_fab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16.0dp" android:src="@drawable/ic_add" app:fabSize="normal" app:layout_anchor="@id/custom_list" app:layout_anchorGravity="end|bottom" />
+</android.support.design.widget.CoordinatorLayout>

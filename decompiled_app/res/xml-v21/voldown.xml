@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="voldown_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Volume Down" android:key="pref_cat_voldown">
+        <SwitchPreference android:title="@string/customize" android:key="pref_voldown_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/single_tap" android:key="pref_voldown_single_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/double_tap" android:key="pref_voldown_double_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/long_press" android:key="pref_voldown_long_press" />
+        <SwitchPreference android:title="@string/screenoff_only" android:key="pref_voldown_screenoff_only" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_vol_vibration">
+        <SwitchPreference android:title="@string/volume_bypass" android:key="pref_vol_bypass_enabled" android:summary="@string/volume_bypass_msg" android:defaultValue="true" />
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_vol_vibrate" android:defaultValue="0" />
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_vol_vibrate_long" android:defaultValue="15" />
+    </PreferenceCategory>
+</PreferenceScreen>

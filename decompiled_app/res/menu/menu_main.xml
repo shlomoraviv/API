@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:icon="@drawable/ic_warning" android:id="@id/action_warning" android:orderInCategory="20" android:title="@string/warning" app:showAsAction="ifRoom" />
+    <item android:icon="@drawable/ic_like" android:id="@id/action_like" android:orderInCategory="20" android:title="@string/like" app:showAsAction="ifRoom" />
+    <item android:icon="@drawable/ic_reset" android:id="@id/action_reset" android:orderInCategory="60" android:title="@string/action_reset" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_root" android:id="@id/action_rootcheck" android:orderInCategory="61" android:title="@string/action_rootcheck" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_play" android:id="@id/action_service" android:orderInCategory="70" android:title="@string/service" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_uninstall" android:id="@id/action_uninstall" android:orderInCategory="80" android:title="@string/action_uninstall" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_color" android:id="@id/action_color" android:orderInCategory="85" android:title="@string/colors" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_contrast" android:id="@id/action_contrast" android:orderInCategory="86" android:title="@string/high_contrast" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_language" android:id="@id/action_language" android:orderInCategory="87" android:title="@string/language" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_help" android:id="@id/action_help" android:orderInCategory="92" android:title="@string/help" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_intro" android:id="@id/action_intro" android:orderInCategory="93" android:title="@string/introduction" app:showAsAction="never" />
+    <item android:icon="@drawable/ic_about" android:id="@id/action_about" android:orderInCategory="100" android:title="@string/action_about" app:showAsAction="never" />
+</menu>

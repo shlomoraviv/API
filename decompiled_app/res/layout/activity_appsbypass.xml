@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="@dimen/horiz_margin" android:layout_marginTop="@dimen/vert_margin" android:layout_marginRight="@dimen/horiz_margin" android:layout_marginBottom="@dimen/vert_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <android.support.v7.widget.Toolbar android:theme="@style/PopupOverlay" android:id="@id/toolbar" android:background="?colorPrimary" android:layout_width="match_parent" android:layout_height="?actionBarSize" />
+        <Switch android:id="@id/global_bypass" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="8.0dp" android:layout_marginRight="8.0dp" android:text="@string/select_all" />
+        <android.support.v7.widget.RecyclerView android:id="@id/appsbypass_list" android:focusable="false" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ProgressBar android:layout_gravity="center" android:id="@id/progress_bar" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</FrameLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="24.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <View android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="0.3" />
+    <ImageView android:layout_gravity="center" android:id="@id/tool_image" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_margin="24.0dp" android:src="@drawable/troubleshoot" android:layout_weight="0.8" />
+    <RelativeLayout android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="0.0dp" android:layout_marginTop="24.0dp" android:layout_weight="2.2" android:layout_marginStart="24.0dp" android:layout_marginEnd="24.0dp">
+        <TextView android:textAppearance="@style/TextAppearance.AppCompat.Headline" android:layout_gravity="center_horizontal" android:id="@id/root_access_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/get_started" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" android:textAlignment="center" />
+        <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="center_horizontal" android:layout_gravity="center_horizontal" android:id="@id/accessibility_msg1" android:layout_width="240.0dp" android:layout_height="wrap_content" android:layout_marginTop="12.0dp" android:text="@string/start_accessibility2" android:layout_below="@id/root_access_title" android:textAlignment="center" />
+        <Button android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button" android:textColor="@android:color/primary_text_dark" android:layout_gravity="center_horizontal" android:id="@id/settings_button" android:background="@drawable/round_background_comp1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="32.0dp" android:minWidth="202.0dp" android:minHeight="42.0dp" android:text="@string/open_settings" android:layout_below="@id/accessibility_msg1" android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+    <View android:layout_width="match_parent" android:layout_height="46.0dp" />
+</LinearLayout>

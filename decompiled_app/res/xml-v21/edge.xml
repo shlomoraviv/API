@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="edge_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/edge_button" android:key="pref_cat_edge">
+        <SwitchPreference android:title="@string/customize" android:key="pref_edge_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/squeeze" android:key="pref_edge_single_tap" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_edge_options">
+        <SwitchPreference android:title="@string/stay_in_app" android:key="edge_stay_in_app" android:defaultValue="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/custom_container" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="@dimen/horiz_margin" android:layout_marginTop="@dimen/vert_margin" android:layout_marginRight="@dimen/horiz_margin" android:layout_marginBottom="@dimen/vert_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v7.widget.Toolbar android:theme="@style/PopupOverlay" android:id="@id/toolbar" android:background="?colorPrimary" android:focusable="false" android:layout_width="match_parent" android:layout_height="?actionBarSize" />
+    <RelativeLayout android:id="@id/add_buttons_layout" android:background="?customSelector" android:paddingTop="16.0dp" android:paddingBottom="16.0dp" android:focusable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="32.0dp" android:paddingEnd="16.0dp">
+        <ImageView android:id="@id/add_image" android:layout_width="16.0dp" android:layout_height="16.0dp" android:src="@drawable/ic_add" />
+        <TextView android:id="@id/add_buttons" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/custom_buttons" android:paddingStart="16.0dp" android:layout_toEndOf="@id/add_image" />
+    </RelativeLayout>
+    <android.support.v7.widget.RecyclerView android:id="@id/custom_list" android:focusable="false" android:layout_width="match_parent" android:layout_height="match_parent" />
+</LinearLayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="about_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/info" android:key="info">
+        <PreferenceScreen android:icon="@mipmap/ic_launcher" android:title="@string/app_name" android:key="prefAbout" android:summary="Version: 1.40\nCopyright ©2016-19 Aaron Segaert" />
+        <PreferenceScreen android:icon="@drawable/ic_donate" android:title="@string/donate" android:key="donate">
+            <intent android:targetPackage="flar2.homebutton" android:targetClass="a.y" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_check" android:title="@string/licenses" android:key="openSourceLicenses" />
+        <PreferenceScreen android:icon="@drawable/ic_terms" android:title="@string/terms_of_use" android:key="terms" />
+        <PreferenceScreen android:icon="@drawable/ic_privacy" android:title="@string/privacy_policy" android:key="privacy">
+            <intent android:action="android.intent.action.VIEW" android:data="http://elementalx.org/about/apps-privacy-policy/" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_translate" android:title="@string/translation" android:key="translate" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/more_apps" android:key="more_apps">
+        <PreferenceScreen android:icon="@drawable/ic_elementalx" android:title="EX Kernel Manager">
+            <intent android:action="android.intent.action.VIEW" android:data="market://details?id=flar2.exkernelmanager" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_nexttrack" android:title="Next Track: Skip tracks with volume">
+            <intent android:action="android.intent.action.VIEW" android:data="market://details?id=com.flar2.volumeskip" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_devcheck" android:title="DevCheck System Info">
+            <intent android:action="android.intent.action.VIEW" android:data="market://details?id=flar2.devcheck" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_hbmwidget" android:title="High Brightness Mode">
+            <intent android:action="android.intent.action.VIEW" android:data="market://details?id=flar2.hbmwidget" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/social" android:key="social_media">
+        <PreferenceScreen android:icon="@drawable/ic_reddit" android:title="Reddit Community">
+            <intent android:action="android.intent.action.VIEW" android:data="https://www.reddit.com/r/ButtonMapper/" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_xda" android:title="xda developers">
+            <intent android:action="android.intent.action.VIEW" android:data="http://forum.xda-developers.com/android/apps-games/app-button-mapper-customize-hardware-t3361340" />
+        </PreferenceScreen>
+        <PreferenceScreen android:icon="@drawable/ic_twitter" android:title="Twitter">
+            <intent android:action="android.intent.action.VIEW" android:data="https://twitter.com/ButtonMapper" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

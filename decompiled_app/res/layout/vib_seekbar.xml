@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="vertical" android:id="@android:id/widget_frame" android:paddingBottom="12.0dp" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textAppearance="?textAppearanceListItem" android:id="@id/vib_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/haptic_feedback" />
+    <TextView android:textAppearance="?textAppearanceListItemSmall" android:textColor="?android:textColorSecondary" android:id="@id/vib_strength" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15%" android:layout_below="@id/vib_title" />
+    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/vib_strength" android:paddingEnd="@dimen/activity_horizontal_margin">
+        <SeekBar android:id="@id/vib_seekBar" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </RelativeLayout>
+</RelativeLayout>
