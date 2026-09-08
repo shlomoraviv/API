@@ -1,22 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
     <!-- Background Rounded Square -->
     <path
         android:fillColor="#1E3A8A"
-        android:pathData="M20,8 L88,8 C94.6,8 100,13.4 100,20 L100,88 C100,94.6 94.6,100 88,100 L20,100 C13.4,100 8,94.6 8,88 L8,20 C8,13.4 13.4,8 20,8 Z" />
-        
-    <!-- Stylized Scale/Ruler Symbol (Olive Green) -->
+        android:pathData="M20,10 H88 A10,10 0 0 1 98,20 V88 A10,10 0 0 1 88,98 H20 A10,10 0 0 1 10,88 V20 A10,10 0 0 1 20,10 Z" />
+    <!-- Scale Base / Pillar (Gold) -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M51,40 H57 V75 H51 Z M40,75 H68 V80 H40 Z" />
+    <!-- Scale Beam (Gold) -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M28,43 L80,43 V46 L28,46 Z" />
+    <!-- Scale Left Pan (Olive Green - Chazon Ish) -->
     <path
         android:fillColor="#556B2F"
-        android:pathData="M24,72 L84,72 L84,78 L24,78 Z M34,60 L38,60 L38,72 L34,72 Z M44,64 L48,64 L48,72 L44,72 Z M54,60 L58,60 L58,72 L54,72 Z M64,64 L68,64 L68,72 L64,72 Z M74,60 L78,60 L78,72 L74,72 Z" />
-        
-    <!-- Stylized Torah Book / Tablet (White/Gold Accent) -->
+        android:pathData="M20,60 C20,65 36,65 36,60 L33,45 H23 Z" />
+    <!-- Scale Right Pan (Deep Blue - Rav Chaim Naeh) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M32,24 C32,24 44,20 54,26 C64,20 76,24 76,24 L76,54 C76,54 64,50 54,56 C44,50 32,54 32,54 Z M52,28 L52,52 L56,52 L56,28 Z" />
+        android:fillColor="#3B82F6"
+        android:pathData="M72,60 C72,65 88,65 88,60 L85,45 H75 Z" />
 </vector>
