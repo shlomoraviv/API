@@ -882,6 +882,13 @@
   const MAX_LOG_CHARS = 6000;
   const MAX_GITHUB_READ_ATTEMPTS = 3;
   const GITHUB_RETRY_DELAY_MS = 1500;
+  // Caps for free-text/user-supplied blocks spliced into Gemini prompts. Very
+  // long inputs (a whole document pasted as the "app idea", a huge decompiled
+  // file, a massive build log) are the main source of truncated/unparseable AI
+  // replies — everything past these limits is almost never signal anyway.
+  const GEMINI_IDEA_MAX_CHARS = 12000;
+  const GEMINI_FILE_CONTENT_MAX_CHARS = 60000;
+  const GEMINI_ERROR_LOG_MAX_CHARS = 12000;
 
   // ---- backend (Google Apps Script) — holds the shared GitHub secret for every
   // signed-in user, and the Gemini secrets for pro/superpro/admin users. ----
@@ -1461,19 +1468,43 @@ rebuild, even if that means dropping part of the requested change.`;
     if (currentUser) {
       const method = (options.method || "GET").toUpperCase();
       const body = options.body ? JSON.parse(options.body) : undefined;
-      const result = await backendCall("githubJson", { path, method, body });
-      if (!result.ok) {
+      // Apps Script (the backend relay) occasionally returns an empty body on a
+      // single attempt — a cold-start hiccup or a lost redirect response — even
+      // though the same request succeeds when repeated. This used to surface as
+      // the fatal "בקשת GitHub … חזרה בלי תוכן" error, killing long pipelines at
+      // random steps (most visibly on the branch-ref PATCH right after a big
+      // generation, i.e. right after the longest waits). Retry the whole relayed
+      // request a couple of times before giving up.
+      let lastEmptyErr = null;
+      for (let attempt = 1; attempt <= MAX_GITHUB_READ_ATTEMPTS; attempt++) {
+        const result = await backendCall("githubJson", { path, method, body });
+        if (result.ok) {
+          if (result.data === undefined || result.data === null) {
+            // הגנה: לא אמור לקרות מול הבקאנד המתוקן, אבל אם בכל זאת יקרה — נכשל
+            // כאן בבירור עם הודעה מובנת, במקום להחזיר undefined ולתת לקורא (למשל
+            // waitForWorkflowRun) לקרוס עם שגיאת JS גולמית וחסרת הקשר.
+            lastEmptyErr = new Error(`בקשת GitHub ל-${path} חזרה בלי תוכן.`);
+            if (attempt < MAX_GITHUB_READ_ATTEMPTS) {
+              console.warn(`gh(${method} ${path}) empty relay response, retrying (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`);
+              await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+              continue;
+            }
+            throw lastEmptyErr;
+          }
+          return result.data;
+        }
         const err = new Error(result.error || `GitHub request failed on ${path}`);
         if (result.status) err.status = result.status;
-        throw err;
+        // A relayed request that GitHub itself answered with 4xx/5xx is a real,
+        // deterministic answer — retrying it just burns time (and a retried
+        // PATCH/POST could double an effect). Only a status-less failure means
+        // the relay never got through, which is exactly what retries fix.
+        const retryable = !result.status || result.status === 429 || result.status >= 500;
+        if (!retryable || attempt >= MAX_GITHUB_READ_ATTEMPTS) throw err;
+        console.warn(`gh(${method} ${path}) relay returned ${result.status || "network error"}, retrying (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`);
+        await sleep(GITHUB_RETRY_DELAY_MS * attempt);
       }
-      if (result.data === undefined || result.data === null) {
-        // הגנה: לא אמור לקרות מול הבקאנד המתוקן, אבל אם בכל זאת יקרה — נכשל
-        // כאן בבירור עם הודעה מובנת, במקום להחזיר undefined ולתת לקורא (למשל
-        // waitForWorkflowRun) לקרוס עם שגיאת JS גולמית וחסרת הקשר.
-        throw new Error(`בקשת GitHub ל-${path} חזרה בלי תוכן.`);
-      }
-      return result.data;
+      throw lastEmptyErr || new Error(`GitHub request failed on ${path}`);
     }
     const res = await githubFetch(path, token, options);
     if (!res.ok) {
@@ -1518,6 +1549,11 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   // ---------- Gemini key rotation ----------
+  // When a key comes back rate-limited (429), pause briefly on it before trying
+  // the next key — an immediate rotation just lands on the next equally-exhausted
+  // key when all workers share the same per-minute quota.
+  const GEMINI_KEY_BACKOFF_DEFAULT_MS = 15000;
+  const GEMINI_KEY_BACKOFF_MAX_MS = 60000;
   function parseGeminiKeys(raw) {
     return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
   }
@@ -1567,6 +1603,17 @@ rebuild, even if that means dropping part of the requested change.`;
       if (res.status === 429 || res.status === 401 || res.status === 403 || res.status >= 500) {
         const text = await res.text().catch(() => "");
         lastErr = new Error(`Gemini API ${res.status} (${keyLabel}) — ${text.slice(0, 200)}`);
+        // On 429 specifically, waiting briefly on the SAME key before rotating
+        // usually succeeds and saves the other keys' quotas — parallel workers
+        // tend to trip the shared per-minute limit together.
+        if (res.status === 429) {
+          const retryAfterSec = parseInt(res.headers.get("retry-after") || "", 10);
+          const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0
+            ? Math.min(retryAfterSec * 1000, GEMINI_KEY_BACKOFF_MAX_MS)
+            : GEMINI_KEY_BACKOFF_DEFAULT_MS;
+          log(`${keyLabel}: מוגבל לשימוש (429), ממתין ${Math.round(waitMs / 1000)} שניות לפני המפתח הבא…`, null, logTarget);
+          await sleep(waitMs);
+        }
         if (geminiKeys.length > 1) log(`${keyLabel} חזר עם ${res.status}, עובר למפתח הבא…`, null, logTarget);
         continue;
       }
@@ -1624,6 +1671,32 @@ rebuild, even if that means dropping part of the requested change.`;
       throw new Error("אין אף Gemini API Key מוגדר.");
     }
     return callGeminiWithKeys(geminiKeys, startOffset % geminiKeys.length, body, logTarget);
+  }
+
+  // Wraps a Gemini call with a short retry loop for replies that failed as a
+  // WHOLE (no text, truncated JSON, unparseable JSON) — the classic failure mode
+  // of long, code-heavy prompts: on a 32k-token response the model can exhaust
+  // its output mid-string, or a single attempt just comes back empty on a busy
+  // backend. None of that is a caller bug, and all of it usually succeeds on a
+  // second, identical attempt. Callers already give clear per-call error text;
+  // this just gives those errors a real second chance before surfacing.
+  async function callGeminiWithRetry(geminiKeys, buildBody, attemptFn, logTarget) {
+    const GEMINI_BIG_REPLY_ATTEMPTS = 3;
+    let lastErr;
+    for (let attempt = 1; attempt <= GEMINI_BIG_REPLY_ATTEMPTS; attempt++) {
+      try {
+        // buildBody is a fresh factory so a retried attempt never reuses a body
+        // object the previous attempt may have mutated in place.
+        return await attemptFn(await callGemini(geminiKeys, buildBody(), logTarget));
+      } catch (err) {
+        lastErr = err;
+        if (attempt >= GEMINI_BIG_REPLY_ATTEMPTS) break;
+        const waitMs = 2500 * attempt;
+        log(`ניסיון Gemini ${attempt} נכשל (${err.message}) — מנסה שוב בעוד ${Math.round(waitMs / 1000)} שניות…`, "error", logTarget);
+        await sleep(waitMs);
+      }
+    }
+    throw lastErr;
   }
 
   function extractGeminiText(data) {
@@ -1702,64 +1775,88 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // ---------- 1. Gemini: generate the app ----------
   async function generateAppCode(geminiKeys, idea, thinkLevel, logTarget, designImage) {
-    const parts = [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${idea}` }];
+    // A very long "app idea" (someone pasting a whole spec or document) is the
+    // single biggest source of truncated, unparseable replies on the biggest
+    // output this pipeline makes. Keep the appended idea within a sane bound —
+    // the head carries the meaning; a 12k-char tail is rarely even read.
+    const boundedIdea = idea.length > GEMINI_IDEA_MAX_CHARS
+      ? idea.slice(0, GEMINI_IDEA_MAX_CHARS) + "\n\n[the app idea was truncated for length]"
+      : idea;
+    const parts = [{ text: `${SYSTEM_INSTRUCTIONS}\n\nApp idea from the user:\n${boundedIdea}` }];
     if (designImage) {
       parts[0].text += "\n\nThe user also attached an inspiration image (below) - reflect its color " +
         "palette and general visual mood in your icon and in the color choices you make for the " +
         "code-built UI, without trying to literally reproduce the image itself.";
       parts.push({ inline_data: { mime_type: designImage.mime, data: designImage.base64 } });
     }
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.4,
-        maxOutputTokens: 32768,
-        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+    return callGeminiWithRetry(
+      geminiKeys,
+      () => ({
+        contents: [{ role: "user", parts }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.4,
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+        },
+      }),
+      async (data) => {
+        const { raw, finishReason } = extractGeminiText(data);
+        if (!raw) {
+          throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}).`);
+        }
+        const parsed = parseJsonLoose(raw);
+        if (!parsed) {
+          throw new Error(
+            `Could not parse Gemini's reply as JSON (finishReason: ${finishReason}). ` +
+            `First 200 chars received: ${raw.slice(0, 200) || "(empty)"}`
+          );
+        }
+        if (!parsed.manifest || !parsed.kotlin || !parsed.icon) {
+          throw new Error(`Gemini's reply is missing "manifest", "kotlin" or "icon". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
+        }
+        return parsed;
       },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) {
-      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}). Try again or simplify the prompt.`);
-    }
-    const parsed = parseJsonLoose(raw);
-    if (!parsed) {
-      throw new Error(
-        `Could not parse Gemini's reply as JSON (finishReason: ${finishReason}). ` +
-        `First 200 chars received: ${raw.slice(0, 200) || "(empty)"}`
-      );
-    }
-    if (!parsed.manifest || !parsed.kotlin || !parsed.icon) {
-      throw new Error(`Gemini's reply is missing "manifest", "kotlin" or "icon". Keys received: ${Object.keys(parsed).join(", ") || "(none)"}`);
-    }
-    return parsed;
+      logTarget,
+    );
   }
 
   // ---------- 1b. Gemini: decide whether to ask clarifying questions, and/or improve the idea ----------
   async function analyzeIdea(geminiKeys, idea, logTarget) {
     const maxQuestions = loadMaxQuestions();
     if (maxQuestions === 0) return { questions: [], improved: "" };
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${analyzeInstructions(maxQuestions)}\n\nApp idea from the user:\n${idea}` }] }],
-      // thinkingBudget: 0 — this is a quick classification/rewrite step (same spirit as the
-      // "fast" thinking preset used elsewhere), not something that benefits from reasoning
-      // tokens. Without it, some of maxOutputTokens can get spent on invisible thinking before
-      // any JSON is emitted, truncating the reply (finishReason: MAX_TOKENS) before it parses.
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) {
-      throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}).`);
-    }
-    const parsed = parseJsonLoose(raw);
-    if (!parsed) {
-      throw new Error(`Could not parse Gemini's reply as JSON (finishReason: ${finishReason}).`);
-    }
-    const questions = Array.isArray(parsed.questions)
-      ? parsed.questions.filter((q) => q && typeof q.question === "string" && Array.isArray(q.options) && q.options.length).slice(0, maxQuestions)
-      : [];
-    const improved = typeof parsed.improved === "string" ? parsed.improved.trim() : "";
-    return { questions, improved };
+    const boundedIdea = idea.length > GEMINI_IDEA_MAX_CHARS
+      ? idea.slice(0, GEMINI_IDEA_MAX_CHARS) + "\n\n[the app idea was truncated for length]"
+      : idea;
+    return callGeminiWithRetry(
+      geminiKeys,
+      () => ({
+        contents: [{ role: "user", parts: [{ text: `${analyzeInstructions(maxQuestions)}\n\nApp idea from the user:\n${boundedIdea}` }] }],
+        // thinkingBudget: 0 — this is a quick classification/rewrite step (same spirit as the
+        // "fast" thinking preset used elsewhere), not something that benefits from reasoning
+        // tokens. Without it, some of maxOutputTokens can get spent on invisible thinking before
+        // any JSON is emitted, truncating the reply (finishReason: MAX_TOKENS) before it parses.
+        // The "improved" rewrite is roughly proportional to the input idea, so the output cap
+        // scales with the idea's bounded length instead of being a fixed small number.
+        generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: Math.min(32768, 2048 + 2 * boundedIdea.length), thinkingConfig: { thinkingBudget: 0 } },
+      }),
+      async (data) => {
+        const { raw, finishReason } = extractGeminiText(data);
+        if (!raw) {
+          throw new Error(`Gemini returned no usable text (finishReason: ${finishReason}).`);
+        }
+        const parsed = parseJsonLoose(raw);
+        if (!parsed) {
+          throw new Error(`Could not parse Gemini's reply as JSON (finishReason: ${finishReason}).`);
+        }
+        const questions = Array.isArray(parsed.questions)
+          ? parsed.questions.filter((q) => q && typeof q.question === "string" && Array.isArray(q.options) && q.options.length).slice(0, maxQuestions)
+          : [];
+        const improved = typeof parsed.improved === "string" ? parsed.improved.trim() : "";
+        return { questions, improved };
+      },
+      logTarget,
+    );
   }
 
   // ---------- shared Git Data API helpers (used by both the generate- and edit-flows) ----------
@@ -2177,9 +2274,22 @@ rebuild, even if that means dropping part of the requested change.`;
     return [...ownSmali, ...resPaths, ...(manifestPath ? [manifestPath] : [])].slice(0, MAX_EDIT_CANDIDATE_FILES);
   }
 
+  // Caps one decompiled file's contribution to a patch prompt. A minified or
+  // resource-heavy file can be enormous, and past the cap its tail is exactly
+  // what pushes the whole reply into truncation territory. The head is where
+  // class/field/method structure lives, so truncating the tail stays useful.
+  function boundFileForPrompt(content, maxChars) {
+    return content.length > maxChars
+      ? content.slice(0, maxChars) + "\n…[file truncated for prompt length]"
+      : content;
+  }
+
   async function locateEditFiles(geminiKeys, pkg, instruction, candidatePaths, logTarget) {
+    const boundedInstruction = instruction.length > GEMINI_IDEA_MAX_CHARS
+      ? instruction.slice(0, GEMINI_IDEA_MAX_CHARS) + "\n…[change request truncated for length]"
+      : instruction;
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${LOCATE_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${instruction}\n\nCandidate paths:\n${candidatePaths.join("\n")}` }] }],
+      contents: [{ role: "user", parts: [{ text: `${LOCATE_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${boundedInstruction}\n\nCandidate paths:\n${candidatePaths.join("\n")}` }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 1024 },
     }, logTarget);
     const { raw, finishReason } = extractGeminiText(data);
@@ -2190,39 +2300,59 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   async function patchEditFiles(geminiKeys, pkg, instruction, fileContents, thinkLevel, logTarget) {
-    const filesBlock = fileContents.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n");
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${PATCH_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${instruction}\n\nFiles:\n${filesBlock}` }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.3,
-        maxOutputTokens: 32768,
-        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+    const boundedInstruction = instruction.length > GEMINI_IDEA_MAX_CHARS
+      ? instruction.slice(0, GEMINI_IDEA_MAX_CHARS) + "\n…[change request truncated for length]"
+      : instruction;
+    const filesBlock = fileContents.map((f) => `--- ${f.path} ---\n${boundFileForPrompt(f.content, GEMINI_FILE_CONTENT_MAX_CHARS)}`).join("\n\n");
+    return callGeminiWithRetry(
+      geminiKeys,
+      () => ({
+        contents: [{ role: "user", parts: [{ text: `${PATCH_FILES_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nRequested change:\n${boundedInstruction}\n\nFiles:\n${filesBlock}` }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.3,
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+        },
+      }),
+      async (data) => {
+        const { raw, finishReason } = extractGeminiText(data);
+        if (!raw) throw new Error(`Gemini returned no usable patch (finishReason: ${finishReason}).`);
+        const parsed = parseJsonLoose(raw);
+        if (!parsed) throw new Error(`Could not parse Gemini's patch reply as JSON (finishReason: ${finishReason}).`);
+        return Array.isArray(parsed.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
       },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable patch (finishReason: ${finishReason}).`);
-    const parsed = parseJsonLoose(raw);
-    return Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
+      logTarget,
+    );
   }
 
   async function patchEditFilesFix(geminiKeys, pkg, instruction, previousFiles, errorLog, thinkLevel, logTarget) {
-    const filesBlock = previousFiles.map((f) => `--- ${f.path} ---\n${f.content}`).join("\n\n");
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${PATCH_FIX_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nOriginal requested change:\n${instruction}\n\nPreviously patched files:\n${filesBlock}\n\nRebuild error log:\n${errorLog}` }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.3,
-        maxOutputTokens: 32768,
-        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+    const boundedInstruction = instruction.length > GEMINI_IDEA_MAX_CHARS
+      ? instruction.slice(0, GEMINI_IDEA_MAX_CHARS) + "\n…[change request truncated for length]"
+      : instruction;
+    const filesBlock = previousFiles.map((f) => `--- ${f.path} ---\n${boundFileForPrompt(f.content, GEMINI_FILE_CONTENT_MAX_CHARS)}`).join("\n\n");
+    return callGeminiWithRetry(
+      geminiKeys,
+      () => ({
+        contents: [{ role: "user", parts: [{ text: `${PATCH_FIX_INSTRUCTIONS}\n\nPackage: ${pkg}\n\nOriginal requested change:\n${boundedInstruction}\n\nPreviously patched files:\n${filesBlock}\n\nRebuild error log:\n${boundFileForPrompt(errorLog, GEMINI_ERROR_LOG_MAX_CHARS)}` }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.3,
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+        },
+      }),
+      async (data) => {
+        const { raw, finishReason } = extractGeminiText(data);
+        if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
+        const parsed = parseJsonLoose(raw);
+        if (!parsed) throw new Error(`Could not parse Gemini's fix reply as JSON (finishReason: ${finishReason}).`);
+        const files = Array.isArray(parsed.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
+        if (files.length === 0) throw new Error("Gemini's fix reply had no usable files.");
+        return files;
       },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
-    const parsed = parseJsonLoose(raw);
-    const files = Array.isArray(parsed?.files) ? parsed.files.filter((f) => f && typeof f.path === "string" && typeof f.content === "string") : [];
-    if (files.length === 0) throw new Error("Gemini's fix reply had no usable files.");
-    return files;
+      logTarget,
+    );
   }
 
   // Explicit dispatch avoids relying on GitHub's push-path trigger. That trigger
@@ -2248,7 +2378,11 @@ rebuild, even if that means dropping part of the requested change.`;
     const start = Date.now();
     let runId = null, runUrl = null, runNumber = null;
     let consecutivePollErrors = 0;
-    const MAX_CONSECUTIVE_POLL_ERRORS = 4;
+    // Long prompts make the whole pipeline slower, and the relay's "empty body"
+    // hiccup tends to strike mid-poll too — 4 consecutive failures was easy to
+    // hit on a flaky network and aborted an otherwise-fine run. 12 straight
+    // failures (~1 minute of continuous errors) is a real outage, not a hiccup.
+    const MAX_CONSECUTIVE_POLL_ERRORS = 12;
 
     while (Date.now() - start < POLL_TIMEOUT_MS) {
       if (!runId) {
@@ -2318,29 +2452,39 @@ rebuild, even if that means dropping part of the requested change.`;
     }
     if (!combined) throw new Error("קובץ הלוגים היה ריק.");
     // Keep this short and pointed — a full log can be huge, and only the error
-    // tail actually helps Gemini fix the code.
-    return combined.length > MAX_LOG_CHARS ? "…\n" + combined.slice(-MAX_LOG_CHARS) : combined;
+    // tail actually helps Gemini fix the code. A still-oversized tail gets a
+    // hard cap too, so it can never blow up the fix prompt.
+    const tail = combined.length > MAX_LOG_CHARS ? "…\n" + combined.slice(-MAX_LOG_CHARS) : combined;
+    return boundFileForPrompt(tail, GEMINI_ERROR_LOG_MAX_CHARS);
   }
 
   // ---------- 3c. Gemini: fix generated code against a real build error ----------
   async function generateAppCodeFix(geminiKeys, idea, previous, errorLog, thinkLevel, logTarget) {
-    const prompt = `${FIX_INSTRUCTIONS}\n\nOriginal app idea:\n${idea}\n\nPrevious manifest:\n${previous.manifest}\n\nPrevious kotlin:\n${previous.kotlin}\n\nPrevious icon:\n${previous.icon}\n\nBuild error log:\n${errorLog}`;
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.3,
-        maxOutputTokens: 32768,
-        thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+    const boundedIdea = idea.length > GEMINI_IDEA_MAX_CHARS
+      ? idea.slice(0, GEMINI_IDEA_MAX_CHARS) + "\n\n[the app idea was truncated for length]"
+      : idea;
+    return callGeminiWithRetry(
+      geminiKeys,
+      () => ({
+        contents: [{ role: "user", parts: [{ text: `${FIX_INSTRUCTIONS}\n\nOriginal app idea:\n${boundedIdea}\n\nPrevious manifest:\n${previous.manifest}\n\nPrevious kotlin:\n${previous.kotlin}\n\nPrevious icon:\n${previous.icon}\n\nBuild error log:\n${boundFileForPrompt(errorLog, GEMINI_ERROR_LOG_MAX_CHARS)}` }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.3,
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingBudget: THINK_BUDGETS[thinkLevel] ?? THINK_BUDGETS.medium },
+        },
+      }),
+      async (data) => {
+        const { raw, finishReason } = extractGeminiText(data);
+        if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
+        const parsed = parseJsonLoose(raw);
+        if (!parsed || !parsed.manifest || !parsed.kotlin || !parsed.icon) {
+          throw new Error(`Gemini's fix reply is missing "manifest", "kotlin" or "icon".`);
+        }
+        return parsed;
       },
-    }, logTarget);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable fix (finishReason: ${finishReason}).`);
-    const parsed = parseJsonLoose(raw);
-    if (!parsed || !parsed.manifest || !parsed.kotlin || !parsed.icon) {
-      throw new Error(`Gemini's fix reply is missing "manifest", "kotlin" or "icon".`);
-    }
-    return parsed;
+      logTarget,
+    );
   }
 
   // ---------- 4. Fetch the artifact zip, unzip client-side, get the raw .apk ----------
@@ -3011,6 +3155,13 @@ rebuild, even if that means dropping part of the requested change.`;
       setStage("patch", "active", rail, EDIT2_STAGE_ORDER);
       const fileContents = await Promise.all(paths.map(async (p) => ({ path: p, content: await fetchRepoFile({ owner, repo, branch, token, path: p }) })));
       let patchedFiles = await patchEditFiles(geminiKeys, pkg, instruction, fileContents, selectedThinkLevel, logBox);
+      // An empty patch after a long-prompt attempt is most often a truncation
+      // artifact (the model dropped the "files" array), not the model genuinely
+      // refusing — one plain retry usually produces the real patch.
+      if (patchedFiles.length === 0) {
+        log("Gemini החזיר טלאי ריק, מנסה פעם נוספת…", null, logBox);
+        patchedFiles = await patchEditFiles(geminiKeys, pkg, instruction, fileContents, selectedThinkLevel, logBox);
+      }
       if (patchedFiles.length === 0) throw new Error("Gemini לא הציע שינוי בקבצים שנבחרו — נסו לנסח את הבקשה אחרת.");
       log(`Gemini שינה ${patchedFiles.length} קבצים.`, "ok", logBox);
       setStage("patch", "done", rail, EDIT2_STAGE_ORDER);
