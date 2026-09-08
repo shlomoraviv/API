@@ -27,7 +27,7 @@ jobs:
           echo "Uploading $(du -h "$APK" | cut -f1) APK to Appetize…"
 
           HTTP_CODE=$(curl -sS -o appetize_response.json -w '%{http_code}' \
-            -X POST https://appetize.io/api/v1/app \
+            -X POST https://api.appetize.io/v1/apps \
             -H "X-API-KEY: $APPETIZE_API_TOKEN" \
             -F "file=@${APK}" \
             -F "platform=android")
