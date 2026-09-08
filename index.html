@@ -1893,6 +1893,21 @@ rebuild, even if that means dropping part of the requested change.`;
     return map;
   }
 
+  // Gemini sometimes wraps an LTR placeholder like %1$s embedded in RTL Hebrew
+  // text with invisible Unicode bidi-control characters (LRM/RLM, embeddings,
+  // isolates) so it *displays* correctly. Those are invisible in a text editor
+  // and don't stop extractProtectedTokens() below from still finding the "%1$s"
+  // substring, so a translation carrying them silently passes the placeholder
+  // check below - but Java's String.format() parses a format specifier strictly
+  // character-by-character, and one hidden mark stuck right against a "%" makes
+  // it throw a runtime exception (enough to crash an app on its very first
+  // screen if that string is used during startup). Android's own bidi
+  // algorithm already handles RTL/LTR mixing automatically in the vast
+  // majority of cases, so it's safe - and safer - to strip these outright.
+  function stripBidiControlChars(text) {
+    return String(text).replace(/[\u200E\u200F\u061C\u202A-\u202E\u2066-\u2069]/g, "");
+  }
+
   // Extracts every code-facing token from a string that MUST survive translation
   // unchanged - printf-style specifiers (%s, %1$s, %.2f...), {0}-style indices,
   // and escape sequences (\n, \t) - as a sorted list, so two strings can be
@@ -2048,7 +2063,7 @@ rebuild, even if that means dropping part of the requested change.`;
             // original strings instead of risking invalid Android resources.
             for (const key of Object.keys(batch)) {
               if (typeof parsed.translations[key] === "string") {
-                translations[key] = parsed.translations[key];
+                translations[key] = stripBidiControlChars(parsed.translations[key]);
               }
             }
             log(`${workerLabel}: קבוצה ${batchNumber} מתוך ${batches.length} הושלמה`, "ok", logTarget);
