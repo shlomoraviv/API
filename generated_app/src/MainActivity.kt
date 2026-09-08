@@ -91,13 +91,13 @@ class MainActivity : Activity() {
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
             setBackgroundColor(Color.parseColor("#F9FAFB"))
-            isFillViewport = true
-            layoutDirection = View.LAYOUT_DIRECTION_RTL
+            setFillViewport(true)
+            setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
         }
 
         // Main Vertical Container
         val mainLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
@@ -107,8 +107,8 @@ class MainActivity : Activity() {
 
         // App Header
         val headerLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
+            setOrientation(LinearLayout.VERTICAL)
+            setGravity(Gravity.CENTER)
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             params.setMargins(0, 0, 0, dp(20))
             layoutParams = params
@@ -119,15 +119,15 @@ class MainActivity : Activity() {
             textSize = 28f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             setTextColor(Color.parseColor("#1E3A8A")) // Deep Blue
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
         }
 
         val appSubtitle = TextView(this).apply {
-            text = "חזון איש vs גר"ח נאה • המחשה ויזואלית"
+            text = "חזון איש vs גר'ח נאה • המחשה ויזואלית"
             textSize = 14f
             typeface = Typeface.create("sans-serif", Typeface.NORMAL)
             setTextColor(Color.parseColor("#4B5563")) // Muted Gray
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
             setPadding(0, dp(4), 0, 0)
         }
 
@@ -239,27 +239,27 @@ class MainActivity : Activity() {
     // Helper to create Accordion View
     private fun createAccordionSection(title: String, content: View, initiallyExpanded: Boolean): View {
         val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
             params.setMargins(0, dp(8), 0, dp(8))
             layoutParams = params
-            background = roundedRect(Color.WHITE, dp(12).toFloat())
-            elevation = dp(2).toFloat()
+            setBackground(roundedRect(Color.WHITE, dp(12).toFloat()))
+            setElevation(dp(2).toFloat())
             setPadding(dp(16), dp(16), dp(16), dp(16))
         }
 
         val header = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
+            setOrientation(LinearLayout.HORIZONTAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            gravity = Gravity.CENTER_VERTICAL
-            isClickable = true
-            focusable = View.FOCUSABLE
+            setGravity(Gravity.CENTER_VERTICAL)
+            setClickable(true)
+            setFocusable(true)
         }
 
         val indicator = TextView(this).apply {
@@ -274,7 +274,7 @@ class MainActivity : Activity() {
             textSize = 16f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             setTextColor(Color.parseColor("#1F2937"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
             layoutParams = LinearLayout.LayoutParams(
                 0, 
                 LinearLayout.LayoutParams.WRAP_CONTENT, 
@@ -307,7 +307,7 @@ class MainActivity : Activity() {
     // 1. Visualizer View Creation
     private fun createVisualizerView(): View {
         val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -317,7 +317,7 @@ class MainActivity : Activity() {
 
         // Tab Selector
         tabContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
+            setOrientation(LinearLayout.HORIZONTAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -329,7 +329,7 @@ class MainActivity : Activity() {
             val tabButton = TextView(this).apply {
                 text = measurements[i].name
                 textSize = 14f
-                gravity = Gravity.CENTER
+                setGravity(Gravity.CENTER)
                 typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
                 val params = LinearLayout.LayoutParams(0, dp(36), 1f)
                 params.setMargins(dp(2), 0, dp(2), 0)
@@ -347,42 +347,42 @@ class MainActivity : Activity() {
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(220))
             params.setMargins(0, dp(16), 0, dp(16))
             layoutParams = params
-            background = roundedRect(Color.parseColor("#F3F4F6"), dp(8).toFloat())
+            setBackground(roundedRect(Color.parseColor("#F3F4F6"), dp(8).toFloat()))
             setPadding(dp(16), dp(16), dp(16), dp(16))
         }
 
         // Side-by-Side Bars Container
         val barsContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
+            setOrientation(LinearLayout.HORIZONTAL)
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
-            gravity = Gravity.BOTTOM
+            setGravity(Gravity.BOTTOM)
             weightSum = 2f
         }
 
         // Bar 1: Rav Chaim Naeh
         val containerNaeh = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+            setOrientation(LinearLayout.VERTICAL)
+            setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM)
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
         }
         labelNaehVal = TextView(this).apply {
             textSize = 12f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.parseColor("#1E3A8A"))
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
         }
         barNaeh = View(this).apply {
-            background = roundedRect(Color.parseColor("#1E3A8A"), dp(6).toFloat())
+            setBackground(roundedRect(Color.parseColor("#1E3A8A"), dp(6).toFloat()))
             layoutParams = LinearLayout.LayoutParams(dp(50), 0)
         }
         val titleNaeh = TextView(this).apply {
-            text = "גר"ח נאה"
+            text = "גר'ח נאה"
             textSize = 12f
             setTextColor(Color.parseColor("#374151"))
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
             setPadding(0, dp(4), 0, 0)
         }
         containerNaeh.addView(labelNaehVal)
@@ -391,25 +391,25 @@ class MainActivity : Activity() {
 
         // Bar 2: Chazon Ish
         val containerChazon = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+            setOrientation(LinearLayout.VERTICAL)
+            setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM)
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
         }
         labelChazonVal = TextView(this).apply {
             textSize = 12f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.parseColor("#556B2F"))
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
         }
         barChazon = View(this).apply {
-            background = roundedRect(Color.parseColor("#556B2F"), dp(6).toFloat())
+            setBackground(roundedRect(Color.parseColor("#556B2F"), dp(6).toFloat()))
             layoutParams = LinearLayout.LayoutParams(dp(50), 0)
         }
         val titleChazon = TextView(this).apply {
             text = "חזון איש"
             textSize = 12f
             setTextColor(Color.parseColor("#374151"))
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
             setPadding(0, dp(4), 0, 0)
         }
         containerChazon.addView(labelChazonVal)
@@ -426,13 +426,13 @@ class MainActivity : Activity() {
             text = "גרור לשינוי קנה המידה (אנימציית Morphing):"
             textSize = 12f
             setTextColor(Color.parseColor("#4B5563"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
         }
         layout.addView(sliderLabel)
 
         visualizerSlider = SeekBar(this).apply {
-            max = 100
-            progress = 100
+            setMax(100)
+            setProgress(100)
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             params.setMargins(0, dp(4), 0, dp(12))
             layoutParams = params
@@ -451,7 +451,7 @@ class MainActivity : Activity() {
             textSize = 13f
             setTextColor(Color.parseColor("#1F2937"))
             typeface = Typeface.create("sans-serif", Typeface.ITALIC)
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
             setPadding(0, 0, 0, dp(8))
         }
         layout.addView(visualizerReferenceText)
@@ -460,7 +460,7 @@ class MainActivity : Activity() {
         visualizerImpactText = TextView(this).apply {
             textSize = 13f
             setTextColor(Color.parseColor("#4B5563"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
             setPadding(0, 0, 0, dp(12))
         }
         layout.addView(visualizerImpactText)
@@ -470,7 +470,7 @@ class MainActivity : Activity() {
             text = "למה יש הבדל? (מקורות)"
             textSize = 14f
             setTextColor(Color.WHITE)
-            background = buttonDrawable(Color.parseColor("#1E3A8A"), Color.parseColor("#172554"), dp(8).toFloat())
+            setBackground(buttonDrawable(Color.parseColor("#1E3A8A"), Color.parseColor("#172554"), dp(8).toFloat()))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
             setOnClickListener {
                 showSourcesDialog()
@@ -486,16 +486,16 @@ class MainActivity : Activity() {
         for (i in 0 until tabContainer.childCount) {
             val tab = tabContainer.getChildAt(i) as TextView
             if (i == index) {
-                tab.background = roundedRect(Color.parseColor("#1E3A8A"), dp(8).toFloat())
+                tab.setBackground(roundedRect(Color.parseColor("#1E3A8A"), dp(8).toFloat()))
                 tab.setTextColor(Color.WHITE)
                 tab.typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             } else {
-                tab.background = roundedRect(Color.parseColor("#E5E7EB"), dp(8).toFloat())
+                tab.setBackground(roundedRect(Color.parseColor("#E5E7EB"), dp(8).toFloat()))
                 tab.setTextColor(Color.parseColor("#374151"))
                 tab.typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
             }
         }
-        visualizerSlider.progress = 100
+        visualizerSlider.setProgress(100)
         updateBarsHeight(100)
     }
 
@@ -525,10 +525,10 @@ class MainActivity : Activity() {
     private fun showSourcesDialog() {
         val m = measurements[activeMeasurementIndex]
         val dialogView = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             setPadding(dp(20), dp(20), dp(20), dp(20))
-            layoutDirection = View.LAYOUT_DIRECTION_RTL
-            background = roundedRect(Color.WHITE, dp(12).toFloat())
+            setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
+            setBackground(roundedRect(Color.WHITE, dp(12).toFloat()))
         }
 
         val title = TextView(this).apply {
@@ -579,7 +579,7 @@ class MainActivity : Activity() {
     // 2. Calculator View Creation
     private fun createCalculatorView(): View {
         val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -591,7 +591,7 @@ class MainActivity : Activity() {
             text = "הזן ערך מספרי לבדיקה הלכתית מהירה:"
             textSize = 14f
             setTextColor(Color.parseColor("#4B5563"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
             setPadding(0, 0, 0, dp(8))
         }
         layout.addView(infoText)
@@ -602,29 +602,29 @@ class MainActivity : Activity() {
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
             textSize = 16f
             setPadding(dp(12), dp(12), dp(12), dp(12))
-            background = roundedRect(Color.parseColor("#F3F4F6"), dp(8).toFloat())
-            gravity = Gravity.RIGHT
+            setBackground(roundedRect(Color.parseColor("#F3F4F6"), dp(8).toFloat()))
+            setGravity(Gravity.RIGHT)
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
         layout.addView(calcInput)
 
         // Unit Toggle
         calcUnitToggle = RadioGroup(this).apply {
-            orientation = RadioGroup.HORIZONTAL
+            setOrientation(RadioGroup.HORIZONTAL)
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             params.setMargins(0, dp(12), 0, dp(12))
             layoutParams = params
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
         }
 
         val radioVol = RadioButton(this).apply {
             text = "נפח (מ\"ל / סמ\"ק)"
-            id = View.generateViewId()
-            isChecked = true
+            setId(View.generateViewId())
+            setChecked(true)
         }
         val radioLen = RadioButton(this).apply {
             text = "אורך (ס\"מ)"
-            id = View.generateViewId()
+            setId(View.generateViewId())
         }
         calcUnitToggle.addView(radioVol)
         calcUnitToggle.addView(radioLen)
@@ -635,7 +635,7 @@ class MainActivity : Activity() {
             text = "חשב שיעור הלכתי"
             textSize = 14f
             setTextColor(Color.WHITE)
-            background = buttonDrawable(Color.parseColor("#556B2F"), Color.parseColor("#3F4F22"), dp(8).toFloat())
+            setBackground(buttonDrawable(Color.parseColor("#556B2F"), Color.parseColor("#3F4F22"), dp(8).toFloat()))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
             setOnClickListener {
                 performCalculation()
@@ -645,11 +645,11 @@ class MainActivity : Activity() {
 
         // Result Card
         calcResultCard = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             params.setMargins(0, dp(16), 0, 0)
             layoutParams = params
-            background = roundedRect(Color.parseColor("#ECFDF5"), dp(8).toFloat())
+            setBackground(roundedRect(Color.parseColor("#ECFDF5"), dp(8).toFloat()))
             setPadding(dp(16), dp(16), dp(16), dp(16))
             visibility = View.GONE
         }
@@ -657,7 +657,7 @@ class MainActivity : Activity() {
         calcResultText = TextView(this).apply {
             textSize = 14f
             setTextColor(Color.parseColor("#065F46"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
         }
         calcResultCard.addView(calcResultText)
         layout.addView(calcResultCard)
@@ -702,7 +702,7 @@ class MainActivity : Activity() {
             sb.append("\n• לשיטת החזון איש:\n")
             if (value >= 150) {
                 sb.append("  - עברת שיעור רביעית (150 מ\"ל) וכזית (48 מ\"ל).\n")
-            } else if (value >= 48) {
+            } else if (value >= 48) { 
                 sb.append("  - עברת שיעור כזית (48 מ\"ל). חסרים עוד ${150 - value} מ\"ל לרביעית.\n")
             } else {
                 sb.append("  - לא הגיע לשיעור כזית. חסרים עוד ${48 - value} מ\"ל.\n")
@@ -746,7 +746,7 @@ class MainActivity : Activity() {
     // 3. Quiz View Creation
     private fun createQuizView(): View {
         quizCard = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -758,13 +758,13 @@ class MainActivity : Activity() {
             textSize = 15f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             setTextColor(Color.parseColor("#1F2937"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
             setPadding(0, 0, 0, dp(12))
         }
         quizCard.addView(quizQuestionText)
 
         quizOptionsContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -774,7 +774,7 @@ class MainActivity : Activity() {
 
         quizFeedbackText = TextView(this).apply {
             textSize = 13f
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
             setPadding(dp(8), dp(8), dp(8), dp(8))
             visibility = View.GONE
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -787,7 +787,7 @@ class MainActivity : Activity() {
             text = "השאלה הבאה"
             textSize = 14f
             setTextColor(Color.WHITE)
-            background = buttonDrawable(Color.parseColor("#1E3A8A"), Color.parseColor("#172554"), dp(8).toFloat())
+            setBackground(buttonDrawable(Color.parseColor("#1E3A8A"), Color.parseColor("#172554"), dp(8).toFloat()))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
             visibility = View.GONE
             setOnClickListener {
@@ -813,7 +813,7 @@ class MainActivity : Activity() {
                 text = q.options[i]
                 textSize = 13f
                 setTextColor(Color.parseColor("#374151"))
-                background = buttonDrawable(Color.parseColor("#F3F4F6"), Color.parseColor("#E5E7EB"), dp(8).toFloat())
+                setBackground(buttonDrawable(Color.parseColor("#F3F4F6"), Color.parseColor("#E5E7EB"), dp(8).toFloat()))
                 val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(40))
                 params.setMargins(0, 0, 0, dp(8))
                 layoutParams = params
@@ -833,22 +833,22 @@ class MainActivity : Activity() {
             val btn = quizOptionsContainer.getChildAt(i) as Button
             btn.isEnabled = false
             if (i == q.correctIndex) {
-                btn.background = roundedRect(Color.parseColor("#D1FAE5"), dp(8).toFloat())
+                btn.setBackground(roundedRect(Color.parseColor("#D1FAE5"), dp(8).toFloat()))
                 btn.setTextColor(Color.parseColor("#065F46"))
             } else if (i == selectedIndex) {
-                btn.background = roundedRect(Color.parseColor("#FEE2E2"), dp(8).toFloat())
+                btn.setBackground(roundedRect(Color.parseColor("#FEE2E2"), dp(8).toFloat()))
                 btn.setTextColor(Color.parseColor("#991B1B"))
             }
         }
 
         if (selectedIndex == q.correctIndex) {
             quizFeedbackText.text = "נכון מאוד! ${q.explanation}"
-            quizFeedbackText.background = roundedRect(Color.parseColor("#ECFDF5"), dp(6).toFloat())
+            quizFeedbackText.setBackground(roundedRect(Color.parseColor("#ECFDF5"), dp(6).toFloat()))
             quizFeedbackText.setTextColor(Color.parseColor("#065F46"))
             quizScore++
         } else {
             quizFeedbackText.text = "טעות. ${q.explanation}"
-            quizFeedbackText.background = roundedRect(Color.parseColor("#FEF2F2"), dp(6).toFloat())
+            quizFeedbackText.setBackground(roundedRect(Color.parseColor("#FEF2F2"), dp(6).toFloat()))
             quizFeedbackText.setTextColor(Color.parseColor("#991B1B"))
         }
 
@@ -859,7 +859,7 @@ class MainActivity : Activity() {
     // 4. About View Creation
     private fun createAboutView(): View {
         val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+            setOrientation(LinearLayout.VERTICAL)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -871,12 +871,12 @@ class MainActivity : Activity() {
             text = "אפליקציה זו נועדה להנגיש את ההבדלים המרתקים בין שיטות המדידה ההלכתיות של מרן החזון איש לבין הגאון הרב חיים נאה זצ\"ל.\n\nהנתונים מבוססים על ספרי המקורות המדויקים.\n\n"
             textSize = 14f
             setTextColor(Color.parseColor("#374151"))
-            gravity = Gravity.RIGHT
+            setGravity(Gravity.RIGHT)
         }
         layout.addView(aboutText)
 
         val divider = View(this).apply {
-            background = roundedRect(Color.parseColor("#E5E7EB"), 1f)
+            setBackground(roundedRect(Color.parseColor("#E5E7EB"), 1f))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1))
             val params = layoutParams as LinearLayout.LayoutParams
             params.setMargins(0, dp(8), 0, dp(12))
@@ -888,7 +888,7 @@ class MainActivity : Activity() {
             textSize = 14f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             setTextColor(Color.parseColor("#1E3A8A"))
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
             setPadding(0, 0, 0, dp(8))
         }
         layout.addView(creditsTitle)
@@ -897,7 +897,7 @@ class MainActivity : Activity() {
             text = "לפרטים נוספים: 0556798858b@gmail.com"
             textSize = 13f
             setTextColor(Color.parseColor("#4B5563"))
-            gravity = Gravity.CENTER
+            setGravity(Gravity.CENTER)
             setPadding(0, 0, 0, dp(12))
         }
         layout.addView(contactEmail)
