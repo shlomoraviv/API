@@ -3,14 +3,15 @@
     package="com.aiapp.generated">
 
     <application
-        android:allowBackup="true"
+        android:label="שיעורי תורה חזון איש וגרח נאה"
         android:icon="@drawable/ic_launcher"
-        android:label="שיעורי תורה: חזון איש vs גר"ח נאה"
-        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        android:theme="@android:style/Theme.Light.NoTitleBar"
+        android:allowBackup="true">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

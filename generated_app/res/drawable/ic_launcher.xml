@@ -4,16 +4,19 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    
+    <!-- Background rounded square -->
     <path
-        android:fillColor="#F5F7FA"
-        android:pathData="M10,10 H98 V98 H10 Z" />
+        android:fillColor="#1A237E"
+        android:pathData="M 14 14 H 94 A 12 12 0 0 1 106 26 V 94 A 12 12 0 0 1 94 106 H 14 A 12 12 0 0 1 2 94 V 26 A 12 12 0 0 1 14 14 Z" />
+    
+    <!-- Stylized Book/Torah Scroll in Gold -->
     <path
-        android:fillColor="#004080"
-        android:pathData="M24,24 H48 V84 H24 Z" />
+        android:fillColor="#FFD700"
+        android:pathData="M 54 30 C 45 30 35 35 25 32 L 25 72 C 35 75 45 70 54 70 C 63 70 73 75 83 72 L 83 32 C 73 35 63 30 54 30 Z" />
+    
+    <!-- Ruler/Scale bar at the bottom in Olive Green -->
     <path
         android:fillColor="#556B2F"
-        android:pathData="M60,12 H84 V84 H60 Z" />
-    <path
-        android:fillColor="#007AFF"
-        android:pathData="M12,84 H96 V92 H12 Z" />
+        android:pathData="M 25 80 H 83 V 86 H 25 Z" />
 </vector>
