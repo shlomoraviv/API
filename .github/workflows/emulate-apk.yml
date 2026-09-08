@@ -1,0 +1,47 @@
+name: Emulate APK (Appetize)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  emulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Upload APK to Appetize and print the embed key
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          APK="decompile_source/source.apk"
+          test -f "$APK" || { echo "::error::missing $APK — emulator upload requires the APK at decompile_source/source.apk"; exit 1; }
+          [ -n "$APPETIZE_API_TOKEN" ] || { echo "::error::repository secret APPETIZE_API_TOKEN is not set (Appetize → Organization → API Token)"; exit 1; }
+
+          echo "Uploading $(du -h "$APK" | cut -f1) APK to Appetize…"
+
+          HTTP_CODE=$(curl -sS -o appetize_response.json -w '%{http_code}' \
+            -X POST https://appetize.io/api/v1/app \
+            -H "X-API-KEY: $APPETIZE_API_TOKEN" \
+            -F "file=@${APK}" \
+            -F "platform=android")
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Appetize upload failed (HTTP $HTTP_CODE):"
+            cat appetize_response.json || true
+            exit 1
+          fi
+
+          PUBLIC_KEY=$(jq -r '.publicKey // empty' appetize_response.json)
+          if [ -z "$PUBLIC_KEY" ]; then
+            echo "::error::Appetize response contained no publicKey:"
+            cat appetize_response.json || true
+            exit 1
+          fi
+
+          echo "APPETIZE_PUBLIC_KEY=$PUBLIC_KEY" >> "$GITHUB_ENV"
+          echo "APPETIZE_PUBLIC_KEY=$PUBLIC_KEY"
+          echo "Embed: https://appetize.io/embed/<publicKey>"

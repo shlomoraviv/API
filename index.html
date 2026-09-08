@@ -345,6 +345,16 @@
   .turn-download-info { flex: 1; min-width: 0; font-size: 12.5px; color: var(--text-muted); }
   .turn-download-info strong { display: block; font-size: 13.5px; color: var(--text); font-weight: 600; }
 
+  /* ---- built-in Android emulator (Appetize), phone-sized ---- */
+  .emulator-wrap { margin-top: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; }
+  .emulator-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .emulator-head strong { font-size: 13px; font-weight: 600; color: var(--text); }
+  .emulator-head a { font-size: 12px; color: var(--accent-hover); text-decoration: none; font-weight: 600; }
+  .emulator-head a:hover { text-decoration: underline; }
+  .emulator-frame { display: flex; justify-content: center; }
+  .emulator-frame iframe { width: min(320px, 100%); aspect-ratio: 9 / 19; border: 1px solid var(--border-strong); border-radius: 18px; background: #000; }
+  .emulator-frame .emulator-note { font-size: 12px; color: var(--text-faint); line-height: 1.6; text-align: center; }
+
   /* ---- resume-old-conversation upload prompt ---- */
   .resume-box {
     max-width: 720px; margin: 0 auto; padding: 14px 24px 0; display: flex; align-items: center; gap: 12px;
@@ -890,6 +900,7 @@
   // ---- decompile-based pipelines (edit, translate & censor turns) ----
   const DECOMPILE_WORKFLOW_FILE = "decompile-apk.yml";
   const REBUILD_WORKFLOW_FILE = "rebuild-apk.yml";
+  const EMULATE_WORKFLOW_FILE = "emulate-apk.yml";
   const DECOMPILE_SOURCE_PATH = "decompile_source/source.apk";
   const DECOMPILED_APP_DIR = "decompiled_app";
   const REBUILD_ARTIFACT_NAME = "app-recompiled-release.apk";
@@ -1680,8 +1691,10 @@ rebuild, even if that means dropping part of the requested change.`;
         newEl.textContent = value;
         newEl.title = wasReverted ? "הוחזר למקור לשמירה על תווי קוד" : value;
         const row = newEl.closest(".translate-string-row");
-        row.classList.add("done");
-        row.classList.toggle("reverted", !!wasReverted);
+        if (row) { // null if the user left this conversation while the reveal was running
+          row.classList.add("done");
+          row.classList.toggle("reverted", !!wasReverted);
+        }
       }
       await sleep(70);
     }
@@ -1888,7 +1901,7 @@ rebuild, even if that means dropping part of the requested change.`;
       // Respect Android's own convention: translatable="false" marks a string that
       // must never be translated (e.g. a URL, a technical constant) - skip it
       // entirely rather than sending it to Gemini.
-      if (name && el.getAttribute("translatable") !== "false") map[name] = el.textContent;
+      if (name && el.getAttribute("translatable") !== "false") map[name] = decodeAndroidStringRaw(el.textContent);
     });
     return map;
   }
@@ -1913,7 +1926,11 @@ rebuild, even if that means dropping part of the requested change.`;
   // and escape sequences (\n, \t) - as a sorted list, so two strings can be
   // compared for "same tokens, same multiplicity" regardless of surrounding text.
   function extractProtectedTokens(text) {
-    const matches = String(text).match(/%\d*\$?[-+ 0#]*\d*(?:\.\d+)?[sdfeEgGxXocb%]|\{\d+\}|\\[nt]/g) || [];
+    // Compare on the canonical (unescaped) form so "real newline" and "\n
+    // escape" count as the same thing — otherwise a translation that renders
+    // \n the other way round gets spuriously reverted for carrying a token
+    // the original "lacks", even though the compiled value would be identical.
+    const matches = unescapeAndroidStringValue(text).match(/%\d*\$?[-+ 0#]*\d*(?:\.\d+)?[sdfeEgGxXocb%]|\{\d+\}|\\[nt]/g) || [];
     return matches.sort();
   }
   function sameProtectedTokens(a, b) {
@@ -1927,8 +1944,57 @@ rebuild, even if that means dropping part of the requested change.`;
   // "not a valid string" even though the XML itself is perfectly well-formed.
   // el.textContent (used below) already handles ordinary XML escaping (&, <, >)
   // on its own — this adds the extra layer aapt2 itself requires.
+  // Order matters: backslashes first, then the control characters. Newlines and
+  // tabs MUST become literal \n / \t — aapt2 collapses raw newlines inside an
+  // unquoted <string> value into single spaces, which silently destroys every
+  // multi-line string the moment it is rewritten. Finally, values with
+  // leading/trailing whitespace are wrapped in "..." quotes, because aapt2 trims
+  // unquoted values and would eat the padding.
   function escapeAndroidStringValue(text) {
-    return String(text).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"');
+    const raw = String(text);
+    let out = raw
+      .replace(/\\/g, "\\\\")
+      .replace(/\n/g, "\\n")
+      .replace(/\t/g, "\\t")
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\"');
+    if (/^\s|\s$/.test(raw)) out = '"' + out + '"';
+    return out;
+  }
+
+  // Inverse of the escape set apktool/aapt2 use, plus apktool's own quoting
+  // convention. apktool's decoded form is inconsistent by shape: it renders \n
+  // as a real newline when the compiled value needed quoting, but keeps it as
+  // the two characters \ + n otherwise, and it wraps values containing
+  // apostrophes/newlines in literal "..." markers that are NOT part of the
+  // value the app actually shows. Canonicalizing every decoded value through
+  // decodeAndroidStringRaw() at parse time means Gemini, the live string list
+  // and the placeholder check all see one stable form (the real text), and
+  // buildTranslatedStringsXml() re-escapes canonically on the way back out.
+  // Unknown escapes (\d, \u00e9…) are kept verbatim so they round-trip intact.
+  function unescapeAndroidStringValue(text) {
+    let out = "";
+    const s = String(text);
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] === "\\" && i + 1 < s.length) {
+        const next = s[i + 1];
+        if (next === "n") { out += "\n"; i++; continue; }
+        if (next === "t") { out += "\t"; i++; continue; }
+        if (next === "'") { out += "'"; i++; continue; }
+        if (next === '"') { out += '"'; i++; continue; }
+        if (next === "\\") { out += "\\"; i++; continue; }
+      }
+      out += s[i];
+    }
+    return out;
+  }
+  function decodeAndroidStringRaw(raw) {
+    let s = String(raw);
+    // apktool marks quoting with bare surrounding double-quotes; a compiled
+    // value that genuinely starts/ends with a quote character would have been
+    // decoded with \\-escaped quotes instead, so bare ones are safe to strip.
+    if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
+    return unescapeAndroidStringValue(s);
   }
 
   // Builds a new strings.xml with the same <string name="x"> entries but
@@ -2072,7 +2138,10 @@ rebuild, even if that means dropping part of the requested change.`;
             // original strings instead of risking invalid Android resources.
             for (const key of Object.keys(batch)) {
               if (typeof parsed.translations[key] === "string") {
-                translations[key] = stripBidiControlChars(parsed.translations[key]);
+                // Canonicalize the model's text the same way the originals were
+                // canonicalized, so both sides of the placeholder check (and the
+                // final re-escape) speak the same representation.
+                translations[key] = stripBidiControlChars(unescapeAndroidStringValue(parsed.translations[key]));
               }
             }
             log(`${workerLabel}: קבוצה ${batchNumber} מתוך ${batches.length} הושלמה`, "ok", logTarget);
@@ -2623,6 +2692,76 @@ rebuild, even if that means dropping part of the requested change.`;
     return new Blob([bytes], { type: mime || "application/vnd.android.package-archive" });
   }
 
+  // ==========================================================================
+  // BUILT-IN ANDROID EMULATOR — after a pipeline produces a fresh APK, commit
+  // it and start emulate-apk.yml, which uploads the APK to Appetize and echoes
+  // the embed "publicKey". The API token lives only in repo secrets; the
+  // browser just reads the public key from the workflow logs and embeds the
+  // phone-sized player in the finished turn.
+  // ==========================================================================
+
+  const EMULATOR_TIMEOUT_MS = 5 * 60 * 1000;
+
+  async function getEmulatorPublicKey({ owner, repo, branch, token, apkBase64, logTarget }) {
+    log("מעלה את ה-APK לאמולטור (Appetize)…", null, logTarget);
+    const commitSha = await commitRepoFiles({
+      owner, repo, branch, token,
+      files: [{ path: DECOMPILE_SOURCE_PATH, contentBase64: apkBase64 }],
+      message: "AI App Maker: emulator upload",
+    });
+    log(`Commit נוצר: ${commitSha.slice(0, 7)}, מפעיל אמולטור…`, "ok", logTarget);
+    const run = await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile: EMULATE_WORKFLOW_FILE, logTarget });
+    log("שולף את מזהה האמולטור מהלוגים…", null, logTarget);
+    const logsBlob = await githubFetchBlob(`/repos/${owner}/${repo}/actions/runs/${run.id}/logs`, token);
+    const logsZip = await JSZip.loadAsync(logsBlob);
+    let combinedLogs = "";
+    for (const entry of Object.values(logsZip.files)) {
+      if (!entry.dir) combinedLogs += (await entry.async("text")) + "\n";
+    }
+    const match = combinedLogs.match(/APPETIZE_PUBLIC_KEY=([A-Za-z0-9_]+)/);
+    if (!match) throw new Error("לא נמצא מזהה אמולטור בלוגים — ודאו שהסוד APPETIZE_API_TOKEN מוגדר בריפו (Settings → Secrets and variables → Actions).");
+    return match[1];
+  }
+
+  function showEmulator(turnBody, publicKey) {
+    const wrap = document.createElement("div");
+    wrap.className = "emulator-wrap";
+    const head = document.createElement("div");
+    head.className = "emulator-head";
+    const title = document.createElement("strong");
+    title.textContent = "אמולטור אנדרואיד — האפליקציה שלך רצה כאן";
+    const openLink = document.createElement("a");
+    openLink.href = `https://appetize.io/app/${encodeURIComponent(publicKey)}`;
+    openLink.target = "_blank";
+    openLink.rel = "noopener";
+    openLink.textContent = "פתיחה בחלון נפרד ↗";
+    head.append(title, openLink);
+    const frame = document.createElement("div");
+    frame.className = "emulator-frame";
+    const iframe = document.createElement("iframe");
+    iframe.allow = "camera; microphone; clipboard-write";
+    iframe.src = `https://appetize.io/embed/${encodeURIComponent(publicKey)}?device=pixel7&orientation=portrait&scale=75&autoplay=true&darkmode=true`;
+    frame.appendChild(iframe);
+    wrap.append(head, frame);
+    turnBody.appendChild(wrap);
+    scrollThreadToEnd();
+  }
+
+  // Runs the emulator upload in the background without disturbing the finished
+  // turn: the status line is only touched on failure, never on success.
+  async function attachEmulatorInBackground({ owner, repo, branch, token, apkBase64, turn }) {
+    const logBox = turn.createLog();
+    try {
+      const publicKey = await getEmulatorPublicKey({ owner, repo, branch, token, apkBase64, logTarget: logBox });
+      log("האמולטור מוכן", "ok", logBox);
+      showEmulator(turn.body, publicKey);
+    } catch (err) {
+      console.warn("emulator upload failed (non-fatal):", err);
+      log("הפעלת האמולטור נכשלה: " + err.message, "error", logBox);
+      turn.setStatus("מוכן — ה-APK זמין להורדה (הפעלת האמולטור נכשלה: " + err.message + ")", "success-text");
+    }
+  }
+
   // ---------- BUILD: enhance/clarify → generate → commit → build (auto-fix retry) ----------
   async function runBuildTurn(idea, designImage) {
     const { geminiKeys, token, owner, repo, branch } = readConnections();
@@ -2720,6 +2859,7 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
       turn.setStatus("מוכן — האפליקציה שלך מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
       recordTurn("assistant", "build", "נבנה בהצלחה: " + preview.label, true);
+      attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
       console.error(err);
@@ -2820,6 +2960,7 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
       turn.setStatus("מוכן — האפליקציה מהקוד שהעלית מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
       recordTurn("assistant", "build", "נבנה בהצלחה מקוד מקור: " + preview.label, true);
+      attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
       console.error(err);
@@ -2916,6 +3057,7 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK הערוך מחכה להורדה. אפשר להמשיך לבקש עוד שינויים.", "success-text");
       recordTurn("assistant", "edit", "נערך בהצלחה", true);
+      attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
       console.error(err);
@@ -2974,7 +3116,21 @@ rebuild, even if that means dropping part of the requested change.`;
       let revertedCount = 0;
       for (const [key, original] of Object.entries(stringsMap)) {
         const candidate = rawTranslations[key];
-        if (typeof candidate === "string" && sameProtectedTokens(original, candidate)) {
+        // Second crash guard: if the original contains ANY "%", the string is
+        // formatted at runtime (String.format). A translation that adds or drops
+        // a percent sign (e.g. "%s" → "50% מה-%s") compiles fine but throws
+        // UnknownFormatConversionException on the user's device. Exact token
+        // equality is checked by sameProtectedTokens(); this catches stray
+        // percents the token regex doesn't bind to a specifier.
+        const originalPercents = (String(original).match(/%/g) || []).length;
+        const candidatePercents = (String(candidate).match(/%/g) || []).length;
+        const percentsIntact = originalPercents === 0 || originalPercents === candidatePercents;
+        // Third rebuild guard: a leading "@" or "?" makes aapt2 treat the whole
+        // value as a resource/theme reference. A translation that gains one
+        // where the original had none fails the ENTIRE apktool rebuild with
+        // "resource not found" - keep the original instead.
+        const gainsLeadingReference = /^[@?]/.test(String(candidate)) && !/^[@?]/.test(String(original));
+        if (typeof candidate === "string" && percentsIntact && !gainsLeadingReference && sameProtectedTokens(original, candidate)) {
           translations[key] = candidate;
         } else {
           translations[key] = original;
@@ -3013,6 +3169,7 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-translated-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK המתורגם מחכה להורדה.", "success-text");
       recordTurn("assistant", "translate", "תורגם בהצלחה (" + langCode + ")", true);
+      attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
       console.error(err);
@@ -3072,6 +3229,7 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK המצונזר מחכה להורדה.", "success-text");
       recordTurn("assistant", "censor", "נוצר APK מצונזר בהצלחה", true);
+      attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       closeCensorPanel();
       onLiveApkReady();
     } catch (err) {
@@ -3306,6 +3464,10 @@ a separate acknowledgement line first.`;
 
   async function scanApkImages(apkBlobOrBase64) {
     censorScanStatus.textContent = "סורק תמונות…";
+    // Drop the previous scan's object URLs (one per thumbnail) before wiping the
+    // grid — re-scanning the same APK repeatedly would otherwise leak them for
+    // the lifetime of the page.
+    imageGridEl.querySelectorAll("img.image-thumb").forEach((img) => URL.revokeObjectURL(img.src));
     imageGridEl.innerHTML = "";
     pendingChanges.clear();
     updateCensorSendState();
@@ -3364,6 +3526,7 @@ image clearly and unambiguously depicts it.`;
 
   const IMAGE_FILTER_BATCH_SIZE = 6;
   const IMAGE_FILTER_MAX_BYTES = 3 * 1024 * 1024; // skip huge images to keep request payloads reasonable
+  const IMAGE_FILTER_MAX_IMAGES = 60; // hard cap on images sent for AI classification — protects the user's quota from a game APK with thousands of assets
 
   async function runImageAIFilter(query) {
     query = (query || "").trim();
@@ -3375,7 +3538,7 @@ image clearly and unambiguously depicts it.`;
       censorFilterStatus.textContent = 'צריך לפחות Gemini API key אחד (מהתפריט "חיבורים").';
       return;
     }
-    const rows = Array.from(imageGridEl.querySelectorAll(".image-row"));
+    const rows = Array.from(imageGridEl.querySelectorAll(".image-row")).slice(0, IMAGE_FILTER_MAX_IMAGES);
     if (rows.length === 0) return;
     censorFilterBtn.disabled = true;
     censorFilterStatus.textContent = `סורק ${rows.length} תמונות עם AI… (0/${rows.length})`;
@@ -3404,6 +3567,7 @@ image clearly and unambiguously depicts it.`;
         });
       } catch (err) {
         console.error("classifyImageBatch failed:", err); // leave this batch visible rather than hiding on error
+        censorFilterStatus.textContent = `סינון ה-"AI" נכשל על חלק מהתמונות (${err.message}) — הצגת הכל.`;
       }
       done += batch.length;
       censorFilterStatus.textContent = `סורק ${rows.length} תמונות עם AI… (${done}/${rows.length})`;
@@ -3475,6 +3639,13 @@ image clearly and unambiguously depicts it.`;
     composerInput.disabled = busy;
     translateSendBtn.disabled = busy;
     censorSendBtn.disabled = busy || pendingChanges.size === 0;
+    // A pipeline turn owns the composer while it runs: close any open sub-panel
+    // so its own controls (translate language input, censor image marks) can't
+    // be toggled mid-run against state the running turn already captured.
+    if (busy) {
+      translatePanel.classList.add("hidden");
+      censorPanel.classList.add("hidden");
+    }
   }
 
   function autosizeComposer() {
@@ -3954,6 +4125,12 @@ image clearly and unambiguously depicts it.`;
     input.addEventListener("change", async () => {
       const file = input.files[0];
       if (!file) return;
+      // The file goes to Gemini as inline_data with this exact mime type — a
+      // non-image (or an empty/unknown type) would be rejected server-side.
+      if (!file.type || !file.type.startsWith("image/")) {
+        hint.textContent = "נבחר קובץ שאינו תמונה — יש לבחור קובץ PNG/JPG/WEBP.";
+        return;
+      }
       const base64 = await blobToBase64(file);
       pendingDesignImage = { base64, mime: file.type || "image/png" };
       renderThreadEmptyPlaceholder();
@@ -4125,7 +4302,11 @@ image clearly and unambiguously depicts it.`;
   }
   maxQuestionsInput.addEventListener("input", () => {
     maxQuestionsValueLabel.textContent = maxQuestionsInput.value;
-    saveMaxQuestions(parseInt(maxQuestionsInput.value, 10));
+    // Guard against transient/empty input values: persisting NaN (e.g. while the
+    // spinner is being cleared) would make loadMaxQuestions() fall back to its
+    // default instead of the value the user actually chose.
+    const n = parseInt(maxQuestionsInput.value, 10);
+    if (Number.isFinite(n)) saveMaxQuestions(n);
   });
 
   function openSettingsModal() {
