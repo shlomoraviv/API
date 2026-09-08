@@ -1,26 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Background Rounded Square -->
     <path
-        android:fillColor="#1E3A8A"
-        android:pathData="M20,10 H88 A10,10 0 0 1 98,20 V88 A10,10 0 0 1 88,98 H20 A10,10 0 0 1 10,88 V20 A10,10 0 0 1 20,10 Z" />
-    <!-- Scale Base / Pillar (Gold) -->
+        android:fillColor="#F5F7FA"
+        android:pathData="M10,10 H98 V98 H10 Z" />
     <path
-        android:fillColor="#FBBF24"
-        android:pathData="M51,40 H57 V75 H51 Z M40,75 H68 V80 H40 Z" />
-    <!-- Scale Beam (Gold) -->
-    <path
-        android:fillColor="#FBBF24"
-        android:pathData="M28,43 L80,43 V46 L28,46 Z" />
-    <!-- Scale Left Pan (Olive Green - Chazon Ish) -->
+        android:fillColor="#004080"
+        android:pathData="M24,24 H48 V84 H24 Z" />
     <path
         android:fillColor="#556B2F"
-        android:pathData="M20,60 C20,65 36,65 36,60 L33,45 H23 Z" />
-    <!-- Scale Right Pan (Deep Blue - Rav Chaim Naeh) -->
+        android:pathData="M60,12 H84 V84 H60 Z" />
     <path
-        android:fillColor="#3B82F6"
-        android:pathData="M72,60 C72,65 88,65 88,60 L85,45 H75 Z" />
+        android:fillColor="#007AFF"
+        android:pathData="M12,84 H96 V92 H12 Z" />
 </vector>

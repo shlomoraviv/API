@@ -1,741 +1,533 @@
 package com.aiapp.generated
 
 import android.app.Activity
-import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.DashPathEffect
+import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.text.Editable
-import android.text.InputType
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.*
-import android.animation.ValueAnimator
+import android.view.Window
 import android.view.animation.OvershootInterpolator
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
+import android.widget.Toast
+import android.animation.ValueAnimator
 
 class MainActivity : Activity() {
 
-    // Data Models
-    class Measurement(
-        val name: String,
-        val unit: String,
-        val naehVal: Double,
-        val chazonVal: Double,
-        val reference: String,
-        val naehSource: String,
-        val chazonSource: String,
-        val impact: String
-    )
+    private lateinit var visualizerView: HalachicVisualizerView
+    private lateinit var resultCard: LinearLayout
+    private lateinit var resultText: TextView
+    private lateinit var inputVal: EditText
+    private lateinit var unitToggleLength: TextView
+    private lateinit var unitToggleVolume: TextView
+    private var isLengthUnit = true
 
-    class QuizQuestion(
-        val question: String,
-        val options: Array<String>,
-        val correctIndex: Int,
-        val explanation: String
-    )
-
-    private lateinit var measurements: List<Measurement>
-    private lateinit var quizQuestions: List<QuizQuestion>
-
-    // State Variables
-    private var activeMeasurementIndex = 0
+    // Quiz State
     private var currentQuizIndex = 0
-    private var quizScore = 0
-
-    // UI References
-    private lateinit var tabContainer: LinearLayout
-    private lateinit var barNaeh: View
-    private lateinit var barChazon: View
-    private lateinit var labelNaehVal: TextView
-    private lateinit var labelChazonVal: TextView
-    private lateinit var visualizerReferenceText: TextView
-    private lateinit var visualizerImpactText: TextView
-    private lateinit var visualizerSlider: SeekBar
-
-    // Calculator UI
-    private lateinit var calcInput: EditText
-    private lateinit var calcUnitToggle: RadioGroup
-    private lateinit var calcResultCard: LinearLayout
-    private lateinit var calcResultText: TextView
-
-    // Quiz UI
-    private lateinit var quizCard: LinearLayout
     private lateinit var quizQuestionText: TextView
-    private lateinit var quizOptionsContainer: LinearLayout
     private lateinit var quizFeedbackText: TextView
-    private lateinit var quizNextButton: Button
+
+    private val quizQuestions = listOf(
+        QuizQuestion("איזו שיטה מחמירה יותר בנפח כזית מצה בליל הסדר?", "חזון איש", "חזון איש", "החזון איש מצריך כ-48 סמ\"ק לעומת הגר\"ח נאה שמסתפק ב-27 סמ\"ק."),
+        QuizQuestion("לפי איזו שיטה שיעור רביעית הוא 86.4 מ\"ל?", "רב חיים נאה", "רב חיים נאה", "שיעור רביעית לגר\"ח נאה הוא 86.4 מ\"ל, בעוד לחזו\"א הוא 150 מ\"ל."),
+        QuizQuestion("מהו גובה דפנות הסוכה המינימלי (עשרה טפחים) לשיטת החזון איש?", "96 ס\"מ", "96 ס\"מ", "עשרה טפחים לחזו\"א הם 96 ס\"מ (טפח = 9.6 ס\"מ), ולגר\"ח נאה הם 80 ס\"מ (טפח = 8 ס\"מ).")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) 
 
-        // Initialize Data
-        initData()
-
-        // Restore State if available
-        if (savedInstanceState != null) {
-            activeMeasurementIndex = savedInstanceState.getInt("activeMeasurementIndex", 0)
-            currentQuizIndex = savedInstanceState.getInt("currentQuizIndex", 0)
-            quizScore = savedInstanceState.getInt("quizScore", 0)
-        }
-
-        // Root ScrollView
+        // Main Scroll Container
         val scrollView = ScrollView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            setBackgroundColor(Color.parseColor("#F9FAFB"))
-            setFillViewport(true)
-            setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(Color.parseColor("#F5F7FA"))
+            isVerticalScrollBarEnabled = false
         }
 
-        // Main Vertical Container
         val mainLayout = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            )
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             setPadding(dp(16), dp(24), dp(16), dp(32))
         }
 
-        // App Header
+        // 1. Header
         val headerLayout = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            setGravity(Gravity.CENTER)
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(0, 0, 0, dp(20))
-            layoutParams = params
-        }
-
-        val appTitle = TextView(this).apply {
-            text = "שיעורי תורה"
-            textSize = 28f
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            setTextColor(Color.parseColor("#1E3A8A")) // Deep Blue
-            setGravity(Gravity.CENTER)
-        }
-
-        val appSubtitle = TextView(this).apply {
-            text = "חזון איש vs גר'ח נאה • המחשה ויזואלית"
-            textSize = 14f
-            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
-            setTextColor(Color.parseColor("#4B5563")) // Muted Gray
-            setGravity(Gravity.CENTER)
-            setPadding(0, dp(4), 0, 0)
-        }
-
-        headerLayout.addView(appTitle)
-        headerLayout.addView(appSubtitle)
-        mainLayout.addView(headerLayout)
-
-        // Accordion 1: The Visualizer
-        val visualizerContent = createVisualizerView()
-        val visualizerSection = createAccordionSection("לוח השוואה אינטראקטיבי (The Visualizer)", visualizerContent, true)
-        mainLayout.addView(visualizerSection)
-
-        // Accordion 2: Calculator
-        val calculatorContent = createCalculatorView()
-        val calculatorSection = createAccordionSection("מחשבון המרה הלכתי", calculatorContent, false)
-        mainLayout.addView(calculatorSection)
-
-        // Accordion 3: Quiz
-        val quizContent = createQuizView()
-        val quizSection = createAccordionSection("חידון הלכתי מהיר", quizContent, false)
-        mainLayout.addView(quizSection)
-
-        // Accordion 4: About & Credits
-        val aboutContent = createAboutView()
-        val aboutSection = createAccordionSection("אודות וקרדיטים", aboutContent, false)
-        mainLayout.addView(aboutSection)
-
-        scrollView.addView(mainLayout)
-        setContentView(scrollView)
-
-        // Initial updates
-        updateVisualizerTab(activeMeasurementIndex)
-        loadQuizQuestion()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("activeMeasurementIndex", activeMeasurementIndex)
-        outState.putInt("currentQuizIndex", currentQuizIndex)
-        outState.putInt("quizScore", quizScore)
-    }
-
-    private fun initData() {
-        measurements = listOf(
-            Measurement(
-                name = "כזית",
-                unit = "סמ\"ק (מ\"ל)",
-                naehVal = 27.0,
-                chazonVal = 48.0,
-                reference = "זית סורי בינוני (~27 סמ\"ק) מול קופסת גפרורים סטנדרטית (~48 סמ\"ק)",
-                naehSource = "שיעורי תורה (שער ג): שיעור כזית הוא חצי ביצה של ימינו, שהוא כ-27 סמ\"ק.",
-                chazonSource = "קונטרס השיעורים (סימן לט): שיעור כזית הוא כחצי ביצה לשיטתו, שהיא גדולה בהרבה, כ-48 סמ\"ק.",
-                impact = "אכילת כזית מצה ומרור בליל הסדר, ושיעור ברכה אחרונה (על המחיה / בורא נפשות)."
-            ),
-            Measurement(
-                name = "רביעית",
-                unit = "מ\"ל",
-                naehVal = 86.0,
-                chazonVal = 150.0,
-                reference = "כוס אספרסו קטנה מול חצי פחית שתייה קלה (150 מ\"ל)",
-                naehSource = "שיעורי תורה: רביעית היא נפח של כוס המכילה 86 מ\"ל (כמניין כו\"ס).",
-                chazonSource = "קונטרס השיעורים: רביעית היא נפח של 150 מ\"ל (לפי שיעור ביצים גדולות).",
-                impact = "נפח כוס קידוש, שיעור שתיית ארבע כוסות בפסח, ושיעור מים לנטילת ידיים."
-            ),
-            Measurement(
-                name = "טפח",
-                unit = "ס\"מ",
-                naehVal = 8.0,
-                chazonVal = 9.6,
-                reference = "רוחב 4 אצבעות ממוצעות מול רוחב סמארטפון מודרני",
-                naehSource = "שיעורי תורה: טפח שווה ל-8 ס\"מ בדיוק (לפי 2 ס\"מ לאגודל).",
-                chazonSource = "קונטרס השיעורים: טפח שווה ל-9.6 ס\"מ (לפי 2.4 ס\"מ לאגודל).",
-                impact = "גובה מינימלי של מחיצות הסוכה, מיקום מזוזה בפתח, אורך ציציות."
-            ),
-            Measurement(
-                name = "אמה",
-                unit = "ס\"מ",
-                naehVal = 48.0,
-                chazonVal = 57.6,
-                reference = "סרגל לימודי סטנדרטי מול מסך מחשב ממוצע",
-                naehSource = "שיעורי תורה: אמה היא 6 טפחים לשיטתו, שהם 48 ס\"מ.",
-                chazonSource = "קונטרס השיעורים: אמה היא 6 טפחים לשיטתו, שהם 57.6 ס\"מ.",
-                impact = "גובה סוכה כשרה (עד 20 אמה), תחום שבת (2000 אמה), כלאיים ומידות המקדש."
-            )
-        )
-
-        quizQuestions = listOf(
-            QuizQuestion(
-                question = "נפח של 35 מ\"ל - האם יצאת ידי חובת כזית מצה בליל הסדר?",
-                options = arrayOf("רק לגר\"ח נאה", "רק לחזון איש", "לשתי השיטות", "לאף אחת מהשיטות"),
-                correctIndex = 0,
-                explanation = "לגר\"ח נאה כזית הוא 27 מ\"ל ולכן 35 מ\"ל מספיק. לחזון איש נדרש לפחות 48 מ\"ל."
-            ),
-            QuizQuestion(
-                question = "גובה דופן סוכה של 85 ס\"מ - האם היא כשרה (שיעור 10 טפחים)?",
-                options = arrayOf("רק לגר\"ח נאה", "רק לחזון איש", "לשתי השיטות", "לאף אחת מהשיטות"),
-                correctIndex = 0,
-                explanation = "10 טפחים לגר\"ח נאה הם 80 ס\"מ, ולכן 85 ס\"מ כשר. לחזון איש נדרש 96 ס\"מ."
-            ),
-            QuizQuestion(
-                question = "כוס קידוש המכילה 120 מ\"ל - האם היא מחזיקה שיעור רביעית?",
-                options = arrayOf("רק לגר\"ח נאה", "רק לחזון איש", "לשתי השיטות", "לאף אחת מהשיטות"),
-                correctIndex = 0,
-                explanation = "רביעית לגר\"ח נאה היא 86 מ\"ל, ולכן 120 מ\"ל כשר. לחזון איש נדרש 150 מ\"ל."
-            )
-        )
-    }
-
-    // Helper to create Accordion View
-    private fun createAccordionSection(title: String, content: View, initiallyExpanded: Boolean): View {
-        val container = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, dp(8), 0, dp(8))
-            layoutParams = params
-            setBackground(roundedRect(Color.WHITE, dp(12).toFloat()))
-            setElevation(dp(2).toFloat())
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-        }
-
-        val header = LinearLayout(this).apply {
-            setOrientation(LinearLayout.HORIZONTAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setGravity(Gravity.CENTER_VERTICAL)
-            setClickable(true)
-            setFocusable(true)
-        }
-
-        val indicator = TextView(this).apply {
-            text = if (initiallyExpanded) "▲" else "▼"
-            textSize = 14f
-            setTextColor(Color.parseColor("#9CA3AF"))
-            setPadding(0, 0, dp(8), 0)
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(0, 0, 0, dp(20))
         }
 
         val titleView = TextView(this).apply {
-            text = title
-            textSize = 16f
+            text = "שיעורי תורה"
+            textSize = 28f
+            setTextColor(Color.parseColor("#1C1C1E"))
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            setTextColor(Color.parseColor("#1F2937"))
-            setGravity(Gravity.RIGHT)
-            layoutParams = LinearLayout.LayoutParams(
-                0, 
-                LinearLayout.LayoutParams.WRAP_CONTENT, 
-                1f
-            )
+            gravity = Gravity.CENTER
         }
 
-        header.addView(titleView)
-        header.addView(indicator)
+        val subtitleView = TextView(this).apply {
+            text = "חזון איש VS רב חיים נאה"
+            textSize = 16f
+            setTextColor(Color.parseColor("#8E8E93"))
+            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+            gravity = Gravity.CENTER
+            setPadding(0, dp(4), 0, 0)
+        }
 
-        content.visibility = if (initiallyExpanded) View.VISIBLE else View.GONE
+        headerLayout.addView(titleView)
+        headerLayout.addView(subtitleView)
+        mainLayout.addView(headerLayout)
 
-        header.setOnClickListener {
-            if (content.visibility == View.GONE) {
-                content.visibility = View.VISIBLE
-                content.alpha = 0f
-                content.animate().alpha(1f).setDuration(250).start()
-                indicator.text = "▲"
-            } else {
-                content.visibility = View.GONE
-                indicator.text = "▼"
+        // 2. Visualizer Card
+        val visualizerCard = createCard()
+        val visualizerTitle = createCardTitle("המחשה ויזואלית דינמית")
+        visualizerCard.addView(visualizerTitle)
+
+        // Selector Tabs
+        val tabsLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(40)).apply {
+                setMargins(0, dp(12), 0, dp(16))
             }
+            weightSum = 4f
         }
 
-        container.addView(header)
-        container.addView(content)
-        return container
-    }
+        val tabAmah = createTabButton("אמה", true)
+        val tabTefach = createTabButton("טפח", false)
+        val tabReviit = createTabButton("רביעית", false)
+        val tabKazayit = createTabButton("כזית", false)
 
-    // 1. Visualizer View Creation
-    private fun createVisualizerView(): View {
-        val layout = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(0, dp(12), 0, 0)
-        }
-
-        // Tab Selector
-        tabContainer = LinearLayout(this).apply {
-            setOrientation(LinearLayout.HORIZONTAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            weightSum = measurements.size.toFloat()
-        }
-
-        for (i in measurements.indices) {
-            val tabButton = TextView(this).apply {
-                text = measurements[i].name
-                textSize = 14f
-                setGravity(Gravity.CENTER)
-                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-                val params = LinearLayout.LayoutParams(0, dp(36), 1f)
-                params.setMargins(dp(2), 0, dp(2), 0)
-                layoutParams = params
-                setOnClickListener {
-                    updateVisualizerTab(i)
+        val tabs = listOf(tabAmah, tabTefach, tabReviit, tabKazayit)
+        tabs.forEach { tab ->
+            tabsLayout.addView(tab)
+            tab.setOnClickListener {
+                tabs.forEach { t -> updateTabState(t, false) }
+                updateTabState(tab, true)
+                when (tab.text) {
+                    "אמה" -> visualizerView.updateValues(48f, 57.6f, "ס\"מ", "אמה", "סרגל 50 ס\"מ")
+                    "טפח" -> visualizerView.updateValues(8f, 9.6f, "ס\"מ", "טפח", "רוחב כף יד ממוצעת")
+                    "רביעית" -> visualizerView.updateValues(86.4f, 150f, "מ\"ל", "רביעית", "פחית שתייה קלה (330 מ\"ל)")
+                    "כזית" -> visualizerView.updateValues(27f, 48f, "סמ\"ק", "כזית", "קופסת גפרורים סטנדרטית")
                 }
             }
-            tabContainer.addView(tabButton)
         }
-        layout.addView(tabContainer)
+        visualizerCard.addView(tabsLayout)
 
-        // Visualizer Canvas Area
-        val visualizerFrame = FrameLayout(this).apply {
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(220))
-            params.setMargins(0, dp(16), 0, dp(16))
-            layoutParams = params
-            setBackground(roundedRect(Color.parseColor("#F3F4F6"), dp(8).toFloat()))
-            setPadding(dp(16), dp(16), dp(16), dp(16))
+        // Custom visualizer view
+        visualizerView = HalachicVisualizerView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(220))
         }
+        visualizerCard.addView(visualizerView)
+        mainLayout.addView(visualizerCard)
 
-        // Side-by-Side Bars Container
-        val barsContainer = LinearLayout(this).apply {
-            setOrientation(LinearLayout.HORIZONTAL)
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-            setGravity(Gravity.BOTTOM)
+        // 3. Converter Card
+        val converterCard = createCard()
+        val converterTitle = createCardTitle("מחשבון המרה הלכתי")
+        converterCard.addView(converterTitle)
+
+        // Unit Toggle
+        val toggleLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(36)).apply {
+                setMargins(0, dp(12), 0, dp(12))
+            }
+            background = createCardDrawable(Color.parseColor("#E5E5EA"), dp(8).toFloat())
             weightSum = 2f
         }
 
-        // Bar 1: Rav Chaim Naeh
-        val containerNaeh = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
-        }
-        labelNaehVal = TextView(this).apply {
-            textSize = 12f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#1E3A8A"))
-            setGravity(Gravity.CENTER)
-        }
-        barNaeh = View(this).apply {
-            setBackground(roundedRect(Color.parseColor("#1E3A8A"), dp(6).toFloat()))
-            layoutParams = LinearLayout.LayoutParams(dp(50), 0)
-        }
-        val titleNaeh = TextView(this).apply {
-            text = "גר'ח נאה"
-            textSize = 12f
-            setTextColor(Color.parseColor("#374151"))
-            setGravity(Gravity.CENTER)
-            setPadding(0, dp(4), 0, 0)
-        }
-        containerNaeh.addView(labelNaehVal)
-        containerNaeh.addView(barNaeh)
-        containerNaeh.addView(titleNaeh)
-
-        // Bar 2: Chazon Ish
-        val containerChazon = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM)
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
-        }
-        labelChazonVal = TextView(this).apply {
-            textSize = 12f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#556B2F"))
-            setGravity(Gravity.CENTER)
-        }
-        barChazon = View(this).apply {
-            setBackground(roundedRect(Color.parseColor("#556B2F"), dp(6).toFloat()))
-            layoutParams = LinearLayout.LayoutParams(dp(50), 0)
-        }
-        val titleChazon = TextView(this).apply {
-            text = "חזון איש"
-            textSize = 12f
-            setTextColor(Color.parseColor("#374151"))
-            setGravity(Gravity.CENTER)
-            setPadding(0, dp(4), 0, 0)
-        }
-        containerChazon.addView(labelChazonVal)
-        containerChazon.addView(barChazon)
-        containerChazon.addView(titleChazon)
-
-        barsContainer.addView(containerNaeh)
-        barsContainer.addView(containerChazon)
-        visualizerFrame.addView(barsContainer)
-        layout.addView(visualizerFrame)
-
-        // Morphing Slider
-        val sliderLabel = TextView(this).apply {
-            text = "גרור לשינוי קנה המידה (אנימציית Morphing):"
-            textSize = 12f
-            setTextColor(Color.parseColor("#4B5563"))
-            setGravity(Gravity.RIGHT)
-        }
-        layout.addView(sliderLabel)
-
-        visualizerSlider = SeekBar(this).apply {
-            setMax(100)
-            setProgress(100)
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(0, dp(4), 0, dp(12))
-            layoutParams = params
-            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    updateBarsHeight(progress)
-                }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            })
-        }
-        layout.addView(visualizerSlider)
-
-        // Reference Object Text
-        visualizerReferenceText = TextView(this).apply {
-            textSize = 13f
-            setTextColor(Color.parseColor("#1F2937"))
-            typeface = Typeface.create("sans-serif", Typeface.ITALIC)
-            setGravity(Gravity.RIGHT)
-            setPadding(0, 0, 0, dp(8))
-        }
-        layout.addView(visualizerReferenceText)
-
-        // Halachic Impact Text
-        visualizerImpactText = TextView(this).apply {
-            textSize = 13f
-            setTextColor(Color.parseColor("#4B5563"))
-            setGravity(Gravity.RIGHT)
-            setPadding(0, 0, 0, dp(12))
-        }
-        layout.addView(visualizerImpactText)
-
-        // "Why?" Button
-        val whyButton = Button(this).apply {
-            text = "למה יש הבדל? (מקורות)"
+        unitToggleLength = TextView(this).apply {
+            text = "מידות אורך (ס\"מ)"
+            gravity = Gravity.CENTER
             textSize = 14f
             setTextColor(Color.WHITE)
-            setBackground(buttonDrawable(Color.parseColor("#1E3A8A"), Color.parseColor("#172554"), dp(8).toFloat()))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
-            setOnClickListener {
-                showSourcesDialog()
-            }
-        }
-        layout.addView(whyButton)
-
-        return layout
-    }
-
-    private fun updateVisualizerTab(index: Int) {
-        activeMeasurementIndex = index
-        for (i in 0 until tabContainer.childCount) {
-            val tab = tabContainer.getChildAt(i) as TextView
-            if (i == index) {
-                tab.setBackground(roundedRect(Color.parseColor("#1E3A8A"), dp(8).toFloat()))
-                tab.setTextColor(Color.WHITE)
-                tab.typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            } else {
-                tab.setBackground(roundedRect(Color.parseColor("#E5E7EB"), dp(8).toFloat()))
-                tab.setTextColor(Color.parseColor("#374151"))
-                tab.typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-            }
-        }
-        visualizerSlider.setProgress(100)
-        updateBarsHeight(100)
-    }
-
-    private fun updateBarsHeight(progress: Int) {
-        val m = measurements[activeMeasurementIndex]
-        val maxVal = maxOf(m.naehVal, m.chazonVal)
-        val scale = progress / 100f
-
-        val maxBarHeightPx = dp(140)
-
-        val naehHeight = (maxBarHeightPx * (m.naehVal / maxVal) * scale).toInt()
-        val chazonHeight = (maxBarHeightPx * (m.chazonVal / maxVal) * scale).toInt()
-
-        barNaeh.layoutParams.height = naehHeight
-        barChazon.layoutParams.height = chazonHeight
-
-        barNaeh.requestLayout()
-        barChazon.requestLayout()
-
-        labelNaehVal.text = "${m.naehVal} ${m.unit}"
-        labelChazonVal.text = "${m.chazonVal} ${m.unit}"
-
-        visualizerReferenceText.text = "קנה מידה להמחשה: ${m.reference}"
-        visualizerImpactText.text = "הלכה למעשה: ${m.impact}"
-    }
-
-    private fun showSourcesDialog() {
-        val m = measurements[activeMeasurementIndex]
-        val dialogView = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            setPadding(dp(20), dp(20), dp(20), dp(20))
-            setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
-            setBackground(roundedRect(Color.WHITE, dp(12).toFloat()))
+            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
+            background = createCardDrawable(Color.parseColor("#007AFF"), dp(8).toFloat())
         }
 
-        val title = TextView(this).apply {
-            text = "מקורות השיטות - ${m.name}"
-            textSize = 18f
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            setTextColor(Color.parseColor("#1F2937"))
-            setPadding(0, 0, 0, dp(12))
-        }
-        dialogView.addView(title)
-
-        val naehTitle = TextView(this).apply {
-            text = "שיטת הגר\"ח נאה:"
+        unitToggleVolume = TextView(this).apply {
+            text = "מידות נפח (מ\"ל)"
+            gravity = Gravity.CENTER
             textSize = 14f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#1E3A8A"))
-        }
-        val naehContent = TextView(this).apply {
-            text = m.naehSource
-            textSize = 13f
-            setTextColor(Color.parseColor("#4B5563"))
-            setPadding(0, dp(4), 0, dp(12))
-        }
-        dialogView.addView(naehTitle)
-        dialogView.addView(naehContent)
-
-        val chazonTitle = TextView(this).apply {
-            text = "שיטת החזון איש:"
-            textSize = 14f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#556B2F"))
-        }
-        val chazonContent = TextView(this).apply {
-            text = m.chazonSource
-            textSize = 13f
-            setTextColor(Color.parseColor("#4B5563"))
-            setPadding(0, dp(4), 0, dp(12))
-        }
-        dialogView.addView(chazonTitle)
-        dialogView.addView(chazonContent)
-
-        AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("סגור", null)
-            .show()
-    }
-
-    // 2. Calculator View Creation
-    private fun createCalculatorView(): View {
-        val layout = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(0, dp(12), 0, 0)
+            setTextColor(Color.parseColor("#1C1C1E"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
         }
 
-        val infoText = TextView(this).apply {
-            text = "הזן ערך מספרי לבדיקה הלכתית מהירה:"
-            textSize = 14f
-            setTextColor(Color.parseColor("#4B5563"))
-            setGravity(Gravity.RIGHT)
-            setPadding(0, 0, 0, dp(8))
+        unitToggleLength.setOnClickListener {
+            isLengthUnit = true
+            unitToggleLength.setTextColor(Color.WHITE)
+            unitToggleLength.background = createCardDrawable(Color.parseColor("#007AFF"), dp(8).toFloat())
+            unitToggleVolume.setTextColor(Color.parseColor("#1C1C1E"))
+            unitToggleVolume.background = null
+            inputVal.hint = "הזן ערך בס\"מ"
+            inputVal.setText("")
+            resultCard.visibility = View.GONE
         }
-        layout.addView(infoText)
+
+        unitToggleVolume.setOnClickListener {
+            isLengthUnit = false
+            unitToggleVolume.setTextColor(Color.WHITE)
+            unitToggleVolume.background = createCardDrawable(Color.parseColor("#007AFF"), dp(8).toFloat())
+            unitToggleLength.setTextColor(Color.parseColor("#1C1C1E"))
+            unitToggleLength.background = null
+            inputVal.hint = "הזן ערך במ\"ל / סמ\"ק"
+            inputVal.setText("")
+            resultCard.visibility = View.GONE
+        }
+
+        toggleLayout.addView(unitToggleLength)
+        toggleLayout.addView(unitToggleVolume)
+        converterCard.addView(toggleLayout)
 
         // Input Field
-        calcInput = EditText(this).apply {
-            hint = "לדוגמה: 100"
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        inputVal = EditText(this).apply {
+            hint = "הזן ערך בס\"מ"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
             textSize = 16f
+            gravity = Gravity.RIGHT
             setPadding(dp(12), dp(12), dp(12), dp(12))
-            setBackground(roundedRect(Color.parseColor("#F3F4F6"), dp(8).toFloat()))
-            setGravity(Gravity.RIGHT)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            background = createCardDrawable(Color.parseColor("#F2F2F7"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, 0, 0, dp(12))
+            }
         }
-        layout.addView(calcInput)
-
-        // Unit Toggle
-        calcUnitToggle = RadioGroup(this).apply {
-            setOrientation(RadioGroup.HORIZONTAL)
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(0, dp(12), 0, dp(12))
-            layoutParams = params
-            setGravity(Gravity.CENTER)
-        }
-
-        val radioVol = RadioButton(this).apply {
-            text = "נפח (מ\"ל / סמ\"ק)"
-            setId(View.generateViewId())
-            setChecked(true)
-        }
-        val radioLen = RadioButton(this).apply {
-            text = "אורך (ס\"מ)"
-            setId(View.generateViewId())
-        }
-        calcUnitToggle.addView(radioVol)
-        calcUnitToggle.addView(radioLen)
-        layout.addView(calcUnitToggle)
+        converterCard.addView(inputVal)
 
         // Calculate Button
         val calcButton = Button(this).apply {
             text = "חשב שיעור הלכתי"
-            textSize = 14f
             setTextColor(Color.WHITE)
-            setBackground(buttonDrawable(Color.parseColor("#556B2F"), Color.parseColor("#3F4F22"), dp(8).toFloat()))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
-            setOnClickListener {
-                performCalculation()
-            }
+            textSize = 16f
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            background = createButtonDrawable(Color.parseColor("#007AFF"), Color.parseColor("#0056B3"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48))
         }
-        layout.addView(calcButton)
+        converterCard.addView(calcButton)
 
         // Result Card
-        calcResultCard = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(0, dp(16), 0, 0)
-            layoutParams = params
-            setBackground(roundedRect(Color.parseColor("#ECFDF5"), dp(8).toFloat()))
-            setPadding(dp(16), dp(16), dp(16), dp(16))
+        resultCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            background = createCardDrawable(Color.parseColor("#F2F2F7"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, dp(16), 0, 0)
+            }
+        }
+
+        resultText = TextView(this).apply {
+            textSize = 15f
+            setTextColor(Color.parseColor("#1C1C1E"))
+            gravity = Gravity.RIGHT
+            lineSpacingMultiplier = 1.2f
+        }
+        resultCard.addView(resultText)
+        converterCard.addView(resultCard)
+
+        calcButton.setOnClickListener {
+            performCalculation()
+        }
+        mainLayout.addView(converterCard)
+
+        // 4. Sources & Why Button
+        val sourcesCard = createCard()
+        val sourcesTitle = createCardTitle("הלכה למעשה ומקורות")
+        sourcesCard.addView(sourcesTitle)
+
+        val sourcesDesc = TextView(this).apply {
+            text = "המחלוקת המפורסמת בין הגר\"ח נאה לחזון איש משפיעה על כל תחומי ההלכה היומיומיים: החל מגובה דפנות הסוכה, שיעור כזית מצה וארבע כוסות, ועד להפרשת חלה ושיעורי מקווה."
+            textSize = 14f
+            setTextColor(Color.parseColor("#3A3A3C"))
+            gravity = Gravity.RIGHT
+            lineSpacingMultiplier = 1.2f
+            setPadding(0, dp(8), 0, dp(12))
+        }
+        sourcesCard.addView(sourcesDesc)
+
+        val whyButton = Button(this).apply {
+            text = "למה יש מחלוקת? פתח מקורות"
+            setTextColor(Color.parseColor("#007AFF"))
+            textSize = 14f
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            background = createButtonDrawable(Color.parseColor("#E5E5EA"), Color.parseColor("#D1D1D6"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(40))
+        }
+        whyButton.setOnClickListener {
+            showSourcesDialog()
+        }
+        sourcesCard.addView(whyButton)
+        mainLayout.addView(sourcesCard)
+
+        // 5. Quiz Card
+        val quizCard = createCard()
+        val quizTitle = createCardTitle("בחן את עצמך: זהה את השיטה")
+        quizCard.addView(quizTitle)
+
+        quizQuestionText = TextView(this).apply {
+            textSize = 16f
+            setTextColor(Color.parseColor("#1C1C1E"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            gravity = Gravity.RIGHT
+            setPadding(0, dp(12), 0, dp(12))
+        }
+        quizCard.addView(quizQuestionText)
+
+        val quizAnswersLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            weightSum = 2f
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
+        }
+
+        val btnOption1 = Button(this).apply {
+            text = "רב חיים נאה"
+            setTextColor(Color.WHITE)
+            background = createButtonDrawable(Color.parseColor("#004080"), Color.parseColor("#002D5A"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                setMargins(0, 0, dp(6), 0)
+            }
+        }
+
+        val btnOption2 = Button(this).apply {
+            text = "חזון איש"
+            setTextColor(Color.WHITE)
+            background = createButtonDrawable(Color.parseColor("#556B2F"), Color.parseColor("#3D4F21"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                setMargins(dp(6), 0, 0, 0)
+            }
+        }
+
+        quizAnswersLayout.addView(btnOption1)
+        quizAnswersLayout.addView(btnOption2)
+        quizCard.addView(quizAnswersLayout)
+
+        quizFeedbackText = TextView(this).apply {
+            textSize = 14f
+            gravity = Gravity.RIGHT
+            setPadding(0, dp(12), 0, 0)
             visibility = View.GONE
         }
+        quizCard.addView(quizFeedbackText)
 
-        calcResultText = TextView(this).apply {
-            textSize = 14f
-            setTextColor(Color.parseColor("#065F46"))
-            setGravity(Gravity.RIGHT)
+        val nextQuestionBtn = Button(this).apply {
+            text = "שאלה הבאה"
+            setTextColor(Color.parseColor("#007AFF"))
+            background = createButtonDrawable(Color.parseColor("#F2F2F7"), Color.parseColor("#E5E5EA"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(36)).apply {
+                setMargins(0, dp(12), 0, 0)
+            }
+            visibility = View.GONE
         }
-        calcResultCard.addView(calcResultText)
-        layout.addView(calcResultCard)
+        quizCard.addView(nextQuestionBtn)
 
-        return layout
+        val handleAnswer = { selected: String ->
+            val q = quizQuestions[currentQuizIndex]
+            quizFeedbackText.visibility = View.VISIBLE
+            if (selected == q.correctAnswer) {
+                quizFeedbackText.text = "נכון מאוד! 🎉\n${q.explanation}"
+                quizFeedbackText.setTextColor(Color.parseColor("#34C759"))
+            } else {
+                quizFeedbackText.text = "לא מדויק... ❌\n${q.explanation}"
+                quizFeedbackText.setTextColor(Color.parseColor("#FF3B30"))
+            }
+            nextQuestionBtn.visibility = View.VISIBLE
+        }
+
+        btnOption1.setOnClickListener { handleAnswer("רב חיים נאה") }
+        btnOption2.setOnClickListener { handleAnswer("חזון איש") }
+
+        nextQuestionBtn.setOnClickListener {
+            currentQuizIndex = (currentQuizIndex + 1) % quizQuestions.size
+            loadQuizQuestion()
+            quizFeedbackText.visibility = View.GONE
+            nextQuestionBtn.visibility = View.GONE
+        }
+
+        mainLayout.addView(quizCard)
+        loadQuizQuestion()
+
+        // 6. Footer
+        val footerCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(dp(16), dp(24), dp(16), dp(16))
+            background = createCardDrawable(Color.parseColor("#E5E5EA"), dp(12).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, dp(16), 0, 0)
+            }
+        }
+
+        val footerText1 = TextView(this).apply {
+            text = "נבנה ע\"י פלטפורמת מאסטר בוט, ע\"י רביב דיגיטל"
+            textSize = 14f
+            setTextColor(Color.parseColor("#3A3A3C"))
+            gravity = Gravity.CENTER
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+        }
+
+        val footerText2 = TextView(this).apply {
+            text = "לפרטים נוספים: 0556798858b@gmail.com"
+            textSize = 12f
+            setTextColor(Color.parseColor("#8E8E93"))
+            gravity = Gravity.CENTER
+            setPadding(0, dp(4), 0, 0)
+        }
+
+        footerCard.addView(footerText1)
+        footerCard.addView(footerText2)
+        mainLayout.addView(footerCard)
+
+        scrollView.addView(mainLayout)
+        setContentView(scrollView)
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    } 
+
+    private fun createCard(): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            background = createCardDrawable(Color.WHITE, dp(12).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, 0, 0, dp(16))
+            }
+        }
+    }
+
+    private fun createCardTitle(title: String): TextView {
+        return TextView(this).apply {
+            text = title
+            textSize = 18f
+            setTextColor(Color.parseColor("#1C1C1E"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            gravity = Gravity.RIGHT
+        }
+    }
+
+    private fun createTabButton(title: String, active: Boolean): TextView {
+        return TextView(this).apply {
+            text = title
+            gravity = Gravity.CENTER
+            textSize = 14f
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
+            updateTabState(this, active)
+        }
+    }
+
+    private fun updateTabState(tab: TextView, active: Boolean) {
+        if (active) {
+            tab.setTextColor(Color.WHITE)
+            tab.background = createCardDrawable(Color.parseColor("#007AFF"), dp(8).toFloat())
+            tab.typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+        } else {
+            tab.setTextColor(Color.parseColor("#8E8E93"))
+            tab.background = createCardDrawable(Color.parseColor("#F2F2F7"), dp(8).toFloat())
+            tab.typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+        }
+    }
+
+    private fun createCardDrawable(backgroundColor: Int, cornerRadius: Float): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(backgroundColor)
+            setCornerRadius(cornerRadius)
+        }
+    }
+
+    private fun createButtonDrawable(normalColor: Int, pressedColor: Int, cornerRadius: Float): StateListDrawable {
+        val normal = GradientDrawable().apply {
+            setColor(normalColor)
+            setCornerRadius(cornerRadius)
+        }
+        val pressed = GradientDrawable().apply {
+            setColor(pressedColor)
+            setCornerRadius(cornerRadius)
+        }
+        return StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_pressed), pressed)
+            addState(intArrayOf(), normal)
+        }
     }
 
     private fun performCalculation() {
-        // Hide keyboard
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        currentFocus?.let {
-            imm.hideSoftInputFromWindow(it.windowToken, 0)
-        }
-
-        val inputStr = calcInput.text.toString()
+        val inputStr = inputVal.text.toString()
         if (inputStr.isEmpty()) {
             Toast.makeText(this, "אנא הזן ערך מספרי", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val value = inputStr.toDoubleOrNull()
+        val value = inputStr.toFloatOrNull()
         if (value == null) {
             Toast.makeText(this, "ערך לא תקין", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val isVolume = calcUnitToggle.checkedRadioButtonId == calcUnitToggle.getChildAt(0).id
-        val sb = StringBuilder()
-
-        if (isVolume) {
-            sb.append("תוצאות עבור נפח של $value מ\"ל:\n\n")
-            // Rav Chaim Naeh
-            sb.append("• לשיטת הגר\"ח נאה:\n")
-            if (value >= 86) {
-                sb.append("  - עברת שיעור רביעית (86 מ\"ל) וכזית (27 מ\"ל).\n")
-            } else if (value >= 27) {
-                sb.append("  - עברת שיעור כזית (27 מ\"ל). חסרים עוד ${86 - value} מ\"ל לרביעית.\n")
-            } else {
-                sb.append("  - לא הגיע לשיעור כזית. חסרים עוד ${27 - value} מ\"ל.\n")
-            }
-            // Chazon Ish
-            sb.append("\n• לשיטת החזון איש:\n")
-            if (value >= 150) {
-                sb.append("  - עברת שיעור רביעית (150 מ\"ל) וכזית (48 מ\"ל).\n")
-            } else if (value >= 48) { 
-                sb.append("  - עברת שיעור כזית (48 מ\"ל). חסרים עוד ${150 - value} מ\"ל לרביעית.\n")
-            } else {
-                sb.append("  - לא הגיע לשיעור כזית. חסרים עוד ${48 - value} מ\"ל.\n")
-            }
-        } else {
-            sb.append("תוצאות עבור אורך של $value ס\"מ:\n\n")
-            // Rav Chaim Naeh
-            sb.append("• לשיטת הגר\"ח נאה:\n")
-            if (value >= 48) {
-                sb.append("  - עברת שיעור אמה (48 ס\"מ) וטפח (8 ס\"מ).\n")
-            } else if (value >= 8) {
-                sb.append("  - עברת שיעור טפח (8 ס\"מ). חסרים עוד ${48 - value} ס\"מ לאמה.\n")
-            } else {
-                sb.append("  - לא הגיע לשיעור טפח. חסרים עוד ${8 - value} ס\"מ.\n")
-            }
-            // Chazon Ish
-            sb.append("\n• לשיטת החזון איש:\n")
-            if (value >= 57.6) {
-                sb.append("  - עברת שיעור אמה (57.6 ס\"מ) וטפח (9.6 ס\"מ).\n")
-            } else if (value >= 9.6) {
-                sb.append("  - עברת שיעור טפח (9.6 ס\"מ). חסרים עוד ${57.6 - value} ס\"מ לאמה.\n")
-            } else {
-                sb.append("  - לא הגיע לשיעור טפח. חסרים עוד ${9.6 - value} ס\"מ.\n")
-            }
+        // Hide Keyboard safely
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        currentFocus?.let {
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
 
-        calcResultText.text = sb.toString()
-        calcResultCard.visibility = View.VISIBLE
+        val sb = StringBuilder()
+        if (isLengthUnit) {
+            sb.append("הזנת: $value ס\"מ\n\n")
+            
+            // Tefach comparison
+            val tefachNaeh = value / 8.0f
+            val tefachChazon = value / 9.6f
+            sb.append("📏 שיעור טפח (8 ס\"מ לגר\"ח, 9.6 ס\"מ לחזו\"א):\n")
+            sb.append("לפי רב חיים נאה: ${String.format("%.2f", tefachNaeh)} טפחים\n")
+            sb.append("לפי החזון איש: ${String.format("%.2f", tefachChazon)} טפחים\n\n")
+
+            // Amah comparison
+            val amahNaeh = value / 48.0f
+            val amahChazon = value / 57.6f
+            sb.append("📐 שיעור אמה (48 ס\"מ לגר\"ח, 57.6 ס\"מ לחזו\"א):\n")
+            sb.append("לפי רב חיים נאה: ${String.format("%.2f", amahNaeh)} אמות\n")
+            sb.append("לפי החזון איש: ${String.format("%.2f", amahChazon)} אמות")
+        } else {
+            sb.append("הזנת: $value מ\"ל / סמ\"ק\n\n")
+            
+            // Kazayit comparison
+            val kazayitNaeh = value / 27.0f
+            val kazayitChazon = value / 48.0f
+            sb.append("🍞 שיעור כזית (27 סמ\"ק לגר\"ח, 48 סמ\"ק לחזו\"א):\n")
+            sb.append("לפי רב חיים נאה: ${String.format("%.2f", kazayitNaeh)} כזיתים\n")
+            sb.append("לפי החזון איש: ${String.format("%.2f", kazayitChazon)} כזיתים\n\n")
+
+            // Reviit comparison
+            val reviitNaeh = value / 86.4f
+            val reviitChazon = value / 150.0f
+            sb.append("🍷 שיעור רביעית (86.4 מ\"ל לגר\"ח, 150 מ\"ל לחזו\"א):\n")
+            sb.append("לפי רב חיים נאה: ${String.format("%.2f", reviitNaeh)} רביעיות\n")
+            sb.append("לפי החזון איש: ${String.format("%.2f", reviitChazon)} רביעיות")
+        }
+
+        resultText.text = sb.toString()
+        resultCard.visibility = View.VISIBLE
 
         // Bounce Animation
-        calcResultCard.scaleX = 0.9f
-        calcResultCard.scaleY = 0.9f
-        calcResultCard.animate()
+        resultCard.scaleX = 0.9f
+        resultCard.scaleY = 0.9f
+        resultCard.animate()
             .scaleX(1.0f)
             .scaleY(1.0f)
             .setDuration(300)
@@ -743,184 +535,197 @@ class MainActivity : Activity() {
             .start()
     }
 
-    // 3. Quiz View Creation
-    private fun createQuizView(): View {
-        quizCard = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(0, dp(12), 0, 0)
-        }
-
-        quizQuestionText = TextView(this).apply {
-            textSize = 15f
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            setTextColor(Color.parseColor("#1F2937"))
-            setGravity(Gravity.RIGHT)
-            setPadding(0, 0, 0, dp(12))
-        }
-        quizCard.addView(quizQuestionText)
-
-        quizOptionsContainer = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        quizCard.addView(quizOptionsContainer)
-
-        quizFeedbackText = TextView(this).apply {
-            textSize = 13f
-            setGravity(Gravity.RIGHT)
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-            visibility = View.GONE
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(0, dp(12), 0, dp(12))
-            layoutParams = params
-        }
-        quizCard.addView(quizFeedbackText)
-
-        quizNextButton = Button(this).apply {
-            text = "השאלה הבאה"
-            textSize = 14f
-            setTextColor(Color.WHITE)
-            setBackground(buttonDrawable(Color.parseColor("#1E3A8A"), Color.parseColor("#172554"), dp(8).toFloat()))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
-            visibility = View.GONE
-            setOnClickListener {
-                currentQuizIndex = (currentQuizIndex + 1) % quizQuestions.size
-                loadQuizQuestion()
-            }
-        }
-        quizCard.addView(quizNextButton)
-
-        return quizCard
-    }
-
     private fun loadQuizQuestion() {
         val q = quizQuestions[currentQuizIndex]
-        quizQuestionText.text = "שאלה ${currentQuizIndex + 1} מתוך ${quizQuestions.size}:\n${q.question}"
-        quizFeedbackText.visibility = View.GONE
-        quizNextButton.visibility = View.GONE
-
-        quizOptionsContainer.removeAllViews()
-
-        for (i in q.options.indices) {
-            val optionBtn = Button(this).apply {
-                text = q.options[i]
-                textSize = 13f
-                setTextColor(Color.parseColor("#374151"))
-                setBackground(buttonDrawable(Color.parseColor("#F3F4F6"), Color.parseColor("#E5E7EB"), dp(8).toFloat()))
-                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(40))
-                params.setMargins(0, 0, 0, dp(8))
-                layoutParams = params
-                setOnClickListener {
-                    handleQuizAnswer(i)
-                }
-            }
-            quizOptionsContainer.addView(optionBtn)
-        }
+        quizQuestionText.text = q.question
     }
 
-    private fun handleQuizAnswer(selectedIndex: Int) {
-        val q = quizQuestions[currentQuizIndex]
-
-        // Disable all buttons
-        for (i in 0 until quizOptionsContainer.childCount) {
-            val btn = quizOptionsContainer.getChildAt(i) as Button
-            btn.isEnabled = false
-            if (i == q.correctIndex) {
-                btn.setBackground(roundedRect(Color.parseColor("#D1FAE5"), dp(8).toFloat()))
-                btn.setTextColor(Color.parseColor("#065F46"))
-            } else if (i == selectedIndex) {
-                btn.setBackground(roundedRect(Color.parseColor("#FEE2E2"), dp(8).toFloat()))
-                btn.setTextColor(Color.parseColor("#991B1B"))
-            }
+    private fun showSourcesDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(20), dp(20), dp(20))
+            background = createCardDrawable(Color.WHITE, dp(16).toFloat())
+            layoutParams = LinearLayout.LayoutParams(dp(320), LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        if (selectedIndex == q.correctIndex) {
-            quizFeedbackText.text = "נכון מאוד! ${q.explanation}"
-            quizFeedbackText.setBackground(roundedRect(Color.parseColor("#ECFDF5"), dp(6).toFloat()))
-            quizFeedbackText.setTextColor(Color.parseColor("#065F46"))
-            quizScore++
-        } else {
-            quizFeedbackText.text = "טעות. ${q.explanation}"
-            quizFeedbackText.setBackground(roundedRect(Color.parseColor("#FEF2F2"), dp(6).toFloat()))
-            quizFeedbackText.setTextColor(Color.parseColor("#991B1B"))
-        }
-
-        quizFeedbackText.visibility = View.VISIBLE
-        quizNextButton.visibility = View.VISIBLE
-    }
-
-    // 4. About View Creation
-    private fun createAboutView(): View {
-        val layout = LinearLayout(this).apply {
-            setOrientation(LinearLayout.VERTICAL)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(0, dp(12), 0, 0)
-        }
-
-        val aboutText = TextView(this).apply {
-            text = "אפליקציה זו נועדה להנגיש את ההבדלים המרתקים בין שיטות המדידה ההלכתיות של מרן החזון איש לבין הגאון הרב חיים נאה זצ\"ל.\n\nהנתונים מבוססים על ספרי המקורות המדויקים.\n\n"
-            textSize = 14f
-            setTextColor(Color.parseColor("#374151"))
-            setGravity(Gravity.RIGHT)
-        }
-        layout.addView(aboutText)
-
-        val divider = View(this).apply {
-            setBackground(roundedRect(Color.parseColor("#E5E7EB"), 1f))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1))
-            val params = layoutParams as LinearLayout.LayoutParams
-            params.setMargins(0, dp(8), 0, dp(12))
-        }
-        layout.addView(divider)
-
-        val creditsTitle = TextView(this).apply {
-            text = "נבנה ע\"י פלטפורמת מאסטר בוט,\nע\"י רביב דיגיטל."
-            textSize = 14f
+        val title = TextView(this).apply {
+            text = "מקורות השיטות"
+            textSize = 20f
+            setTextColor(Color.parseColor("#1C1C1E"))
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-            setTextColor(Color.parseColor("#1E3A8A"))
-            setGravity(Gravity.CENTER)
-            setPadding(0, 0, 0, dp(8))
-        }
-        layout.addView(creditsTitle)
-
-        val contactEmail = TextView(this).apply {
-            text = "לפרטים נוספים: 0556798858b@gmail.com"
-            textSize = 13f
-            setTextColor(Color.parseColor("#4B5563"))
-            setGravity(Gravity.CENTER)
+            gravity = Gravity.RIGHT
             setPadding(0, 0, 0, dp(12))
         }
-        layout.addView(contactEmail)
+        container.addView(title)
 
-        return layout
+        val scroll = ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(250))
+        }
+
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        val textNaehTitle = TextView(this).apply {
+            text = "שיטת הגר\"ח נאה (ספר שיעורי תורה):"
+            textSize = 15f
+            setTextColor(Color.parseColor("#004080"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            gravity = Gravity.RIGHT
+        }
+        val textNaehBody = TextView(this).apply {
+            text = "מבוססת על שיטת הרמב\"ם והרי\"ף, לפיה מידות האורך והנפח נקבעות לפי גודל האגודלים הממוצעים של ימינו (כ-2 ס\"מ). לפיה, רביעית היא 86.4 סמ\"ק וכזית הוא כ-27 סמ\"ק."
+            textSize = 14f
+            setTextColor(Color.parseColor("#3A3A3C"))
+            gravity = Gravity.RIGHT
+            setPadding(0, dp(4), 0, dp(16))
+            lineSpacingMultiplier = 1.2f
+        }
+
+        val textChazonTitle = TextView(this).apply {
+            text = "שיטת החזון איש (קונטרס השיעורים):"
+            textSize = 15f
+            setTextColor(Color.parseColor("#556B2F"))
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            gravity = Gravity.RIGHT
+        }
+        val textChazonBody = TextView(this).apply {
+            text = "מבוססת על דברי התוספות והרא\"ש, לפיהם חלה הקטנה משמעותית במידות הדורות, ולכן יש להגדיל את השיעורים כמעט פי שניים כדי לצאת ידי חובת התורה בוודאות. לפיה, רביעית היא 150 סמ\"ק וכזית הוא כ-48 סמ\"ק."
+            textSize = 14f
+            setTextColor(Color.parseColor("#3A3A3C"))
+            gravity = Gravity.RIGHT
+            setPadding(0, dp(4), 0, dp(12))
+            lineSpacingMultiplier = 1.2f
+        }
+
+        content.addView(textNaehTitle)
+        content.addView(textNaehBody)
+        content.addView(textChazonTitle)
+        content.addView(textChazonBody)
+        scroll.addView(content)
+        container.addView(scroll)
+
+        val closeBtn = Button(this).apply {
+            text = "סגור"
+            setTextColor(Color.WHITE)
+            background = createButtonDrawable(Color.parseColor("#007AFF"), Color.parseColor("#0056B3"), dp(8).toFloat())
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(40)).apply {
+                setMargins(0, dp(12), 0, 0)
+            }
+        }
+        closeBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+        container.addView(closeBtn)
+
+        dialog.setContentView(container)
+        dialog.show()
     }
 
-    // Helper Utilities
-    private fun dp(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
-    }
+    // Custom View for Visualizing
+    class HalachicVisualizerView(context: Context) : View(context) {
+        private var naehValue: Float = 48f
+        private var chazonIshValue: Float = 57.6f
+        private var unit: String = "ס\"מ"
+        private var label: String = "אמה"
+        private var reference: String = "סרגל 50 ס\"מ"
 
-    private fun roundedRect(color: Int, radius: Float): GradientDrawable {
-        return GradientDrawable().apply {
-            setColor(color)
-            cornerRadius = radius
+        private val paintNaeh = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#004080")
+            style = Paint.Style.FILL
+        }
+        private val paintChazonIsh = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#556B2F")
+            style = Paint.Style.FILL
+        }
+        private val paintLine = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#C7C7CC")
+            strokeWidth = 3f
+            style = Paint.Style.STROKE
+            pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
+        }
+        private val paintText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#1C1C1E")
+            textSize = 36f
+            textAlign = Paint.Align.CENTER
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+        }
+        private val paintSubText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#8E8E93")
+            textSize = 28f
+            textAlign = Paint.Align.CENTER
+            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            super.onDraw(canvas)
+            val w = width.toFloat()
+            val h = height.toFloat()
+            if (w == 0f || h == 0f) return
+
+            val maxVal = Math.max(naehValue, chazonIshValue) * 1.3f
+            val baseLine = h - 80f
+
+            val colWidth = w * 0.28f
+            val leftColX = w * 0.28f
+            val rightColX = w * 0.72f
+
+            val leftHeight = (naehValue / maxVal) * (h - 160f)
+            val rightHeight = (chazonIshValue / maxVal) * (h - 160f)
+
+            // Draw Left Column (Rav Chaim Naeh)
+            val rectLeft = RectF(leftColX - colWidth/2, baseLine - leftHeight, leftColX + colWidth/2, baseLine)
+            canvas.drawRoundRect(rectLeft, 16f, 16f, paintNaeh)
+
+            // Draw Right Column (Chazon Ish)
+            val rectRight = RectF(rightColX - colWidth/2, baseLine - rightHeight, rightColX + colWidth/2, baseLine)
+            canvas.drawRoundRect(rectRight, 16f, 16f, paintChazonIsh)
+
+            // Draw Values & Labels
+            canvas.drawText("גר\"ח נאה", leftColX, baseLine - leftHeight - 45f, paintText)
+            canvas.drawText("$naehValue $unit", leftColX, baseLine - leftHeight - 10f, paintSubText)
+
+            canvas.drawText("חזון איש", rightColX, baseLine - rightHeight - 45f, paintText)
+            canvas.drawText("$chazonIshValue $unit", rightColX, baseLine - rightHeight - 10f, paintSubText)
+
+            // Draw dotted comparison line
+            canvas.drawLine(leftColX, baseLine - leftHeight, rightColX, baseLine - leftHeight, paintLine)
+
+            // Draw Reference Text at bottom
+            canvas.drawText("קנה מידה להמחשה: $reference", w / 2f, h - 20f, paintSubText)
+        }
+
+        fun updateValues(naeh: Float, chazonIsh: Float, newUnit: String, newLabel: String, newRef: String) {
+            val animNaeh = ValueAnimator.ofFloat(this.naehValue, naeh)
+            val animChazonIsh = ValueAnimator.ofFloat(this.chazonIshValue, chazonIsh)
+            
+            animNaeh.addUpdateListener { 
+                this.naehValue = it.animatedValue as Float
+                invalidate()
+            }
+            animChazonIsh.addUpdateListener { 
+                this.chazonIshValue = it.animatedValue as Float
+                invalidate()
+            }
+            
+            animNaeh.duration = 400
+            animChazonIsh.duration = 400
+            animNaeh.start()
+            animChazonIsh.start()
+
+            this.unit = newUnit
+            this.label = newLabel
+            this.reference = newRef
         }
     }
 
-    private fun buttonDrawable(normalColor: Int, pressedColor: Int, radius: Float): StateListDrawable {
-        return StateListDrawable().apply {
-            addState(intArrayOf(android.R.attr.state_pressed), roundedRect(pressedColor, radius))
-            addState(intArrayOf(), roundedRect(normalColor, radius))
-        }
-    }
+    data class QuizQuestion(
+        val question: String,
+        val optionSelected: String,
+        val correctAnswer: String,
+        val explanation: String
+    )
 }
