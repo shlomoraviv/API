@@ -4,4 +4,12 @@
     <dimen name="abc_dialog_fixed_width_minor">70.00001%</dimen>
     <dimen name="abc_dialog_min_width_major">45.000004%</dimen>
     <dimen name="abc_dialog_min_width_minor">72.0%</dimen>
+    <dimen name="indicatorPanelHeight">70.0dp</dimen>
+    <dimen name="noteViewWidth">120.0dp</dimen>
+    <dimen name="noteViewsHeight">69.0dp</dimen>
+    <dimen name="topPanelButtonsPadding">14.0dp</dimen>
+    <dimen name="topPanelHeight">64.0dp</dimen>
+    <dimen name="tunerLayoutButtonsTextSize">33.0dp</dimen>
+    <dimen name="tunerLayoutsHeights">82.0dp</dimen>
+    <dimen name="tunerLayoutsHeightsNoAdsActive">90.0dp</dimen>
 </resources>

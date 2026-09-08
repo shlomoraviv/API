@@ -1,0 +1,17 @@
+.class public interface abstract Lcom/google/android/gms/internal/ads/oa0;
+.super Ljava/lang/Object;
+.source "com.google.android.gms:play-services-ads@@19.8.0"
+
+
+# virtual methods
+.method public abstract a(ILjava/lang/String;)V
+.end method
+
+.method public abstract onAdFailedToLoad(I)V
+.end method
+
+.method public abstract onAdLoaded()V
+.end method
+
+.method public abstract t(Lcom/google/android/gms/internal/ads/l03;)V
+.end method

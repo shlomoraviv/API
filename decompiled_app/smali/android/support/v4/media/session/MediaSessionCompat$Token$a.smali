@@ -1,6 +1,6 @@
-.class public final Landroid/support/v4/media/session/MediaSessionCompat$Token$a;
+.class final Landroid/support/v4/media/session/MediaSessionCompat$Token$a;
 .super Ljava/lang/Object;
-.source "\ubcfc\ub968 \ucee8\ud2b8\ub864\uc774 \ud45c\uc2dc\ub429\ub2c8\ub2e4. \ub2eb\uc73c\ub824\uba74 \uc704\ub85c \uc2a4\uc640\uc774\ud504\ud569\ub2c8\ub2e4"
+.source "MediaSessionCompat.java"
 
 # interfaces
 .implements Landroid/os/Parcelable$Creator;
@@ -12,7 +12,7 @@
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x9
+    accessFlags = 0x8
     name = null
 .end annotation
 
@@ -27,9 +27,10 @@
 
 
 # direct methods
-.method public constructor <init>()V
+.method constructor <init>()V
     .locals 0
 
+    .line 1
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -37,60 +38,67 @@
 
 
 # virtual methods
-.method public createFromParcel(Landroid/os/Parcel;)Landroid/support/v4/media/session/MediaSessionCompat$Token;
-    .locals 1
+.method public a(Landroid/os/Parcel;)Landroid/support/v4/media/session/MediaSessionCompat$Token;
+    .locals 2
 
-    sget p0, Landroid/os/Build$VERSION;->SDK_INT:I
+    .line 1
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const/16 v0, 0x15
+    const/16 v1, 0x15
 
-    if-lt p0, v0, :cond_0
+    if-lt v0, v1, :cond_0
 
     const/4 v0, 0x0
 
+    .line 2
     invoke-virtual {p1, v0}, Landroid/os/Parcel;->readParcelable(Ljava/lang/ClassLoader;)Landroid/os/Parcelable;
 
-    move-result-object p0
+    move-result-object p1
 
     goto :goto_0
 
+    .line 3
     :cond_0
     invoke-virtual {p1}, Landroid/os/Parcel;->readStrongBinder()Landroid/os/IBinder;
 
-    move-result-object p0
+    move-result-object p1
 
+    .line 4
     :goto_0
     new-instance v0, Landroid/support/v4/media/session/MediaSessionCompat$Token;
 
-    invoke-direct {v0, p0}, Landroid/support/v4/media/session/MediaSessionCompat$Token;-><init>(Ljava/lang/Object;)V
+    invoke-direct {v0, p1}, Landroid/support/v4/media/session/MediaSessionCompat$Token;-><init>(Ljava/lang/Object;)V
 
     return-object v0
+.end method
+
+.method public b(I)[Landroid/support/v4/media/session/MediaSessionCompat$Token;
+    .locals 0
+
+    .line 1
+    new-array p1, p1, [Landroid/support/v4/media/session/MediaSessionCompat$Token;
+
+    return-object p1
 .end method
 
 .method public bridge synthetic createFromParcel(Landroid/os/Parcel;)Ljava/lang/Object;
     .locals 0
 
-    invoke-virtual {p0, p1}, Landroid/support/v4/media/session/MediaSessionCompat$Token$a;->createFromParcel(Landroid/os/Parcel;)Landroid/support/v4/media/session/MediaSessionCompat$Token;
+    .line 1
+    invoke-virtual {p0, p1}, Landroid/support/v4/media/session/MediaSessionCompat$Token$a;->a(Landroid/os/Parcel;)Landroid/support/v4/media/session/MediaSessionCompat$Token;
 
-    move-result-object p0
+    move-result-object p1
 
-    return-object p0
-.end method
-
-.method public newArray(I)[Landroid/support/v4/media/session/MediaSessionCompat$Token;
-    .locals 0
-
-    new-array p0, p1, [Landroid/support/v4/media/session/MediaSessionCompat$Token;
-
-    return-object p0
+    return-object p1
 .end method
 
 .method public bridge synthetic newArray(I)[Ljava/lang/Object;
     .locals 0
 
-    invoke-virtual {p0, p1}, Landroid/support/v4/media/session/MediaSessionCompat$Token$a;->newArray(I)[Landroid/support/v4/media/session/MediaSessionCompat$Token;
+    .line 1
+    invoke-virtual {p0, p1}, Landroid/support/v4/media/session/MediaSessionCompat$Token$a;->b(I)[Landroid/support/v4/media/session/MediaSessionCompat$Token;
 
-    move-result-object p0
+    move-result-object p1
 
-    return-object p0
+    return-object p1
 .end method

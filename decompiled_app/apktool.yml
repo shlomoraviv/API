@@ -4,15 +4,15 @@ usesFramework:
   ids:
   - 1
 sdkInfo:
-  minSdkVersion: 18
-  targetSdkVersion: 28
+  minSdkVersion: 21
+  targetSdkVersion: 30
 versionInfo:
-  versionCode: 140
-  versionName: 1.40
+  versionCode: 30906
+  versionName: 3.9.6
 resourcesInfo:
   packageId: 127
 doNotCompress:
 - arsc
-- ogg
+- jpg
+- mp3
 - png
-- res/raw/config_1

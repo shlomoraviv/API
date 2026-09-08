@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel_netigen">取消</string>
+    <string name="change_language_netigen">改变语言</string>
+    <string name="do_you_like_this_app_netigen">你喜欢这个程序吗？</string>
+    <string name="later_netigen">后来</string>
+    <string name="msg_browser_not_found_netigen">找不到浏览器！！！</string>
+    <string name="please_support_us_netigen">请通过评价此应用程序来支持我们。谢谢！</string>
+    <string name="rate_us_netigen">评价我们</string>
+    <string name="settings_normal_netigen">设置</string>
+    <string name="translation_information_content1_netigen">此应用程序已由谷歌翻译翻译。英语是此应用程序的原始语言。请记住，翻译可能会有一些错误。</string>
+    <string name="translation_information_content2_netigen">如果要将应用程序语言更改为英语，可以在设置中执行此操作。</string>
+    <string name="translation_information_title_netigen">翻译资料</string>
+</resources>
