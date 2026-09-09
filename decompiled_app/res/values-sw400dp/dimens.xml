@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="adb_bottom_margin">52.0dp</dimen>
+    <dimen name="adb_top_margin">62.0dp</dimen>
+    <dimen name="maclinux_bottom_margin">0.0dp</dimen>
+</resources>

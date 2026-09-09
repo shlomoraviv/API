@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@android:color/transparent" android:layout_width="match_parent" android:layout_height="match_parent" android:minWidth="300.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="center_horizontal" android:paddingTop="24.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@mipmap/ic_launcher" />
+    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Headline" android:textStyle="bold" android:textColor="?colorAccent" android:gravity="center_horizontal" android:paddingTop="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_name" />
+    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Subhead" android:textStyle="bold" android:textColor="?colorAccent" android:gravity="center_horizontal" android:paddingBottom="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Remap your keys" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:layout_gravity="center_horizontal" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Button" android:gravity="center_vertical" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/share" android:drawablePadding="8.0dp" android:onClick="shareApp" android:drawableStart="@drawable/ic_action_share" android:layout_marginStart="16.0dp" android:layout_marginEnd="16.0dp" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Button" android:gravity="center_vertical" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/help" android:drawablePadding="8.0dp" android:onClick="reddit" android:drawableStart="@drawable/ic_help" android:layout_marginStart="16.0dp" android:layout_marginEnd="16.0dp" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Button" android:gravity="center_vertical" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/feedback" android:drawablePadding="8.0dp" android:onClick="feedback" android:drawableStart="@drawable/ic_feedback" android:layout_marginStart="16.0dp" android:layout_marginEnd="16.0dp" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Button" android:gravity="center_vertical" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/rate_this_app" android:drawablePadding="8.0dp" android:onClick="rateApp" android:drawableStart="@drawable/ic_actions" android:layout_marginStart="16.0dp" android:layout_marginEnd="16.0dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

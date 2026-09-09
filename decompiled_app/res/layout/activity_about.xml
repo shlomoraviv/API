@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="@dimen/horiz_margin" android:layout_marginTop="@dimen/vert_margin" android:layout_marginRight="@dimen/horiz_margin" android:layout_marginBottom="@dimen/vert_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v7.widget.Toolbar android:theme="@style/PopupOverlay" android:id="@id/toolbar" android:background="?colorPrimary" android:layout_width="match_parent" android:layout_height="?actionBarSize" />
+    <fragment android:name="flar2.homebutton.AboutActivity$AboutFragment" android:id="@id/aboutFragment" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="?actionBarSize" />
+</FrameLayout>

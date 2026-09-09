@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/colorAccent" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_checkmark" android:left="8.0dp" android:top="8.0dp" android:right="8.0dp" android:bottom="8.0dp" />
+</layer-list>

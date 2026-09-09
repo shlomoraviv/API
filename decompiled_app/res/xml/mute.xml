@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="mute_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/mute_button" android:key="pref_cat_mute">
+        <CheckBoxPreference android:title="@string/customize" android:key="pref_mute_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/single_tap" android:key="pref_mute_single_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/double_tap" android:key="pref_mute_double_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/long_press" android:key="pref_mute_long_press" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_mute_options">
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_mute_vibrate" android:defaultValue="0" />
+    </PreferenceCategory>
+</PreferenceScreen>

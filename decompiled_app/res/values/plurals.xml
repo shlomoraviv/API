@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="mi_label_grant_permission">
+        <item quantity="one">Grant permission</item>
+        <item quantity="other">Grant permissions</item>
+    </plurals>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:id="@id/fragment_2" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="24.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="match_parent" android:layout_margin="24.0dp" android:layout_weight="1.0">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="2.0">
+            <ImageView android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16.0dp" android:src="@drawable/tutorial1" android:adjustViewBounds="true" android:maxHeight="367.0px" />
+        </FrameLayout>
+        <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="center_horizontal" android:layout_gravity="center_horizontal" android:layout_width="240.0dp" android:layout_height="0.0dp" android:text="@string/softkeys_msg" android:layout_weight="1.0" android:textAlignment="center" />
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="match_parent" android:layout_margin="24.0dp" android:layout_weight="1.0">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="2.0">
+            <ImageView android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16.0dp" android:src="@drawable/tutorial2" android:adjustViewBounds="true" android:maxHeight="367.0px" />
+        </FrameLayout>
+        <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="center_horizontal" android:layout_gravity="center_horizontal" android:id="@id/screenoff_msg" android:layout_width="240.0dp" android:layout_height="0.0dp" android:text="@string/screenoff_msg" android:layout_weight="1.0" android:textAlignment="center" />
+    </LinearLayout>
+</LinearLayout>

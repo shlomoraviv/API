@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen android:key="camera_screen"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/camera_button" android:key="pref_cat_camera">
+        <SwitchPreference android:title="@string/customize" android:key="pref_cam_enabled" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/single_tap" android:key="pref_cam_single_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/double_tap" android:key="pref_cam_double_tap" />
+        <flar2.homebutton.adapters.AppPickerPref android:title="@string/long_press" android:key="pref_cam_long_press" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/options" android:key="pref_cat_cam_options">
+        <SwitchPreference android:title="@string/zello_ptt" android:key="pref_cam_zello_ptt" android:summary="@string/zello_cam_ptt_summary" />
+        <flar2.homebutton.utils.SeekBarPreference android:max="100" android:key="pref_cam_vibrate" android:defaultValue="0" />
+    </PreferenceCategory>
+</PreferenceScreen>

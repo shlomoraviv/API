@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@id/custom_button_card" android:background="?customSelector" android:padding="16.0dp" android:focusable="true" android:nextFocusRight="@id/button_delete" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="8.0dp" android:layout_marginRight="8.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textColor="?android:textColorPrimary" android:id="@id/button_label" android:background="@null" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FUNC2" />
+    <TextView android:textSize="12.0sp" android:textColor="?android:textColorPrimary" android:id="@id/button_keycode" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="281" android:layout_below="@id/button_label" />
+    <ImageButton android:id="@id/button_delete" android:background="@drawable/custom_delete" android:focusable="true" android:nextFocusLeft="@id/custom_button_card" android:nextFocusRight="@id/custom_button_card" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/ic_trash" android:layout_centerVertical="true" android:layout_alignParentEnd="true" />
+</RelativeLayout>

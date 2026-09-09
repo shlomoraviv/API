@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:id="@id/fragment_3" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="24.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="center" android:id="@id/tool_image" android:layout_width="0.0dp" android:layout_height="match_parent" android:layout_margin="42.0dp" android:src="@drawable/troubleshoot" android:layout_weight="2.0" />
+    <FrameLayout android:layout_width="0.0dp" android:layout_height="match_parent" android:layout_margin="24.0dp" android:layout_weight="3.0">
+        <LinearLayout android:layout_gravity="center" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Headline" android:gravity="center_horizontal" android:layout_gravity="center_horizontal" android:id="@id/root_access_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/get_started" android:textAlignment="center" />
+            <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="center_horizontal" android:layout_gravity="center_horizontal" android:id="@id/accessibility_msg1" android:layout_width="240.0dp" android:layout_height="wrap_content" android:layout_marginTop="24.0dp" android:text="@string/start_accessibility2" android:textAlignment="center" />
+            <Button android:theme="@style/MyButton" android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button" android:textColor="@android:color/primary_text_dark" android:layout_gravity="center" android:id="@id/settings_button" android:background="@drawable/round_background_comp1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24.0dp" android:minWidth="202.0dp" android:minHeight="42.0dp" android:text="@string/open_settings" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

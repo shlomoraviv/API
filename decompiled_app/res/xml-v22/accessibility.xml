@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service android:description="@string/accessibility_text" android:summary="@string/accessibility_summary" android:settingsActivity="a.a" android:accessibilityEventTypes="typeViewClicked|typeViewSelected|typeViewFocused|typeWindowStateChanged|typeWindowContentChanged|typeViewScrolled|typeContextClicked" android:accessibilityFeedbackType="feedbackHaptic" android:notificationTimeout="0" android:accessibilityFlags="flagDefault|flagRequestFilterKeyEvents|flagRetrieveInteractiveWindows" android:canRetrieveWindowContent="true" android:canRequestFilterKeyEvents="true" android:canRequestFingerprintGestures="true"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/donate_container" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="@dimen/horiz_margin" android:layout_marginTop="@dimen/vert_margin" android:layout_marginRight="@dimen/horiz_margin" android:layout_marginBottom="@dimen/vert_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <android.support.v7.widget.Toolbar android:theme="@style/PopupOverlay" android:id="@id/toolbar" android:background="?colorPrimary" android:layout_width="match_parent" android:layout_height="?actionBarSize" />
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginTop="4.0dp">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:layout_marginBottom="4.0dp" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin">
+            <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dp" android:layout_marginBottom="16.0dp" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin">
+                <TextView android:textAppearance="@style/TextAppearance.AppCompat.Headline" android:textColor="?colorAccent" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thanks!" android:layout_centerVertical="true" />
+                <TextView android:textAppearance="@style/TextAppearance.AppCompat.Subhead" android:paddingTop="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="If you already bought the pro version but would like to contribute more to the project, you can do so here." android:layout_centerVertical="true" />
+            </LinearLayout>
+        </FrameLayout>
+        <android.support.v7.widget.CardView android:id="@id/coffee_card" android:focusable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:layout_marginBottom="4.0dp" android:foreground="@drawable/donate_selector" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin" app:cardBackgroundColor="@color/orange">
+            <RelativeLayout android:id="@id/donate_coffee" android:paddingTop="8.0dp" android:paddingBottom="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin">
+                <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:layout_gravity="center_vertical" android:id="@id/icon_coffee" android:layout_width="52.0dp" android:layout_height="52.0dp" android:src="@drawable/ic_coffee" android:paddingEnd="16.0dp" />
+                    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Coffee" />
+                </LinearLayout>
+                <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="end" android:id="@id/price_coffee" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="$2.00" android:layout_centerVertical="true" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView android:id="@id/beer_card" android:focusable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:layout_marginBottom="4.0dp" android:foreground="@drawable/donate_selector" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin" app:cardBackgroundColor="@color/blue">
+            <RelativeLayout android:id="@id/donate_beer" android:paddingTop="8.0dp" android:paddingBottom="8.0dp" android:layout_width="match_parent" android:layout_height="64.0dp" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin">
+                <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:layout_gravity="center_vertical" android:id="@id/icon_beer" android:layout_width="52.0dp" android:layout_height="52.0dp" android:src="@drawable/ic_beer" android:paddingEnd="16.0dp" />
+                    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:layout_gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Beer" />
+                </LinearLayout>
+                <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="end" android:id="@id/price_beer" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="$5.00" android:layout_centerVertical="true" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView android:id="@id/lunch_card" android:focusable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:layout_marginBottom="4.0dp" android:foreground="@drawable/donate_selector" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin" app:cardBackgroundColor="@color/pink">
+            <RelativeLayout android:id="@id/donate_lunch" android:paddingTop="8.0dp" android:paddingBottom="8.0dp" android:layout_width="match_parent" android:layout_height="64.0dp" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin">
+                <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:layout_gravity="center_vertical" android:id="@id/icon_lunch" android:layout_width="52.0dp" android:layout_height="52.0dp" android:src="@drawable/ic_lunch" android:paddingEnd="16.0dp" />
+                    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:layout_gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Lunch" />
+                </LinearLayout>
+                <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="end" android:id="@id/price_lunch" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="$10.00" android:layout_centerVertical="true" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView android:id="@id/dinner_card" android:focusable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dp" android:layout_marginBottom="4.0dp" android:foreground="@drawable/donate_selector" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin" app:cardBackgroundColor="@color/aqua">
+            <RelativeLayout android:id="@id/donate_dinner" android:paddingTop="8.0dp" android:paddingBottom="8.0dp" android:layout_width="match_parent" android:layout_height="64.0dp" android:layout_marginStart="@dimen/activity_horizontal_margin" android:layout_marginEnd="@dimen/activity_horizontal_margin">
+                <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:layout_gravity="center_vertical" android:id="@id/icon_dinner" android:layout_width="52.0dp" android:layout_height="52.0dp" android:src="@drawable/ic_dinner" android:paddingEnd="16.0dp" />
+                    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:layout_gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Dinner" />
+                </LinearLayout>
+                <TextView android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:gravity="end" android:id="@id/price_dinner" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="$20.00" android:layout_centerVertical="true" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+</LinearLayout>
