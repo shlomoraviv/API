@@ -56,37 +56,37 @@ class MainActivity : Activity() {
         DisputeTopic(
             "אמה (Ama)",
             "מידות אורך",
-            "כ-58 ס\"מ (ויש מחמירים עד 60 ס\"מ)",
-            "48 ס\"מ בדיוק",
+            "כ-58 ס'מ (ויש מחמירים עד 60 ס'מ)",
+            "48 ס'מ בדיוק",
             "האמה היא מידת האורך הבסיסית בתורה (שש טפחים). המחלוקת נובעת משאלת גודל האגודל הממוצע בימינו לעומת ימי קדם, וכן מקביעת הנודע ביהודה שנתקטנו הדורות והמידות הוכפלו."
         ),
         DisputeTopic(
             "טפח (Tefach)",
             "מידות אורך",
-            "כ-9.6 ס\"מ (ויש מחמירים 10 ס\"מ)",
-            "8 ס\"מ בדיוק",
+            "כ-9.6 ס'מ (ויש מחמירים 10 ס'מ)",
+            "8 ס'מ בדיוק",
             "טפח הוא שישית האמה (4 אגודלים). משמש להלכות רבות כמו גובה דפנות הסוכה, מזוזה, ציצית, ועוד."
         ),
         DisputeTopic(
             "כזית (Kezayis)",
             "מידות נפח ומשקל",
-            "כ-33 עד 50 סמ\"ק (גרם במים)",
-            "כ-27 עד 29 סמ\"ק",
-            "שיעור כזית נדרש לאכילת מצה, מרור, אכילת איסור ועוד. החזון איש סובר ששיעור כזית הוא כחצי ביצה (של ימינו, שהיא גדולה יותר לפי שיטתו), ואילו הגר\"ח נאה מודד לפי משקל הדרם הטורקי המקובל."
+            "כ-33 עד 50 סמ'ק (גרם במים)",
+            "כ-27 עד 29 סמ'ק",
+            "שיעור כזית נדרש לאכילת מצה, מרור, אכילת איסור ועוד. החזון איש סובר ששיעור כזית הוא כחצי ביצה (של ימינו, שהיא גדולה יותר לפי שיטתו), ואילו הגר'ח נאה מודד לפי משקל הדרם הטורקי המקובל."
         ),
         DisputeTopic(
             "רביעית (Revi'is)",
             "מידות נפח",
-            "כ-150 סמ\"ק (מ\"ל)",
-            "86 סמ\"ק (מ\"ל) - כמניין כו\"ס",
+            "כ-150 סמ'ק (מ'ל)",
+            "86 סמ'ק (מ'ל) - כמניין כו'ס",
             "רביעית היא נפח הלוג הרביעי. משמשת לכוס של קידוש, ארבע כוסות, שיעור שתיית מים ויין לברכה אחרונה ועוד."
         ),
         DisputeTopic(
             "הפרשת חלה עם ברכה",
             "מצוות התלויות בארץ / לחם",
-            "החל מ-2.25 ק\"ג קמח",
-            "החל מ-1.66 ק\"ג קמח",
-            "לפי הגר\"ח נאה מפרישים חלה בברכה משיעור של 1.66 ק\"ג קמח (ונמנעים מברכה בין 1.2 ק\"ג ל-1.66 ק\"ג). לפי החזון איש מפרישים בברכה רק מ-2.25 ק\"ג קמח."
+            "החל מ-2.25 ק'ג קמח",
+            "החל מ-1.66 ק'ג קמח",
+            "לפי הגר'ח נאה מפרישים חלה בברכה משיעור של 1.66 ק'ג קמח (ונמנעים מברכה בין 1.2 ק'ג ל-1.66 ק'ג). לפי החזון איש מפרישים בברכה רק מ-2.25 ק'ג קמח."
         ),
         DisputeTopic(
             "זמן הדלקת נרות ושקיעה",
@@ -99,32 +99,32 @@ class MainActivity : Activity() {
 
     private val quizQuestions = listOf(
         QuizQuestion(
-            "מהו שיעור אמה לפי הגר\"ח נאה?",
-            listOf("48 ס\"מ", "58 ס\"מ", "60 ס\"מ", "50 ס\"מ"),
+            "מהו שיעור אמה לפי הגר'ח נאה?",
+            listOf("48 ס'מ", "58 ס'מ", "60 ס'מ", "50 ס'מ"),
             0,
-            "לפי הגר\"ח נאה, שיעור האמה הוא 48 ס\"מ בדיוק, המבוסס על מידות הרמב\"ם ומשקל הדרם הטורקי."
+            "לפי הגר'ח נאה, שיעור האמה הוא 48 ס'מ בדיוק, המבוסס על מידות הרמב'ם ומשקל הדרם הטורקי."
         ),
         QuizQuestion(
             "מהו שיעור אמה לפי החזון איש?",
-            listOf("48 ס\"מ", "58 ס\"מ", "40 ס\"מ", "33 ס\"מ"),
+            listOf("48 ס'מ", "58 ס'מ", "40 ס'מ", "33 ס'מ"),
             1,
-            "לפי החזון איש, שיעור האמה הוא כ-58 ס\"מ (ויש המחמירים עד 60 ס\"מ), בעקבות שיטת הצל\"ח והנודע ביהודה."
+            "לפי החזון איש, שיעור האמה הוא כ-58 ס'מ (ויש המחמירים עד 60 ס'מ), בעקבות שיטת הצל'ח והנודע ביהודה."
         ),
         QuizQuestion(
-            "מאיזה משקל קמח מפרישים חלה עם ברכה לפי הגר\"ח נאה?",
-            listOf("1.2 ק\"ג", "1.66 ק\"ג", "2.25 ק\"ג", "2.5 ק\"ג"),
+            "מאיזה משקל קמח מפרישים חלה עם ברכה לפי הגר'ח נאה?",
+            listOf("1.2 ק'ג", "1.66 ק'ג", "2.25 ק'ג", "2.5 ק'ג"),
             1,
-            "לפי הגר\"ח נאה, מפרישים חלה עם ברכה החל מ-1.66 ק\"ג קמח."
+            "לפי הגר'ח נאה, מפרישים חלה עם ברכה החל מ-1.66 ק'ג קמח."
         ),
         QuizQuestion(
-            "מהו שיעור נפח 'רביעית' לפי הגר\"ח נאה (כמניין כו\"ס)?",
-            listOf("150 סמ\"ק", "86 סמ\"ק", "100 סמ\"ק", "200 סמ\"ק"),
+            "מהו שיעור נפח 'רביעית' לפי הגר'ח נאה (כמניין כו'ס)?",
+            listOf("150 סמ'ק", "86 סמ'ק", "100 סמ'ק", "200 סמ'ק"),
             1,
-            "שיעור רביעית לגר\"ח נאה הוא 86 סמ\"ק (מ\"ל), שהוא בדיוק הגימטריה של המילה 'כוס'."
+            "שיעור רביעית לגר'ח נאה הוא 86 סמ'ק (מ'ל), שהוא בדיוק הגימטריה של המילה 'כוס'."
         ),
         QuizQuestion(
             "מי מהשניים נחשב למחמיר יותר במידות אורך ונפח?",
-            listOf("הגר\"ח נאה", "החזון איש", "שניהם שווים", "אף אחד מהם"),
+            listOf("הגר'ח נאה", "החזון איש", "שניהם שווים", "אף אחד מהם"),
             1,
             "החזון איש נחשב למחמיר (בעל השיעורים הגדולים יותר) ברוב המידות של תורה."
         )
@@ -178,7 +178,7 @@ class MainActivity : Activity() {
         }
 
         val headerTitle = TextView(this).apply {
-            text = "שיעורי תורה: חזו\"א וגר\"ח נאה"
+            text = "שיעורי תורה: חזו'א וגר'ח נאה"
             setTextColor(Color.WHITE)
             textSize = 20f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
@@ -296,7 +296,8 @@ class MainActivity : Activity() {
                 text.setTextColor(inactiveColor)
                 tab.setBackgroundColor(Color.WHITE)
             }
-        } switchGravityForRTL()
+        }
+        switchGravityForRTL()
     }
 
     private fun switchGravityForRTL() {
@@ -322,7 +323,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
+            ).apply {CustomLayout@
                 setMargins(0, 0, 0, dp(16f))
             }
         }
@@ -380,7 +381,7 @@ class MainActivity : Activity() {
                     isClickable = true
                     setOnClickListener {
                         showTopicDetailDialog(topic)
-                    } 
+                    }
                 }
 
                 val badge = TextView(this).apply {
@@ -439,7 +440,7 @@ class MainActivity : Activity() {
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 }
                 val rcLabel = TextView(this).apply {
-                    text = "גר\"ח נאה:"
+                    text = "גר'ח נאה:"
                     textSize = 12f
                     setTextColor(Color.parseColor("#718096"))
                 }
@@ -472,7 +473,7 @@ class MainActivity : Activity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 populateList(s.toString())
-            } 
+            }
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -527,7 +528,7 @@ class MainActivity : Activity() {
         }
 
         val rcTitle = TextView(this).apply {
-            text = "שיטת הגר\"ח נאה (שיעורים קטנים):"
+            text = "שיטת הגר'ח נאה (שיעורים קטנים):"
             textSize = 14f
             setTextColor(Color.parseColor("#3182CE"))
             typeface = Typeface.create("sans-serif", Typeface.BOLD)
@@ -556,7 +557,7 @@ class MainActivity : Activity() {
             text = topic.explanation
             textSize = 15f
             setTextColor(Color.parseColor("#4A5568"))
-            lineSpacingMultiplier = 1.2f
+            setLineSpacing(0f, 1.2f)
         }
         container.addView(expTitle)
         container.addView(expDesc)
@@ -606,7 +607,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dp(45f)
-            ).apply {CustomLayout@
+            ).apply {
                 setMargins(0, 0, 0, dp(16f))
             }
             weightSum = 2f
@@ -630,14 +631,14 @@ class MainActivity : Activity() {
         }
 
         lengthBtn.apply {
-            text = "מידות אורך (ס\"מ)"
+            text = "מידות אורך (ס'מ)"
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
                 setMargins(0, 0, dp(4f), 0)
             }
         }
 
         volumeBtn.apply {
-            text = "מידות נפח (סמ\"ק/מ\"ל)"
+            text = "מידות נפח (סמ'ק/מ'ל)"
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
                 setMargins(dp(4f), 0, 0, 0)
             }
@@ -714,7 +715,7 @@ class MainActivity : Activity() {
         resultsCard.addView(ciResultText)
 
         val rcResultTitle = TextView(this).apply {
-            text = "לפי שיטת הגר\"ח נאה:"
+            text = "לפי שיטת הגר'ח נאה:"
             textSize = 14f
             setTextColor(Color.parseColor("#3182CE"))
             typeface = Typeface.create("sans-serif", Typeface.BOLD)
@@ -1027,14 +1028,14 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, dp(8f))
         }
         val histDesc = TextView(this).apply {
-            text = "המחלוקת בין מרן החזון איש (רבי ישעיהו קרליץ זצ\"ל) לבין הגאון רבי חיים נאה זצ\"ל היא אחת המחלוקות המרכזיות בהלכה בדורות האחרונים בנוגע לשיעורי תורה.\n\n" +
+            text = "המחלוקת בין מרן החזון איש (רבי ישעיהו קרליץ זצ'ל) לבין הגאון רבי חיים נאה זצ'ל היא אחת המחלוקות המרכזיות בהלכה בדורות האחרונים בנוגע לשיעורי תורה.\n\n" +
                     "שורש המחלוקת נעוץ בדברי ה'נודע ביהודה' שגילה כי הביצים והאגודלים בדורות האחרונים קטנו בחצי לעומת הדורות הקודמים. " +
                     "בעקבות זאת, החזון איש פסק שיש להכפיל את מידות האורך והנפח כדי לשמור על השיעור המקורי של התורה.\n\n" +
-                    "מנגד, הגר\"ח נאה הוכיח מתוך דברי הרמב\"ם ומשקל הדרם הטורקי שהמידות לא השתנו, וכי המידות המסורתיות הן המדויקות. " +
+                    "מנגד, הגר'ח נאה הוכיח מתוך דברי הרמב'ם ומשקל הדרם הטורקי שהמידות לא השתנו, וכי המידות המסורתיות הן המדויקות. " +
                     "מחלוקת זו משפיעה על עשרות הלכות יומיומיות: נפח כוס קידוש, גודל המצה והמרור, שיעור הפרשת חלה, גודל הציצית והתפילין, ועוד."
             textSize = 14f
             setTextColor(Color.parseColor("#4A5568"))
-            lineSpacingMultiplier = 1.2f
+            setLineSpacing(0f, 1.2f)
         }
         historyCard.addView(histTitle)
         historyCard.addView(histDesc)
@@ -1059,12 +1060,12 @@ class MainActivity : Activity() {
         }
 
         val credDesc = TextView(this).apply {
-            text = "נבנה ע\"י פלטפורמת מאסטר בוט\n" +
-                    "ע\"י רביב דיגיטל\n\n" +
+            text = "נבנה ע'י פלטפורמת מאסטר בוט\n" +
+                    "ע'י רביב דיגיטל\n\n" +
                     "לפרטים נוספים, תמיכה ושאלות:"
             textSize = 14f
             setTextColor(Color.parseColor("#4A5568"))
-            lineSpacingMultiplier = 1.2f
+            setLineSpacing(0f, 1.2f)
         }
 
         val emailText = TextView(this).apply {
