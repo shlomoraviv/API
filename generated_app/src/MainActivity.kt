@@ -15,7 +15,6 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.core.content.ContextCompat
 
 class MainActivity : Activity() {
 
@@ -36,19 +35,14 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) 
 
-        // Main Container
-        val mainLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.WHITE)
-        }
-
         // ScrollView for content
         val scrollView = ScrollView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
             isFillViewport = true
+            setBackgroundColor(Color.WHITE)
         }
 
         val contentContainer = LinearLayout(this).apply {
@@ -211,7 +205,7 @@ class MainActivity : Activity() {
                 setHintTextColor(Color.parseColor("#8E8E93"))
                 val gd = GradientDrawable().apply {
                     setColor(Color.parseColor("#E5E5EA"))
-                    cornerRadius = dpToPx(8f)
+                    cornerRadius = dpToPx(8f).toFloat()
                 }
                 background = gd
                 setPadding(dpToPx(12f), dpToPx(10f), dpToPx(12f), dpToPx(10f))
@@ -229,8 +223,8 @@ class MainActivity : Activity() {
                 setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
                 val gd = GradientDrawable().apply {
                     setColor(Color.parseColor("#E8F5E9"))
-                    cornerRadius = dpToPx(10f)
-                    setStroke(dpToPx(1f).toInt(), Color.parseColor("#C8E6C9"))
+                    cornerRadius = dpToPx(10f).toFloat()
+                    setStroke(dpToPx(1f), Color.parseColor("#C8E6C9"))
                 }
                 background = gd
                 layoutParams = LinearLayout.LayoutParams(
@@ -303,8 +297,7 @@ class MainActivity : Activity() {
         contentContainer.addView(footerCard)
 
         scrollView.addView(contentContainer)
-        mainLayout.addView(scrollView)
-        setContentView(mainLayout)
+        setContentView(scrollView)
 
         // Restore state or set defaults
         if (savedInstanceState != null) {
@@ -383,7 +376,7 @@ class MainActivity : Activity() {
             
             // Amah comparison
             resultText.append("• שיעור אמה:\n")
-            if (value >= 57.6) {
+            if (value >= 57.6) { 
                 resultText.append("  כשר לכל הדעות (גדול מאמת חזון איש 57.6 ס\"מ)\n")
             } else if (value >= 48) {
                 resultText.append("  כשר לדעת רב חיים נאה בלבד (אמת חזו\"א: 57.6 ס\"מ)\n")
@@ -534,7 +527,6 @@ class MainActivity : Activity() {
     }
 }
 
-// Custom Segmented Control (Apple-style)
 class SegmentedControl(context: Context, options: List<String>, private val onSelected: (Int) -> Unit) : LinearLayout(context) {
     private val buttons = mutableListOf<TextView>()
     
@@ -590,7 +582,6 @@ class SegmentedControl(context: Context, options: List<String>, private val onSe
     }
 }
 
-// Custom Visualizer View for drawing Cups and Rulers side-by-side
 class HalachicVisualizerView(context: Context) : View(context) {
     var isCupMode = true
         set(value) {
@@ -618,20 +609,15 @@ class HalachicVisualizerView(context: Context) : View(context) {
 
         val midX = w / 2f
 
-        // Draw background divider
         paint.color = Color.parseColor("#E5E5EA")
         paint.strokeWidth = dpToPx(1f)
         canvas.drawLine(midX, dpToPx(10f), midX, h - dpToPx(10f), paint)
 
         if (isCupMode) {
-            // Left: Rav Chaim Naeh (Capacity 86)
             drawCup(canvas, midX / 2f, h * 0.7f, 86f, currentValue, "רב חיים נאה", "#1A237E")
-            // Right: Chazon Ish (Capacity 150)
             drawCup(canvas, midX + (midX / 2f), h * 0.7f, 150f, currentValue, "חזון איש", "#556B2F")
         } else {
-            // Left: Rav Chaim Naeh (Amah = 48cm)
             drawRuler(canvas, midX / 2f, h * 0.8f, 48f, currentValue, "רב חיים נאה", "#1A237E")
-            // Right: Chazon Ish (Amah = 57.6cm)
             drawRuler(canvas, midX + (midX / 2f), h * 0.8f, 57.6f, currentValue, "חזון איש", "#556B2F")
         }
     }
@@ -646,7 +632,6 @@ class HalachicVisualizerView(context: Context) : View(context) {
         val topY = baseLineY - cupHeight
         val bottomY = baseLineY
 
-        // Draw Cup Label
         paint.color = Color.parseColor("#1C1C1E")
         paint.textSize = 13f * density
         paint.textAlign = Paint.Align.CENTER
@@ -658,10 +643,8 @@ class HalachicVisualizerView(context: Context) : View(context) {
         paint.color = Color.parseColor("#8E8E93")
         canvas.drawText("שיעור: ${capacity.toInt()} מ\"ל", cx, topY - 10f * density, paint)
 
-        // Liquid calculation
         val fillRatio = (current / capacity).coerceIn(0f, 1.2f)
 
-        // Draw Liquid first
         if (fillRatio > 0f) {
             paint.color = Color.parseColor(colorHex)
             paint.style = Paint.Style.FILL
@@ -678,15 +661,13 @@ class HalachicVisualizerView(context: Context) : View(context) {
             path.close()
             canvas.drawPath(path, paint)
 
-            // Draw overflow indicator
             if (fillRatio > 1f) {
                 paint.color = Color.parseColor("#FF3B30")
                 paint.textSize = 9f * density
                 canvas.drawText("גלישה!", cx, bottomY + 16f * density, paint)
-            }
+            } 
         }
 
-        // Draw Cup Outline
         paint.color = Color.parseColor("#8E8E93")
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 2f * density
@@ -705,7 +686,6 @@ class HalachicVisualizerView(context: Context) : View(context) {
         val topY = baseLineY - rulerHeight
         val rulerWidth = 24f * density
 
-        // Draw Ruler Label
         paint.color = Color.parseColor("#1C1C1E")
         paint.textSize = 13f * density
         paint.textAlign = Paint.Align.CENTER
@@ -717,18 +697,15 @@ class HalachicVisualizerView(context: Context) : View(context) {
         paint.color = Color.parseColor("#8E8E93")
         canvas.drawText("אמה: $amahCm ס\"מ", cx, topY - 10f * density, paint)
 
-        // Draw Ruler Background
         paint.color = Color.parseColor("#E5E5EA")
         paint.style = Paint.Style.FILL
         canvas.drawRect(cx - rulerWidth / 2f, topY, cx + rulerWidth / 2f, baseLineY, paint)
 
-        // Draw Ruler Border
         paint.color = Color.parseColor("#8E8E93")
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 1f * density
         canvas.drawRect(cx - rulerWidth / 2f, topY, cx + rulerWidth / 2f, baseLineY, paint)
 
-        // Draw Tefach markings (6 Tefach in an Amah)
         val tefachCm = amahCm / 6f
         paint.style = Paint.Style.STROKE
         paint.color = Color.parseColor("#8E8E93")
@@ -739,9 +716,7 @@ class HalachicVisualizerView(context: Context) : View(context) {
             canvas.drawLine(cx + rulerWidth / 4f, markY, cx + rulerWidth / 2f, markY, paint)
         }
 
-        // Highlight measured height
         val measuredHeight = current * scale
-        val indicatorY = (baseLineY - measuredHeight).coerceAtLeast(topY - 15f * density)
 
         paint.style = Paint.Style.FILL
         paint.color = Color.parseColor(colorHex)
@@ -755,7 +730,6 @@ class HalachicVisualizerView(context: Context) : View(context) {
             paint
         )
 
-        // If current exceeds Amah
         if (current >= amahCm) {
             paint.color = Color.parseColor(colorHex)
             paint.textSize = 9f * density
