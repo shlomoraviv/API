@@ -14,6 +14,13 @@ jobs:
       - name: Check out the repository (brings decompile_source/source.apk along)
         uses: actions/checkout@v4
 
+      - name: Cache the Appetize public key per APK blob SHA
+        id: appetize
+        uses: actions/cache@v4
+        with:
+          path: appetize_public_key.txt
+          key: appetize-key-${{ github.sha }}
+
       - name: Upload APK to Appetize and print the embed key
         env:
           APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
@@ -43,6 +50,35 @@ jobs:
             echo "::error::Appetize response contained no publicKey:"
             cat appetize_response.json || true
             exit 1
+          fi
+
+          # Appetize bills per upload, and every pipeline run produces a new
+          # APK — but a re-run of the same commit must not pay twice.
+          if [ -f appetize_public_key.txt ]; then
+            PUBLIC_KEY=$(cat appetize_public_key.txt)
+            echo "Reusing cached Appetize key for this commit: $PUBLIC_KEY"
+          else
+            echo "Uploading $(du -h "$APK" | cut -f1) APK to Appetize…"
+
+            HTTP_CODE=$(curl -sS -o appetize_response.json -w '%{http_code}' \
+              -X POST https://api.appetize.io/v1/apps \
+              -H "X-API-KEY: $APPETIZE_API_TOKEN" \
+              -F "file=@${APK}" \
+              -F "platform=android")
+
+            if [ "$HTTP_CODE" != "200" ]; then
+              echo "::error::Appetize upload failed (HTTP $HTTP_CODE):"
+              cat appetize_response.json || true
+              exit 1
+            fi
+
+            PUBLIC_KEY=$(jq -r '.publicKey // empty' appetize_response.json)
+            if [ -z "$PUBLIC_KEY" ]; then
+              echo "::error::Appetize response contained no publicKey:"
+              cat appetize_response.json || true
+              exit 1
+            fi
+            echo "$PUBLIC_KEY" > appetize_public_key.txt
           fi
 
           echo "APPETIZE_PUBLIC_KEY=$PUBLIC_KEY" >> "$GITHUB_ENV"

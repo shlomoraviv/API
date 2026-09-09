@@ -351,9 +351,14 @@
   .emulator-head strong { font-size: 13px; font-weight: 600; color: var(--text); }
   .emulator-head a { font-size: 12px; color: var(--accent-hover); text-decoration: none; font-weight: 600; }
   .emulator-head a:hover { text-decoration: underline; }
-  .emulator-frame { display: flex; justify-content: center; }
+  .emulator-frame { display: flex; flex-direction: column; align-items: center; gap: 10px; }
   .emulator-frame iframe { width: min(320px, 100%); aspect-ratio: 9 / 19; border: 1px solid var(--border-strong); border-radius: 18px; background: #000; }
   .emulator-frame .emulator-note { font-size: 12px; color: var(--text-faint); line-height: 1.6; text-align: center; }
+  .emulator-cover { width: min(320px, 100%); aspect-ratio: 9 / 19; border: 1px solid var(--border-strong); border-radius: 18px; background: linear-gradient(160deg, #10131a, #1d2331); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; cursor: pointer; padding: 18px; font-family: inherit; }
+  .emulator-cover:hover { filter: brightness(1.15); }
+  .emulator-cover:disabled { cursor: progress; opacity: 0.85; }
+  .emulator-cover-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 26px; padding-left: 5px; }
+  .emulator-cover-label { font-size: 13.5px; font-weight: 600; line-height: 1.5; text-align: center; }
 
   /* ---- resume-old-conversation upload prompt ---- */
   .resume-box {
@@ -1969,12 +1974,16 @@ rebuild, even if that means dropping part of the requested change.`;
 
   // Full recursive path listing of a branch via the Git Trees API — one call,
   // much cheaper than walking directories one by one via the Contents API.
-  async function listRepoTree({ owner, repo, branch, token }) {
+  async function listRepoTreeEntries({ owner, repo, branch, token }) {
     const data = await gh(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, token);
     if (data.truncated) {
       console.warn("Git tree listing was truncated by GitHub (very large repo) — some files may be missing from candidates.");
     }
-    return (data.tree || []).filter((e) => e.type === "blob").map((e) => e.path);
+    return (data.tree || []).filter((e) => e.type === "blob");
+  }
+
+  async function listRepoTree({ owner, repo, branch, token }) {
+    return (await listRepoTreeEntries({ owner, repo, branch, token })).map((e) => e.path);
   }
 
   function extractManifestPackage(manifestXml) {
@@ -1997,6 +2006,77 @@ rebuild, even if that means dropping part of the requested change.`;
     log(`Commit נוצר: ${commitSha.slice(0, 7)}, מפעיל פירוק (apktool)…`, "ok", logTarget);
     await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile: DECOMPILE_WORKFLOW_FILE, logTarget });
     log("הפירוק הושלם", "ok", logTarget);
+  }
+
+  // ---- decompile reuse: never re-decompile an APK that is already decompiled ----
+  // apktool takes minutes on a real app, but the edit/translate pipelines run it
+  // again on EVERY turn — even when the active APK is byte-for-byte the one whose
+  // decompiled tree already sits in decompiled_app/ on the branch. The fix: keep
+  // a marker (git blob SHA of the last successfully-decompiled APK, persisted in
+  // localStorage so it also survives a page refresh) and skip the whole stage
+  // when the committed source.apk, the active APK and the marker all agree AND
+  // decompiled_app/ still exists on the branch. Anything else (new APK, manual
+  // repo edit, failed decompile commit, cleared storage) falls back to a full
+  // decompile, so the fast path can never patch a stale tree.
+
+  // Git blob SHA-1 of the APK bytes — the exact identifier GitHub uses for the
+  // committed decompile_source/source.apk, so comparing it against the branch
+  // tree entry proves the committed file is byte-identical to the active APK.
+  // Returns null when SubtleCrypto is unavailable (non-secure context): the
+  // caller then always re-decompiles, which is the safe direction.
+  async function gitBlobSha1FromBase64(base64) {
+    try {
+      if (!window.crypto || !window.crypto.subtle) return null;
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const header = new TextEncoder().encode(`blob ${bytes.length}\u0000`);
+      const payload = new Uint8Array(header.length + bytes.length);
+      payload.set(header, 0);
+      payload.set(bytes, header.length);
+      const digest = await window.crypto.subtle.digest("SHA-1", payload);
+      return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    } catch (err) {
+      console.warn("could not compute git blob SHA for the decompile cache:", err);
+      return null;
+    }
+  }
+
+  const DECOMPILE_MARKER_KEY = "aiAppMaker.decompileMarker.v1";
+
+  function readDecompileMarker(owner, repo, branch) {
+    try {
+      const marker = JSON.parse(localStorage.getItem(DECOMPILE_MARKER_KEY) || "null");
+      return marker && marker.owner === owner && marker.repo === repo && marker.branch === branch ? marker.sha : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeDecompileMarker(owner, repo, branch, sha) {
+    try {
+      localStorage.setItem(DECOMPILE_MARKER_KEY, JSON.stringify({ owner, repo, branch, sha }));
+    } catch (err) {
+      /* private mode / full quota — the in-memory flow still works, we just lose the fast path after a refresh */
+    }
+  }
+
+  // Runs the decompile stage for the active APK — or skips it entirely when the
+  // branch already holds the decompiled tree of this exact APK.
+  async function ensureDecompiled({ owner, repo, branch, token, apkBase64, logTarget }) {
+    const [localSha, entries] = await Promise.all([
+      gitBlobSha1FromBase64(apkBase64),
+      listRepoTreeEntries({ owner, repo, branch, token }),
+    ]);
+    const committedSource = entries.find((e) => e.path === DECOMPILE_SOURCE_PATH);
+    const hasDecompiledTree = entries.some((e) => e.path === `${DECOMPILED_APP_DIR}/apktool.yml`);
+    const markerSha = readDecompileMarker(owner, repo, branch);
+    if (localSha && committedSource && committedSource.sha === localSha && markerSha === localSha && hasDecompiledTree) {
+      log("קוד המקור המפורק כבר קיים בריפו ותואם ל-APK הפעיל — מדלג על הפירוק מחדש", "ok", logTarget);
+      return;
+    }
+    await triggerDecompile({ owner, repo, branch, token, apkBase64, logTarget });
+    writeDecompileMarker(owner, repo, branch, localSha);
   }
 
   // ---------- string-resource XML helpers (translate mode) ----------
@@ -2882,6 +2962,26 @@ rebuild, even if that means dropping part of the requested change.`;
     return match[1];
   }
 
+  // Loads the Appetize JS SDK once (official snippet from docs.appetize.io).
+  let appetizeSdkPromise = null;
+  function loadAppetizeSdk() {
+    if (window.appetize && window.appetize.getClient) return Promise.resolve();
+    if (!appetizeSdkPromise) {
+      appetizeSdkPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://js.appetize.io/embed.js";
+        script.async = 1;
+        script.onload = () => resolve();
+        script.onerror = () => {
+          appetizeSdkPromise = null;
+          reject(new Error("טעינת ספריית האמולטור נכשלה — ייתכן שהרשת חוסמת את js.appetize.io"));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    return appetizeSdkPromise;
+  }
+
   function showEmulator(turnBody, publicKey) {
     const wrap = document.createElement("div");
     wrap.className = "emulator-wrap";
@@ -2897,10 +2997,65 @@ rebuild, even if that means dropping part of the requested change.`;
     head.append(title, openLink);
     const frame = document.createElement("div");
     frame.className = "emulator-frame";
+
     const iframe = document.createElement("iframe");
+    const iframeId = "appetize-iframe-" + Math.random().toString(36).slice(2, 8);
+    iframe.id = iframeId;
     iframe.allow = "camera; microphone; clipboard-write";
-    iframe.src = `https://appetize.io/embed/${encodeURIComponent(publicKey)}?device=pixel7&orientation=portrait&scale=75&autoplay=true&darkmode=true`;
+    // No src yet: the Appetize SDK points the iframe at the session itself when
+    // the session starts. A plain embed URL is NOT set here on purpose — on the
+    // free Appetize plan embeds are disabled and the iframe would just render
+    // "Embeds are not enabled for this app" (see the fallback below).
     frame.appendChild(iframe);
+
+    const cover = document.createElement("button");
+    cover.type = "button";
+    cover.className = "emulator-cover";
+    const coverIcon = document.createElement("span");
+    coverIcon.className = "emulator-cover-icon";
+    coverIcon.textContent = "▶";
+    const coverLabel = document.createElement("span");
+    coverLabel.className = "emulator-cover-label";
+    coverLabel.textContent = "הקישו כדי להפעיל את האפליקציה";
+    cover.append(coverIcon, coverLabel);
+    frame.appendChild(cover);
+
+    const showEmbedFallback = (reason) => {
+      iframe.remove();
+      cover.classList.add("emulator-cover-fallback");
+      cover.disabled = false;
+      coverLabel.textContent = "ההפעלה בתוך העמוד חסומה — לחיצה תפתח את האמולטור בחלון נפרד ↗";
+      cover.onclick = () => window.open(openLink.href, "_blank", "noopener");
+      if (reason) {
+        const note = document.createElement("div");
+        note.className = "emulator-note";
+        note.textContent = String(reason);
+        frame.appendChild(note);
+      }
+    };
+
+    let started = false;
+    cover.addEventListener("click", async () => {
+      if (started) return;
+      started = true;
+      cover.disabled = true;
+      coverLabel.textContent = "מפעיל את האמולטור…";
+      try {
+        await loadAppetizeSdk();
+        const client = await window.appetize.getClient("#" + iframeId);
+        // Surface session-level failures (plan limits, device busy, network) as
+        // the one-click standalone fallback instead of a dead black phone.
+        if (client && typeof client.on === "function") {
+          client.on("error", (message) => showEmbedFallback(message));
+        }
+        await client.startSession();
+        cover.remove();
+      } catch (err) {
+        console.warn("appetize session failed:", err);
+        showEmbedFallback(err && err.message ? err.message : "הפעלת האמולטור נכשלה");
+      }
+    });
+
     wrap.append(head, frame);
     turnBody.appendChild(wrap);
     scrollThreadToEnd();
@@ -3152,7 +3307,7 @@ rebuild, even if that means dropping part of the requested change.`;
     setComposerBusy(true);
     try {
       setStage("decompile", "active", rail, EDIT2_STAGE_ORDER);
-      await triggerDecompile({ owner, repo, branch, token, apkBase64: currentApk.base64, logTarget: logBox });
+      await ensureDecompiled({ owner, repo, branch, token, apkBase64: currentApk.base64, logTarget: logBox });
       setStage("decompile", "done", rail, EDIT2_STAGE_ORDER);
 
       setStage("locate", "active", rail, EDIT2_STAGE_ORDER);
@@ -3220,6 +3375,10 @@ rebuild, even if that means dropping part of the requested change.`;
 
       const base64 = await blobToBase64(apkBlob);
       currentApk = { base64, name: currentApk.name };
+      // The freshly rebuilt APK is NOT decompiled yet — the next edit/translate
+      // turn must run a full decompile on it (the cache key changes anyway,
+      // and the old marker now points at the previous APK's bytes).
+      writeDecompileMarker(owner, repo, branch, null);
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK הערוך מחכה להורדה. אפשר להמשיך לבקש עוד שינויים.", "success-text");
       recordTurn("assistant", "edit", "נערך בהצלחה", true);
@@ -3256,7 +3415,7 @@ rebuild, even if that means dropping part of the requested change.`;
     setComposerBusy(true);
     try {
       setStage("decompile", "active", rail, TRANSLATE_STAGE_ORDER);
-      await triggerDecompile({ owner, repo, branch, token, apkBase64: currentApk.base64, logTarget: logBox });
+      await ensureDecompiled({ owner, repo, branch, token, apkBase64: currentApk.base64, logTarget: logBox });
       setStage("decompile", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("strings", "active", rail, TRANSLATE_STAGE_ORDER);
@@ -3332,6 +3491,8 @@ rebuild, even if that means dropping part of the requested change.`;
 
       const base64 = await blobToBase64(apkBlob);
       currentApk = { base64, name: currentApk.name };
+      // The freshly rebuilt APK is NOT decompiled yet — see the note in runEditTurn.
+      writeDecompileMarker(owner, repo, branch, null);
       turn.showDownload({ blob: apkBlob, filename: "app-translated-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK המתורגם מחכה להורדה.", "success-text");
       recordTurn("assistant", "translate", "תורגם בהצלחה (" + langCode + ")", true);
@@ -3392,6 +3553,8 @@ rebuild, even if that means dropping part of the requested change.`;
 
       const base64 = await blobToBase64(apkBlob);
       currentApk = { base64, name: currentApk ? currentApk.name : "app-edited-release.apk" };
+      // The re-signed APK was modified outside apktool — its decompiled tree is stale.
+      writeDecompileMarker(owner, repo, branch, null);
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK המצונזר מחכה להורדה.", "success-text");
       recordTurn("assistant", "censor", "נוצר APK מצונזר בהצלחה", true);
@@ -3899,6 +4062,7 @@ image clearly and unambiguously depicts it.`;
     pendingFileName.textContent = file.name;
     const base64 = await blobToBase64(file);
     currentApk = { base64, name: file.name };
+    writeDecompileMarker(ownerEl.value.trim(), repoEl.value.trim(), branchEl.value.trim() || "main", null);
     appendUserTurn(`הועלה קובץ: ${file.name} (${formatBytes(file.size)})`, "paperclip");
     recordTurn("user", activeConversationType || "edit", `הועלה קובץ: ${file.name}`);
     updateComposerForState();
@@ -3921,6 +4085,7 @@ image clearly and unambiguously depicts it.`;
     if (!file) return;
     const base64 = await blobToBase64(file);
     currentApk = { base64, name: file.name };
+    writeDecompileMarker(ownerEl.value.trim(), repoEl.value.trim(), branchEl.value.trim() || "main", null);
     conversationIsLive = true;
     appendUserTurn(`הועלה קובץ מחדש כדי להמשיך: ${file.name}`, "paperclip");
     recordTurn("user", "edit", `הועלה קובץ מחדש: ${file.name}`);
