@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:background="@color/granat" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="@dimen/dialogTitleTextSize" android:textColor="@android:color/white" android:gravity="center" android:id="@id/title" android:paddingLeft="15.0dp" android:paddingRight="15.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="15.0dp" />
+    <TextView android:textSize="@dimen/dialogInfoTextSize" android:textColor="@android:color/white" android:textColorLink="#18ffff" android:gravity="center" android:autoLink="all" android:linksClickable="true" android:id="@id/infoText" android:paddingLeft="15.0dp" android:paddingTop="10.0dp" android:paddingRight="15.0dp" android:paddingBottom="20.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="15.0dp">
+        <Button android:textSize="@dimen/dialogTitleTextSize" android:id="@id/button_ok" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ok_netigen" style="@style/AlertDialogButton" />
+    </LinearLayout>
+</LinearLayout>

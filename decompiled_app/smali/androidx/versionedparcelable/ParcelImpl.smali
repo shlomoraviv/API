@@ -1,9 +1,17 @@
 .class public Landroidx/versionedparcelable/ParcelImpl;
 .super Ljava/lang/Object;
-.source "\ubcfc\ub968 \ucee8\ud2b8\ub864\uc774 \ud45c\uc2dc\ub429\ub2c8\ub2e4. \ub2eb\uc73c\ub824\uba74 \uc704\ub85c \uc2a4\uc640\uc774\ud504\ud569\ub2c8\ub2e4"
+.source "ParcelImpl.java"
 
 # interfaces
 .implements Landroid/os/Parcelable;
+
+
+# annotations
+.annotation build Landroid/annotation/SuppressLint;
+    value = {
+        "BanParcelableUsage"
+    }
+.end annotation
 
 
 # static fields
@@ -19,13 +27,14 @@
 
 
 # instance fields
-.field public final b:La/pj;
+.field private final f:Landroidx/versionedparcelable/c;
 
 
 # direct methods
-.method public static constructor <clinit>()V
+.method static constructor <clinit>()V
     .locals 1
 
+    .line 1
     new-instance v0, Landroidx/versionedparcelable/ParcelImpl$a;
 
     invoke-direct {v0}, Landroidx/versionedparcelable/ParcelImpl$a;-><init>()V
@@ -35,20 +44,22 @@
     return-void
 .end method
 
-.method public constructor <init>(Landroid/os/Parcel;)V
+.method protected constructor <init>(Landroid/os/Parcel;)V
     .locals 1
 
+    .line 1
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    new-instance v0, La/oj;
+    .line 2
+    new-instance v0, Landroidx/versionedparcelable/b;
 
-    invoke-direct {v0, p1}, La/oj;-><init>(Landroid/os/Parcel;)V
+    invoke-direct {v0, p1}, Landroidx/versionedparcelable/b;-><init>(Landroid/os/Parcel;)V
 
-    invoke-virtual {v0}, La/nj;->h()La/pj;
+    invoke-virtual {v0}, Landroidx/versionedparcelable/a;->u()Landroidx/versionedparcelable/c;
 
-    move-result-object v0
+    move-result-object p1
 
-    iput-object v0, p0, Landroidx/versionedparcelable/ParcelImpl;->b:La/pj;
+    iput-object p1, p0, Landroidx/versionedparcelable/ParcelImpl;->f:Landroidx/versionedparcelable/c;
 
     return-void
 .end method
@@ -56,23 +67,25 @@
 
 # virtual methods
 .method public describeContents()I
-    .locals 0
+    .locals 1
 
-    const/4 p0, 0x0
+    const/4 v0, 0x0
 
-    return p0
+    return v0
 .end method
 
 .method public writeToParcel(Landroid/os/Parcel;I)V
-    .locals 2
+    .locals 0
 
-    new-instance v1, La/oj;
+    .line 1
+    new-instance p2, Landroidx/versionedparcelable/b;
 
-    invoke-direct {v1, p1}, La/oj;-><init>(Landroid/os/Parcel;)V
+    invoke-direct {p2, p1}, Landroidx/versionedparcelable/b;-><init>(Landroid/os/Parcel;)V
 
-    iget-object v0, p0, Landroidx/versionedparcelable/ParcelImpl;->b:La/pj;
+    .line 2
+    iget-object p1, p0, Landroidx/versionedparcelable/ParcelImpl;->f:Landroidx/versionedparcelable/c;
 
-    invoke-virtual {v1, v0}, La/nj;->a(La/pj;)V
+    invoke-virtual {p2, p1}, Landroidx/versionedparcelable/a;->L(Landroidx/versionedparcelable/c;)V
 
     return-void
 .end method
