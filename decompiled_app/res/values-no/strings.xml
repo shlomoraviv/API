@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel_netigen">Avbryt</string>
+    <string name="change_language_netigen">Skifte språk</string>
+    <string name="do_you_like_this_app_netigen">Liker du denne appen?</string>
+    <string name="later_netigen">Seinere</string>
+    <string name="msg_browser_not_found_netigen">Nettleser ikke funnet !!!</string>
+    <string name="please_support_us_netigen">Støtt oss ved å vurdere denne appen. Takk skal du ha!</string>
+    <string name="rate_us_netigen">Rangere oss</string>
+    <string name="settings_normal_netigen">innstillinger</string>
+    <string name="translation_information_content1_netigen">Denne applikasjonen har blitt oversatt av Google Translate. Engelsk er det opprinnelige språket i denne applikasjonen. Husk at det kan være feil i oversettelsen.</string>
+    <string name="translation_information_content2_netigen">Hvis du vil endre appspråket til engelsk, kan du gjøre det i innstillinger.</string>
+    <string name="translation_information_title_netigen">Oversettelsesinformasjon</string>
+</resources>

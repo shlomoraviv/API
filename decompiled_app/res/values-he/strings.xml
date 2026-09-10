@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel_netigen">בטל</string>
+    <string name="change_language_netigen">שנה שפה</string>
+    <string name="do_you_like_this_app_netigen">האם אתה אוהב את האפליקציה הזו?</string>
+    <string name="later_netigen">יותר מאוחר</string>
+    <string name="msg_browser_not_found_netigen">הדפדפן לא נמצא !!!</string>
+    <string name="please_support_us_netigen">אנא תמכו בנו על ידי דירוג אפליקציה זו. תודה!</string>
+    <string name="rate_us_netigen">דרג אותנו</string>
+    <string name="settings_normal_netigen">הגדרות</string>
+    <string name="translation_information_content1_netigen">יישום זה תורגם על ידי Google Translate. אנגלית היא השפה המקורית של יישום זה. יש לזכור כי יכול להיות כמה טעויות בתרגום.</string>
+    <string name="translation_information_content2_netigen">אם ברצונך לשנות את שפת האפליקציה לאנגלית, תוכל לעשות זאת בהגדרות.</string>
+    <string name="translation_information_title_netigen">מידע על התרגום</string>
+</resources>

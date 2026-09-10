@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="abc_config_prefDialogWidth">440.0dp</dimen>
+    <dimen name="abc_dialog_fixed_height_major">60.000004%</dimen>
+    <dimen name="abc_dialog_fixed_height_minor">90.0%</dimen>
+    <dimen name="abc_dialog_fixed_width_major">60.000004%</dimen>
+    <dimen name="abc_dialog_fixed_width_minor">90.0%</dimen>
+    <dimen name="abc_dialog_min_width_major">55.000008%</dimen>
+    <dimen name="abc_dialog_min_width_minor">79.99999%</dimen>
+    <dimen name="indicatorPanelHeight">64.0dp</dimen>
+    <dimen name="noteViewWidth">108.0dp</dimen>
+    <dimen name="noteViewsHeight">62.0dp</dimen>
+    <dimen name="settingsTextSize">45.0dp</dimen>
+    <dimen name="text_size">24.0dp</dimen>
+    <dimen name="topPanelButtonsPadding">12.0dp</dimen>
+    <dimen name="topPanelHeight">60.0dp</dimen>
+    <dimen name="tunerLayoutButtonsTextSize">30.0dp</dimen>
+    <dimen name="tunerLayoutPlayImagePaddingRight">16.0dp</dimen>
+    <dimen name="tunerLayoutPlayImageSize">60.0dp</dimen>
+    <dimen name="tunerLayoutsHeights">74.0dp</dimen>
+    <dimen name="tunerLayoutsHeightsNoAdsActive">84.0dp</dimen>
+</resources>

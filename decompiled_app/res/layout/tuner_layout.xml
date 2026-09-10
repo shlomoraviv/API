@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="vertical" android:id="@id/drawer_layout" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+        <RelativeLayout android:id="@id/topPanelRelativeLayout" android:layout_width="match_parent" android:layout_height="@dimen/topPanelHeight">
+            <ImageView android:id="@id/menuButton" android:src="@drawable/menu_button" style="@style/topPanelButtonsStyle" />
+            <ImageView android:id="@id/rateUsButton" android:src="@drawable/rate_us_button" android:layout_toLeftOf="@id/moreAppsButton" style="@style/topPanelButtonsStyle" />
+            <ImageView android:id="@id/moreAppsButton" android:src="@drawable/plus_button" android:layout_toLeftOf="@id/settingsButton" style="@style/topPanelButtonsStyle" />
+            <ImageView android:id="@id/settingsButton" android:src="@drawable/settings_button" android:layout_alignParentRight="true" style="@style/topPanelButtonsStyle" />
+        </RelativeLayout>
+        <RelativeLayout android:id="@id/playEachNoteRelativeLayout" android:background="@color/red" android:layout_width="match_parent" android:layout_height="@dimen/tunerLayoutsHeights" android:layout_below="@id/topPanelRelativeLayout">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_centerInParent="true">
+                <ImageView android:layout_gravity="center" android:id="@id/playEachNoteImageView" android:paddingRight="@dimen/tunerLayoutPlayImagePaddingRight" android:layout_width="@dimen/tunerLayoutPlayImageSize" android:layout_height="@dimen/tunerLayoutPlayImageSize" android:src="@drawable/play" />
+                <TextView android:textSize="@dimen/tunerLayoutButtonsTextSize" android:textColor="@android:color/white" android:gravity="center" android:id="@id/playEachNoteTextView" android:layout_width="wrap_content" android:layout_height="match_parent" android:text="@string/playMainActivityButton" />
+            </LinearLayout>
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" android:layout_above="@id/borderLine1" android:layout_below="@id/playEachNoteRelativeLayout">
+            <pl.netigen.simpleguitartuner.InstrumentView android:id="@id/instrumentView" android:layout_width="match_parent" android:layout_height="match_parent" />
+            <ImageView android:id="@id/loopsAdImageView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" />
+            <ImageView android:id="@id/transposingImageView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:adjustViewBounds="true" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" />
+            <ImageView android:id="@id/noAdsImageView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/borderLine1" android:background="@color/red" android:layout_width="match_parent" android:layout_height="2.0dp" android:layout_above="@id/noteViewsRelativeLayout" />
+        <RelativeLayout android:orientation="horizontal" android:id="@id/noteViewsRelativeLayout" android:layout_width="match_parent" android:layout_height="@dimen/noteViewsHeight" android:layout_above="@id/frequencyIndicatorView">
+            <pl.netigen.simpleguitartuner.NoteView android:id="@id/leftTargetNoteView" android:layout_width="@dimen/noteViewWidth" android:layout_height="@dimen/noteViewsHeight" android:layout_marginLeft="10.0dp" />
+            <pl.netigen.simpleguitartuner.NoteView android:id="@id/centerTargetNoteView" android:layout_width="@dimen/noteViewWidth" android:layout_height="@dimen/noteViewsHeight" android:layout_marginLeft="10.0dp" android:layout_centerInParent="true" />
+            <pl.netigen.simpleguitartuner.NoteView android:id="@id/rightTargetNoteView" android:layout_width="@dimen/noteViewWidth" android:layout_height="@dimen/noteViewsHeight" android:layout_marginRight="10.0dp" android:layout_alignParentRight="true" />
+        </RelativeLayout>
+        <pl.netigen.simpleguitartuner.IndicatorView android:orientation="horizontal" android:id="@id/frequencyIndicatorView" android:layout_width="match_parent" android:layout_height="@dimen/indicatorPanelHeight" android:layout_above="@id/frequencyTextView" />
+        <TextView android:textSize="@dimen/tunerLayoutButtonsTextSize" android:textColor="@color/white" android:gravity="center" android:id="@id/frequencyTextView" android:layout_width="match_parent" android:layout_height="@dimen/tunerLayoutsHeights" android:text="329.00 Hertz" android:layout_above="@id/borderLine2" />
+        <LinearLayout android:orientation="horizontal" android:id="@id/borderLine2" android:background="@android:color/white" android:layout_width="match_parent" android:layout_height="2.0dp" android:layout_above="@id/startTuneTextView" />
+        <pl.netigen.simpleguitartuner.StartTuneView android:textSize="@dimen/tunerLayoutButtonsTextSize" android:textColor="@color/yellow_light" android:gravity="center" android:id="@id/startTuneTextView" android:layout_width="match_parent" android:layout_height="@dimen/tunerLayoutsHeights" android:text="@string/start_tune" android:layout_above="@id/adsBorderLine" />
+        <LinearLayout android:orientation="horizontal" android:id="@id/adsBorderLine" android:background="@drawable/ads_border_line" android:layout_width="match_parent" android:layout_height="2.0dp" android:layout_above="@id/adsLayout" />
+        <RelativeLayout android:id="@id/adsLayout" android:background="#000000" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="50.0dp" android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+    <FrameLayout android:id="@id/fragments_placeholder" android:layout_width="match_parent" android:layout_height="match_parent" />
+</RelativeLayout>
