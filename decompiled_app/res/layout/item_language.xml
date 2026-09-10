@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout android:focusable="true" android:clickable="true" android:layout_width="match_parent" android:layout_height="48.0dp" android:foreground="?android:selectableItemBackground"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.appcompat.widget.AppCompatRadioButton android:theme="@style/SelectedLanguageRadioButton" android:textColor="@color/dialog_text_view" android:gravity="left|center" android:id="@id/radio_button_select_language" android:paddingLeft="14.0dp" android:paddingRight="14.0dp" android:layout_width="match_parent" android:layout_height="match_parent" android:foreground="?android:selectableItemBackground" android:supportsRtl="false" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintLeft_toLeftOf="parent" app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
