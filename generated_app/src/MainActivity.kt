@@ -282,7 +282,7 @@ class MainActivity : Activity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState)
 
         // Load saved state
         val prefs = getSharedPreferences("tefilon_prefs", Context.MODE_PRIVATE)
@@ -432,7 +432,7 @@ class MainActivity : Activity() {
                     updateTabSelection()
                     renderActivePrayer()
                 }
-            }
+            } 
         }
         for (tab in tabs) {
             tabContainer.addView(tab)
@@ -488,9 +488,9 @@ class MainActivity : Activity() {
         prayerContentLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(8), dp(16), dp(24))
-            layoutParams = ScrollView.LayoutParams(
-                ScrollView.LayoutParams.MATCH_PARENT,
-                ScrollView.LayoutParams.WRAP_CONTENT
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
             )
         }
         prayerScrollView.addView(prayerContentLayout)
@@ -761,7 +761,7 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
             paintFlags = paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
             setPadding(0, dp(4), 0, 0)
-            setOnClickListener {
+            setOnClickListener { 
                 triggerHaptic()
                 try {
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -810,7 +810,7 @@ class MainActivity : Activity() {
         // Text colors
         appTitle.setTextColor(colorTextMain)
         appSubtitle.setTextColor(colorTextComm)
-        settingsButton.findViewById<TextView>(settingsButton.getChildAt(0).id)?.setTextColor(colorAccent)
+        (settingsButton.getChildAt(0) as? TextView)?.setTextColor(colorAccent)
 
         // Search bar styling
         searchBarContainer.background = createRoundedDrawable(colorCard, dp(8).toFloat())
