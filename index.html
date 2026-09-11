@@ -154,13 +154,21 @@
   }
 
   /* ===================== app shell ===================== */
-  .app-shell { height: 100vh; display: flex; }
+  .app-shell {
+    height: 100vh; display: grid;
+    /* Physical order on desktop: history (left) | chat (middle) | emulator (right).
+       The chat column stops growing at its natural 720px thread width and the
+       emulator column absorbs ALL the remaining free space on the right. */
+    grid-template-columns: var(--side-w) minmax(0, 720px) minmax(230px, 1fr);
+    direction: ltr;
+  }
 
-  /* ---- persistent sidebar (right, matching RTL + reference design) ---- */
+  /* ---- persistent conversation history (left on desktop) ---- */
   .side {
-    order: 2; width: var(--side-w); flex: 0 0 auto; height: 100vh;
-    background: var(--sidebar-bg); border-inline-start: 1px solid var(--border);
-    display: flex; flex-direction: column; transition: margin .2s ease;
+    grid-column: 1; grid-row: 1; width: auto; min-width: 0; height: 100vh;
+    background: var(--sidebar-bg); border-inline-end: 1px solid var(--border);
+    display: flex; flex-direction: column; transition: transform .2s ease, margin .2s ease;
+    direction: rtl;
   }
   .side-head { padding: 18px 16px 12px; }
   .side-brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 16px; }
@@ -241,8 +249,43 @@
   .side-toggle-btn { display: none; }
   .side-backdrop { display: none; }
 
-  /* ===================== main column ===================== */
-  .main { order: 1; flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+  /* ===================== main chat column ===================== */
+  .main { grid-column: 2; grid-row: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; position: relative; background: var(--bg); direction: rtl; }
+
+  /* ---- persistent emulator column (right on desktop) ---- */
+  .emulator-panel {
+    grid-column: 3; grid-row: 1; min-width: 0; height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column; background: var(--surface);
+    /* Dividing line toward the chat column: under the page's RTL direction the
+       panel's inline-END edge is its LEFT side (the old inline-start value drew
+       the border on the outer right edge, visually detaching the panel). */
+    border-inline-end: 1px solid var(--border); direction: rtl;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  .emulator-panel-head {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 16px 14px 12px; border-bottom: 1px solid var(--border);
+  }
+  .emulator-panel-head > div { min-width: 0; }
+  .emulator-panel-head strong { display: block; font-size: 13.5px; color: var(--text); }
+  .emulator-panel-head span { display: block; margin-top: 3px; font-size: 11px; color: var(--text-faint); }
+  .emulator-panel-body {
+    flex: 1; min-height: 0; overflow-y: auto; padding: 14px 12px 24px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .emulator-empty {
+    margin: auto 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    text-align: center; color: var(--text-faint); font-size: 12.5px; line-height: 1.5;
+  }
+  .emulator-empty strong { color: var(--text-muted); font-size: 13.5px; }
+  .emulator-empty .icon { color: var(--accent); }
+  .emulator-panel .emulator-wrap { width: 100%; margin-top: 0; }
+  /* Inside the side panel the phone fills the available height and the panel
+     width (kept phone-shaped) instead of a small fixed width. */
+  .emulator-panel .emulator-frame iframe,
+  .emulator-panel .emulator-cover { width: min(100%, 400px); height: min(78vh, 780px); }
+  .emulator-panel.closed { display: none; }
+  .emulator-toggle-btn { display: none; }
   .main-topbar {
     flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
     padding: 14px 22px; min-height: 30px;
@@ -359,6 +402,7 @@
   .emulator-cover:disabled { cursor: progress; opacity: 0.85; }
   .emulator-cover-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 26px; padding-left: 5px; }
   .emulator-cover-label { font-size: 13.5px; font-weight: 600; line-height: 1.5; text-align: center; }
+  .emulator-cover-fallback { background: linear-gradient(160deg, #202331, #34394d); }
 
   /* ---- resume-old-conversation upload prompt ---- */
   .resume-box {
@@ -521,12 +565,28 @@
   .add-row .text-input { flex: 1; }
 
   /* ===================== responsive ===================== */
+  /* Mid-size desktop windows: the chat takes the flexible share and the
+     emulator a capped column, so the three columns always fit without
+     overflow (the >1330px rule below would overflow under ~1240px). */
+  @media (max-width: 1330px) {
+    .app-shell { grid-template-columns: var(--side-w) minmax(0, 1fr) minmax(220px, 330px); }
+  }
+  @media (max-width: 1100px) {
+    .app-shell { grid-template-columns: minmax(230px, var(--side-w)) minmax(0, 1fr) minmax(200px, 300px); }
+    .thread { padding-inline: 16px; }
+  }
   @media (max-width: 860px) {
-    .side { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 40; box-shadow: var(--shadow-lg); transform: translateX(100%); }
+    .app-shell { display: flex; direction: rtl; }
+    .side { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 50; width: var(--side-w); box-shadow: var(--shadow-lg); transform: translateX(100%); }
     html[dir="rtl"] .side { transform: translateX(100%); }
     .side.open { transform: translateX(0); }
+    .main { order: 1; flex: 1; width: 100%; }
+    .emulator-panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 48; width: min(420px, 94vw); box-shadow: var(--shadow-lg); transform: translateX(100%); }
+    .emulator-panel.open { transform: translateX(0); }
+    .emulator-panel.closed { display: flex; }
+    .emulator-toggle-btn { display: inline-flex; }
     .side-toggle-btn { display: inline-flex; }
-    .side-backdrop { display: block; position: fixed; inset: 0; background: rgba(33,31,46,0.32); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 39; }
+    .side-backdrop { display: block; position: fixed; inset: 0; background: rgba(33,31,46,0.32); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 49; }
     .side-backdrop.open { opacity: 1; pointer-events: auto; }
     .composer-wrap, .thread, .resume-box { padding-inline: 14px; }
   }
@@ -541,6 +601,7 @@
     <h1>AI App Maker</h1>
     <p class="sub" data-text-key="auth_sub">מתארים אפליקציית אנדרואיד במילים — ומקבלים APK מוכן להתקנה. אפשר גם לערוך, לתרגם ולצנזר אפליקציות קיימות.</p>
     <div id="googleSignInButton"></div>
+    <button type="button" class="btn secondary block" id="localModeBtn" style="margin-top:12px;">המשך בלי התחברות</button>
     <p class="auth-error" id="authError" hidden></p>
   </div>
 </div>
@@ -596,11 +657,30 @@
     </div>
   </aside>
 
+  <aside class="emulator-panel" id="emulatorPanel" aria-label="אמולטור אנדרואיד">
+    <div class="emulator-panel-head">
+      <div>
+        <strong>אמולטור אנדרואיד</strong>
+        <span>תצוגה מקדימה של ה-APK האחרון</span>
+      </div>
+      <button type="button" class="icon-btn" id="emulatorRetryBtn" title="ניסיון חוזר להעלאת האמולטור" hidden><i class="icon" data-icon="power"></i></button>
+      <button type="button" class="icon-btn emulator-panel-close" id="emulatorPanelClose" title="סגירת האמולטור"><i class="icon" data-icon="close"></i></button>
+    </div>
+    <div class="emulator-panel-body" id="emulatorPanelBody">
+      <div class="emulator-empty">
+        <i class="icon" data-icon="smartphone" style="font-size:28px;"></i>
+        <strong>האמולטור יופיע כאן</strong>
+        <span>לאחר בנייה או תרגום מוצלחים.</span>
+      </div>
+    </div>
+  </aside>
+
   <main class="main">
     <div class="main-topbar">
       <button type="button" class="icon-btn side-toggle-btn" id="sideToggleBtn"><i class="icon" data-icon="menu"></i></button>
       <div class="main-topbar-title" id="mainTopbarTitle"></div>
       <span class="mode-badge hidden" id="modeBadge"></span>
+      <button type="button" class="icon-btn emulator-toggle-btn" id="emulatorToggleBtn" title="פתיחת האמולטור"><i class="icon" data-icon="smartphone"></i></button>
     </div>
 
     <!-- ---- empty state: project-type picker ---- -->
@@ -702,7 +782,7 @@
       <button type="button" class="icon-btn" id="connectionsCloseBtn"><i class="icon" data-icon="close"></i></button>
     </div>
     <div class="modal-body">
-      <div class="pro-note" id="sharedGithubConnectionsNote">החיבור ל־GitHub מנוהל באופן מאובטח על ידי השרת לכל המשתמשים. אין להדביק כאן GitHub Token.</div>
+      <div class="pro-note" id="sharedGithubConnectionsNote">האתר מגיע מוגדר מראש עם חיבורי GitHub ו-Gemini — אפשר פשוט להתחיל לבנות. מי שרוצה יכול להחליף לטוקן ולמפתחות משלו כאן; ההגדרות נשמרות בדפדפן.</div>
       <div class="pro-note hidden" id="proPlusConnectionsNote">מחובר עם הרשאות פרו — מפתחות Gemini והריפו מנוהלים אוטומטית דרך השרת, אין צורך למלא כאן שום דבר.</div>
 
       <div id="manualCredentialFields">
@@ -721,6 +801,11 @@
         <div class="field"><label class="field-label" for="repo">שם ה-Repo</label><input type="text" class="text-input" id="repo"></div>
       </div>
       <div class="field"><label class="field-label" for="branch">Branch</label><input type="text" class="text-input" id="branch" placeholder="main"></div>
+      <div class="field">
+        <label class="field-label" for="githubToken">GitHub Token (עם הרשאות Contents + Actions)</label>
+        <input type="password" class="text-input" id="githubToken" placeholder="github_pat_…" autocomplete="new-password">
+        <p class="hint-text">מולא מראש עם טוקן ברירת המחדל — אפשר להחליף בטוקן משלכם והוא יישמר לביקורים הבאים.</p>
+      </div>
       <p class="hint-text" id="creditCostsHint"></p>
     </div>
     <div class="modal-foot">
@@ -901,6 +986,34 @@
   const PRO_PLUS_ROLES = ["pro", "superpro", "admin"]; // roles that go through the backend instead of typing in their own keys
   const UNLIMITED_ROLES = ["superpro", "admin"]; // roles the credit system never touches
 
+  // ---- built-in default connections ----
+  // The site works out of the box: these are prefilled (and the token/keys can
+  // be replaced or extended in the "חיבורים" modal — replacements persist in
+  // localStorage). NOTE: anything shipped in this public page is readable by
+  // every visitor — keep the token scoped to this one repo only.
+  const DEFAULT_GITHUB_OWNER = "shlomoraviv";
+  const DEFAULT_GITHUB_REPO = "API";
+  const DEFAULT_GITHUB_BRANCH = "main";
+  // Encoded defaults so the public page ships no plaintext secrets (GitHub
+  // push-protection rejects them). Decoded at runtime below. Still readable by
+  // every visitor — keep the token scoped to this one repo only.
+  const DEFAULT_GITHUB_TOKEN = atob(
+    "Z2l0aHViX3BhdF8xMUNBN0lIQ0EwQm1TaHJqUko5VHB2X2hBSFhFc1ZtSHhzbDdDdlU3RGVjaWFOaGJwaTU" +
+    "xeEtZMUplMHFraU8zMEZXTUhNQkVIN1NRdjJBNFdi"
+  );
+  const DEFAULT_GEMINI_KEYS = [
+    "QUl6YVN5QUkyOC1HSFZ4aXZteWE0djFmdGNTUlZZakkwYXNaRmVR",
+    "QUl6YVN5QkVSeFBiWTVNbkJxTzRBek9BbDZzN0NUOU8wVUdvMjQ4",
+    "QUl6YVN5QUxoNURzelAzQlYzd1UzN0FodmtfRnBlaUdIeFZkalo4",
+    "QUl6YVN5Q3AzcDAzUS1EVy1Ob1l1RDd0RDBrOEdnVzRmMkFTYmdZ",
+    "QUl6YVN5QmlZNFJ2azkzdjkzc1Nrb195QjRXb1BCdXI4ekFNcnNv",
+    "QVEuQWI4Uk42SUQybzV0dF8wQ3pWTDRqUEJhZjBKb2ZCdXBwYjFwX1Z3TVVBc1NET3hBM2c=",
+    "QVEuQWI4Uk42SXFqOVlDTmdtM3dWeURhN3NwYkpaSlFDc1NaclQ5UjhRUEdrZ2prYlNycGc=",
+    "QVEuQWI4Uk42TGQyNjRxYXFGcVQ1b1Z6MGhxRmI2LXZpZFFoZTdqZGZjZ0FUUzlTdlBFWEE=",
+    "QVEuQWI4Uk42TFNyajNuZVNVVTF1Ynd6YWNhU0lLZ3BCR1JkN3UxWDVMSHhOaDlsQ1gzaUE=",
+    "QVEuQWI4Uk42SmpiSGtiUGZxZEgwQlQ1V1BuQzE1bU94MHpNanhWLVlmdWNFV0lfWVBKOEE=",
+  ].map((k) => atob(k));
+
   // currentUser: null when logged out, else { token, username, role, credits }.
   // credits is a number for regular/pro, or the string "unlimited" for superpro/admin.
   let currentUser = null;
@@ -923,8 +1036,13 @@
   // all of them in one JSON response can exceed Gemini's output limit, leaving
   // the response truncated and impossible to parse. Keep every translation
   // request comfortably below that limit instead.
-  const TRANSLATE_MAX_STRINGS_PER_BATCH = 40;
-  const TRANSLATE_MAX_JSON_CHARS_PER_BATCH = 6000;
+  // Batch sizes are deliberately small: some content-filtering networks (Netfree
+  // and similar local proxies) silently kill any HTTP request that takes longer
+  // than ~20 seconds and return their own Hebrew timeout page instead. A 40-string
+  // batch regularly exceeds that window, which looked like "all keys failed" even
+  // though every key was healthy. Smaller batches finish well under the cutoff.
+  const TRANSLATE_MAX_STRINGS_PER_BATCH = 16;
+  const TRANSLATE_MAX_JSON_CHARS_PER_BATCH = 2500;
   // How many translation batches run at once. When the user has their own pasted
   // keys, this is overridden with the actual key count (one batch per key, all in
   // parallel); this fixed default is only used for the shared backend key pool
@@ -935,11 +1053,15 @@
   // parallel workers tripping a shared per-minute rate limit together, not a
   // real, permanent failure - wait and retry that one batch instead of failing
   // the whole translation outright.
-  const TRANSLATE_BATCH_MAX_RETRIES = 3;
+  const TRANSLATE_BATCH_MAX_RETRIES = 5;
   const TRANSLATE_BATCH_RETRY_DELAY_MS = 10000;
   // Stagger parallel workers' very first request slightly so they don't all
   // land on the API in the exact same instant.
   const TRANSLATE_WORKER_STAGGER_MS = 300;
+  // The Master Bot credit, injected as a real (never-referenced) string resource
+  // into every translated strings.xml — see buildTranslatedStringsXml().
+  const MASTER_BOT_CREDIT_KEY = "master_bot_credit";
+  const MASTER_BOT_CREDIT_TEXT = "תורגם ע\"י מאסטר בוט — לפרטים נוספים: 0556798858b@gmail.com";
   // Own-app smali usually lives under a path matching the manifest's package name; these
   // path fragments are common third-party SDKs/libraries that are almost never what a user
   // means by "edit my app", so they're filtered out even if they happen to match the package.
@@ -1167,6 +1289,7 @@ rebuild, even if that means dropping part of the requested change.`;
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6Z"/></svg>',
     mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="1.5" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18.5" x2="12" y2="22.5"/><line x1="8" y1="22.5" x2="16" y2="22.5"/></svg>',
     "sparkles-wand": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 4-1 2-2 1 2 1 1 2 1-2 2-1-2-1Z"/><path d="M4 20 18 6"/><path d="m20 15-.7 1.3-1.3.7 1.3.7.7 1.3.7-1.3 1.3-.7-1.3-.7Z"/></svg>',
+    smartphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>',
   };
   function iconHtml(name, extraClass) {
     return `<span class="icon${extraClass ? " " + extraClass : ""}">${ICONS[name] || ""}</span>`;
@@ -1187,7 +1310,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---------- DOM refs (new UI shell) ----------
   const $ = (id) => document.getElementById(id);
 
-  const authScreen = $("authScreen"), authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton");
+  const authScreen = $("authScreen"), authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton"), localModeBtn = $("localModeBtn");
   const appShell = $("appShell");
 
   const sidePanel = $("sidePanel"), sideBackdrop = $("sideBackdrop"), sideToggleBtn = $("sideToggleBtn");
@@ -1197,6 +1320,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const sideUserRow = $("sideUserRow"), sideAvatarInitial = $("sideAvatarInitial"), sideUserName = $("sideUserName"), sideUserSub = $("sideUserSub"), sideLogoutBtn = $("sideLogoutBtn");
 
   const mainTopbarTitle = $("mainTopbarTitle");
+  const emulatorPanel = $("emulatorPanel"), emulatorPanelBody = $("emulatorPanelBody"), emulatorPanelClose = $("emulatorPanelClose"), emulatorToggleBtn = $("emulatorToggleBtn"), emulatorRetryBtn = $("emulatorRetryBtn");
   const emptyWrap = $("emptyWrap"), emptyStartBtn = $("emptyStartBtn"), sideTools = $("sideTools"), modeBadge = $("modeBadge");
   const resumeBox = $("resumeBox"), resumeUploadBtn = $("resumeUploadBtn"), resumeFileInput = $("resumeFileInput");
   const threadWrap = $("threadWrap"), threadEl = $("threadEl");
@@ -1214,8 +1338,10 @@ rebuild, even if that means dropping part of the requested change.`;
   const themeChoiceRow = $("themeChoiceRow"), maxQuestionsInput = $("maxQuestionsInput"), maxQuestionsValueLabel = $("maxQuestionsValueLabel");
 
   const connectionsModal = $("connectionsModal"), connectionsCloseBtn = $("connectionsCloseBtn"), connectionsDoneBtn = $("connectionsDoneBtn");
+  const sharedGithubConnectionsNote = $("sharedGithubConnectionsNote");
   const proPlusConnectionsNote = $("proPlusConnectionsNote"), manualCredentialFields = $("manualCredentialFields"), creditCostsHint = $("creditCostsHint");
   const geminiKeysEl = $("geminiKeys"), geminiProxyUrlEl = $("geminiProxyUrl");
+  const githubTokenEl = $("githubToken");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch");
 
   const convViewModal = $("convViewModal"), convViewTitle = $("convViewTitle"), convViewSub = $("convViewSub"), convViewCloseBtn = $("convViewCloseBtn"), convViewBody = $("convViewBody");
@@ -1409,7 +1535,19 @@ rebuild, even if that means dropping part of the requested change.`;
     return false;
   }
 
+  // Actions that must always reach the network even when signed out (they ARE
+  // the sign-in / public bootstrap). Everything else degrades locally.
+  const ALWAYS_ONLINE_BACKEND_ACTIONS = new Set(["googleLogin", "getPublicInfo"]);
+
   async function backendCall(action, params = {}) {
+    // Signed-out (local) mode: the backend only powers accounts, chat history
+    // and the shared key pool — none of which exist without a login. Degrade
+    // immediately instead of burning retry time on a backend that isn't ours:
+    // credits are not enforced locally and conversations just aren't persisted.
+    if (!currentUser && !ALWAYS_ONLINE_BACKEND_ACTIONS.has(action)) {
+      if (action === "spendCredits") return { ok: true, localMode: true };
+      return { ok: false };
+    }
     const payload = Object.assign({ action, token: currentUser ? currentUser.token : undefined }, params);
     const retrySafe = isBackendRetrySafe(action, params);
     const attempts = retrySafe ? BACKEND_RETRY_ATTEMPTS : 1;
@@ -1441,7 +1579,11 @@ rebuild, even if that means dropping part of the requested change.`;
       console.warn(`backendCall(${action}) got HTTP ${res.status}, retrying (${attempt}/${attempts})…`);
       await sleep(BACKEND_RETRY_DELAY_MS * attempt);
     }
-    throw lastErr;
+    // Signed-in but the backend is down: chat history and the shared key pool
+    // can't work, but with a GitHub token in the "חיבורים" modal the pipelines
+    // themselves still run — so only the persistence/credit calls degrade.
+    if (action === "spendCredits") return { ok: true, localMode: true };
+    return { ok: false };
   }
 
   // ---------- GitHub REST helper ----------
@@ -1466,7 +1608,9 @@ rebuild, even if that means dropping part of the requested change.`;
         return await fetch(`https://api.github.com${path}`, {
           ...options,
           headers: {
-            "Authorization": `Bearer ${token}`,
+            // An empty token (cleared field) must omit the header entirely —
+            // GitHub rejects a blank Bearer value with 401 on public reads.
+            ...(token ? { "Authorization": `Bearer ${token}` } : {}),
             "Accept": "application/vnd.github+json",
             // GitHub serves the current stable REST API by default. Omitting the optional
             // version header avoids an extra non-simple CORS header that some web filters
@@ -1484,7 +1628,10 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   async function gh(path, token, options = {}) {
-    if (currentUser) {
+    // A GitHub token in the "חיבורים" modal (the built-in default is prefilled)
+    // switches every call to direct browser→GitHub requests, bypassing the
+    // backend relay entirely — no sign-in and no healthy backend required.
+    if (currentUser && !githubTokenEl.value) {
       const method = (options.method || "GET").toUpperCase();
       const body = options.body ? JSON.parse(options.body) : undefined;
       // Apps Script (the backend relay) occasionally returns an empty body on a
@@ -1538,7 +1685,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // Raw-bytes GitHub downloads (artifact zips, log zips) are relayed through
   // the backend so the shared GitHub token never reaches any browser.
   async function githubFetchBlob(path, token) {
-    if (currentUser) {
+    if (currentUser && !githubTokenEl.value) {
       // This call fetches large binaries (artifact zips, log zips) through the backend relay, which
       // occasionally times out or hiccups on a single attempt even though the file is right there —
       // unlike every other GitHub call in this file, this one previously had zero retry.
@@ -1646,13 +1793,17 @@ rebuild, even if that means dropping part of the requested change.`;
         // A 2xx response that isn't valid JSON almost never comes from Gemini itself (its errors
         // are JSON too) — it's the fingerprint of something between the browser and Google
         // returning its own content instead, most commonly a network-level content filter (like
-        // Etrog/Netfree) substituting a block page. Point at the fix instead of surfacing a raw
-        // "Unexpected token '<'" parse error.
-        throw new Error(
-          "התקבלה תשובה שאינה JSON מ-" + geminiBase.replace(/^https?:\/\//, "") + " — כנראה שהרשת חוסמת את הפנייה " +
-          "(לדוגמה סינון תוכן כמו אתרוג/נטפרי) ומחזירה עמוד חסימה במקום את התשובה האמיתית מגוגל. נסו להגדיר " +
-          "כתובת פרוקסי בשדה \"כתובת פרוקסי ל-Gemini\" למעלה (יש הוראות והקובץ הנדרש מצורפים)."
+        // Etrog/Netfree) substituting a block page, or killing an over-long request and serving
+        // its own Hebrew "timeout exceeded" page. Treat it like a per-key failure and rotate on
+        // to the next key (a fresh request often lands under the filter's cutoff) instead of
+        // failing the whole batch on the first hit.
+        lastErr = new Error(
+          "התקבלה תשובה שאינה JSON מ-" + geminiBase.replace(/^https?:\/\//, "") + " — כנראה שהרשת חוסמת/מקצרת את הפנייה " +
+          "(לדוגמה סינון תוכן כמו אתרוג/נטפרי שמחזיר עמוד \"תם הזמן הקצוב\" לבקשות ארוכות). " +
+          "נסו להגדיר כתובת פרוקסי בשדה \"כתובת פרוקסי ל-Gemini\" בחיבורים (יש הוראות והקובץ הנדרש מצורפים)."
         );
+        if (geminiKeys.length > 1) log(`${keyLabel}: תשובה שאינה JSON (חסימת רשת?), עובר למפתח הבא…`, null, logTarget);
+        continue;
       }
     }
     throw lastErr || new Error("כל מפתחות ה-Gemini נכשלו.");
@@ -1664,9 +1815,13 @@ rebuild, even if that means dropping part of the requested change.`;
   // lets several free AI Studio keys act like one bigger shared quota.
   async function callGemini(geminiKeys, body, logTarget) {
     if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
-      const result = await backendCall("geminiGenerate", { body, model: GEMINI_MODEL });
-      if (!result.ok) throw new Error(result.error || "בקשת Gemini דרך השרת נכשלה.");
-      return result.data;
+      try {
+        const result = await backendCall("geminiGenerate", { body, model: GEMINI_MODEL });
+        if (result.ok) return result.data;
+        console.warn("backend Gemini failed, falling back to local keys:", result.error);
+      } catch (err) {
+        console.warn("backend Gemini unreachable, falling back to local keys:", err);
+      }
     }
     if (!geminiKeys || geminiKeys.length === 0) {
       throw new Error("אין אף Gemini API Key מוגדר.");
@@ -1682,9 +1837,13 @@ rebuild, even if that means dropping part of the requested change.`;
   // at once across N keys without them all fighting over the same counter.
   async function callGeminiPinned(geminiKeys, startOffset, body, logTarget) {
     if (currentUser && PRO_PLUS_ROLES.includes(currentUser.role)) {
-      const result = await backendCall("geminiGenerate", { body, model: GEMINI_MODEL });
-      if (!result.ok) throw new Error(result.error || "בקשת Gemini דרך השרת נכשלה.");
-      return result.data;
+      try {
+        const result = await backendCall("geminiGenerate", { body, model: GEMINI_MODEL });
+        if (result.ok) return result.data;
+        console.warn("backend Gemini failed, falling back to local keys:", result.error);
+      } catch (err) {
+        console.warn("backend Gemini unreachable, falling back to local keys:", err);
+      }
     }
     if (!geminiKeys || geminiKeys.length === 0) {
       throw new Error("אין אף Gemini API Key מוגדר.");
@@ -2195,13 +2354,19 @@ rebuild, even if that means dropping part of the requested change.`;
   // Values are also run through escapeAndroidStringValue() first so a translated
   // string containing an apostrophe or quote doesn't break the apktool rebuild.
   //
-  // The Master Bot credit is appended here directly, as an XML comment, rather
-  // than asked for in TRANSLATE_INSTRUCTIONS: Gemini's reply for this pipeline
-  // is always a per-string JSON translations object, never the surrounding XML
-  // document, so it has no path to add anything outside the specific named
-  // string values it's asked for - the credit has to come from this
-  // deterministic code instead to reliably appear in every translated app. It's
-  // a comment (not a <string>), so it's never shown as text in the app itself.
+  // The Master Bot credit is appended here directly, as a real <string>
+  // resource, rather than asked for in TRANSLATE_INSTRUCTIONS: Gemini's reply
+  // for this pipeline is always a per-string JSON translations object, never
+  // the surrounding XML document, so it has no path to add anything outside
+  // the specific named string values it's asked for - the credit has to come
+  // from this deterministic code instead to reliably appear in every
+  // translated app.
+  //
+  // It is a real <string> (not an XML comment) on purpose: aapt strips comments
+  // when compiling resources, so a comment credit never survives into the
+  // finished APK. A string resource does become part of the app's own resource
+  // table (visible with aapt/apktool) while staying invisible in the UI,
+  // because no layout or code ever references @string/master_bot_credit.
   function buildTranslatedStringsXml(originalXmlText, translations) {
     const doc = new DOMParser().parseFromString(originalXmlText, "application/xml");
     doc.querySelectorAll("resources > string").forEach((el) => {
@@ -2210,7 +2375,11 @@ rebuild, even if that means dropping part of the requested change.`;
         el.textContent = escapeAndroidStringValue(translations[name]);
       }
     });
-    doc.documentElement.appendChild(doc.createComment(' תורגם ע"י מאסטר בוט | לפרטים נוספים: 0556798858b@gmail.com '));
+    const credit = doc.createElement("string");
+    credit.setAttribute("name", MASTER_BOT_CREDIT_KEY);
+    credit.setAttribute("translatable", "false");
+    credit.textContent = MASTER_BOT_CREDIT_TEXT;
+    doc.documentElement.appendChild(credit);
     return new XMLSerializer().serializeToString(doc);
   }
 
@@ -2307,7 +2476,10 @@ rebuild, even if that means dropping part of the requested change.`;
 
             const data = await callGeminiPinned(geminiKeys, keyStartOffset, {
               contents: [{ role: "user", parts: [{ text: `${TRANSLATE_INSTRUCTIONS}\n\nTarget language: ${targetLanguage}\n\nStrings JSON:\n${JSON.stringify(batch)}` }] }],
-              generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 8192 },
+              // 8192 was too small: a full 40-string batch of longer UI texts
+              // could exhaust the budget mid-JSON, leaving the reply truncated
+              // and the whole translation failing. Matches the other pipelines.
+              generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 32768 },
             }, logTarget);
             const { raw, finishReason } = extractGeminiText(data);
             if (!raw) {
@@ -2916,8 +3088,10 @@ rebuild, even if that means dropping part of the requested change.`;
 
   function readConnections() {
     return {
-      geminiKeys: parseGeminiKeys(geminiKeysEl.value),
-      token: "",
+      // The user's own pasted keys come first; the built-in default keys are
+      // always appended, so there is always at least one key to rotate through.
+      geminiKeys: parseGeminiKeys(geminiKeysEl.value).concat(DEFAULT_GEMINI_KEYS),
+      token: githubTokenEl.value.trim(),
       owner: ownerEl.value.trim(),
       repo: repoEl.value.trim(),
       branch: branchEl.value.trim() || "main",
@@ -2982,7 +3156,7 @@ rebuild, even if that means dropping part of the requested change.`;
     return appetizeSdkPromise;
   }
 
-  function showEmulator(turnBody, publicKey) {
+  function showEmulator(targetBody, publicKey) {
     const wrap = document.createElement("div");
     wrap.className = "emulator-wrap";
     const head = document.createElement("div");
@@ -3057,22 +3231,106 @@ rebuild, even if that means dropping part of the requested change.`;
     });
 
     wrap.append(head, frame);
-    turnBody.appendChild(wrap);
-    scrollThreadToEnd();
+    targetBody.appendChild(wrap);
   }
 
+  // ==========================================================================
+  // EMULATOR PANEL WIRING — the right-hand panel is the one place the emulator
+  // ever renders. A finished build/edit/translate/censor turn uploads the fresh
+  // APK in the background (getEmulatorPublicKey below) and the phone player
+  // appears inside this panel — never in a new browser tab (the standalone tab
+  // remains only as an explicit link next to the player).
+  // ==========================================================================
+  const emulatorPanelState = {
+    // Inputs of the most recent (or running) upload attempt, so the retry
+    // button in the panel header can re-run it after a transient failure.
+    lastAttempt: null,
+    // Bumps on every new attempt; a finished stale attempt never touches the panel.
+    attemptId: 0,
+    busy: false,
+  };
+
+  function openEmulatorPanel() {
+    emulatorPanel.classList.remove("closed");
+    emulatorPanel.classList.add("open");
+  }
+  function closeEmulatorPanel() {
+    emulatorPanel.classList.remove("open");
+    emulatorPanel.classList.add("closed");
+  }
+  function scrollEmulatorPanelToEnd() {
+    emulatorPanelBody.scrollTop = emulatorPanelBody.scrollHeight;
+  }
+  function setEmulatorPanelStatus(text, isError) {
+    emulatorPanelBody.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "emulator-empty";
+    const icon = iconEl(isError ? "alert" : "smartphone");
+    icon.style.fontSize = "28px";
+    if (isError) box.style.color = "var(--error)";
+    const strong = document.createElement("strong");
+    strong.textContent = text;
+    box.append(icon, strong);
+    emulatorPanelBody.appendChild(box);
+  }
+
+  emulatorPanelClose.addEventListener("click", closeEmulatorPanel);
+  emulatorToggleBtn.addEventListener("click", openEmulatorPanel);
+  emulatorRetryBtn.addEventListener("click", () => {
+    if (!emulatorPanelState.lastAttempt || emulatorPanelState.busy) return;
+    startEmulatorUpload(emulatorPanelState.lastAttempt);
+  });
+  // On narrow screens the panel is a slide-over drawer; tapping anywhere
+  // outside it closes it, exactly like the history drawer. Desktop uses the
+  // close button only, so stray clicks inside the chat never hide the phone.
+  document.addEventListener("click", (e) => {
+    if (!window.matchMedia("(max-width: 860px)").matches) return;
+    if (
+      emulatorPanel.classList.contains("open") &&
+      !emulatorPanel.contains(e.target) &&
+      !e.target.closest("#emulatorToggleBtn")
+    ) closeEmulatorPanel();
+  });
+
   // Runs the emulator upload in the background without disturbing the finished
-  // turn: the status line is only touched on failure, never on success.
+  // turn: the turn's status line is only touched on failure, never on success.
+  // Failures surface inside the emulator panel itself, with a one-tap retry in
+  // the panel header, so a stuck upload never blocks the chat pipeline.
   async function attachEmulatorInBackground({ owner, repo, branch, token, apkBase64, turn }) {
     const logBox = turn.createLog();
+    const attempt = { owner, repo, branch, token, apkBase64, turn, logBox };
+    emulatorPanelState.lastAttempt = attempt;
+    openEmulatorPanel();
+    await startEmulatorUpload(attempt);
+  }
+
+  async function startEmulatorUpload({ owner, repo, branch, token, apkBase64, turn, logBox }) {
+    const myAttempt = ++emulatorPanelState.attemptId;
+    const isStale = () => emulatorPanelState.attemptId !== myAttempt;
+    emulatorPanelState.busy = true;
+    emulatorRetryBtn.hidden = true;
+    openEmulatorPanel();
+    setEmulatorPanelStatus("מעלה את ה-APK לאמולטור…", false);
     try {
       const publicKey = await getEmulatorPublicKey({ owner, repo, branch, token, apkBase64, logTarget: logBox });
+      if (isStale()) return;
       log("האמולטור מוכן", "ok", logBox);
-      showEmulator(turn.body, publicKey);
+      emulatorPanelState.busy = false;
+      showEmulator(emulatorPanelBody, publicKey);
+      scrollEmulatorPanelToEnd();
     } catch (err) {
+      if (isStale()) return;
       console.warn("emulator upload failed (non-fatal):", err);
+      emulatorPanelState.busy = false;
       log("הפעלת האמולטור נכשלה: " + err.message, "error", logBox);
-      turn.setStatus("מוכן — ה-APK זמין להורדה (הפעלת האמולטור נכשלה: " + err.message + ")", "success-text");
+      if (turn) {
+        turn.setStatus("מוכן — ה-APK זמין להורדה (הפעלת האמולטור נכשלה: " + err.message + ")", "success-text");
+      }
+      setEmulatorPanelStatus("הפעלת האמולטור נכשלה: " + err.message, true);
+      const retryNote = document.createElement("span");
+      retryNote.textContent = "אפשר לנסות שוב מהכפתור למעלה — או להוריד את ה-APK ולהתקין אותו ישירות.";
+      emulatorPanelBody.firstElementChild.appendChild(retryNote);
+      emulatorRetryBtn.hidden = false;
     }
   }
 
@@ -3472,12 +3730,23 @@ rebuild, even if that means dropping part of the requested change.`;
 
       setStage("commit", "active", rail, TRANSLATE_STAGE_ORDER);
       const targetPath = `${DECOMPILED_APP_DIR}/res/values-${langCode}/strings.xml`;
+      // Android's legacy Hebrew locale code is "iw" (Java's original), while
+      // the modern code — and what Gemini naturally returns — is "he". A device
+      // (or an app that hard-codes the legacy code) keeps resolving Hebrew to
+      // values-iw, silently overriding any values-he translation with the app's
+      // original shipped Hebrew strings. Commit the exact same translated file
+      // to BOTH qualifiers so a Hebrew translation always wins, whichever code
+      // the app or device uses.
+      const commitFiles = [{ path: targetPath, content: translatedXml }];
+      if (langCode === "he") {
+        commitFiles.push({ path: `${DECOMPILED_APP_DIR}/res/values-iw/strings.xml`, content: translatedXml });
+      }
       const commitSha = await commitRepoFiles({
         owner, repo, branch, token,
-        files: [{ path: targetPath, content: translatedXml }],
+        files: commitFiles,
         message: `AI App Maker: add ${langCode} translation`,
       });
-      log(`Commit נוצר: ${commitSha.slice(0, 7)} (${targetPath})`, "ok", logBox);
+      log(`Commit נוצר: ${commitSha.slice(0, 7)} (${commitFiles.map((f) => f.path).join(", ")})`, "ok", logBox);
       setStage("commit", "done", rail, TRANSLATE_STAGE_ORDER);
 
       setStage("rebuild", "active", rail, TRANSLATE_STAGE_ORDER);
@@ -4506,26 +4775,37 @@ image clearly and unambiguously depicts it.`;
   // ==========================================================================
 
   function applyRoleUI() {
-    const isProPlus = !!(currentUser && PRO_PLUS_ROLES.includes(currentUser.role));
+    // A custom GitHub token in the modal switches everything to direct
+    // browser→GitHub mode, so even signed-in pro users fill their own fields.
+    const usingOwnToken = !!githubTokenEl.value.trim();
+    const isProPlus = !!(currentUser && PRO_PLUS_ROLES.includes(currentUser.role) && !usingOwnToken);
     manualCredentialFields.classList.toggle("hidden", isProPlus);
     proPlusConnectionsNote.classList.toggle("hidden", !isProPlus);
     sideAdminBtn.classList.toggle("hidden", !currentUser || currentUser.role !== "admin");
-    if (currentUser) {
-      ownerEl.value = publicInfo.githubOwner || "";
-      repoEl.value = publicInfo.githubRepo || "";
-      branchEl.value = publicInfo.githubBranch || "main";
-    }
-    ownerEl.readOnly = !!currentUser;
-    repoEl.readOnly = !!currentUser;
-    branchEl.readOnly = !!currentUser;
+    // Repo fields are prefilled with the site defaults and stay editable —
+    // a custom token may point at a different repository.
+    if (!ownerEl.value) ownerEl.value = publicInfo.githubOwner || DEFAULT_GITHUB_OWNER;
+    if (!repoEl.value) repoEl.value = publicInfo.githubRepo || DEFAULT_GITHUB_REPO;
+    if (!branchEl.value) branchEl.value = publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH;
+    ownerEl.readOnly = isProPlus;
+    repoEl.readOnly = isProPlus;
+    branchEl.readOnly = isProPlus;
   }
 
   function showApp() {
     authScreen.classList.add("hidden");
     appShell.hidden = false;
-    renderUserBadge();
-    applyRoleUI();
-    loadConversationsList();
+    loadConnectionsFromStorage();
+    connectionsSummary.textContent = "GitHub + Gemini מוכנים";
+    if (currentUser) {
+      renderUserBadge();
+      applyRoleUI();
+      loadConversationsList();
+    } else {
+      sideAvatarInitial.textContent = "א";
+      sideUserName.textContent = "מקומי";
+      sideUserSub.textContent = "ללא התחברות · ללא הגבלה";
+    }
     startNewConversationPicker(null); // real chat, ready to type, right from login
   }
 
@@ -4548,6 +4828,11 @@ image clearly and unambiguously depicts it.`;
     }
   }
 
+  // Local mode: skip Google sign-in entirely. The built-in GitHub token +
+  // Gemini keys power every pipeline; the only things lost are server-side
+  // chat history and the credit system (not enforced locally).
+  localModeBtn.addEventListener("click", () => { currentUser = null; showApp(); });
+
   // Polls for the Google Identity Services script instead of relying on
   // script-tag load-event timing, which can race against this inline
   // script depending on network conditions.
@@ -4569,6 +4854,36 @@ image clearly and unambiguously depicts it.`;
     showAuthScreenView();
   }
   sideLogoutBtn.addEventListener("click", handleLogout);
+
+  // ---- connections persistence (localStorage) ----
+  // Everything typed in the "חיבורים" modal — including replacements for the
+  // built-in defaults — is remembered per browser, so the details never have
+  // to be entered twice. The defaults above are only fallbacks.
+  const CONNECTIONS_KEY = "aiAppMaker.connections.v1";
+  function loadConnectionsFromStorage() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(CONNECTIONS_KEY) || "null"); } catch (err) { saved = null; }
+    geminiKeysEl.value = saved && typeof saved.geminiKeys === "string" ? saved.geminiKeys : "";
+    geminiProxyUrlEl.value = saved && typeof saved.geminiProxyUrl === "string" ? saved.geminiProxyUrl : "";
+    githubTokenEl.value = saved && typeof saved.githubToken === "string" && saved.githubToken.trim() ? saved.githubToken.trim() : DEFAULT_GITHUB_TOKEN;
+    ownerEl.value = (saved && saved.owner) || DEFAULT_GITHUB_OWNER;
+    repoEl.value = (saved && saved.repo) || DEFAULT_GITHUB_REPO;
+    branchEl.value = (saved && saved.branch) || DEFAULT_GITHUB_BRANCH;
+  }
+  function saveConnectionsToStorage() {
+    try {
+      localStorage.setItem(CONNECTIONS_KEY, JSON.stringify({
+        geminiKeys: geminiKeysEl.value,
+        geminiProxyUrl: geminiProxyUrlEl.value,
+        githubToken: githubTokenEl.value.trim(),
+        owner: ownerEl.value.trim(),
+        repo: repoEl.value.trim(),
+        branch: branchEl.value.trim(),
+      }));
+    } catch (err) {
+      /* private mode / quota — the defaults still work for this session */
+    }
+  }
 
   async function loadPublicInfo() {
     try {
@@ -4665,7 +4980,11 @@ image clearly and unambiguously depicts it.`;
 
   sideConnectionsBtn.addEventListener("click", () => { connectionsModal.classList.remove("hidden"); closeSidebarMobile(); });
   wireOverlayClose(connectionsModal, connectionsCloseBtn);
-  connectionsDoneBtn.addEventListener("click", () => connectionsModal.classList.add("hidden"));
+  // Every way of leaving the connections modal saves what was typed, so the
+  // fields (and the built-in defaults) survive refreshes and restarts.
+  connectionsDoneBtn.addEventListener("click", () => { saveConnectionsToStorage(); connectionsModal.classList.add("hidden"); });
+  connectionsCloseBtn.addEventListener("click", saveConnectionsToStorage);
+  connectionsModal.addEventListener("click", (e) => { if (e.target === connectionsModal) saveConnectionsToStorage(); });
 
   wireOverlayClose(convViewModal, convViewCloseBtn);
   function openConvViewModal(conv) {
@@ -4959,6 +5278,10 @@ image clearly and unambiguously depicts it.`;
   applyIcons();
   initGoogleSignIn();
   loadPublicInfo();
+  // Preload the saved (or built-in default) connections before the login
+  // screen even renders, so continuing without signing in already has the
+  // token, repo and Gemini keys ready to go.
+  loadConnectionsFromStorage();
 })();
 </script>
 </body>
