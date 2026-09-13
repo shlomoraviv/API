@@ -31,7 +31,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --bg: #F4F4F9;
@@ -215,7 +214,8 @@
     background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .auth-card p.sub { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin: 0 0 30px; }
-  #googleSignInButton { display: flex; justify-content: center; min-height: 40px; }
+  .simple-login { display: flex; flex-direction: column; gap: 12px; }
+  .simple-login .text-input { text-align: center; font-size: 15px; padding: 13px 14px; }
   .auth-error {
     margin-top: 16px; background: var(--error-soft); color: var(--error); border-radius: var(--radius-sm);
     padding: 10px 14px; font-size: 13px; text-align: right;
@@ -705,7 +705,10 @@
     <div class="auth-mark">MB</div>
     <h1><span class="grad-text">מאסטר בוט</span></h1>
     <p class="sub" data-text-key="auth_sub">מתארים אפליקציית אנדרואיד במילים — ומקבלים APK מוכן להתקנה. אפשר גם לערוך, לתרגם ולצנזר אפליקציות קיימות.</p>
-    <div id="googleSignInButton"></div>
+    <div class="simple-login">
+      <input type="text" class="text-input" id="simpleNameInput" placeholder="השם שלכם" autocomplete="given-name">
+      <button type="button" class="btn primary block" id="localModeBtn">כניסה לאפליקציה</button>
+    </div>
     <p class="auth-error" id="authError" hidden></p>
   </div>
 </div>
@@ -1451,7 +1454,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---------- DOM refs (new UI shell) ----------
   const $ = (id) => document.getElementById(id);
 
-  const authScreen = $("authScreen"), authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton");
+  const authScreen = $("authScreen"), authErrorEl = $("authError"), localModeBtn = $("localModeBtn"), simpleNameInput = $("simpleNameInput");
   let localUserName = null;
   const authGuestHint = $("authGuestHint"), sideGuestHint = $("sideGuestHint");
   const appShell = $("appShell");
@@ -5124,14 +5127,23 @@ image clearly and unambiguously depicts it.`;
     }
   }
 
-  // Polls for the Google Identity Services script instead of relying on
-  // script-tag load-event timing, which can race against this inline
-  // script depending on network conditions.
-  function initGoogleSignIn() {
-    if (!window.google || !window.google.accounts) { setTimeout(initGoogleSignIn, 300); return; }
-    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
-    google.accounts.id.renderButton(googleSignInButtonEl, { theme: "outline", size: "large", shape: "pill", text: "signin_with", locale: "he", width: 280 });
+  // Simple local login: remembers the name in this browser and opens the app.
+  // (Google sign-in is disabled: its OAuth client belongs to an orphaned
+  // project that rejects our origins with origin_mismatch. Restore it later
+  // by re-adding initGoogleSignIn + the button once a new client exists.)
+  function enterAppWithName() {
+    const name = (simpleNameInput.value || "").trim();
+    localUserName = name || "משתמש";
+    try { localStorage.setItem("mb_user_name", localUserName); } catch (e) {}
+    currentUser = null;
+    showApp();
   }
+  localModeBtn.addEventListener("click", enterAppWithName);
+  simpleNameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") enterAppWithName(); });
+  try {
+    const savedName = localStorage.getItem("mb_user_name");
+    if (savedName) { simpleNameInput.value = savedName; localUserName = savedName; }
+  } catch (e) {}
 
   async function handleLogout() {
     if (currentUser) await backendCall("logout", {}).catch(() => {});
@@ -5635,7 +5647,6 @@ image clearly and unambiguously depicts it.`;
   // INIT
   // ==========================================================================
   applyIcons();
-  initGoogleSignIn();
   loadPublicInfo();
   // Preload the saved (or built-in default) connections before the login
   // screen even renders, so continuing without signing in already has the
