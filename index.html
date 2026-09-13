@@ -1448,6 +1448,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const $ = (id) => document.getElementById(id);
 
   const authScreen = $("authScreen"), authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton");
+  let localUserName = null;
   const authGuestHint = $("authGuestHint"), sideGuestHint = $("sideGuestHint");
   const appShell = $("appShell");
 
@@ -4986,6 +4987,12 @@ image clearly and unambiguously depicts it.`;
       applyRoleUI();
       loadConversationsList();
       sideGuestHint.classList.add("hidden");
+    } else if (localUserName) {
+      // Signed in with Google (local session): full app, personal greeting.
+      sideAvatarInitial.textContent = localUserName.trim().charAt(0).toUpperCase();
+      sideUserName.textContent = localUserName;
+      sideUserSub.textContent = "מחובר · ללא הגבלה";
+      sideGuestHint.classList.add("hidden");
     } else {
       // Everyone gets the full app right away — built-in credentials included.
       sideAvatarInitial.textContent = "AI";
@@ -5016,7 +5023,12 @@ image clearly and unambiguously depicts it.`;
     try {
       const result = await backendCall("googleLogin", { idToken: response.credential });
       if (!result.ok) throw new Error(result.error);
-      currentUser = { token: result.token, username: result.username, displayName: result.displayName, role: result.role, credits: result.credits };
+      // Own everything locally: the site runs fully on built-in credentials,
+      // so the Google account is used only to greet the user by name. No
+      // server session is required (and none exists — the project holding
+      // the OAuth client is not owned by the site owner).
+      currentUser = null;
+      localUserName = result.displayName || result.username || "משתמש";
       showApp();
     } catch (err) {
       authErrorEl.textContent = err.message;
