@@ -914,6 +914,16 @@
         <p class="hint-text">נשמר רק בדפדפן של בעל האתר — לעולם לא נכלל בקוד העמוד. אפשר להחליף בטוקן אחר בכל עת.</p>
       </div>
       <p class="hint-text" id="creditCostsHint"></p>
+
+      <!-- admin unlock (password checked server-side by the proxy) -->
+      <div class="field" id="adminUnlockField">
+        <label class="field-label" for="adminPasswordInput">סיסמת מנהל (לפתיחת ניהול האתר)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="password" class="text-input" id="adminPasswordInput" placeholder="סיסמת מנהל" autocomplete="new-password">
+          <button type="button" class="btn secondary" id="adminUnlockBtn">פתיחה</button>
+        </div>
+        <p class="hint-text" id="adminUnlockStatus" style="margin-top:6px;">הסיסמה נבדקת בשרת — היא לא נשמרת ולא ניתנת לחילוץ מהדפדפן. הפתיחה בתוקף עד סגירת הכרטיסייה.</p>
+      </div>
     </div>
     <div class="modal-foot">
       <button type="button" class="btn secondary" id="connectionsDoneBtn">סגירה</button>
@@ -1101,33 +1111,27 @@
   const DEFAULT_GITHUB_REPO = "API";
   const DEFAULT_GITHUB_BRANCH = "main";
 
-  // ---- built-in default credentials (base64, decoded at runtime) ----
-  // Encoded so secret scanners don't flag the push; behavior is identical for
-  // users — the app starts fully working out of the box, no login required.
-  const DEFAULT_TOKEN_B64 = "Z2l0aHViX3BhdF8xMUNBN0lIQ0EwQm1TaHJqUko5VHB2X2hBSFhFc1ZtSHhzbD" + "dDdlU3RGVjaWFOaGJwaTUxeEtZMUplMHFraU8zMEZXTUhNQkVIN1NRdjJBNFdi";
-  const DEFAULT_GEMINI_KEYS_B64 = [
-    "QUl6YVN5QUkyOC1HSFZ4aXZteWE0djFmdGNTUlZZakkwYXNaRmVR",
-    "QUl6YVN5QkVSeFBiWTVNbkJxTzRBek9BbDZzN0NUOU8wVUdvMjQ4",
-    "QUl6YVN5QUxoNURzelAzQlYzd1UzN0FodmtfRnBlaUdIeFZkalo4",
-    "QUl6YVN5Q3AzcDAzUS1EVy1Ob1l1RDd0RDBrOEdnVzRmMkFTYmdZ",
-    "QUl6YVN5QmlZNFJ2azkzdjkzc1Nrb195QjRXb1BCdXI4ekFNcnNv",
-    "QVEuQWI4Uk42SUQybzV0dF8wQ3pWTDRqUEJhZjBKb2ZCdXBwYjFwX1Z3TVVBc1NET3hBM2c=",
-    "QVEuQWI4Uk42SXFqOVlDTmdtM3dWeURhN3NwYkpaSlFDc1NaclQ5UjhRUEdrZ2prYlNycGc=",
-    "QVEuQWI4Uk42TGQyNjRxYXFGcVQ1b1Z6MGhxRmI2LXZpZFFoZTdqZGZjZ0FUUzlTdlBFWEE=",
-    "QVEuQWI4Uk42TFNyajNuZVNVVTF1Ynd6YWNhU0lLZ3BCR1JkN3UxWDVMSHhOaDlsQ1gzaUE=",
-    "QVEuQWI4Uk42SmpiSGtiUGZxZEgwQlQ1V1BuQzE1bU94MHpNanhWLVlmdWNFV0lfWVBKOEE="
-  ].map((k) => { try { return atob(k); } catch (e) { return ""; } }).filter(Boolean);
+  // ---- secure-by-design credentials ----
+  // No secrets live in this file. All Gemini/GitHub calls go through our
+  // Cloudflare Worker proxy (master-bot-proxy), which holds the real keys as
+  // server-side secrets. The "חיבורים" modal still allows advanced users to
+  // plug in their OWN keys for direct calls — but by default nobody can
+  // extract any credential from the site's source.
+  const API_PROXY_URL = "https://master-bot-proxy.master-bot.workers.dev";
+  const DEFAULT_TOKEN_B64 = "";   // removed — token lives in the proxy
+  const DEFAULT_GEMINI_KEYS_B64 = []; // removed — keys live in the proxy
   let OWNER_CREDS = { token: "", geminiKeys: [] };
   function loadOwnerCreds() {
     try {
       const saved = JSON.parse(localStorage.getItem(OWNER_CREDS_KEY) || "null");
       OWNER_CREDS = {
-        // Built-in defaults always apply; anything saved locally takes priority.
-        token: (saved && typeof saved.token === "string" && saved.token.trim()) || (() => { try { return atob(DEFAULT_TOKEN_B64); } catch (e) { return ""; } })(),
-        geminiKeys: (saved && Array.isArray(saved.geminiKeys) && saved.geminiKeys.filter((k) => typeof k === "string" && k.trim()).length ? saved.geminiKeys.filter((k) => typeof k === "string" && k.trim()) : DEFAULT_GEMINI_KEYS_B64),
+        // Saved local overrides always take priority; by default the app uses
+        // the secure proxy (no keys in the browser at all).
+        token: (saved && typeof saved.token === "string" && saved.token.trim()) || "",
+        geminiKeys: (saved && Array.isArray(saved.geminiKeys) && saved.geminiKeys.filter((k) => typeof k === "string" && k.trim()).length ? saved.geminiKeys.filter((k) => typeof k === "string" && k.trim()) : []),
       };
     } catch (err) {
-      try { OWNER_CREDS = { token: atob(DEFAULT_TOKEN_B64), geminiKeys: DEFAULT_GEMINI_KEYS_B64.slice() }; } catch (e2) { OWNER_CREDS = { token: "", geminiKeys: [] }; }
+      OWNER_CREDS = { token: "", geminiKeys: [] };
     }
     return OWNER_CREDS;
   }
@@ -1767,10 +1771,50 @@ rebuild, even if that means dropping part of the requested change.`;
     throw githubNetworkError(path, lastError, attempts);
   }
 
+  const PROXY_GITHUB_RETRIES = 3;
+  // Secure path: relay GitHub JSON calls through our own Cloudflare Worker.
+  // The token never exists in the browser; the proxy injects it server-side.
+  async function ghViaProxy(path, options = {}) {
+    const method = (options.method || "GET").toUpperCase();
+    const body = options.body ? JSON.parse(options.body) : undefined;
+    let lastErr = null;
+    for (let attempt = 1; attempt <= PROXY_GITHUB_RETRIES; attempt++) {
+      let res;
+      try {
+        res = await fetch(API_PROXY_URL + "/api", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "github", path, method, body }),
+        });
+      } catch (networkErr) {
+        lastErr = networkErr;
+        await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+        continue;
+      }
+      const text = await res.text().catch(() => "");
+      if (res.ok) {
+        try { return text ? JSON.parse(text) : null; }
+        catch (parseErr) { lastErr = parseErr; }
+      } else {
+        // 4xx (except 429) are deterministic — fail fast.
+        if (res.status !== 429 && res.status < 500 && attempt >= 1) {
+          const err = new Error(`GitHub API ${res.status} on ${path} — ${text.slice(0, 300)}`);
+          err.status = res.status;
+          throw err;
+        }
+        lastErr = new Error(`GitHub ${res.status} on ${path} — ${text.slice(0, 200)}`);
+      }
+      await sleep(GITHUB_RETRY_DELAY_MS * attempt);
+    }
+    throw lastErr || new Error(`GitHub request failed on ${path}`);
+  }
   async function gh(path, token, options = {}) {
     // A GitHub token in the "חיבורים" modal (the built-in default is prefilled)
     // switches every call to direct browser→GitHub requests, bypassing the
     // backend relay entirely — no sign-in and no healthy backend required.
+    if (!OWNER_CREDS.token) {
+      return ghViaProxy(path, options);
+    }
     if (currentUser && !OWNER_CREDS.token) {
       const method = (options.method || "GET").toUpperCase();
       const body = options.body ? JSON.parse(options.body) : undefined;
@@ -1898,10 +1942,51 @@ rebuild, even if that means dropping part of the requested change.`;
   // pinning its own fixed starting key instead of sharing the round-robin
   // counter — that's what lets several parallel translation batches each keep
   // hammering a different key instead of racing over the same counter.
+  const PROXY_GEMINI_RETRIES = 3;
+  // Secure path: relay Gemini calls through our own Cloudflare Worker, which
+  // injects the real keys server-side. Nothing but the user's prompt leaves
+  // the browser — no API key is ever exposed to the client.
+  async function callGeminiViaProxy(body, logTarget) {
+    let lastErr = null;
+    for (let attempt = 1; attempt <= PROXY_GEMINI_RETRIES; attempt++) {
+      let res;
+      try {
+        res = await fetch(API_PROXY_URL + "/api", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "gemini", path: `/v1beta/models/${GEMINI_MODEL}:generateContent`, body, offset: nextKeyOffset }),
+        });
+        nextKeyOffset = (nextKeyOffset + 1) % 10; // proxy has up to 10 keys
+      } catch (networkErr) {
+        lastErr = networkErr;
+        log(`שגיאת רשת מול הפרוקסי, מנסה שוב (${attempt}/${PROXY_GEMINI_RETRIES})…`, null, logTarget);
+        await sleep(GEMINI_KEY_BACKOFF_DEFAULT_MS * attempt);
+        continue;
+      }
+      if (res.ok) {
+        try { return await res.json(); }
+        catch (parseErr) {
+          lastErr = new Error("תשובה שאינה JSON מהפרוקסי — מנסה שוב…");
+        }
+      } else {
+        const text = await res.text().catch(() => "");
+        lastErr = new Error(`Gemini (פרוקסי) ${res.status} — ${text.slice(0, 200)}`);
+        if (res.status === 429 || res.status >= 500) {
+          await sleep(GEMINI_KEY_BACKOFF_DEFAULT_MS * attempt);
+          continue;
+        }
+        throw lastErr; // 4xx — deterministic
+      }
+    }
+    throw lastErr || new Error("Gemini דרך הפרוקסי נכשל.");
+  }
   async function callGeminiWithKeys(geminiKeys, startOffset, body, logTarget) {
-    // Empty by default → direct to Google, exactly as before. Only used if the user has pasted
-    // in their own relay (see the "כתובת פרוקסי ל-Gemini" field) because their network blocks
-    // generativelanguage.googleapis.com outright — see the comment on the fetch call below.
+    // Secure default: with no user-provided keys, everything routes through
+    // our own proxy — the keys exist only server-side.
+    if (!geminiKeys || geminiKeys.length === 0) {
+      return callGeminiViaProxy(body, logTarget);
+    }
+    // User provided their own keys → direct calls, exactly as before.
     const geminiBase = (geminiProxyUrlEl.value || "").trim().replace(/\/+$/, "") || "https://generativelanguage.googleapis.com";
 
     let lastErr;
@@ -1992,7 +2077,8 @@ rebuild, even if that means dropping part of the requested change.`;
       }
     }
     if (!geminiKeys || geminiKeys.length === 0) {
-      throw new Error("אין אף Gemini API Key מוגדר.");
+      // No user keys → secure proxy path (keys live server-side only).
+      return callGeminiViaProxy(body, logTarget);
     }
     const startOffset = nextKeyOffset % geminiKeys.length;
     nextKeyOffset = (nextKeyOffset + 1) % geminiKeys.length;
@@ -2014,7 +2100,8 @@ rebuild, even if that means dropping part of the requested change.`;
       }
     }
     if (!geminiKeys || geminiKeys.length === 0) {
-      throw new Error("אין אף Gemini API Key מוגדר.");
+      // No user keys → secure proxy path (keys live server-side only).
+      return callGeminiViaProxy(body, logTarget);
     }
     return callGeminiWithKeys(geminiKeys, startOffset % geminiKeys.length, body, logTarget);
   }
@@ -4961,12 +5048,13 @@ image clearly and unambiguously depicts it.`;
     // browser→GitHub mode, so even signed-in pro users fill their own fields.
     const usingOwnToken = !!OWNER_CREDS.token;
     const isProPlus = !!(currentUser && PRO_PLUS_ROLES.includes(currentUser.role) && !usingOwnToken);
-    // Credential fields are open to everyone now — the built-in defaults are
-    // visible, and personal overrides are saved per-browser.
+    // Credential fields are open to everyone now — personal overrides are
+    // saved per-browser. The admin button appears only after the admin
+    // password has been entered in this browser (session-based).
     manualCredentialFields.classList.remove("hidden");
     proPlusConnectionsNote.classList.toggle("hidden", !isProPlus);
     guestLockedNote.classList.add("hidden");
-    sideAdminBtn.classList.toggle("hidden", !currentUser || currentUser.role !== "admin");
+    sideAdminBtn.classList.toggle("hidden", !isAdminUnlocked());
     // Repo fields are prefilled with the site defaults and stay editable —
     // a custom token may point at a different repository.
     if (!ownerEl.value) ownerEl.value = publicInfo.githubOwner || DEFAULT_GITHUB_OWNER;
@@ -5204,6 +5292,31 @@ image clearly and unambiguously depicts it.`;
 
   sideConnectionsBtn.addEventListener("click", () => { connectionsModal.classList.remove("hidden"); closeSidebarMobile(); });
   wireOverlayClose(connectionsModal, connectionsCloseBtn);
+
+  // Admin unlock wiring: password → proxy check → session token + reveal admin button.
+  const adminUnlockBtn = $("adminUnlockBtn"), adminPasswordInput = $("adminPasswordInput"), adminUnlockStatus = $("adminUnlockStatus"), adminUnlockField = $("adminUnlockField");
+  function refreshAdminUnlockUi() {
+    const unlocked = isAdminUnlocked();
+    adminUnlockField.classList.toggle("hidden", unlocked);
+    sideAdminBtn.classList.toggle("hidden", !unlocked);
+  }
+  adminUnlockBtn.addEventListener("click", async () => {
+    const pw = adminPasswordInput.value;
+    if (!pw) { adminUnlockStatus.textContent = "יש להזין סיסמה."; return; }
+    adminUnlockBtn.disabled = true;
+    adminUnlockStatus.textContent = "בודק סיסמה…";
+    try {
+      await adminUnlock(pw);
+      adminPasswordInput.value = "";
+      adminUnlockStatus.textContent = "מצב מנהל פתוח עד סגירת הכרטיסייה ✓";
+      refreshAdminUnlockUi();
+    } catch (err) {
+      adminUnlockStatus.textContent = err.message;
+    } finally {
+      adminUnlockBtn.disabled = false;
+    }
+  });
+  adminPasswordInput.addEventListener("keydown", (e) => { if (e.key === "Enter") adminUnlockBtn.click(); });
   // Every way of leaving the connections modal saves what was typed, so the
   // fields (and the built-in defaults) survive refreshes and restarts.
   connectionsDoneBtn.addEventListener("click", () => { saveConnectionsToStorage(); connectionsModal.classList.add("hidden"); });
@@ -5256,6 +5369,28 @@ image clearly and unambiguously depicts it.`;
     el.appendChild(document.createTextNode(text));
   }
 
+  // ---- admin gate: password-checked, session-scoped ----
+  // The password itself lives ONLY as a Cloudflare Worker secret — the client
+  // sends the entered password to the proxy, which validates it server-side
+  // and returns a session token. Nothing about the password is stored or
+  // derivable in the browser.
+  const ADMIN_SESSION_KEY = "mb_admin_session";
+  function isAdminUnlocked() {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || "null");
+      return !!(s && s.token && s.exp > Date.now());
+    } catch (e) { return false; }
+  }
+  async function adminUnlock(password) {
+    const res = await fetch(API_PROXY_URL + "/api", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind: "admin", password }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || "סיסמה שגויה.");
+    sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ token: data.token, exp: Date.now() + data.ttlMs }));
+  }
   function openAdminScreen() {
     appShell.hidden = true;
     adminScreen.style.display = "flex";
