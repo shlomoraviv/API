@@ -10,7 +10,21 @@
   <meta property="og:description" content="יוצרים אפליקציות אנדרואיד בעברית — מתיאור במילים ל-APK מוכן להתקנה.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="מאסטר בוט — Master Bot">
-  <link rel="canonical" href="https://api.yaelbrayer10.workers.dev/">
+  <link rel="canonical" id="canonicalLink" href="./">
+  <meta property="og:url" id="ogUrl" content="./">
+  <script>
+    // Self-canonical: points Google at the exact address the page is served from.
+    (function () {
+      try {
+        var u = new URL(location.href);
+        if (u.protocol === "http:" || u.hostname === "localhost" || u.hostname === "127.0.0.1") return; // don't canonicalize local/preview copies
+        var c = document.getElementById("canonicalLink");
+        if (c) c.href = u.origin + "/";
+        var o = document.getElementById("ogUrl");
+        if (o) o.content = u.origin + "/";
+      } catch (e) {}
+    })();
+  </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
