@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --bg: #F4F4F9;
@@ -216,6 +216,8 @@
   .auth-card p.sub { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin: 0 0 30px; }
   .simple-login { display: flex; flex-direction: column; gap: 12px; }
   .simple-login .text-input { text-align: center; font-size: 15px; padding: 13px 14px; }
+  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--text-faint); font-size: 12.5px; }
+  .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border-strong); }
   .auth-error {
     margin-top: 16px; background: var(--error-soft); color: var(--error); border-radius: var(--radius-sm);
     padding: 10px 14px; font-size: 13px; text-align: right;
@@ -705,9 +707,11 @@
     <div class="auth-mark">MB</div>
     <h1><span class="grad-text">מאסטר בוט</span></h1>
     <p class="sub" data-text-key="auth_sub">מתארים אפליקציית אנדרואיד במילים — ומקבלים APK מוכן להתקנה. אפשר גם לערוך, לתרגם ולצנזר אפליקציות קיימות.</p>
+    <div id="googleSignInButton"></div>
+    <div class="auth-divider"><span>או</span></div>
     <div class="simple-login">
       <input type="text" class="text-input" id="simpleNameInput" placeholder="השם שלכם" autocomplete="given-name">
-      <button type="button" class="btn primary block" id="localModeBtn">כניסה לאפליקציה</button>
+      <button type="button" class="btn secondary block" id="localModeBtn">כניסה ללא חשבון</button>
     </div>
     <p class="auth-error" id="authError" hidden></p>
   </div>
@@ -5053,11 +5057,12 @@ image clearly and unambiguously depicts it.`;
     const isProPlus = !!(currentUser && PRO_PLUS_ROLES.includes(currentUser.role) && !usingOwnToken);
     // Credential fields are open to everyone now — personal overrides are
     // saved per-browser. The admin button appears only after the admin
-    // password has been entered in this browser (session-based).
+    // password has been entered in this browser (session-based), OR the
+    // signed-in user has the admin role on the server (the original path).
     manualCredentialFields.classList.remove("hidden");
     proPlusConnectionsNote.classList.toggle("hidden", !isProPlus);
     guestLockedNote.classList.add("hidden");
-    sideAdminBtn.classList.toggle("hidden", !isAdminUnlocked());
+    sideAdminBtn.classList.toggle("hidden", !isAdminUnlocked() && !(currentUser && currentUser.role === "admin"));
     // Repo fields are prefilled with the site defaults and stay editable —
     // a custom token may point at a different repository.
     if (!ownerEl.value) ownerEl.value = publicInfo.githubOwner || DEFAULT_GITHUB_OWNER;
@@ -5114,12 +5119,10 @@ image clearly and unambiguously depicts it.`;
     try {
       const result = await backendCall("googleLogin", { idToken: response.credential });
       if (!result.ok) throw new Error(result.error);
-      // Own everything locally: the site runs fully on built-in credentials,
-      // so the Google account is used only to greet the user by name. No
-      // server session is required (and none exists — the project holding
-      // the OAuth client is not owned by the site owner).
-      currentUser = null;
-      localUserName = result.displayName || result.username || "משתמש";
+      // Full server session restored: Google-signed users get credits,
+      // roles and admin rights exactly as before, managed by the backend.
+      currentUser = { token: result.token, username: result.username, displayName: result.displayName, role: result.role, credits: result.credits };
+      localUserName = null;
       showApp();
     } catch (err) {
       authErrorEl.textContent = err.message;
@@ -5127,10 +5130,14 @@ image clearly and unambiguously depicts it.`;
     }
   }
 
-  // Simple local login: remembers the name in this browser and opens the app.
-  // (Google sign-in is disabled: its OAuth client belongs to an orphaned
-  // project that rejects our origins with origin_mismatch. Restore it later
-  // by re-adding initGoogleSignIn + the button once a new client exists.)
+  // Google Identity Services: polls for the GSI script (kept in <head>) and
+  // renders the official sign-in button. Signed-in users get a full server
+  // session (credits/roles/admin); "כניסה ללא חשבון" below is the fallback.
+  function initGoogleSignIn() {
+    if (!window.google || !window.google.accounts) { setTimeout(initGoogleSignIn, 300); return; }
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
+    google.accounts.id.renderButton(googleSignInButtonEl, { theme: "outline", size: "large", shape: "pill", text: "signin_with", locale: "he", width: 280 });
+  }
   function enterAppWithName() {
     const name = (simpleNameInput.value || "").trim();
     localUserName = name || "משתמש";
@@ -5381,13 +5388,13 @@ image clearly and unambiguously depicts it.`;
     el.appendChild(document.createTextNode(text));
   }
 
-  // ---- admin gate: password-checked, session-scoped ----
-  // The password itself lives ONLY as a Cloudflare Worker secret — the client
-  // sends the entered password to the proxy, which validates it server-side
-  // and returns a session token. Nothing about the password is stored or
-  // derivable in the browser.
+  // ---- admin gate: server role OR password-checked session ----
+  // Two ways in: (1) the original path — a Google-signed user whose role on
+  // the backend is "admin"; (2) the fallback password, which lives ONLY as a
+  // Cloudflare Worker secret and is validated server-side by the proxy.
   const ADMIN_SESSION_KEY = "mb_admin_session";
   function isAdminUnlocked() {
+    if (currentUser && currentUser.role === "admin") return true;
     try {
       const s = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || "null");
       return !!(s && s.token && s.exp > Date.now());
@@ -5647,6 +5654,7 @@ image clearly and unambiguously depicts it.`;
   // INIT
   // ==========================================================================
   applyIcons();
+  initGoogleSignIn();
   loadPublicInfo();
   // Preload the saved (or built-in default) connections before the login
   // screen even renders, so continuing without signing in already has the
