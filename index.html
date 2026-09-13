@@ -706,7 +706,6 @@
     <h1><span class="grad-text">מאסטר בוט</span></h1>
     <p class="sub" data-text-key="auth_sub">מתארים אפליקציית אנדרואיד במילים — ומקבלים APK מוכן להתקנה. אפשר גם לערוך, לתרגם ולצנזר אפליקציות קיימות.</p>
     <div id="googleSignInButton"></div>
-    <button type="button" class="btn primary block" id="localModeBtn" style="margin-top:12px;">כניסה לאפליקציה</button>
     <p class="auth-error" id="authError" hidden></p>
   </div>
 </div>
@@ -1448,7 +1447,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---------- DOM refs (new UI shell) ----------
   const $ = (id) => document.getElementById(id);
 
-  const authScreen = $("authScreen"), authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton"), localModeBtn = $("localModeBtn");
+  const authScreen = $("authScreen"), authErrorEl = $("authError"), googleSignInButtonEl = $("googleSignInButton");
   const authGuestHint = $("authGuestHint"), sideGuestHint = $("sideGuestHint");
   const appShell = $("appShell");
 
@@ -5024,10 +5023,6 @@ image clearly and unambiguously depicts it.`;
       authErrorEl.hidden = false;
     }
   }
-
-  // Guest (browse-only) mode: skip Google sign-in and look around the UI, but
-  // with zero credentials — every action bounces straight back to this screen.
-  localModeBtn.addEventListener("click", () => { currentUser = null; showApp(); });
 
   // Polls for the Google Identity Services script instead of relying on
   // script-tag load-event timing, which can race against this inline
