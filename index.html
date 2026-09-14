@@ -708,11 +708,7 @@
     <h1><span class="grad-text">מאסטר בוט</span></h1>
     <p class="sub" data-text-key="auth_sub">מתארים אפליקציית אנדרואיד במילים — ומקבלים APK מוכן להתקנה. אפשר גם לערוך, לתרגם ולצנזר אפליקציות קיימות.</p>
     <div id="googleSignInButton"></div>
-    <div class="auth-divider"><span>או</span></div>
-    <div class="simple-login">
-      <input type="text" class="text-input" id="simpleNameInput" placeholder="השם שלכם" autocomplete="given-name">
-      <button type="button" class="btn secondary block" id="localModeBtn">כניסה ללא חשבון</button>
-    </div>
+    <p class="hint-text" id="authRedirectHint" hidden style="margin-top:10px;"></p>
     <p class="auth-error" id="authError" hidden></p>
   </div>
 </div>
@@ -896,41 +892,8 @@
     <div class="modal-body">
       <div class="pro-note hidden" id="guestLockedNote"></div>
 
-      <div id="manualCredentialFields" class="hidden">
-        <div class="field">
-          <label class="field-label" for="geminiKeys">Gemini API Keys (שורה לכל מפתח)</label>
-          <textarea class="textarea" id="geminiKeys" rows="3" placeholder="AIza…&#10;AIza…"></textarea>
-        </div>
-        <div class="field">
-          <label class="field-label" for="geminiProxyUrl">כתובת פרוקסי ל-Gemini (אופציונלי)</label>
-          <input type="text" class="text-input" id="geminiProxyUrl" placeholder="ריק = ישירות לגוגל">
-        </div>
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button type="button" class="btn primary" id="ownerGateSaveBtn">שמירת חיבורים</button>
-        </div>
-      </div>
-
-      <div class="field-row">
-        <div class="field"><label class="field-label" for="owner">בעל ה-Repo</label><input type="text" class="text-input" id="owner"></div>
-        <div class="field"><label class="field-label" for="repo">שם ה-Repo</label><input type="text" class="text-input" id="repo"></div>
-      </div>
-      <div class="field"><label class="field-label" for="branch">Branch</label><input type="text" class="text-input" id="branch" placeholder="main"></div>
-      <div class="field">
-        <label class="field-label" for="githubToken">GitHub Token (עם הרשאות Contents + Actions)</label>
-        <input type="password" class="text-input" id="githubToken" placeholder="github_pat_…" autocomplete="new-password">
-        <p class="hint-text">נשמר רק בדפדפן של בעל האתר — לעולם לא נכלל בקוד העמוד. אפשר להחליף בטוקן אחר בכל עת.</p>
-      </div>
       <p class="hint-text" id="creditCostsHint"></p>
-
-      <!-- admin unlock (password checked server-side by the proxy) -->
-      <div class="field" id="adminUnlockField">
-        <label class="field-label" for="adminPasswordInput">סיסמת מנהל (לפתיחת ניהול האתר)</label>
-        <div style="display:flex; gap:8px;">
-          <input type="password" class="text-input" id="adminPasswordInput" placeholder="סיסמת מנהל" autocomplete="new-password">
-          <button type="button" class="btn secondary" id="adminUnlockBtn">פתיחה</button>
-        </div>
-        <p class="hint-text" id="adminUnlockStatus" style="margin-top:6px;">הסיסמה נבדקת בשרת — היא לא נשמרת ולא ניתנת לחילוץ מהדפדפן. הפתיחה בתוקף עד סגירת הכרטיסייה.</p>
-      </div>
+      <p class="hint-text">כל החיבורים מנוהלים בצד השרת — אין צורך להגדיר כלום כאן.</p>
     </div>
     <div class="modal-foot">
       <button type="button" class="btn secondary" id="connectionsDoneBtn">סגירה</button>
@@ -1127,40 +1090,8 @@
   const API_PROXY_URL = "https://master-bot-proxy.master-bot.workers.dev";
   const DEFAULT_TOKEN_B64 = "";   // removed — token lives in the proxy
   const DEFAULT_GEMINI_KEYS_B64 = []; // removed — keys live in the proxy
-  let OWNER_CREDS = { token: "", geminiKeys: [] };
-  function loadOwnerCreds() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(OWNER_CREDS_KEY) || "null");
-      OWNER_CREDS = {
-        // Saved local overrides always take priority; by default the app uses
-        // the secure proxy (no keys in the browser at all).
-        token: (saved && typeof saved.token === "string" && saved.token.trim()) || "",
-        geminiKeys: (saved && Array.isArray(saved.geminiKeys) && saved.geminiKeys.filter((k) => typeof k === "string" && k.trim()).length ? saved.geminiKeys.filter((k) => typeof k === "string" && k.trim()) : []),
-      };
-    } catch (err) {
-      OWNER_CREDS = { token: "", geminiKeys: [] };
-    }
-    return OWNER_CREDS;
-  }
-  function saveOwnerCreds() {
-    try { localStorage.setItem(OWNER_CREDS_KEY, JSON.stringify(OWNER_CREDS)); }
-    catch (err) { /* private mode / quota — creds work for this session only */ }
-  }
-  function isOwner() { return true; } // credentials are always present — the app is usable by anyone, no login gate
-  // Accepts free text pasted into the owner gate: the first github_pat_/ghp_
-  // line becomes the token, every AIza…/AQ.… line becomes a Gemini key.
-  function applyOwnerAccessCode(raw) {
-    const lines = String(raw || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-    const token = lines.find((l) => /^(github_pat_|ghp_|gho_|ghu_|ghs_)/.test(l)) || "";
-    const keys = lines.filter((l) => /^(AIza|AQ\.)/.test(l));
-    if (token) OWNER_CREDS.token = token;
-    if (keys.length) OWNER_CREDS.geminiKeys = keys;
-    saveOwnerCreds();
-    return { token: !!token, keys: keys.length };
-  }
-  // The single action gate: guests may look around, but the moment they try
-  // to DO anything they are sent to the login screen instead.
-  function requireOwner(actionLabelHe) { return false; } // actions are always allowed now
+  // All credentials live server-side (Cloudflare Worker proxy + the Apps
+  // Script backend). No token or API key ever reaches the browser.
 
   // currentUser: null when logged out, else { token, username, role, credits }.
   // credits is a number for regular/pro, or the string "unlimited" for superpro/admin.
@@ -1401,6 +1332,9 @@ is not safely fixable, return the files with content reverted to something you'r
 rebuild, even if that means dropping part of the requested change.`;
 
   const GOOGLE_CLIENT_ID = "733141570620-4elai2igmu1a22ftiqm7pfltvm7vhuhg.apps.googleusercontent.com";
+  // The origin whitelisted in that Google client's Authorized JavaScript origins.
+  const OFFICIAL_ORIGIN = "https://shlomoraviv.github.io";
+  const OFFICIAL_PATH = "/API/";
   const ROLE_LABELS = { regular: "רגיל", pro: "פרו", superpro: "סופר-פרו", admin: "מנהל" };
   const MODE_LABELS_HE = { build: "בנייה", edit: "עריכה", translate: "תרגום", censor: "צנזור", chat: "שיחה" };
 
@@ -1458,9 +1392,8 @@ rebuild, even if that means dropping part of the requested change.`;
   // ---------- DOM refs (new UI shell) ----------
   const $ = (id) => document.getElementById(id);
 
-  const authScreen = $("authScreen"), authErrorEl = $("authError"), localModeBtn = $("localModeBtn"), simpleNameInput = $("simpleNameInput");
-  let localUserName = null;
-  const authGuestHint = $("authGuestHint"), sideGuestHint = $("sideGuestHint");
+  const authScreen = $("authScreen"), authErrorEl = $("authError"), authRedirectHint = $("authRedirectHint");
+  const sideGuestHint = $("sideGuestHint");
   const appShell = $("appShell");
 
   const sidePanel = $("sidePanel"), sideBackdrop = $("sideBackdrop"), sideToggleBtn = $("sideToggleBtn");
@@ -1489,10 +1422,7 @@ rebuild, even if that means dropping part of the requested change.`;
 
   const connectionsModal = $("connectionsModal"), connectionsCloseBtn = $("connectionsCloseBtn"), connectionsDoneBtn = $("connectionsDoneBtn");
   const sharedGithubConnectionsNote = $("sharedGithubConnectionsNote");
-  const proPlusConnectionsNote = $("proPlusConnectionsNote"), manualCredentialFields = $("manualCredentialFields"), creditCostsHint = $("creditCostsHint");
-  const guestLockedNote = $("guestLockedNote"), ownerGateSaveBtn = $("ownerGateSaveBtn");
-  const geminiKeysEl = $("geminiKeys"), geminiProxyUrlEl = $("geminiProxyUrl");
-  const githubTokenEl = $("githubToken");
+  const creditCostsHint = $("creditCostsHint");
   const ownerEl = $("owner"), repoEl = $("repo"), branchEl = $("branch");
 
   const convViewModal = $("convViewModal"), convViewTitle = $("convViewTitle"), convViewSub = $("convViewSub"), convViewCloseBtn = $("convViewCloseBtn"), convViewBody = $("convViewBody");
@@ -1816,13 +1746,10 @@ rebuild, even if that means dropping part of the requested change.`;
     throw lastErr || new Error(`GitHub request failed on ${path}`);
   }
   async function gh(path, token, options = {}) {
-    // A GitHub token in the "חיבורים" modal (the built-in default is prefilled)
-    // switches every call to direct browser→GitHub requests, bypassing the
-    // backend relay entirely — no sign-in and no healthy backend required.
-    if (!OWNER_CREDS.token) {
-      return ghViaProxy(path, options);
-    }
-    if (currentUser && !OWNER_CREDS.token) {
+    // Signed-in users go through the Apps Script backend relay (the shared
+    // GitHub token never reaches the browser); anything else goes through the
+    // server-side proxy. Direct browser→GitHub calls with user tokens are gone.
+    if (currentUser) {
       const method = (options.method || "GET").toUpperCase();
       const body = options.body ? JSON.parse(options.body) : undefined;
       // Apps Script (the backend relay) occasionally returns an empty body on a
@@ -1876,7 +1803,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // Raw-bytes GitHub downloads (artifact zips, log zips) are relayed through
   // the backend so the shared GitHub token never reaches any browser.
   async function githubFetchBlob(path, token) {
-    if (currentUser && !OWNER_CREDS.token) {
+    {
       // This call fetches large binaries (artifact zips, log zips) through the backend relay, which
       // occasionally times out or hiccups on a single attempt even though the file is right there —
       // unlike every other GitHub call in this file, this one previously had zero retry.
@@ -1940,7 +1867,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const GEMINI_KEY_BACKOFF_DEFAULT_MS = 15000;
   const GEMINI_KEY_BACKOFF_MAX_MS = 60000;
   function parseGeminiKeys(raw) {
-    return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    return String(raw || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
   }
 
   // Tries every key once, starting from startOffset and wrapping around, giving
@@ -1988,13 +1915,10 @@ rebuild, even if that means dropping part of the requested change.`;
     throw lastErr || new Error("Gemini דרך הפרוקסי נכשל.");
   }
   async function callGeminiWithKeys(geminiKeys, startOffset, body, logTarget) {
-    // Secure default: with no user-provided keys, everything routes through
-    // our own proxy — the keys exist only server-side.
-    if (!geminiKeys || geminiKeys.length === 0) {
-      return callGeminiViaProxy(body, logTarget);
-    }
-    // User provided their own keys → direct calls, exactly as before.
-    const geminiBase = (geminiProxyUrlEl.value || "").trim().replace(/\/+$/, "") || "https://generativelanguage.googleapis.com";
+    // Proxy-only: the Gemini keys exist only server-side. Any direct-key code
+    // path has been removed; callers may still pass arrays, they are ignored.
+    return callGeminiViaProxy(body, logTarget);
+    const geminiBase = "https://generativelanguage.googleapis.com";
 
     let lastErr;
     for (let i = 0; i < geminiKeys.length; i++) {
@@ -3349,15 +3273,14 @@ rebuild, even if that means dropping part of the requested change.`;
   // ==========================================================================
 
   function readConnections() {
-    // Credentials come exclusively from the owner's locally-saved set. The
-    // modal fields are synced into OWNER_CREDS on save, so the saved object is
-    // always current — and on any other device it is simply empty.
+    // Repo coordinates from the server-side public info; credentials are not
+    // part of the browser state at all.
     return {
-      geminiKeys: OWNER_CREDS.geminiKeys.slice(),
-      token: OWNER_CREDS.token,
-      owner: ownerEl.value.trim(),
-      repo: repoEl.value.trim(),
-      branch: branchEl.value.trim() || "main",
+      geminiKeys: [],
+      token: "",
+      owner: publicInfo.githubOwner || DEFAULT_GITHUB_OWNER,
+      repo: publicInfo.githubRepo || DEFAULT_GITHUB_REPO,
+      branch: publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH,
     };
   }
 
@@ -5051,26 +4974,9 @@ image clearly and unambiguously depicts it.`;
   // ==========================================================================
 
   function applyRoleUI() {
-    // A custom GitHub token in the modal switches everything to direct
-    // browser→GitHub mode, so even signed-in pro users fill their own fields.
-    const usingOwnToken = !!OWNER_CREDS.token;
-    const isProPlus = !!(currentUser && PRO_PLUS_ROLES.includes(currentUser.role) && !usingOwnToken);
-    // Credential fields are open to everyone now — personal overrides are
-    // saved per-browser. The admin button appears only after the admin
-    // password has been entered in this browser (session-based), OR the
-    // signed-in user has the admin role on the server (the original path).
-    manualCredentialFields.classList.remove("hidden");
-    proPlusConnectionsNote.classList.toggle("hidden", !isProPlus);
-    guestLockedNote.classList.add("hidden");
-    sideAdminBtn.classList.toggle("hidden", !isAdminUnlocked() && !(currentUser && currentUser.role === "admin"));
-    // Repo fields are prefilled with the site defaults and stay editable —
-    // a custom token may point at a different repository.
-    if (!ownerEl.value) ownerEl.value = publicInfo.githubOwner || DEFAULT_GITHUB_OWNER;
-    if (!repoEl.value) repoEl.value = publicInfo.githubRepo || DEFAULT_GITHUB_REPO;
-    if (!branchEl.value) branchEl.value = publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH;
-    ownerEl.readOnly = isProPlus;
-    repoEl.readOnly = isProPlus;
-    branchEl.readOnly = isProPlus;
+    // The admin button appears only for a Google-signed user whose role on
+    // the backend (Google Sheets) is "admin" — exactly like the original app.
+    sideAdminBtn.classList.toggle("hidden", !(currentUser && currentUser.role === "admin"));
   }
 
   function showApp() {
@@ -5083,16 +4989,7 @@ image clearly and unambiguously depicts it.`;
       applyRoleUI();
       loadConversationsList();
       sideGuestHint.classList.add("hidden");
-    } else if (localUserName) {
-      // Signed in with Google (local session): full app, personal greeting.
-      sideAvatarInitial.textContent = localUserName.trim().charAt(0).toUpperCase();
-      sideUserName.textContent = localUserName;
-      sideUserSub.textContent = "מחובר · ללא הגבלה";
-      sideGuestHint.classList.add("hidden");
     } else {
-      // Everyone gets the full app right away — built-in credentials included.
-      sideAvatarInitial.textContent = "AI";
-      sideUserName.textContent = "מאסטר בוט";
       sideUserSub.textContent = "מוכן לעבודה · ללא הגבלה";
       sideGuestHint.classList.add("hidden");
     }
@@ -5103,6 +5000,7 @@ image clearly and unambiguously depicts it.`;
     appShell.hidden = true;
     adminScreen.style.display = "none";
     authScreen.classList.remove("hidden");
+    maybeRedirectToOfficialOrigin();
     // A guest who was bounced here by requireOwner gets the reason on screen.
     try {
       const hint = localStorage.getItem("aiAppMaker.postAuthHint");
@@ -5114,6 +5012,15 @@ image clearly and unambiguously depicts it.`;
     } catch (err) {}
   }
 
+  function maybeRedirectToOfficialOrigin() {
+    try {
+      if (location.protocol !== "https:") return;
+      const h = location.hostname;
+      if (h === "shlomoraviv.github.io" || h === "localhost" || h === "127.0.0.1") return;
+      if (authRedirectHint) { authRedirectHint.textContent = "מעביר לכתובת הרשמית של האתר…"; authRedirectHint.hidden = false; }
+      setTimeout(() => { try { location.replace(OFFICIAL_ORIGIN + OFFICIAL_PATH); } catch (e) {} }, 900);
+    } catch (e) {}
+  }
   async function handleGoogleCredential(response) {
     authErrorEl.hidden = true;
     try {
@@ -5122,7 +5029,6 @@ image clearly and unambiguously depicts it.`;
       // Full server session restored: Google-signed users get credits,
       // roles and admin rights exactly as before, managed by the backend.
       currentUser = { token: result.token, username: result.username, displayName: result.displayName, role: result.role, credits: result.credits };
-      localUserName = null;
       showApp();
     } catch (err) {
       authErrorEl.textContent = err.message;
@@ -5131,27 +5037,13 @@ image clearly and unambiguously depicts it.`;
   }
 
   // Google Identity Services: polls for the GSI script (kept in <head>) and
-  // renders the official sign-in button. Signed-in users get a full server
-  // session (credits/roles/admin); "כניסה ללא חשבון" below is the fallback.
+  // renders the official sign-in button. This is the ONLY way into the app —
+  // signed-in users get a full server session (credits/roles/admin).
   function initGoogleSignIn() {
     if (!window.google || !window.google.accounts) { setTimeout(initGoogleSignIn, 300); return; }
     google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
     google.accounts.id.renderButton(googleSignInButtonEl, { theme: "outline", size: "large", shape: "pill", text: "signin_with", locale: "he", width: 280 });
   }
-  function enterAppWithName() {
-    const name = (simpleNameInput.value || "").trim();
-    localUserName = name || "משתמש";
-    try { localStorage.setItem("mb_user_name", localUserName); } catch (e) {}
-    currentUser = null;
-    showApp();
-  }
-  localModeBtn.addEventListener("click", enterAppWithName);
-  simpleNameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") enterAppWithName(); });
-  try {
-    const savedName = localStorage.getItem("mb_user_name");
-    if (savedName) { simpleNameInput.value = savedName; localUserName = savedName; }
-  } catch (e) {}
-
   async function handleLogout() {
     if (currentUser) await backendCall("logout", {}).catch(() => {});
     currentUser = null;
@@ -5176,45 +5068,13 @@ image clearly and unambiguously depicts it.`;
   // store and only ever on the owner's own device.
   const CONNECTIONS_KEY = "aiAppMaker.connections.v1";
   function loadConnectionsFromStorage() {
-    loadOwnerCreds();
-    let saved = null;
-    try { saved = JSON.parse(localStorage.getItem(CONNECTIONS_KEY) || "null"); } catch (err) { saved = null; }
-    // The secret fields are filled ONLY for the owner, from the locally-saved
-    // credentials — a guest's modal stays empty and locked.
-    geminiKeysEl.value = OWNER_CREDS.geminiKeys.join("\n");
-    githubTokenEl.value = OWNER_CREDS.token;
-    geminiProxyUrlEl.value = saved && typeof saved.geminiProxyUrl === "string" ? saved.geminiProxyUrl : "";
-    ownerEl.value = (saved && saved.owner) || DEFAULT_GITHUB_OWNER;
-    repoEl.value = (saved && saved.repo) || DEFAULT_GITHUB_REPO;
-    branchEl.value = (saved && saved.branch) || DEFAULT_GITHUB_BRANCH;
+    // Nothing personal to load — credentials are server-side now. The info
+    // modal fields are purely informational and filled from public info.
+    if (ownerEl) ownerEl.value = publicInfo.githubOwner || DEFAULT_GITHUB_OWNER;
+    if (repoEl) repoEl.value = publicInfo.githubRepo || DEFAULT_GITHUB_REPO;
+    if (branchEl) branchEl.value = publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH;
   }
-  function saveConnectionsToStorage() {
-    // Personal credential overrides persist in this browser's localStorage —
-    // emptied fields fall back to the built-in defaults on next load.
-    OWNER_CREDS.token = githubTokenEl.value.trim();
-    OWNER_CREDS.geminiKeys = parseGeminiKeys(geminiKeysEl.value);
-    saveOwnerCreds();
-    try {
-      localStorage.setItem(CONNECTIONS_KEY, JSON.stringify({
-        geminiProxyUrl: geminiProxyUrlEl.value,
-        owner: ownerEl.value.trim(),
-        repo: repoEl.value.trim(),
-        branch: branchEl.value.trim(),
-      }));
-    } catch (err) {
-      /* private mode / quota — the defaults still work for this session */
-    }
-  }
-  // Credential fields (חיבורים modal) are always visible now — they show the
-  // built-in defaults, and anything typed overrides them for this browser.
-  ownerGateSaveBtn.addEventListener("click", () => {
-    saveConnectionsToStorage();
-    connectionsSummary.textContent = "GitHub + Gemini מוכנים";
-    ownerGateSaveBtn.textContent = "נשמר ✓";
-    setTimeout(() => { ownerGateSaveBtn.textContent = "שמירת חיבורים"; }, 1500);
-  });
-  // Shared owner-gate submit (connections modal): saving simply persists
-  // whatever is typed in the fields — defaults re-appear if emptied.
+  function saveConnectionsToStorage() { /* nothing to persist — server-side config only */ }
 
   async function loadPublicInfo() {
     try {
@@ -5312,32 +5172,6 @@ image clearly and unambiguously depicts it.`;
   sideConnectionsBtn.addEventListener("click", () => { connectionsModal.classList.remove("hidden"); closeSidebarMobile(); });
   wireOverlayClose(connectionsModal, connectionsCloseBtn);
 
-  // Admin unlock wiring: password → proxy check → session token + reveal admin button.
-  const adminUnlockBtn = $("adminUnlockBtn"), adminPasswordInput = $("adminPasswordInput"), adminUnlockStatus = $("adminUnlockStatus"), adminUnlockField = $("adminUnlockField");
-  function refreshAdminUnlockUi() {
-    const unlocked = isAdminUnlocked();
-    adminUnlockField.classList.toggle("hidden", unlocked);
-    sideAdminBtn.classList.toggle("hidden", !unlocked);
-  }
-  adminUnlockBtn.addEventListener("click", async () => {
-    const pw = adminPasswordInput.value;
-    if (!pw) { adminUnlockStatus.textContent = "יש להזין סיסמה."; return; }
-    adminUnlockBtn.disabled = true;
-    adminUnlockStatus.textContent = "בודק סיסמה…";
-    try {
-      await adminUnlock(pw);
-      adminPasswordInput.value = "";
-      adminUnlockStatus.textContent = "מצב מנהל פתוח עד סגירת הכרטיסייה ✓";
-      refreshAdminUnlockUi();
-    } catch (err) {
-      adminUnlockStatus.textContent = err.message;
-    } finally {
-      adminUnlockBtn.disabled = false;
-    }
-  });
-  adminPasswordInput.addEventListener("keydown", (e) => { if (e.key === "Enter") adminUnlockBtn.click(); });
-  // Every way of leaving the connections modal saves what was typed, so the
-  // fields (and the built-in defaults) survive refreshes and restarts.
   connectionsDoneBtn.addEventListener("click", () => { saveConnectionsToStorage(); connectionsModal.classList.add("hidden"); });
   connectionsCloseBtn.addEventListener("click", saveConnectionsToStorage);
   connectionsModal.addEventListener("click", (e) => { if (e.target === connectionsModal) saveConnectionsToStorage(); });
@@ -5389,26 +5223,10 @@ image clearly and unambiguously depicts it.`;
   }
 
   // ---- admin gate: server role OR password-checked session ----
-  // Two ways in: (1) the original path — a Google-signed user whose role on
-  // the backend is "admin"; (2) the fallback password, which lives ONLY as a
-  // Cloudflare Worker secret and is validated server-side by the proxy.
-  const ADMIN_SESSION_KEY = "mb_admin_session";
+  // Admin = a Google-signed user whose role on the backend (Google Sheets)
+  // is "admin". No passwords anywhere — access is decided by the server only.
   function isAdminUnlocked() {
-    if (currentUser && currentUser.role === "admin") return true;
-    try {
-      const s = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || "null");
-      return !!(s && s.token && s.exp > Date.now());
-    } catch (e) { return false; }
-  }
-  async function adminUnlock(password) {
-    const res = await fetch(API_PROXY_URL + "/api", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: "admin", password }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.ok) throw new Error(data.error || "סיסמה שגויה.");
-    sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ token: data.token, exp: Date.now() + data.ttlMs }));
+    return !!(currentUser && currentUser.role === "admin");
   }
   function openAdminScreen() {
     appShell.hidden = true;
