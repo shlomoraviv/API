@@ -541,6 +541,93 @@
   .composer-send-btn:disabled { opacity: .4; cursor: default; box-shadow: none; }
   .composer-foot-hint { text-align: center; font-size: 11px; color: var(--text-faint); margin-top: 8px; }
 
+  /* ---- attach button + pending file chips (files sent with the next message) ---- */
+  .attach-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: var(--text-faint);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; font-size: 17px;
+    transition: background .15s ease, color .15s ease, transform .15s ease;
+  }
+  .attach-btn:hover { background: var(--surface-2); color: var(--accent-hover); transform: rotate(-12deg) scale(1.06); }
+  .attach-btn:active { transform: scale(.94); }
+  .attach-btn:disabled { opacity: .4; cursor: default; transform: none; }
+  .composer-box.drag-over { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .composer-files-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .composer-file-chip {
+    display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); color: var(--accent-hover);
+    border-radius: var(--radius-pill); padding: 6px 8px 6px 12px; font-size: 12.5px; font-weight: 600; max-width: 260px;
+    animation: chip-pop .25s cubic-bezier(.22,1,.36,1) both;
+  }
+  .composer-file-chip .icon { flex: 0 0 auto; }
+  .composer-file-chip .chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .composer-file-chip .chip-size { font-weight: 500; color: var(--text-faint); flex: 0 0 auto; }
+  @keyframes chip-pop { from { opacity: 0; transform: translateY(6px) scale(.92); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .composer-file-chip { animation: none; } }
+
+  /* ---- rich replies: markdown-ish assistant text (list lines are one item each) ---- */
+  .assistant-rich { font-size: 14px; line-height: 1.7; margin: 0 0 4px; }
+  .assistant-rich .rich-line { display: flex; align-items: flex-start; gap: 7px; padding: 2px 0; }
+  .assistant-rich .rich-line .rich-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin-top: 9px; flex: 0 0 auto; opacity: .75; }
+  .assistant-rich .rich-line .rich-txt { flex: 1; min-width: 0; word-break: break-word; }
+
+  /* ---- build summary: "what was built" card, revealed line by line ---- */
+  .build-summary { margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .build-summary-head {
+    width: 100%; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: none; cursor: pointer;
+    background: var(--surface-2); color: var(--text); font-family: var(--sans); font-size: 12.5px; font-weight: 700; text-align: right;
+  }
+  .build-summary-head:hover { background: var(--accent-soft); }
+  .build-summary-head .icon { color: var(--accent-hover); }
+  .build-summary-chev { margin-inline-start: auto; transition: transform .2s ease; color: var(--text-faint); display: inline-flex; }
+  .build-summary.open .build-summary-chev { transform: rotate(180deg); }
+  .build-summary-body { display: none; padding: 10px 14px 12px; border-top: 1px solid var(--border); }
+  .build-summary.open .build-summary-body { display: block; animation: summary-in .3s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes summary-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .build-summary.open .build-summary-body { animation: none; } }
+
+  /* ---- richer build animation: shimmering active stage, sweeping rail, staggered log, confetti ---- */
+  .rail-node[data-state="active"] .rail-dot { overflow: hidden; position: relative; }
+  .rail-node[data-state="active"] .rail-dot::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(99,102,241,.55) 50%, transparent 70%);
+    animation: rail-shine 1.4s linear infinite;
+  }
+  @keyframes rail-shine { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+  .rail-node[data-state="done"] .rail-dot { animation: dot-pop .35s cubic-bezier(.22,1,.36,1); }
+  @keyframes dot-pop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+  .rail-node[data-state="active"] .rail-label { animation: label-breathe 1.4s ease-in-out infinite; }
+  @keyframes label-breathe { 0%, 100% { opacity: 1; } 55% { opacity: .55; } }
+  .rail-line[data-state="active"] { background: linear-gradient(90deg, var(--accent) 50%, var(--border-strong) 50%); background-size: 200% 100%; animation: line-sweep 1.2s linear infinite; }
+  @keyframes line-sweep { from { background-position: 0% 0; } to { background-position: -200% 0; } }
+  .log-row { animation: log-row-in .22s ease both; }
+  @keyframes log-row-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .log.live .log-dot { animation: log-dot-blink 1.1s ease-in-out infinite; }
+  @keyframes log-dot-blink { 0%, 100% { opacity: .6; } 50% { opacity: .15; } }
+  .turn-download { animation: apk-in .45s cubic-bezier(.34,1.56,.64,1) both; position: relative; overflow: hidden; }
+  @keyframes apk-in { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .turn-download { animation: none; } }
+  .turn-download::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.35) 50%, transparent 65%);
+    animation: download-shine 1.8s ease 1;
+  }
+  @keyframes download-shine { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+  .confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+  .confetti-piece { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px; opacity: .9; animation: confetti-fall var(--fall-dur, 2.6s) linear var(--fall-delay, 0s) forwards; }
+  @keyframes confetti-fall {
+    0% { transform: translate(0, -20px) rotate(0deg); opacity: .9; }
+    85% { opacity: .9; }
+    100% { transform: translate(var(--fall-drift, 0px), 105vh) rotate(var(--fall-spin, 540deg)); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .confetti-layer { display: none; } }
+
+  /* ---- typing indicator: three bouncing dots ---- */
+  .typing-dots { display: flex; gap: 5px; align-items: center; }
+  .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-faint); animation: typing-bounce 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2) { animation-delay: .15s; }
+  .typing-dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes typing-bounce { 0%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-5px); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .typing-dot { animation: none; } }
+
   .upload-drop {
     border: 1.5px dashed var(--border-strong); border-radius: var(--radius); padding: 22px; text-align: center;
     background: var(--surface); cursor: pointer; transition: border-color .15s ease, background .15s ease;
@@ -881,10 +968,12 @@
 
         <div class="composer-box">
           <textarea id="composerInput" rows="1" placeholder="תארו את האפליקציה שתרצו לבנות…"></textarea>
+          <button type="button" class="attach-btn" id="attachBtn" title="צירוף קבצים להודעה" hidden><i class="icon" data-icon="paperclip"></i></button>
           <button type="button" class="mic-btn" id="micBtn" title="הקלטה קולית" hidden><i class="icon" data-icon="mic"></i></button>
           <button type="button" class="composer-send-btn" id="composerSendBtn"><i class="icon" data-icon="send" style="font-size:16px;"></i></button>
         </div>
         <p class="composer-foot-hint" id="composerFootHint">מאסטר בוט יכול לטעות — בדקו את האפליקציה שנוצרה לפני שימוש בפועל.</p>
+        <input type="file" id="composerFileInput" multiple hidden>
       </div>
     </div>
   </main>
@@ -1100,6 +1189,10 @@
   const DEFAULT_GEMINI_KEYS_B64 = []; // removed — keys live in the proxy
   // All credentials live server-side (Cloudflare Worker proxy + the Apps
   // Script backend). No token or API key ever reaches the browser.
+
+  // The single action gate: guests may look around, but the moment they try
+  // to DO anything they are sent to the login screen instead.
+  function requireOwner(actionLabelHe) { return false; } // actions are always allowed now
 
   // currentUser: null when logged out, else { token, username, role, credits }.
   // credits is a number for regular/pro, or the string "unlimited" for superpro/admin.
@@ -1380,6 +1473,7 @@ rebuild, even if that means dropping part of the requested change.`;
     mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="1.5" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18.5" x2="12" y2="22.5"/><line x1="8" y1="22.5" x2="16" y2="22.5"/></svg>',
     "sparkles-wand": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 4-1 2-2 1 2 1 1 2 1-2 2-1-2-1Z"/><path d="M4 20 18 6"/><path d="m20 15-.7 1.3-1.3.7 1.3.7.7 1.3.7-1.3 1.3-.7-1.3-.7Z"/></svg>',
     smartphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
   };
   function iconHtml(name, extraClass) {
     return `<span class="icon${extraClass ? " " + extraClass : ""}">${ICONS[name] || ""}</span>`;
@@ -1425,6 +1519,10 @@ rebuild, even if that means dropping part of the requested change.`;
   const censorFilterInput = $("censorFilterInput"), censorFilterBtn = $("censorFilterBtn"), censorFilterClearBtn = $("censorFilterClearBtn"), censorFilterStatus = $("censorFilterStatus");
   const composerActionsRow = $("composerActionsRow"), chipTranslate = $("chipTranslate"), chipCensor = $("chipCensor"), thinkChipGroup = $("thinkChipGroup");
   const composerInput = $("composerInput"), composerSendBtn = $("composerSendBtn"), composerFootHint = $("composerFootHint"), micBtn = $("micBtn");
+  // File attachments on the next message + rich "what was built" summary support.
+  const attachBtn = $("attachBtn"), composerFileInput = $("composerFileInput");
+  const composerBox = composerInput.closest(".composer-box");
+  let pendingFiles = []; // File[] waiting to ride along with the next composer send
 
   const settingsModal = $("settingsModal"), settingsCloseBtn = $("settingsCloseBtn"), settingsCloseBtn2 = $("settingsCloseBtn2");
   const themeChoiceRow = $("themeChoiceRow"), maxQuestionsInput = $("maxQuestionsInput"), maxQuestionsValueLabel = $("maxQuestionsValueLabel");
@@ -2993,22 +3091,78 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   function appendUserTurn(text, iconName) {
+    return appendUserTurnWithFiles(text, iconName, null);
+  }
+
+  // Same as appendUserTurn, but with optional attached-file chips rendered above
+  // the text — used when files ride along with a chat message.
+  function appendUserTurnWithFiles(text, iconName, files) {
     const emptyPlaceholder = threadEl.querySelector(".thread-empty");
     if (emptyPlaceholder) emptyPlaceholder.remove();
     const turn = document.createElement("div");
     turn.className = "turn role-user";
     const bubble = document.createElement("div");
     bubble.className = "turn-bubble user-bubble";
-    if (iconName) {
+    if (iconName && files && files.length > 0) {
+      // The icon variant renders as a single flex row — switch to a column so
+      // the file chips can sit on their own line above the text.
       bubble.style.display = "flex";
-      bubble.style.alignItems = "center";
-      bubble.style.gap = "8px";
-      bubble.appendChild(iconEl(iconName));
+      bubble.style.flexDirection = "column";
+      bubble.style.alignItems = "stretch";
+      const iconRow = document.createElement("div");
+      iconRow.style.cssText = "display:flex; align-items:center; gap:8px;";
+      iconRow.appendChild(iconEl(iconName));
+      const label = document.createElement("span");
+      label.textContent = text;
+      iconRow.appendChild(label);
+      bubble.appendChild(iconRow);
+      const iconChipRow = document.createElement("div");
+      iconChipRow.style.cssText = "display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;";
+      files.forEach((file) => {
+        const chip = document.createElement("span");
+        chip.className = "upload-file-chip";
+        chip.appendChild(iconEl("paperclip"));
+        const name = document.createElement("span");
+        name.textContent = file.name;
+        chip.appendChild(name);
+        const size = document.createElement("span");
+        size.style.cssText = "font-weight:500; color:var(--text-faint);";
+        size.textContent = formatBytes(file.size);
+        chip.appendChild(size);
+        iconChipRow.appendChild(chip);
+      });
+      bubble.appendChild(iconChipRow);
+    } else if (files && files.length > 0) {
+      const chipRow = document.createElement("div");
+      chipRow.style.cssText = "display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;";
+      files.forEach((file) => {
+        const chip = document.createElement("span");
+        chip.className = "upload-file-chip";
+        chip.appendChild(iconEl("paperclip"));
+        const name = document.createElement("span");
+        name.textContent = file.name;
+        chip.appendChild(name);
+        const size = document.createElement("span");
+        size.style.cssText = "font-weight:500; color:var(--text-faint);";
+        size.textContent = formatBytes(file.size);
+        chip.appendChild(size);
+        chipRow.appendChild(chip);
+      });
+      bubble.appendChild(chipRow);
+      if (text) bubble.appendChild(document.createTextNode(text));
+    } else {
+      if (iconName) {
+        bubble.style.display = "flex";
+        bubble.style.alignItems = "center";
+        bubble.style.gap = "8px";
+        bubble.appendChild(iconEl(iconName));
+      }
+      bubble.appendChild(document.createTextNode(text));
     }
-    bubble.appendChild(document.createTextNode(text));
     turn.appendChild(bubble);
     threadEl.appendChild(turn);
     scrollThreadToEnd();
+    return turn;
   }
 
   // Creates one assistant card and returns a small handle used by the
@@ -3042,6 +3196,57 @@ rebuild, even if that means dropping part of the requested change.`;
 
     return {
       body,
+      setRichReply(lines) {
+        const wrap = document.createElement("div");
+        wrap.className = "assistant-rich";
+        (lines || []).forEach((line, idx) => {
+          const row = document.createElement("div");
+          row.className = "rich-line";
+          row.style.animation = `turn-in .35s cubic-bezier(.22,1,.36,1) ${Math.min(idx * 0.06, 0.6).toFixed(2)}s both`;
+          const dot = document.createElement("span");
+          dot.className = "rich-dot";
+          const txt = document.createElement("span");
+          txt.className = "rich-txt";
+          txt.textContent = line;
+          row.append(dot, txt);
+          wrap.appendChild(row);
+        });
+        body.appendChild(wrap);
+        scrollThreadToEnd();
+      },
+      showBuildSummary(lines) {
+        const existing = body.querySelector(".build-summary");
+        if (existing) existing.remove();
+        const box = document.createElement("div");
+        box.className = "build-summary open";
+        const head = document.createElement("button");
+        head.type = "button";
+        head.className = "build-summary-head";
+        head.appendChild(iconEl("sparkle"));
+        head.appendChild(document.createTextNode(" מה נבנה / מה שונה"));
+        const chev = document.createElement("span");
+        chev.className = "build-summary-chev";
+        chev.innerHTML = ICONS.chevron || "";
+        head.appendChild(chev);
+        const boxBody = document.createElement("div");
+        boxBody.className = "build-summary-body";
+        (lines || []).forEach((line, idx) => {
+          const row = document.createElement("div");
+          row.className = "rich-line";
+          row.style.animation = `turn-in .35s cubic-bezier(.22,1,.36,1) ${Math.min(idx * 0.08, 0.8).toFixed(2)}s both`;
+          const dot = document.createElement("span");
+          dot.className = "rich-dot";
+          const txt = document.createElement("span");
+          txt.className = "rich-txt";
+          txt.textContent = line;
+          row.append(dot, txt);
+          boxBody.appendChild(row);
+        });
+        head.addEventListener("click", () => box.classList.toggle("open"));
+        box.append(head, boxBody);
+        body.appendChild(box);
+        scrollThreadToEnd();
+      },
       setStatus(text, cls) {
         if (!statusEl) {
           statusEl = document.createElement("p");
@@ -3633,6 +3838,10 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
       turn.setStatus("מוכן — האפליקציה שלך מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
       recordTurn("assistant", "build", "נבנה בהצלחה: " + preview.label, true);
+      celebrateBuild();
+      generateBuildSummary(geminiKeys, workingIdea, [{ path: "AndroidManifest.xml", content: manifest }, { path: "MainActivity.kt", content: kotlin }])
+        .then((s) => { turn.showBuildSummary(s.bullets); })
+        .catch((e) => { console.error("build summary failed:", e); });
       attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
@@ -3643,6 +3852,60 @@ rebuild, even if that means dropping part of the requested change.`;
     } finally {
       setComposerBusy(false);
     }
+  }
+
+  // ---------- BUILD SUMMARY: a short "what was built / what changed" card ----------
+  // Rendered inside the same assistant turn as the finished APK, so the user can
+  // see at a glance what the app does / what changed without opening anything.
+  const BUILD_SUMMARY_INSTRUCTIONS = `You are summarizing a finished Android app build for the user, in
+simple warm Hebrew (mirrors the user's language if it is not Hebrew). Output ONLY a raw JSON object -
+no markdown fences, no commentary - with exactly two fields: "title" and "bullets".
+
+"title": a short phrase (2-4 words) naming what was just done, e.g. "האפליקציה נבנתה".
+"bullets": exactly 3-5 short sentences (each under 15 words), plain sentences, no markdown bullets,
+no asterisks - describing what the app does / what the last change did, from the user's point of view.`;
+
+  async function generateBuildSummary(geminiKeys, idea, patchedFiles) {
+    const patchedText = Array.isArray(patchedFiles) && patchedFiles.length > 0
+      ? patchedFiles.map((f) => `--- ${f.path} ---\n${boundFileForPrompt(f.content, GEMINI_FILE_CONTENT_MAX_CHARS)}`).join("\n\n")
+      : "";
+    const prompt =
+      `${BUILD_SUMMARY_INSTRUCTIONS}\n\nWhat the user originally asked for:\n${boundFileForPrompt(idea, GEMINI_IDEA_MAX_CHARS)}` +
+      (patchedText ? `\n\nThe code that was written/changed:\n${patchedText}` : "");
+    const dummyLog = document.createElement("div");
+    const data = await callGemini(geminiKeys, {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
+    }, dummyLog);
+    const { raw, finishReason } = extractGeminiText(data);
+    if (!raw) throw new Error(`Gemini returned no usable summary (finishReason: ${finishReason}).`);
+    const parsed = parseJsonLoose(raw);
+    if (!parsed || !Array.isArray(parsed.bullets) || parsed.bullets.length === 0) throw new Error("תקציר הבנייה לא היה תקין.");
+    const bullets = parsed.bullets.filter((b) => typeof b === "string" && b.trim()).slice(0, 5);
+    if (bullets.length === 0) throw new Error("תקציר הבנייה לא היה תקין.");
+    return { title: typeof parsed.title === "string" && parsed.title.trim() ? parsed.title.trim() : "מה נבנה / מה שונה", bullets };
+  }
+
+  // Small celebratory confetti burst after a successful build — pure CSS pieces,
+  // self-removing, respects prefers-reduced-motion via the CSS rule.
+  function celebrateBuild() {
+    const layer = document.createElement("div");
+    layer.className = "confetti-layer";
+    const colors = ["#6366F1", "#8B5CF6", "#38BDF8", "#4ADE80", "#FBBF24", "#F472B6"];
+    for (let i = 0; i < 90; i++) {
+      const piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      piece.style.cssText =
+        `left:${Math.random() * 100}%;` +
+        `background:${colors[i % colors.length]};` +
+        `--fall-dur:${(2 + Math.random() * 1.6).toFixed(2)}s;` +
+        `--fall-delay:${(Math.random() * 0.5).toFixed(2)}s;` +
+        `--fall-drift:${((Math.random() - 0.5) * 160).toFixed(0)}px;` +
+        `--fall-spin:${Math.round(360 + Math.random() * 720)}deg;`;
+      layer.appendChild(piece);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 4500);
   }
 
   // ---------- BUILD FROM SOURCE: user's own Kotlin, Gemini only fills manifest+icon ----------
@@ -3734,6 +3997,10 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
       turn.setStatus("מוכן — האפליקציה מהקוד שהעלית מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
       recordTurn("assistant", "build", "נבנה בהצלחה מקוד מקור: " + preview.label, true);
+      celebrateBuild();
+      generateBuildSummary(geminiKeys, sourceIdea, [{ path: "AndroidManifest.xml", content: manifest }, { path: "MainActivity.kt", content: kotlin }])
+        .then((s) => { turn.showBuildSummary(s.bullets); })
+        .catch((e) => { console.error("build summary failed:", e); });
       attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
@@ -3842,6 +4109,10 @@ rebuild, even if that means dropping part of the requested change.`;
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
       turn.setStatus("מוכן — ה-APK הערוך מחכה להורדה. אפשר להמשיך לבקש עוד שינויים.", "success-text");
       recordTurn("assistant", "edit", "נערך בהצלחה", true);
+      celebrateBuild();
+      generateBuildSummary(geminiKeys, instruction, patchedFiles)
+        .then((s) => { turn.showBuildSummary(s.bullets); })
+        .catch((e) => { console.error("edit summary failed:", e); });
       attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
       onLiveApkReady();
     } catch (err) {
@@ -4043,6 +4314,55 @@ rebuild, even if that means dropping part of the requested change.`;
   }
 
   // ==========================================================================
+  // FILE EXPLORATION — lets the user attach arbitrary files (code, text, JSON,
+  // or an APK to inspect) to their next message. Non-APK files are stored as
+  // Gemini inline_data parts so the model can read and reason about them; an
+  // APK is binary and far too large for that, so only its name/size is noted
+  // in the prompt and the full file keeps riding on pendingFirstUploadFile —
+  // the existing first-upload flow then treats it exactly like any other
+  // uploaded APK (loadable for decompile/edit/censor, or usable for analysis).
+  // ==========================================================================
+
+  const FILE_EXPLORE_MAX_CHARS = 2000000; // ~2MB of base64 text per file part is plenty for inline_data
+
+  // Prompt fragment appended to the chat classifiers when files are attached:
+  // tells Gemini to actually study them (inspect an APK, walk through code,
+  // explain how everything works) rather than answer generically.
+  const FILE_EXPLORE_INSTRUCTIONS = `The user attached files to this message. Study them carefully and
+base your entire answer on what is actually inside them. If an Android APK file is attached, walk the
+user through it: what its manifest declares (package, activities, permissions), what its code and
+resources reveal about how the app works, its structure, and anything notable or suspicious - and
+offer to decompile it fully in this conversation for deeper edits or inspection. If the attachments
+are source code or text, explain how they work, review their structure, and suggest concrete
+improvements. Answer in the same language the user wrote in, and keep the answer readable.`;
+
+  function describeFileForPrompt(file) {
+    return `${file.name} (${file.type || "unknown type"}, ${formatBytes(file.size)})`;
+  }
+
+  // Reads the attached files into Gemini-ready inline_data parts. Files that are
+  // not readable as text at all (binary, huge) still get a name+size note so the
+  // model knows they exist and can ask the user about them.
+  async function buildFilePartsForPrompt(files) {
+    const parts = [];
+    const readable = files.filter((f) => !f.name.toLowerCase().endsWith(".apk"));
+    const apkFiles = files.filter((f) => f.name.toLowerCase().endsWith(".apk"));
+    for (const file of readable) {
+      let inlined = false;
+      try {
+        const base64 = await blobToBase64(file);
+        if (base64.length <= FILE_EXPLORE_MAX_CHARS) {
+          parts.push({ inline_data: { mime_type: file.type || "text/plain", data: base64 } });
+          inlined = true;
+        }
+      } catch (err) { console.error("blobToBase64 failed for", file.name, err); }
+      if (!inlined) parts.push({ text: `[Attached file that could not be inlined: ${describeFileForPrompt(file)}]` });
+    }
+    apkFiles.forEach((f) => parts.push({ text: `[An Android APK file is attached: ${describeFileForPrompt(f)}]` }));
+    return parts;
+  }
+
+  // ==========================================================================
   // GENERIC CHAT — the entry point when "שיחה חדשה" is opened with no fixed
   // type (or a specific tool wasn't picked from the sidebar). A lightweight,
   // free Gemini call reads the message and decides: is this an actual request
@@ -4056,19 +4376,43 @@ mode has been picked yet. Output ONLY a raw JSON object - no markdown fences, no
 exactly two fields: "intent" and "reply".
 
 "intent": the string "build" if the message is a genuine request to build/create a NEW Android app -
-even a short, casual one like "build me a timer app" - otherwise the string "chat".
+even a short, casual one like "build me a timer app" - otherwise the string "chat". A message that
+merely attaches files to ask about them, inspect them, or discuss them is "chat" - only a real request
+to generate a new app is "build".
 
 "reply": your own short, warm, natural reply in the same language and register the user wrote in, as
 a friendly assistant actually chatting (not a form, not a script). If intent is "chat": really answer
 what they said - greetings get a greeting back, questions get a real answer, small talk gets small
 talk - and if relevant, mention in passing that you can build a new app from a short description, or
 edit/translate/censor images in an existing APK once they upload one. If intent is "build": one brief
-warm line acknowledging you're starting the build now (shown right before the build begins).`;
+warm line acknowledging you're starting the build now (shown right before the build begins).
 
-  async function classifyIntent(geminiKeys, text) {
+When the user attached files to this message, study them and answer from what is actually inside
+them. An attached Android APK: describe what it is, its manifest (package, activities, permissions),
+its structure, how the app seems to work, and anything notable - then offer to decompile it fully in
+this conversation for deeper inspection or edits. Attached code/text: explain how it works, review
+its structure, and suggest concrete improvements. Format the reply as plain short sentences on
+separate lines (no markdown bullets or asterisks).`;
+
+  // Splits a plain-text assistant reply into visual lines for setRichReply():
+  // on explicit newlines, and on sentence ends inside over-long lines (so a
+  // single dense paragraph still renders as calm, readable bullet-ish rows).
+  function sentencesToLines(text) {
+    const out = [];
+    (text || "").split(/\r?\n/).forEach((rawLine) => {
+      const line = rawLine.replace(/^[\-•*]\s+/, "").trim();
+      if (!line) return;
+      const parts = line.length <= 140 ? [line] : line.split(/(?<=[.!?:״”"])\s+/);
+      parts.forEach((p) => { const t = p.trim(); if (t) out.push(t); });
+    });
+    return out;
+  }
+
+  async function classifyIntent(geminiKeys, text, files) {
+    const fileNote = files && files.length ? `\n\nAttached files: ${files.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
     const dummyLog = document.createElement("div"); // detached on purpose - callGemini's retry logging has nowhere user-visible to go for this quick call
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}\n\nUser message:\n${text}` }] }],
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }, dummyLog);
     const { raw, finishReason } = extractGeminiText(data);
@@ -4083,17 +4427,17 @@ warm line acknowledging you're starting the build now (shown right before the bu
     turn.className = "turn role-assistant";
     turn.innerHTML =
       '<div class="turn-bubble"><div class="assistant-card" style="padding:14px 16px;">' +
-      '<div style="display:flex; gap:4px;">' +
-      '<span style="width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:pulse-ring 1s infinite;"></span>' +
-      '<span style="width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:pulse-ring 1s .15s infinite;"></span>' +
-      '<span style="width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:pulse-ring 1s .3s infinite;"></span>' +
+      '<div class="typing-dots">' +
+      '<span class="typing-dot"></span>' +
+      '<span class="typing-dot"></span>' +
+      '<span class="typing-dot"></span>' +
       "</div></div></div>";
     threadEl.appendChild(turn);
     scrollThreadToEnd();
     return turn;
   }
 
-  async function runChatOrBuild(text) {
+  async function runChatOrBuild(text, files) {
     const { geminiKeys } = readConnections();
     const isRegular = !currentUser || currentUser.role === "regular";
     if (isRegular && geminiKeys.length === 0) {
@@ -4101,21 +4445,24 @@ warm line acknowledging you're starting the build now (shown right before the bu
       turn.setStatus('צריך לפחות Gemini API key אחד כדי להתחיל (מהתפריט "חיבורים").', "error-text");
       return;
     }
-    recordTurn("user", "chat", text);
+    recordTurn("user", "chat", text + (files && files.length ? ` (+${files.length} קבצים)` : ""));
     const thinking = appendTypingIndicator();
     try {
-      const routed = await classifyIntent(geminiKeys, text);
+      const routed = await classifyIntent(geminiKeys, text, files);
       thinking.remove();
       if (routed.intent === "build") {
         activeConversationType = "build";
         updateComposerForState();
         const image = pendingDesignImage;
         pendingDesignImage = null;
-        await runBuildTurn(text, image);
+        await runBuildTurn(files && files.length ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text, image);
       } else {
         const turn = appendAssistantTurn("עוזר");
-        turn.setStatus(routed.reply, null);
-        recordTurn("assistant", "chat", routed.reply);
+        if (files && files.length) {
+          log(`בוחן את ${files.length} הקבצים שצירפת…`, null, turn.createLog());
+        }
+        turn.setRichReply(sentencesToLines(routed.reply || ""));
+        recordTurn("assistant", "chat", routed.reply || "");
       }
     } catch (err) {
       thinking.remove();
@@ -4137,12 +4484,20 @@ string "chat" for questions, comments, greetings, or anything not asking for an 
 "reply": ONLY meaningful when intent is "chat" - your own short, warm, natural reply in the same
 language and register the user used, genuinely answering what they asked or said. When intent is
 "edit", set this to an empty string - the app starts making the change immediately and doesn't need
-a separate acknowledgement line first.`;
+a separate acknowledgement line first.
 
-  async function classifyEditIntent(geminiKeys, text) {
+When the user attached files to this message, base your answer on what is actually inside them. An
+attached Android APK: walk through its manifest (package, activities, permissions), its structure,
+how the app seems to work, and anything notable - then offer to decompile it fully in this
+conversation for deeper inspection or edits. Attached code/text: explain how it works, review its
+structure, and suggest concrete improvements. Format the reply as plain short sentences on separate
+lines (no markdown bullets or asterisks).`;
+
+  async function classifyEditIntent(geminiKeys, text, files) {
+    const fileNote = files && files.length ? `\n\nAttached files: ${files.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
     const dummyLog = document.createElement("div");
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}\n\nUser message:\n${text}` }] }],
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }, dummyLog);
     const { raw, finishReason } = extractGeminiText(data);
@@ -4156,7 +4511,7 @@ a separate acknowledgement line first.`;
   // decompile/patch/rebuild - even "why did you pick that color?". This
   // classifies first so a question gets an actual answer instead of an
   // unnecessary rebuild, while a real change request still starts immediately.
-  async function runEditOrChat(text) {
+  async function runEditOrChat(text, files) {
     const { geminiKeys } = readConnections();
     const isRegular = !currentUser || currentUser.role === "regular";
     if (isRegular && geminiKeys.length === 0) {
@@ -4164,24 +4519,30 @@ a separate acknowledgement line first.`;
       turn.setStatus('צריך לפחות Gemini API key אחד (מהתפריט "חיבורים").', "error-text");
       return;
     }
+    // Files attached in a live-app conversation are context for the message —
+    // hand them to the classifier alongside the text (e.g. an inspiration image
+    // or a JSON the app should use).
     const thinking = appendTypingIndicator();
     try {
-      const routed = await classifyEditIntent(geminiKeys, text);
+      const routed = await classifyEditIntent(geminiKeys, text, files);
       thinking.remove();
       if (routed.intent === "chat") {
-        recordTurn("user", "chat", text);
+        recordTurn("user", "chat", text + (files && files.length ? ` (+${files.length} קבצים)` : ""));
         const turn = appendAssistantTurn("עוזר");
-        turn.setStatus(routed.reply, null);
-        recordTurn("assistant", "chat", routed.reply);
+        if (files && files.length) {
+          log(`בוחן את ${files.length} הקבצים שצירפת…`, null, turn.createLog());
+        }
+        turn.setRichReply(sentencesToLines(routed.reply || ""));
+        recordTurn("assistant", "chat", routed.reply || "");
       } else {
-        await runEditTurn(text);
+        await runEditTurn(files ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text);
       }
     } catch (err) {
       thinking.remove();
       console.error("classifyEditIntent failed, treating as an edit request:", err);
       // Fails safe toward the more common case in an ongoing build conversation
       // rather than silently dropping the message.
-      await runEditTurn(text);
+      await runEditTurn(files ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text);
     }
   }
 
@@ -4437,6 +4798,8 @@ image clearly and unambiguously depicts it.`;
   function setComposerBusy(busy) {
     composerSendBtn.disabled = busy;
     composerInput.disabled = busy;
+    attachBtn.disabled = busy;
+    if (busy) renderPendingFiles(); // any not-yet-sent files were already captured by the running turn
     translateSendBtn.disabled = busy;
     censorSendBtn.disabled = busy || pendingChanges.size === 0;
     // A pipeline turn owns the composer while it runs: close any open sub-panel
@@ -4457,6 +4820,66 @@ image clearly and unambiguously depicts it.`;
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleComposerSend(); }
   });
   composerSendBtn.addEventListener("click", handleComposerSend);
+
+  // ---- attaching files to the next message (chat-level) ----
+  attachBtn.hidden = false; // always available — files can ride along with any message
+  attachBtn.addEventListener("click", () => composerFileInput.click());
+  composerFileInput.addEventListener("change", () => {
+    if (composerFileInput.files && composerFileInput.files.length) addPendingFiles(Array.from(composerFileInput.files));
+    composerFileInput.value = "";
+  });
+  composerBox.addEventListener("dragover", (e) => { e.preventDefault(); composerBox.classList.add("drag-over"); });
+  composerBox.addEventListener("dragleave", () => composerBox.classList.remove("drag-over"));
+  composerBox.addEventListener("drop", (e) => {
+    e.preventDefault();
+    composerBox.classList.remove("drag-over");
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) addPendingFiles(Array.from(e.dataTransfer.files));
+  });
+
+  function addPendingFiles(files) {
+    if (requireOwner("צירוף הקבצים")) return;
+    const accepted = files.filter((f) => f && f.size >= 0);
+    if (accepted.length === 0) return;
+    pendingFiles = pendingFiles.concat(accepted);
+    renderPendingFiles();
+    composerInput.focus();
+  }
+
+  function renderPendingFiles() {
+    let row = document.getElementById("composerFilesRow");
+    if (pendingFiles.length === 0) {
+      if (row) row.remove();
+      return;
+    }
+    if (!row) {
+      row = document.createElement("div");
+      row.id = "composerFilesRow";
+      row.className = "composer-files-row";
+      composerBox.parentNode.insertBefore(row, composerBox);
+    }
+    row.innerHTML = "";
+    pendingFiles.forEach((file, idx) => {
+      const chip = document.createElement("span");
+      chip.className = "composer-file-chip";
+      chip.appendChild(iconEl("paperclip"));
+      const name = document.createElement("span");
+      name.className = "chip-name";
+      name.textContent = file.name;
+      const size = document.createElement("span");
+      size.className = "chip-size";
+      size.textContent = formatBytes(file.size);
+      chip.append(name, size);
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "icon-btn";
+      del.title = "הסרת הקובץ";
+      del.style.cssText = "width:22px; height:22px;";
+      del.appendChild(iconEl("close"));
+      del.addEventListener("click", () => { pendingFiles.splice(idx, 1); renderPendingFiles(); });
+      chip.appendChild(del);
+      row.appendChild(chip);
+    });
+  }
 
   // ---- speech-to-text (microphone) ----
   const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -4494,22 +4917,28 @@ image clearly and unambiguously depicts it.`;
 
   async function handleComposerSend() {
     const text = composerInput.value.trim();
-    if (!text || composerSendBtn.disabled) return;
+    const files = pendingFiles;
+    if ((!text && files.length === 0) || composerSendBtn.disabled) return;
     // Browse-only gate: a guest who tries to send anything goes to login and
     // keeps the typed text intact for after they sign in.
     if (requireOwner("השליחה")) return;
     composerInput.value = "";
     autosizeComposer();
     pendingFirstUploadFile = null;
-    appendUserTurn(text);
+    // The running turn now owns the files — clear the composer chip row and
+    // pass the captured list through so the chips render inside the sent
+    // message and the files reach the model.
+    pendingFiles = [];
+    renderPendingFiles();
+    appendUserTurnWithFiles(text, null, files);
     if (!activeConversationType && !currentApk) {
-      await runChatOrBuild(text);
+      await runChatOrBuild(text, files);
     } else if (activeConversationType === "build" && !currentApk) {
       const image = pendingDesignImage;
       pendingDesignImage = null;
-      await runBuildTurn(text, image);
+      await runBuildTurn(files && files.length ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text, image);
     } else if (currentApk) {
-      await runEditOrChat(text);
+      await runEditOrChat(text, files);
     } else {
       const turn = appendAssistantTurn("עוזר");
       turn.setStatus("קודם צריך להעלות קובץ APK כדי להמשיך.", "error-text");
