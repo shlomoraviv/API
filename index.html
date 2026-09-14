@@ -1393,6 +1393,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const $ = (id) => document.getElementById(id);
 
   const authScreen = $("authScreen"), authErrorEl = $("authError"), authRedirectHint = $("authRedirectHint");
+  const googleSignInButtonEl = $("googleSignInButton");
   const sideGuestHint = $("sideGuestHint");
   const appShell = $("appShell");
 
@@ -5086,9 +5087,12 @@ image clearly and unambiguously depicts it.`;
       const info = await backendCall("getPublicInfo", {});
       if (info.ok) {
         publicInfo = info;
-        creditCostsHint.textContent =
-          `עלויות קרדיטים: בנייה ${info.creditCosts.build} · עריכה ${info.creditCosts.edit} · ` +
-          `תרגום ${info.creditCosts.translate} · צנזור ${info.creditCosts.censor}`;
+        const cc = info.creditCosts || {};
+        if (cc.build != null) {
+          creditCostsHint.textContent =
+            `עלויות קרדיטים: בנייה ${cc.build} · עריכה ${cc.edit} · ` +
+            `תרגום ${cc.translate} · צנזור ${cc.censor}`;
+        }
         applySiteText(info.siteText || {});
         if (currentUser) applyRoleUI();
       }
