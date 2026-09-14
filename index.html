@@ -1148,6 +1148,7 @@
 
   // Update this if Google renames/deprecates the model — check ai.google.dev/api/models.
   const GEMINI_MODEL = "gemini-3.5-flash";
+  const GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"; // שימושי כשהמודל הראשי עמוס (שגיאת 503/overload) — בקשה זהה על מודל יציב יותר
   const WORKFLOW_FILE = "build-apk.yml";
   const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
@@ -1987,7 +1988,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // Secure path: relay Gemini calls through our own Cloudflare Worker, which
   // injects the real keys server-side. Nothing but the user's prompt leaves
   // the browser — no API key is ever exposed to the client.
-  async function callGeminiViaProxy(body, logTarget) {
+  async function callGeminiViaProxy(body, logTarget, model = GEMINI_MODEL) {
     let lastErr = null;
     for (let attempt = 1; attempt <= PROXY_GEMINI_RETRIES; attempt++) {
       let res;
@@ -1995,7 +1996,7 @@ rebuild, even if that means dropping part of the requested change.`;
         res = await fetch(API_PROXY_URL + "/api", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kind: "gemini", path: `/v1beta/models/${GEMINI_MODEL}:generateContent`, body, offset: nextKeyOffset }),
+          body: JSON.stringify({ kind: "gemini", path: `/v1beta/models/${model}:generateContent`, body, offset: nextKeyOffset }),
         });
         nextKeyOffset = (nextKeyOffset + 1) % 10; // proxy has up to 10 keys
       } catch (networkErr) {
@@ -2013,6 +2014,7 @@ rebuild, even if that means dropping part of the requested change.`;
         const text = await res.text().catch(() => "");
         lastErr = new Error(`Gemini (פרוקסי) ${res.status} — ${text.slice(0, 200)}`);
         if (res.status === 429 || res.status >= 500) {
+          log(`Gemini עמוס כרגע (${res.status}) — מנסה שוב (${attempt}/${PROXY_GEMINI_RETRIES})…`, null, logTarget);
           await sleep(GEMINI_KEY_BACKOFF_DEFAULT_MS * attempt);
           continue;
         }
@@ -2021,10 +2023,23 @@ rebuild, even if that means dropping part of the requested change.`;
     }
     throw lastErr || new Error("Gemini דרך הפרוקסי נכשל.");
   }
+  // When the primary model is overloaded (503 / "high demand"), the SAME request
+  // usually succeeds on the stable fallback model a few seconds later.
+  async function callGeminiViaProxyWithFallback(body, logTarget) {
+    try {
+      return await callGeminiViaProxy(body, logTarget, GEMINI_MODEL);
+    } catch (err) {
+      if (err && /503|high demand|overload|עמוס/i.test(err.message || "")) {
+        log("המודל הראשי עמוס — מנסה על מודל חלופי (gemini-2.5-flash)…", null, logTarget);
+        return await callGeminiViaProxy(body, logTarget, GEMINI_FALLBACK_MODEL);
+      }
+      throw err;
+    }
+  }
   async function callGeminiWithKeys(geminiKeys, startOffset, body, logTarget) {
     // Proxy-only: the Gemini keys exist only server-side. Any direct-key code
     // path has been removed; callers may still pass arrays, they are ignored.
-    return callGeminiViaProxy(body, logTarget);
+    return callGeminiViaProxyWithFallback(body, logTarget);
     const geminiBase = "https://generativelanguage.googleapis.com";
 
     let lastErr;
@@ -2116,7 +2131,7 @@ rebuild, even if that means dropping part of the requested change.`;
     }
     if (!geminiKeys || geminiKeys.length === 0) {
       // No user keys → secure proxy path (keys live server-side only).
-      return callGeminiViaProxy(body, logTarget);
+      return callGeminiViaProxyWithFallback(body, logTarget);
     }
     const startOffset = nextKeyOffset % geminiKeys.length;
     nextKeyOffset = (nextKeyOffset + 1) % geminiKeys.length;
@@ -2139,7 +2154,7 @@ rebuild, even if that means dropping part of the requested change.`;
     }
     if (!geminiKeys || geminiKeys.length === 0) {
       // No user keys → secure proxy path (keys live server-side only).
-      return callGeminiViaProxy(body, logTarget);
+      return callGeminiViaProxyWithFallback(body, logTarget);
     }
     return callGeminiWithKeys(geminiKeys, startOffset % geminiKeys.length, body, logTarget);
   }
