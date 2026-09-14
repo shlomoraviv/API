@@ -1334,7 +1334,7 @@ rebuild, even if that means dropping part of the requested change.`;
   const GOOGLE_CLIENT_ID = "733141570620-4elai2igmu1a22ftiqm7pfltvm7vhuhg.apps.googleusercontent.com";
   // The origin whitelisted in that Google client's Authorized JavaScript origins.
   const OFFICIAL_ORIGIN = "https://shlomoraviv.github.io";
-  const OFFICIAL_PATH = "/API/";
+  const OFFICIAL_PATH = "/";
   const ROLE_LABELS = { regular: "רגיל", pro: "פרו", superpro: "סופר-פרו", admin: "מנהל" };
   const MODE_LABELS_HE = { build: "בנייה", edit: "עריכה", translate: "תרגום", censor: "צנזור", chat: "שיחה" };
 
@@ -5018,12 +5018,12 @@ image clearly and unambiguously depicts it.`;
       const h = location.hostname;
       if (h === "shlomoraviv.github.io" || h === "localhost" || h === "127.0.0.1") return;
       // Google accepts sign-in only from origins whitelisted in the OAuth
-      // client. Until the official origin is (re)published, show a direct
-      // link instead of force-redirecting into a dead page.
-      if (authRedirectHint) {
-        authRedirectHint.innerHTML = 'הכניסה עם גוגל פועלת בכתובת הרשמית של האתר: <a href="' + OFFICIAL_ORIGIN + OFFICIAL_PATH + '" style="color:var(--accent);text-decoration:underline;font-weight:600;">לחצו כאן לפתיחה</a>';
-        authRedirectHint.hidden = false;
-      }
+      // client — that origin is the official address of the site, so every
+      // visitor is sent there for sign-in (it is live and served).
+      if (sessionStorage.getItem("mb_official_redirect") === "1") return; // one attempt only — no loops
+      sessionStorage.setItem("mb_official_redirect", "1");
+      if (authRedirectHint) { authRedirectHint.textContent = "מעביר לכתובת הרשמית של האתר…"; authRedirectHint.hidden = false; }
+      setTimeout(() => { try { location.replace(OFFICIAL_ORIGIN + OFFICIAL_PATH); } catch (e) {} }, 900);
     } catch (e) {}
   }
   async function handleGoogleCredential(response) {
