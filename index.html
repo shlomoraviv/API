@@ -236,9 +236,10 @@
   .app-shell {
     height: 100vh; display: grid;
     /* Physical order on desktop: history (left) | chat (middle) | emulator (right).
-       The chat column stops growing at its natural 720px thread width and the
-       emulator column absorbs ALL the remaining free space on the right. */
-    grid-template-columns: var(--side-w) minmax(0, 720px) minmax(230px, 1fr);
+       The chat column is flexible and takes ALL the free space; the emulator
+       column is only as wide as its phone (auto) — so closing it (display:none)
+       lets the chat expand into the full remaining width, with no dead space. */
+    grid-template-columns: var(--side-w) minmax(0, 1fr) auto;
     direction: ltr;
   }
 
@@ -341,6 +342,8 @@
   /* ---- persistent emulator column (right on desktop) ---- */
   .emulator-panel {
     grid-column: 3; grid-row: 1; min-width: 0; height: 100vh; overflow: hidden;
+    /* Phone-sized: the column hugs the phone instead of eating half the screen. */
+    width: 384px;
     display: flex; flex-direction: column; background: var(--surface);
     /* Dividing line toward the chat column: under the page's RTL direction the
        panel's inline-END edge is its LEFT side (the old inline-start value drew
@@ -366,12 +369,14 @@
   .emulator-empty strong { color: var(--text-muted); font-size: 13.5px; }
   .emulator-empty .icon { color: var(--accent); }
   .emulator-panel .emulator-wrap { width: 100%; margin-top: 0; }
-  /* Inside the side panel the phone fills the available height and the panel
-     width (kept phone-shaped) instead of a small fixed width. */
+  /* Inside the side panel the phone keeps true phone proportions. */
   .emulator-panel .emulator-frame iframe,
-  .emulator-panel .emulator-cover { width: min(100%, 400px); height: min(78vh, 780px); }
+  .emulator-panel .emulator-cover { width: min(100%, 336px); height: min(70vh, 700px); }
   .emulator-panel.closed { display: none; }
-  .emulator-toggle-btn { display: none; }
+  /* With the emulator closed the chat expands into the freed space: the grid
+     collapses back to two columns (history + chat), so there is no dead area. */
+  .app-shell.emu-closed { grid-template-columns: var(--side-w) minmax(0, 1fr) 0 !important; }
+  .emulator-toggle-btn { display: inline-flex; }
   .main-topbar {
     flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
     padding: 14px 22px; min-height: 30px;
@@ -673,11 +678,14 @@
      emulator a capped column, so the three columns always fit without
      overflow (the >1330px rule below would overflow under ~1240px). */
   @media (max-width: 1330px) {
-    .app-shell { grid-template-columns: var(--side-w) minmax(0, 1fr) minmax(220px, 330px); }
+    .app-shell { grid-template-columns: var(--side-w) minmax(0, 1fr) auto; }
   }
   @media (max-width: 1100px) {
-    .app-shell { grid-template-columns: minmax(230px, var(--side-w)) minmax(0, 1fr) minmax(200px, 300px); }
+    .app-shell { grid-template-columns: minmax(230px, var(--side-w)) minmax(0, 1fr) auto; }
     .thread { padding-inline: 16px; }
+    .emulator-panel { width: min(352px, 80vw); }
+    .emulator-panel .emulator-frame iframe,
+    .emulator-panel .emulator-cover { width: min(100%, 304px); height: min(66vh, 640px); }
   }
   @media (max-width: 860px) {
     .app-shell { display: flex; direction: rtl; }
@@ -3440,10 +3448,12 @@ rebuild, even if that means dropping part of the requested change.`;
   function openEmulatorPanel() {
     emulatorPanel.classList.remove("closed");
     emulatorPanel.classList.add("open");
+    appShell.classList.remove("emu-closed");
   }
   function closeEmulatorPanel() {
     emulatorPanel.classList.remove("open");
     emulatorPanel.classList.add("closed");
+    appShell.classList.add("emu-closed");
   }
   function scrollEmulatorPanelToEnd() {
     emulatorPanelBody.scrollTop = emulatorPanelBody.scrollHeight;
