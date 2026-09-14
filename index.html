@@ -5017,8 +5017,13 @@ image clearly and unambiguously depicts it.`;
       if (location.protocol !== "https:") return;
       const h = location.hostname;
       if (h === "shlomoraviv.github.io" || h === "localhost" || h === "127.0.0.1") return;
-      if (authRedirectHint) { authRedirectHint.textContent = "מעביר לכתובת הרשמית של האתר…"; authRedirectHint.hidden = false; }
-      setTimeout(() => { try { location.replace(OFFICIAL_ORIGIN + OFFICIAL_PATH); } catch (e) {} }, 900);
+      // Google accepts sign-in only from origins whitelisted in the OAuth
+      // client. Until the official origin is (re)published, show a direct
+      // link instead of force-redirecting into a dead page.
+      if (authRedirectHint) {
+        authRedirectHint.innerHTML = 'הכניסה עם גוגל פועלת בכתובת הרשמית של האתר: <a href="' + OFFICIAL_ORIGIN + OFFICIAL_PATH + '" style="color:var(--accent);text-decoration:underline;font-weight:600;">לחצו כאן לפתיחה</a>';
+        authRedirectHint.hidden = false;
+      }
     } catch (e) {}
   }
   async function handleGoogleCredential(response) {
