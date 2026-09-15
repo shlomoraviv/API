@@ -1708,7 +1708,9 @@ rebuild, even if that means dropping part of the requested change.`;
   // Google's front door occasionally accepts the connection and then never
   // answers; without a deadline the request would hang forever — no error,
   // no retry, a frozen app. The deadline turns a stall into a normal retry.
-  const BACKEND_FETCH_TIMEOUT_MS = 20000;
+  // 30s: cold-start hops were measured at up to ~25s, so 20s aborted calls
+  // that were about to succeed.
+  const BACKEND_FETCH_TIMEOUT_MS = 30000;
   // Read-only / idempotent actions only — a lost response and a blind retry can
   // never double an effect here. Actions like spendCredits, appendMessage, and
   // createConversation are deliberately excluded: if the first attempt actually
@@ -1766,7 +1768,13 @@ rebuild, even if that means dropping part of the requested change.`;
       try {
         res = await backendFetch(JSON.stringify(payload));
       } catch (networkErr) {
-        lastErr = new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
+        // Our own timeout abort lands here as a raw "signal is aborted without
+        // reason" — meaningless to users. Name it for what it is: Google didn't
+        // answer in time, and we're going to try again.
+        const timedOut = networkErr && (networkErr.name === "AbortError" || /abort/i.test(networkErr.message || ""));
+        lastErr = timedOut
+          ? new Error("שרת העזר של גוגל לא השיב בזמן (תם הזמן שהוקצב לבקשה) — מנסה שוב…")
+          : new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
         if (attempt < attempts) {
           console.warn(`backendCall(${action}) network error, retrying (${attempt}/${attempts})…`, networkErr);
           await sleep(BACKEND_RETRY_DELAY_MS * attempt);
