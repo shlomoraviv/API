@@ -1234,8 +1234,12 @@
   // parallel workers tripping a shared per-minute rate limit together, not a
   // real, permanent failure - wait and retry that one batch instead of failing
   // the whole translation outright.
-  const TRANSLATE_BATCH_MAX_RETRIES = 5;
+  const TRANSLATE_BATCH_MAX_RETRIES = 3;
   const TRANSLATE_BATCH_RETRY_DELAY_MS = 10000;
+  // Wall-clock budget per string batch. Without it, a platform-wide Gemini
+  // overload kept every worker cycling (batch retries × a full primary+fallback
+  // proxy ladder each) for over an hour while the progress bar sat frozen.
+  const TRANSLATE_BATCH_DEADLINE_MS = 6 * 60 * 1000;
   // Stagger parallel workers' very first request slightly so they don't all
   // land on the API in the exact same instant.
   const TRANSLATE_WORKER_STAGGER_MS = 300;
@@ -2047,7 +2051,12 @@ rebuild, even if that means dropping part of the requested change.`;
         }
       } else {
         const text = await res.text().catch(() => "");
-        lastErr = new Error(`Gemini (פרוקסי) ${res.status} — ${text.slice(0, 200)}`);
+        console.warn(`Gemini proxy ${res.status} body:`, text.slice(0, 300));
+        // Google's 503 body is a raw JSON blob ("high demand"). Log the body
+        // for debugging, but the user-facing error stays a clean Hebrew line.
+        lastErr = res.status === 503 || /high demand|overloaded/i.test(text)
+          ? new Error("גמיני עמוס כרגע (503 — עומס זמני בשרתי גוגל)")
+          : new Error(`Gemini (פרוקסי) ${res.status} — ${text.slice(0, 200)}`);
         if (res.status === 429 || res.status >= 500) {
           log(`Gemini עמוס כרגע (${res.status}) — מנסה שוב (${attempt}/${PROXY_GEMINI_RETRIES})…`, null, logTarget);
           await sleep(GEMINI_KEY_BACKOFF_DEFAULT_MS * attempt);
@@ -2065,8 +2074,18 @@ rebuild, even if that means dropping part of the requested change.`;
       return await callGeminiViaProxy(body, logTarget, GEMINI_MODEL);
     } catch (err) {
       if (err && /503|high demand|overload|עמוס/i.test(err.message || "")) {
-        log("המודל הראשי עמוס — מנסה על מודל חלופי (gemini-2.5-flash)…", null, logTarget);
-        return await callGeminiViaProxy(body, logTarget, GEMINI_FALLBACK_MODEL);
+        log(`המודל הראשי עמוס — מנסה על המודל החלופי (${GEMINI_FALLBACK_MODEL})…`, null, logTarget);
+        try {
+          return await callGeminiViaProxy(body, logTarget, GEMINI_FALLBACK_MODEL);
+        } catch (fallbackErr) {
+          if (fallbackErr && /503|high demand|overload|עמוס/i.test(fallbackErr.message || "")) {
+            // Both models saturated: continuing to hammer Google only burns
+            // minutes while the bar looks frozen. Fail the turn NOW with a
+            // clear message — the user can just press send again in a bit.
+            throw new Error("גמיני עמוס כרגע גם על המודל החלופי (503 — עומס זמני בשרתי גוגל). התהליך הופסק כדי שלא ייתקע — נסו שוב בעוד מספר דקות.");
+          }
+          throw fallbackErr;
+        }
       }
       throw err;
     }
@@ -2813,7 +2832,7 @@ rebuild, even if that means dropping part of the requested change.`;
         const batch = batches[batchIndex];
         const batchNumber = batchIndex + 1;
 
-        for (let attempt = 1; ; attempt++) {
+        for (let attempt = 1, batchStartedAt = Date.now(); ; attempt++) {
           try {
             log(`${workerLabel}: מתרגם קבוצה ${batchNumber} מתוך ${batches.length}${attempt > 1 ? ` (ניסיון ${attempt})` : ""}…`, null, logTarget);
 
@@ -2853,7 +2872,15 @@ rebuild, even if that means dropping part of the requested change.`;
             log(`${workerLabel}: קבוצה ${batchNumber} מתוך ${batches.length} הושלמה`, "ok", logTarget);
             break;
           } catch (batchErr) {
-            if (attempt > TRANSLATE_BATCH_MAX_RETRIES) throw batchErr;
+            // Deadline first: if this batch already burned its wall-clock
+            // budget, no amount of extra retries can outrun a platform-wide
+            // overload — stop and surface a clear message instead of hanging.
+            if (attempt > TRANSLATE_BATCH_MAX_RETRIES || Date.now() - batchStartedAt > TRANSLATE_BATCH_DEADLINE_MS) {
+              if (/503|high demand|overload|עמוס/i.test(batchErr.message || "")) {
+                throw new Error("גמיני עמוס כרגע (עומס זמני בשרתי גוגל) — התרגום הופסק אחרי מספר ניסיונות. שום דבר לא אבד; נסו שוב בעוד מספר דקות.");
+              }
+              throw batchErr;
+            }
             // Getting here means EVERY key just failed for this one batch - almost
             // always several workers tripping a shared per-minute rate limit at the
             // same moment, not a real, permanent problem. A short wait usually lets
