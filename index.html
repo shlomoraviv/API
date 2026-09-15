@@ -1703,8 +1703,12 @@ rebuild, even if that means dropping part of the requested change.`;
   // application/json) on purpose: Apps Script Web Apps don't handle the CORS
   // preflight that application/json triggers, and text/plain avoids it
   // entirely — doPost() on the backend parses the body as JSON regardless.
-  const BACKEND_RETRY_ATTEMPTS = 3;
-  const BACKEND_RETRY_DELAY_MS = 1200;
+  const BACKEND_RETRY_ATTEMPTS = 5;
+  const BACKEND_RETRY_DELAY_MS = 1500;
+  // Google's front door occasionally accepts the connection and then never
+  // answers; without a deadline the request would hang forever — no error,
+  // no retry, a frozen app. The deadline turns a stall into a normal retry.
+  const BACKEND_FETCH_TIMEOUT_MS = 20000;
   // Read-only / idempotent actions only — a lost response and a blind retry can
   // never double an effect here. Actions like spendCredits, appendMessage, and
   // createConversation are deliberately excluded: if the first attempt actually
@@ -1712,6 +1716,7 @@ rebuild, even if that means dropping part of the requested change.`;
   // double-charge credits or duplicate data. Those fail fast on the first miss
   // instead — safer than a silent duplicate, and the person can just resend.
   const BACKEND_RETRY_SAFE_ACTIONS = new Set([
+    "googleLogin", // repeating a token exchange is effect-free: worst case an unused session token
     "whoami", "getPublicInfo", "listConversations", "getConversation",
     "adminListUsers", "adminGetConfig", "adminGetSiteText", "adminListAllConversations", "adminGetApiKeys",
     "geminiGenerate", "githubBinary",
@@ -1727,6 +1732,20 @@ rebuild, even if that means dropping part of the requested change.`;
   // Actions that must always reach the network even when signed out (they ARE
   // the sign-in / public bootstrap). Everything else degrades locally.
   const ALWAYS_ONLINE_BACKEND_ACTIONS = new Set(["googleLogin", "getPublicInfo"]);
+
+  // POST helper with a hard deadline. text/plain keeps Apps Script's CORS
+  // preflight away (see note above); the AbortController only exists to
+  // convert a never-answering connection into a retryable error.
+  function backendFetch(body) {
+    const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), BACKEND_FETCH_TIMEOUT_MS) : null;
+    return fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body,
+      signal: ctrl ? ctrl.signal : undefined,
+    }).finally(() => { if (timer) clearTimeout(timer); });
+  }
 
   async function backendCall(action, params = {}) {
     // Signed-out (local) mode: the backend only powers accounts, chat history
@@ -1745,11 +1764,7 @@ rebuild, even if that means dropping part of the requested change.`;
     for (let attempt = 1; attempt <= attempts; attempt++) {
       let res;
       try {
-        res = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
-        });
+        res = await backendFetch(JSON.stringify(payload));
       } catch (networkErr) {
         lastErr = new Error("לא הצלחתי להתחבר לשרת (" + networkErr.message + ").");
         if (attempt < attempts) {
@@ -5504,6 +5519,12 @@ image clearly and unambiguously depicts it.`;
       showApp();
     } catch (err) {
       authErrorEl.textContent = err.message;
+      // Google's backend hiccups come and go within minutes (proven repeatedly
+      // today). The account itself is fine — tell the person to just try again
+      // instead of leaving them stuck on the sign-in screen with a dead end.
+      if (err && err.message && !err.message.includes("חיבור")) {
+        authErrorEl.textContent = err.message + " — אפשר פשוט ללחוץ שוב על כפתור הכניסה ולנסות שוב.";
+      }
       authErrorEl.hidden = false;
     }
   }
