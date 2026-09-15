@@ -1148,7 +1148,7 @@
 
   // Update this if Google renames/deprecates the model — check ai.google.dev/api/models.
   const GEMINI_MODEL = "gemini-3.5-flash";
-  const GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"; // שימושי כשהמודל הראשי עמוס (שגיאת 503/overload) — בקשה זהה על מודל יציב יותר
+  const GEMINI_FALLBACK_MODEL = "gemini-3.6-flash"; // שימושי כשהמודל הראשי עמוס (שגיאת 503/overload) — בקשה זהה על מודל יציב יותר. gemini-2.5-* הוצא משימוש ע"י גוגל (404 "no longer available"), אומת עובד: 3.6-flash
   const WORKFLOW_FILE = "build-apk.yml";
   const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
@@ -1760,6 +1760,13 @@ rebuild, even if that means dropping part of the requested change.`;
         throw lastErr;
       }
       if (res.ok) return res.json();
+      // A 404 from script.google.com means the deployment URL itself is dead
+      // (the script was redeployed, so the /macros/s/AKfy.../exec link changed) —
+      // retrying can never fix that. Name the real cause instead of a generic
+      // "שגיאת שרת" that sends everyone chasing ghosts.
+      if (res.status === 404 && /script\.google\.com/.test(BACKEND_URL)) {
+        throw new Error("שרת העזר של האתר אינו זמין כרגע (כתובת הפריסה שלו פגה). הפעולות מול גיטהאב וגמיני עשויות להמשיך לעבוד, אבל היסטוריית השיחות והקרדיטים לא יישמרו עד עדכון הכתובת.");
+      }
       lastErr = new Error(`שגיאת שרת (HTTP ${res.status}).`);
       // Apps Script Web Apps occasionally 404/500 transiently (cold starts, quota
       // hiccups) even when the deployment itself is perfectly healthy.
