@@ -1760,12 +1760,17 @@ rebuild, even if that means dropping part of the requested change.`;
         throw lastErr;
       }
       if (res.ok) return res.json();
-      // A 404 from script.google.com means the deployment URL itself is dead
-      // (the script was redeployed, so the /macros/s/AKfy.../exec link changed) —
-      // retrying can never fix that. Name the real cause instead of a generic
-      // "שגיאת שרת" that sends everyone chasing ghosts.
+      // Apps Script under load intermittently answers with Google's plain 404
+      // page even while the same deployment succeeds minutes later (proven
+      // today: a pipeline commit landed through the relay between two 404
+      // windows). Keep retrying — but when we give up, name the real cause
+      // instead of a generic "שגיאת שרת" that sends everyone chasing ghosts.
       if (res.status === 404 && /script\.google\.com/.test(BACKEND_URL)) {
-        throw new Error("שרת העזר של האתר אינו זמין כרגע (כתובת הפריסה שלו פגה). הפעולות מול גיטהאב וגמיני עשויות להמשיך לעבוד, אבל היסטוריית השיחות והקרדיטים לא יישמרו עד עדכון הכתובת.");
+        lastErr = new Error("שרת העזר של האתר (Google Apps Script) דחה את הבקשה כרגע (404) — תקלה זמנית בפלטפורמה של גוגל. נסו שוב בעוד רגע; אם זה נמשך, יש לעדכן את פריסת הסקריפט.");
+        if (attempt >= attempts) throw lastErr;
+        console.warn(`backendCall(${action}) got HTTP ${res.status}, retrying (${attempt}/${attempts})…`);
+        await sleep(BACKEND_RETRY_DELAY_MS * attempt);
+        continue;
       }
       lastErr = new Error(`שגיאת שרת (HTTP ${res.status}).`);
       // Apps Script Web Apps occasionally 404/500 transiently (cold starts, quota
