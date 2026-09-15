@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="mtrl_calendar_bottom_padding">4.0dp</dimen>
-    <dimen name="mtrl_calendar_day_corner">18.0dp</dimen>
-    <dimen name="mtrl_calendar_day_height">40.0dp</dimen>
-    <dimen name="mtrl_calendar_day_horizontal_padding">2.0dp</dimen>
-    <dimen name="mtrl_calendar_day_vertical_padding">2.0dp</dimen>
-    <dimen name="mtrl_calendar_day_width">40.0dp</dimen>
-    <dimen name="mtrl_calendar_days_of_week_height">20.0dp</dimen>
-    <dimen name="mtrl_calendar_landscape_header_width">128.0dp</dimen>
-    <dimen name="mtrl_calendar_month_horizontal_padding">4.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070290">4.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070292">18.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070293">40.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070294">2.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070296">2.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070297">40.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f070298">20.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f0702a3">128.0dp</dimen>
+    <dimen name="APKTOOL_RENAMED_0x7f0702a5">4.0dp</dimen>
 </resources>

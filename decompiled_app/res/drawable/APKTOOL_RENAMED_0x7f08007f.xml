@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:tint="?APKTOOL_RENAMED_0x7f0400f4" android:shape="rectangle">
+            <size android:height="48.0dp" android:width="8.0dp" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+    <item>
+        <shape android:tint="?APKTOOL_RENAMED_0x7f0400f6" android:shape="rectangle">
+            <size android:height="48.0dp" android:width="8.0dp" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+</selector>

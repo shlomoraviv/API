@@ -1,9 +1,9 @@
 .class public final Landroidx/core/app/RemoteActionCompat;
 .super Ljava/lang/Object;
-.source "RemoteActionCompat.java"
+.source "SourceFile"
 
 # interfaces
-.implements Landroidx/versionedparcelable/c;
+.implements Lrikka/shizuku/rs;
 
 
 # instance fields
@@ -27,5 +27,8 @@
     .line 1
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
+    .line 2
+    .line 3
+    .line 4
     return-void
 .end method

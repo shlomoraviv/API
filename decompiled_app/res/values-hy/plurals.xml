@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="mtrl_badge_content_description">
-        <item quantity="one">%d նոր ծանուցում</item>
-        <item quantity="other">%d նոր ծանուցում</item>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="one">Վավերացված է %d ծրագիր</item>
+        <item quantity="other">Վավերացված է %d ծրագիր</item>
     </plurals>
 </resources>

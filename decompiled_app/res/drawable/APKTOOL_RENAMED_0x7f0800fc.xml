@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset android:insetLeft="@dimen/APKTOOL_RENAMED_0x7f07005e" android:insetRight="@dimen/APKTOOL_RENAMED_0x7f07005e" android:insetTop="@dimen/APKTOOL_RENAMED_0x7f07005e" android:insetBottom="@dimen/APKTOOL_RENAMED_0x7f07005e"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <shape android:shape="rectangle">
+        <corners android:radius="@dimen/APKTOOL_RENAMED_0x7f0702ff" />
+        <solid android:color="?APKTOOL_RENAMED_0x7f04011f" />
+    </shape>
+</inset>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="APKTOOL_RENAMED_0x7f11001b">Tingnan ang source code sa %s</string>
+    <string name="APKTOOL_RENAMED_0x7f11001c">Tungkol</string>
+    <string name="APKTOOL_RENAMED_0x7f11001d">Ihinto ang Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11001e">"Hindi makagawa ng susi para sa wireless na pag-debug. 
+Maaaring sira ang mekanismo ng KeyStore ng device na ito."</string>
+    <string name="APKTOOL_RENAMED_0x7f11001f">Sundin muna ang mga hakbang sa pagpapares.</string>
+    <string name="APKTOOL_RENAMED_0x7f110020">Pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f110021">Pumunta muna sa split-screen (multi-window) mode.</string>
+    <string name="APKTOOL_RENAMED_0x7f110022">Kailangan ng sistemang laging makita ang diyalogo ng pagpapares, kaya split-screen mode lang ang paraan para makita ang app na ito at ang diyalogo ng sistema nang sabay.</string>
+    <string name="APKTOOL_RENAMED_0x7f110023">Ilagay ang code sa notipikasyon para makumpleto ang pagpapares.</string>
+    <string name="APKTOOL_RENAMED_0x7f110024">Bumalik sa Shizuku at simulan ang Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f110025">Tandaan, ang kaliwang bahagi ng \"Wireless na pag-debug\" ay napipindot, nagbubukas ito ng bagong pahina. Mali kung pipindutin mo lang ang switch sa kanan.</string>
+    <string name="APKTOOL_RENAMED_0x7f110026">Maaaring kailangan ng mga gumagamit ng MIUI na gawing \"Android\" ang estilo ng notipikasyon sa \"Notification\" - \"Notification shade\" sa system settings.</string>
+    <string name="APKTOOL_RENAMED_0x7f110027">Kung hindi mo ito gagawin, maaaring hindi mo mailalagay ang code ng pagpapares sa notipikasyon.</string>
+    <string name="APKTOOL_RENAMED_0x7f110028">Kailangang ma-access ng Shizuku ang lokal na network. Kinokontrol ito ng pahintulot sa network.</string>
+    <string name="APKTOOL_RENAMED_0x7f110029">Sa ilang sistema (tulad ng MIUI), hindi maa-access ng mga app ang network kapag hindi sila nakikita, kahit gumagamit ang app ng pangkaraniwang foreground na serbisyo. Patayin ang pag-optimize ng baterya para sa Shizuku sa mga sistemang iyon.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002a">Tutulungan ka ng isang notipikasyon mula sa Shizuku na tapusin ang pagpapares.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002b">Kailangan mong makisalamuha sa isang notipikasyon mula sa Shizuku para makumpleto ang proseso sa pagpapares. Mangyaring payagan ang Shizuku na magpadala ng mga notipikasyon.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002c">Pumunta sa \"Mga opsyon ng developer\" - \"Wireless na pag-debug\". Pindutin ang \"Pinapares ang device gamit ang code ng pagpapares\", may anim-na-numerong code kang makikita.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002d">Ipares ang Shizuku sa device mo</string>
+    <string name="APKTOOL_RENAMED_0x7f11002f">Posibleng nilimitahan ng gumawa ng device mo ang kakayahan ng adb.&lt;p>Maaaring may solusyon para sa sistema mo sa &lt;b>&lt;a href=\"%1$s\">dokumentong ito&lt;/a>&lt;/b>.</string>
+    <string name="APKTOOL_RENAMED_0x7f110030">Limitado ang pahintulot ng adb</string>
+    <string name="APKTOOL_RENAMED_0x7f110031">* kailangang patakbuhin ang Shizuku gamit ang root</string>
+    <string name="APKTOOL_RENAMED_0x7f110041">Hindi makakonekta sa serbisyo ng wireless na pag-debug.</string>
+    <string name="APKTOOL_RENAMED_0x7f11004e">Mga opsyon ng developer</string>
+    <string name="APKTOOL_RENAMED_0x7f11004f">Hinahanap ang serbisyo ng wireless na pag-debug</string>
+    <string name="APKTOOL_RENAMED_0x7f110050">"Buksan ang \"Wireless na pag-debug\" sa \"Mga opsyon ng developer\". Awtomatikong namamatay ang \"Wireless na pag-debug\" kapag may nagbago sa network. 
+ 
+Tandaan, huwag patayin ang \"Mga opsyon ng developer\" o \"Pag-debug ng USB\", mahihinto ang Shizuku."</string>
+    <string name="APKTOOL_RENAMED_0x7f110051">Mangyaring patayin at buksan ulit ang \"Wireless na pag-debug\" kung sige lang ito sa paghahanap.</string>
+    <string name="APKTOOL_RENAMED_0x7f110052">Ang port ay isang integer mula 1 hanggang 65535.</string>
+    <string name="APKTOOL_RENAMED_0x7f110053">Hinahanap ang serbisyo ng pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f110054">"Mangyaring simulan ang pagpapares, pumunta sa: \"Mga opsyon ng developer\" - \"Wireless na pag-debug\" - \"Pinapares ang device gamit ang code ng pagpapares\". 
+ 
+Mailalagay mo ang code ng pagpapares pagkatapos magsimula ang proseso ng pagpapares."</string>
+    <string name="APKTOOL_RENAMED_0x7f110055">Code ng pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f110056">Makipagpares sa device</string>
+    <string name="APKTOOL_RENAMED_0x7f110057">Port</string>
+    <string name="APKTOOL_RENAMED_0x7f110058">Hindi mabuksan ang browser</string>
+    <string name="APKTOOL_RENAMED_0x7f110059">Inihinto na ang suporta sa makalumang Shizuku (API v10-). Hindi na rin gagana ang makalumang Shizuku sa mga mas bagong bersyon ng Android.&lt;p>Mangyaring ipaalam sa may-akda ng &lt;b>%1$s&lt;/b> na kailangan na nitong mag-update.</string>
+    <string name="APKTOOL_RENAMED_0x7f11005a">Hindi sinusuportahan ng %1$s ang makabagong Shizuku (API v11+)</string>
+    <string name="APKTOOL_RENAMED_0x7f11005b">Buksan ang Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11005c">Suportado ng &lt;b>%1$s&lt;/b> ang makabagong Shizuku, pero humihiling ito nang makalumang Shizuku. Pakitingnan sa Shizuku app kung tumatakbo ba nang maayos ang Shizuku dahil baka ito ay dahil nagkakaproblema ang Shizuku.&lt;p>Hindi na suportado ang makalumang Shizuku simula Marso 2019.</string>
+    <string name="APKTOOL_RENAMED_0x7f11005d">Humihiling ng makalumang Shizuku ang %1$s</string>
+    <string name="APKTOOL_RENAMED_0x7f11005e">Ihihinto ang serbisyo ng Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f11005f">"Hindi nakabukas ang wireless na pag-debug. 
+Tandaan, kailangang kumonekta sa kompyuter para mabuksan ang wireless na pag-debug sa Android 10 pababa."</string>
+    <string name="APKTOOL_RENAMED_0x7f11006a">Laging payagan</string>
+    <string name="APKTOOL_RENAMED_0x7f11006b">Tanggihan</string>
+    <string name="APKTOOL_RENAMED_0x7f11006d">Tingnan ang command</string>
+    <string name="APKTOOL_RENAMED_0x7f11006e">Sumangguni sa gabay</string>
+    <string name="APKTOOL_RENAMED_0x7f11006f">Kailangan mong gumamit ng adb para masimulan ang Shizuku kung walang root ang device mo (kailangang kumonekta sa kompyuter). Dapat ulitin ito tuwing nare-restart ang device mo. Mangyaring <b><a href="%1$s">sumangguni sa gabay</a></b>.</string>
+    <string name="APKTOOL_RENAMED_0x7f110070">Ipadala</string>
+    <string name="APKTOOL_RENAMED_0x7f110071">Kopyahin</string>
+    <string name="APKTOOL_RENAMED_0x7f110072">&lt;font face=monospace>%1$s&lt;/font>&lt;br>&lt;br>* May iba pang mga dapat ikonsidera, siguraduhin munang nabasa mo na ang gabay.</string>
+    <string name="APKTOOL_RENAMED_0x7f110073">"Pinaghigpitan ng gumawa ng device mo ang kakayahan ng adb, kaya hindi gagana nang maayos ang mga app na gumagamit ng Shizuku. 
+ 
+Kadalasan, pwedeng matanggal ang mga paghihigpit na ito sa pamamagitan ng ilang mga pagbabago sa \"Mga opsyon ng developer\". Mangyaring sumangguni sa gabay para sa higit pang detalye kung paano ito gagawin. 
+ 
+Maaaring kailanganin mong isara at buksan ulit ang Shizuku para umepekto ang opersayon."</string>
+    <string name="APKTOOL_RENAMED_0x7f110074">May mga karagdagang hakbang kang dapat gawin</string>
+    <string name="APKTOOL_RENAMED_0x7f110075">Magsimula sa pamamagitan ng pagkonekta sa kompyuter</string>
+    <string name="APKTOOL_RENAMED_0x7f110076">Lalabas dito ang mga app na hiniling o idineklara ang Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f110077">Pamamahala sa aplikasyon</string>
+    <string name="APKTOOL_RENAMED_0x7f110078">Pindutin para pamahalaan ang mga awtorisadong app</string>
+    <string name="APKTOOL_RENAMED_0x7f110079">Matuto kung paano mag-develop gamit ang Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11007a">Matuto Pa Tungkol sa Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11007b">Simulan muli</string>
+    <string name="APKTOOL_RENAMED_0x7f11007c">Simulan</string>
+    <string name="APKTOOL_RENAMED_0x7f11007d">Pwede ring awtomatikong masimulan ang Shizuku pagka-boot. Kung hindi, maaaring nilimitahan ng iyong sistema o ng third-party na kagamitan ang Shizuku.&lt;br>Sumangguni sa %s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11007e">Kung gumagamit ka ng Magisk, subukan mo ang %1$s. Para sa mga may root, dahan-dahan nitong papalitan ang Shizuku. Tandaan, may kaunting pagbabagong kakailanganin ang mga kasalukuyang app para gamitin ang %2$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11007f">Simulan (para sa mga device na may root)</string>
+    <string name="APKTOOL_RENAMED_0x7f110080">Tumatakbo ang %1$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110081">Hindi tumatakbo ang %1$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110082">Bersyon %2$s, %1$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110083">Bersyon %2$s, %1$s&lt;br>Simulan ulit para maka-update patungong bersyon %3$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110084">Magpatakbo ng mga utos papuntang Shizuku gamit ang terminal app mo</string>
+    <string name="APKTOOL_RENAMED_0x7f110085">Gamitin ang Shizuku sa mga terminal app</string>
+    <string name="APKTOOL_RENAMED_0x7f110086">Pwede mong buksan ang Wireless na pag-debug at simulan ang Shizuku direkta sa iyong device nang hindi kumokonekta sa kompyuter sa Android 11 pataas.&lt;p>Mangyaring sumangguni muna sa gabay.</string>
+    <string name="APKTOOL_RENAMED_0x7f110087">Kailangang kumonekta sa kompyuter para mabuksan ang Wireless na pag-debug sa Android 10 pababa.</string>
+    <string name="APKTOOL_RENAMED_0x7f110088">Simulan gamit ang Wireless na pag-debug</string>
+    <string name="APKTOOL_RENAMED_0x7f110089">Hakbang-hakbang na gabay</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f2">Nagkaproblema sa pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f3">Ilagay ang code ng pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f4">Subukan ulit</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f5">Naghahanap ng serbisyo sa pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f6">Nakahanap ng serbisyo sa pagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f7">Ihinto ang paghahanap</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f8">Masisimulan mo na ngayon ang serbisyo ng Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f9">Matagumpay na nakapagpares</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fa">Kasalukuyang nagpapares</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fb">Pagpapares ng wireless na pag-debug</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fc">Estado sa pagbubukas ng serbisyo</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fd">Nagkaproblema sa pagsisimula ng serbisyo ng Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fe">Hindi nakakuha ng pahintulot sa root.</string>
+    <string name="APKTOOL_RENAMED_0x7f1100ff">Nagsisimula ang serbisyo ng Shizuku…</string>
+    <string name="APKTOOL_RENAMED_0x7f110100">Mga opsyon sa notipikasyon</string>
+    <string name="APKTOOL_RENAMED_0x7f110101">Inaasikaso…</string>
+    <string name="APKTOOL_RENAMED_0x7f110102">Mali ang code ng pagpapares.</string>
+    <string name="APKTOOL_RENAMED_0x7f110108">Payagan ang app na gamitin ang Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f11010b">ma-access ang Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11010c">Payagan ang <b>%1$s</b> na %2$s?</string>
+    <string name="APKTOOL_RENAMED_0x7f11010e">Gamit ang %1$s, makakakonekta ka sa shell ng Shizuku gamit ang anumang terminal app. &lt;p>Pindutin para makita ang detalyadong impormasyon tungkol sa %1$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f110113">Itim na panggabing tema</string>
+    <string name="APKTOOL_RENAMED_0x7f110114">Gamitin ang purong itim na tema kung nakabukas ang panggabing mode</string>
+    <string name="APKTOOL_RENAMED_0x7f110115">Wika</string>
+    <string name="APKTOOL_RENAMED_0x7f110116">Buksan pagka-boot (root)</string>
+    <string name="APKTOOL_RENAMED_0x7f110117">Pwede itakdang tumakbo agad pagka-boot ang Shizuku sa mga naka-root na device</string>
+    <string name="APKTOOL_RENAMED_0x7f110118">Pagbukas</string>
+    <string name="APKTOOL_RENAMED_0x7f110119">Mga Setting</string>
+    <string name="APKTOOL_RENAMED_0x7f11011a">Sumali sa pagsasalin</string>
+    <string name="APKTOOL_RENAMED_0x7f11011b">Mga nag-ambag sa pagsasalin</string>
+    <string name="APKTOOL_RENAMED_0x7f11011c">Tulungan kaming isalin ang %s sa iyong wika</string>
+    <string name="APKTOOL_RENAMED_0x7f11011d">Gamitin ang kulay ng tema ng sistema</string>
+    <string name="APKTOOL_RENAMED_0x7f11011e">Hitsura</string>
+    <string name="APKTOOL_RENAMED_0x7f110121">Hindi masimulan ang serbisyo sapagkat walang pahintulot sa root o hindi na-root ang device na ito.</string>
+    <string name="APKTOOL_RENAMED_0x7f110122">Panimula</string>
+    <string name="APKTOOL_RENAMED_0x7f110126">I-export ang mga file</string>
+    <string name="APKTOOL_RENAMED_0x7f110127">Una, i-export ang mga file saan mo man gusto. May dalawa kang file na makikita, %1$s at %2$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f110128">"Mabubura ang mga file na may parehong pangalan sa folder na pipiliin mo. 
+ 
+Ginagamit ang SAF (Storage Access Framework) para ma-export ang file. Naiulat na hindi gumagana nang maayos ang SAF sa MIUI. Kung nasa MIUI ka, baka kailangan mong i-extract ang file mula sa apk ng Shizuku o i-download ito mula sa GitHub."</string>
+    <string name="APKTOOL_RENAMED_0x7f110129">Tapos, guamit ng anumang editor ng teksto para buksan at baguhin ang %1$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012a">Halimbawa, kung gusto mong gamitin ang Shizuku sa %1$s, dapat palitan mo ang %2$s ng %3$s (ang package name ng %1$s ay %4$s).</string>
+    <string name="APKTOOL_RENAMED_0x7f11012b">At, ilipat ang mga file sa kung saan ito pwedeng ma-access ng terminal app mo, magagamit mo ang %1$s para magpaandar ng mga utos papuntang Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012c">Tip: bigyan ng pahintulot na ma-execute ang %1$s at idagdag ito sa %2$s, pwede mong direktang magamit ang %1$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012d">"Nakopya sa clipboard ang 
+%s"</string>
+    <string name="APKTOOL_RENAMED_0x7f11012e">Nakopya ang <b>%s</b> sa clipboard.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012f">@Cyndaquissshhh (Hosted Weblate)</string>
+</resources>

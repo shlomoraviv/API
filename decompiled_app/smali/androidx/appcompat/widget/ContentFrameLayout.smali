@@ -1,598 +1,817 @@
 .class public Landroidx/appcompat/widget/ContentFrameLayout;
 .super Landroid/widget/FrameLayout;
-.source "ContentFrameLayout.java"
-
-
-# annotations
-.annotation system Ldalvik/annotation/MemberClasses;
-    value = {
-        Landroidx/appcompat/widget/ContentFrameLayout$a;
-    }
-.end annotation
+.source "SourceFile"
 
 
 # instance fields
-.field private f:Landroid/util/TypedValue;
+.field public a:Landroid/util/TypedValue;
 
-.field private g:Landroid/util/TypedValue;
+.field public b:Landroid/util/TypedValue;
 
-.field private h:Landroid/util/TypedValue;
+.field public c:Landroid/util/TypedValue;
 
-.field private i:Landroid/util/TypedValue;
+.field public d:Landroid/util/TypedValue;
 
-.field private j:Landroid/util/TypedValue;
+.field public e:Landroid/util/TypedValue;
 
-.field private k:Landroid/util/TypedValue;
+.field public f:Landroid/util/TypedValue;
 
-.field private final l:Landroid/graphics/Rect;
+.field public final g:Landroid/graphics/Rect;
 
-.field private m:Landroidx/appcompat/widget/ContentFrameLayout$a;
+.field public h:Lrikka/shizuku/x2;
 
 
 # direct methods
-.method public constructor <init>(Landroid/content/Context;)V
-    .locals 1
-
-    const/4 v0, 0x0
-
-    .line 1
-    invoke-direct {p0, p1, v0}, Landroidx/appcompat/widget/ContentFrameLayout;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
-
-    return-void
-.end method
-
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
     .locals 1
 
+    .line 1
     const/4 v0, 0x0
 
     .line 2
-    invoke-direct {p0, p1, p2, v0}, Landroidx/appcompat/widget/ContentFrameLayout;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-
-    return-void
-.end method
-
-.method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-    .locals 0
+    invoke-direct {p0, p1, p2, v0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
 
     .line 3
-    invoke-direct {p0, p1, p2, p3}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-
     .line 4
+    .line 5
     new-instance p1, Landroid/graphics/Rect;
 
+    .line 6
+    .line 7
     invoke-direct {p1}, Landroid/graphics/Rect;-><init>()V
 
-    iput-object p1, p0, Landroidx/appcompat/widget/ContentFrameLayout;->l:Landroid/graphics/Rect;
+    .line 8
+    .line 9
+    .line 10
+    iput-object p1, p0, Landroidx/appcompat/widget/ContentFrameLayout;->g:Landroid/graphics/Rect;
 
+    .line 11
+    .line 12
     return-void
 .end method
 
 
 # virtual methods
-.method public a(Landroid/graphics/Rect;)V
-    .locals 0
-
-    .line 1
-    invoke-virtual {p0, p1}, Landroid/widget/FrameLayout;->fitSystemWindows(Landroid/graphics/Rect;)Z
-
-    return-void
-.end method
-
-.method public b(IIII)V
+.method public final onAttachedToWindow()V
     .locals 1
 
     .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->l:Landroid/graphics/Rect;
-
-    invoke-virtual {v0, p1, p2, p3, p4}, Landroid/graphics/Rect;->set(IIII)V
+    invoke-super {p0}, Landroid/view/View;->onAttachedToWindow()V
 
     .line 2
-    invoke-static {p0}, Lc/h/m/s;->Q(Landroid/view/View;)Z
-
-    move-result p1
-
-    if-eqz p1, :cond_0
-
     .line 3
-    invoke-virtual {p0}, Landroid/widget/FrameLayout;->requestLayout()V
-
-    :cond_0
-    return-void
-.end method
-
-.method public getFixedHeightMajor()Landroid/util/TypedValue;
-    .locals 1
-
-    .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->j:Landroid/util/TypedValue;
-
-    if-nez v0, :cond_0
-
-    new-instance v0, Landroid/util/TypedValue;
-
-    invoke-direct {v0}, Landroid/util/TypedValue;-><init>()V
-
-    iput-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->j:Landroid/util/TypedValue;
-
-    .line 2
-    :cond_0
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->j:Landroid/util/TypedValue;
-
-    return-object v0
-.end method
-
-.method public getFixedHeightMinor()Landroid/util/TypedValue;
-    .locals 1
-
-    .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->k:Landroid/util/TypedValue;
-
-    if-nez v0, :cond_0
-
-    new-instance v0, Landroid/util/TypedValue;
-
-    invoke-direct {v0}, Landroid/util/TypedValue;-><init>()V
-
-    iput-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->k:Landroid/util/TypedValue;
-
-    .line 2
-    :cond_0
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->k:Landroid/util/TypedValue;
-
-    return-object v0
-.end method
-
-.method public getFixedWidthMajor()Landroid/util/TypedValue;
-    .locals 1
-
-    .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->h:Landroid/util/TypedValue;
-
-    if-nez v0, :cond_0
-
-    new-instance v0, Landroid/util/TypedValue;
-
-    invoke-direct {v0}, Landroid/util/TypedValue;-><init>()V
-
-    iput-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->h:Landroid/util/TypedValue;
-
-    .line 2
-    :cond_0
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->h:Landroid/util/TypedValue;
-
-    return-object v0
-.end method
-
-.method public getFixedWidthMinor()Landroid/util/TypedValue;
-    .locals 1
-
-    .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->i:Landroid/util/TypedValue;
-
-    if-nez v0, :cond_0
-
-    new-instance v0, Landroid/util/TypedValue;
-
-    invoke-direct {v0}, Landroid/util/TypedValue;-><init>()V
-
-    iput-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->i:Landroid/util/TypedValue;
-
-    .line 2
-    :cond_0
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->i:Landroid/util/TypedValue;
-
-    return-object v0
-.end method
-
-.method public getMinWidthMajor()Landroid/util/TypedValue;
-    .locals 1
-
-    .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->f:Landroid/util/TypedValue;
-
-    if-nez v0, :cond_0
-
-    new-instance v0, Landroid/util/TypedValue;
-
-    invoke-direct {v0}, Landroid/util/TypedValue;-><init>()V
-
-    iput-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->f:Landroid/util/TypedValue;
-
-    .line 2
-    :cond_0
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->f:Landroid/util/TypedValue;
-
-    return-object v0
-.end method
-
-.method public getMinWidthMinor()Landroid/util/TypedValue;
-    .locals 1
-
-    .line 1
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->g:Landroid/util/TypedValue;
-
-    if-nez v0, :cond_0
-
-    new-instance v0, Landroid/util/TypedValue;
-
-    invoke-direct {v0}, Landroid/util/TypedValue;-><init>()V
-
-    iput-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->g:Landroid/util/TypedValue;
-
-    .line 2
-    :cond_0
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->g:Landroid/util/TypedValue;
-
-    return-object v0
-.end method
-
-.method protected onAttachedToWindow()V
-    .locals 1
-
-    .line 1
-    invoke-super {p0}, Landroid/widget/FrameLayout;->onAttachedToWindow()V
-
-    .line 2
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->m:Landroidx/appcompat/widget/ContentFrameLayout$a;
-
-    if-eqz v0, :cond_0
-
-    .line 3
-    invoke-interface {v0}, Landroidx/appcompat/widget/ContentFrameLayout$a;->a()V
-
-    :cond_0
-    return-void
-.end method
-
-.method protected onDetachedFromWindow()V
-    .locals 1
-
-    .line 1
-    invoke-super {p0}, Landroid/widget/FrameLayout;->onDetachedFromWindow()V
-
-    .line 2
-    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->m:Landroidx/appcompat/widget/ContentFrameLayout$a;
-
-    if-eqz v0, :cond_0
-
-    .line 3
-    invoke-interface {v0}, Landroidx/appcompat/widget/ContentFrameLayout$a;->onDetachedFromWindow()V
-
-    :cond_0
-    return-void
-.end method
-
-.method protected onMeasure(II)V
-    .locals 13
-
-    .line 1
-    invoke-virtual {p0}, Landroid/widget/FrameLayout;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
-
-    move-result-object v0
-
-    .line 2
-    iget v1, v0, Landroid/util/DisplayMetrics;->widthPixels:I
-
-    iget v2, v0, Landroid/util/DisplayMetrics;->heightPixels:I
-
-    const/4 v3, 0x1
-
-    const/4 v4, 0x0
-
-    if-ge v1, v2, :cond_0
-
-    const/4 v1, 0x1
-
-    goto :goto_0
-
-    :cond_0
-    const/4 v1, 0x0
-
-    .line 3
-    :goto_0
-    invoke-static {p1}, Landroid/view/View$MeasureSpec;->getMode(I)I
-
-    move-result v2
-
     .line 4
-    invoke-static {p2}, Landroid/view/View$MeasureSpec;->getMode(I)I
-
-    move-result v5
-
-    const/4 v6, 0x6
-
-    const/4 v7, 0x5
-
-    const/high16 v8, -0x80000000
-
-    const/high16 v9, 0x40000000    # 2.0f
-
-    if-ne v2, v8, :cond_4
-
-    if-eqz v1, :cond_1
+    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->h:Lrikka/shizuku/x2;
 
     .line 5
-    iget-object v10, p0, Landroidx/appcompat/widget/ContentFrameLayout;->i:Landroid/util/TypedValue;
-
-    goto :goto_1
-
-    :cond_1
-    iget-object v10, p0, Landroidx/appcompat/widget/ContentFrameLayout;->h:Landroid/util/TypedValue;
-
-    :goto_1
-    if-eqz v10, :cond_4
-
     .line 6
-    iget v11, v10, Landroid/util/TypedValue;->type:I
-
-    if-eqz v11, :cond_4
-
-    if-ne v11, v7, :cond_2
+    if-eqz v0, :cond_0
 
     .line 7
-    invoke-virtual {v10, v0}, Landroid/util/TypedValue;->getDimension(Landroid/util/DisplayMetrics;)F
-
-    move-result v10
-
-    :goto_2
-    float-to-int v10, v10
-
-    goto :goto_3
-
-    :cond_2
-    if-ne v11, v6, :cond_3
-
     .line 8
-    iget v11, v0, Landroid/util/DisplayMetrics;->widthPixels:I
-
-    int-to-float v12, v11
-
-    int-to-float v11, v11
-
-    invoke-virtual {v10, v12, v11}, Landroid/util/TypedValue;->getFraction(FF)F
-
-    move-result v10
-
-    goto :goto_2
-
-    :cond_3
-    const/4 v10, 0x0
-
-    :goto_3
-    if-lez v10, :cond_4
+    invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     .line 9
-    iget-object v11, p0, Landroidx/appcompat/widget/ContentFrameLayout;->l:Landroid/graphics/Rect;
-
-    iget v12, v11, Landroid/graphics/Rect;->left:I
-
-    iget v11, v11, Landroid/graphics/Rect;->right:I
-
-    add-int/2addr v12, v11
-
-    sub-int/2addr v10, v12
-
     .line 10
-    invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
-
-    move-result p1
-
     .line 11
-    invoke-static {v10, p1}, Ljava/lang/Math;->min(II)I
-
-    move-result p1
-
-    .line 12
-    invoke-static {p1, v9}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
-
-    move-result p1
-
-    const/4 v10, 0x1
-
-    goto :goto_4
-
-    :cond_4
-    const/4 v10, 0x0
-
-    :goto_4
-    if-ne v5, v8, :cond_8
-
-    if-eqz v1, :cond_5
-
-    .line 13
-    iget-object v5, p0, Landroidx/appcompat/widget/ContentFrameLayout;->j:Landroid/util/TypedValue;
-
-    goto :goto_5
-
-    :cond_5
-    iget-object v5, p0, Landroidx/appcompat/widget/ContentFrameLayout;->k:Landroid/util/TypedValue;
-
-    :goto_5
-    if-eqz v5, :cond_8
-
-    .line 14
-    iget v11, v5, Landroid/util/TypedValue;->type:I
-
-    if-eqz v11, :cond_8
-
-    if-ne v11, v7, :cond_6
-
-    .line 15
-    invoke-virtual {v5, v0}, Landroid/util/TypedValue;->getDimension(Landroid/util/DisplayMetrics;)F
-
-    move-result v5
-
-    :goto_6
-    float-to-int v5, v5
-
-    goto :goto_7
-
-    :cond_6
-    if-ne v11, v6, :cond_7
-
-    .line 16
-    iget v11, v0, Landroid/util/DisplayMetrics;->heightPixels:I
-
-    int-to-float v12, v11
-
-    int-to-float v11, v11
-
-    invoke-virtual {v5, v12, v11}, Landroid/util/TypedValue;->getFraction(FF)F
-
-    move-result v5
-
-    goto :goto_6
-
-    :cond_7
-    const/4 v5, 0x0
-
-    :goto_7
-    if-lez v5, :cond_8
-
-    .line 17
-    iget-object v11, p0, Landroidx/appcompat/widget/ContentFrameLayout;->l:Landroid/graphics/Rect;
-
-    iget v12, v11, Landroid/graphics/Rect;->top:I
-
-    iget v11, v11, Landroid/graphics/Rect;->bottom:I
-
-    add-int/2addr v12, v11
-
-    sub-int/2addr v5, v12
-
-    .line 18
-    invoke-static {p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
-
-    move-result p2
-
-    .line 19
-    invoke-static {v5, p2}, Ljava/lang/Math;->min(II)I
-
-    move-result p2
-
-    .line 20
-    invoke-static {p2, v9}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
-
-    move-result p2
-
-    .line 21
-    :cond_8
-    invoke-super {p0, p1, p2}, Landroid/widget/FrameLayout;->onMeasure(II)V
-
-    .line 22
-    invoke-virtual {p0}, Landroid/widget/FrameLayout;->getMeasuredWidth()I
-
-    move-result p1
-
-    .line 23
-    invoke-static {p1, v9}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
-
-    move-result v5
-
-    if-nez v10, :cond_d
-
-    if-ne v2, v8, :cond_d
-
-    if-eqz v1, :cond_9
-
-    .line 24
-    iget-object v1, p0, Landroidx/appcompat/widget/ContentFrameLayout;->g:Landroid/util/TypedValue;
-
-    goto :goto_8
-
-    :cond_9
-    iget-object v1, p0, Landroidx/appcompat/widget/ContentFrameLayout;->f:Landroid/util/TypedValue;
-
-    :goto_8
-    if-eqz v1, :cond_d
-
-    .line 25
-    iget v2, v1, Landroid/util/TypedValue;->type:I
-
-    if-eqz v2, :cond_d
-
-    if-ne v2, v7, :cond_a
-
-    .line 26
-    invoke-virtual {v1, v0}, Landroid/util/TypedValue;->getDimension(Landroid/util/DisplayMetrics;)F
-
-    move-result v0
-
-    :goto_9
-    float-to-int v0, v0
-
-    goto :goto_a
-
-    :cond_a
-    if-ne v2, v6, :cond_b
-
-    .line 27
-    iget v0, v0, Landroid/util/DisplayMetrics;->widthPixels:I
-
-    int-to-float v2, v0
-
-    int-to-float v0, v0
-
-    invoke-virtual {v1, v2, v0}, Landroid/util/TypedValue;->getFraction(FF)F
-
-    move-result v0
-
-    goto :goto_9
-
-    :cond_b
-    const/4 v0, 0x0
-
-    :goto_a
-    if-lez v0, :cond_c
-
-    .line 28
-    iget-object v1, p0, Landroidx/appcompat/widget/ContentFrameLayout;->l:Landroid/graphics/Rect;
-
-    iget v2, v1, Landroid/graphics/Rect;->left:I
-
-    iget v1, v1, Landroid/graphics/Rect;->right:I
-
-    add-int/2addr v2, v1
-
-    sub-int/2addr v0, v2
-
-    :cond_c
-    if-ge p1, v0, :cond_d
-
-    .line 29
-    invoke-static {v0, v9}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
-
-    move-result v5
-
-    goto :goto_b
-
-    :cond_d
-    const/4 v3, 0x0
-
-    :goto_b
-    if-eqz v3, :cond_e
-
-    .line 30
-    invoke-super {p0, v5, p2}, Landroid/widget/FrameLayout;->onMeasure(II)V
-
-    :cond_e
+    :cond_0
     return-void
 .end method
 
-.method public setAttachListener(Landroidx/appcompat/widget/ContentFrameLayout$a;)V
-    .locals 0
+.method public final onDetachedFromWindow()V
+    .locals 3
 
     .line 1
-    iput-object p1, p0, Landroidx/appcompat/widget/ContentFrameLayout;->m:Landroidx/appcompat/widget/ContentFrameLayout$a;
+    invoke-super {p0}, Landroid/view/View;->onDetachedFromWindow()V
 
+    .line 2
+    .line 3
+    .line 4
+    iget-object v0, p0, Landroidx/appcompat/widget/ContentFrameLayout;->h:Lrikka/shizuku/x2;
+
+    .line 5
+    .line 6
+    if-eqz v0, :cond_4
+
+    .line 7
+    .line 8
+    iget-object v0, v0, Lrikka/shizuku/x2;->b:Lrikka/shizuku/I2;
+
+    .line 9
+    .line 10
+    iget-object v1, v0, Lrikka/shizuku/I2;->r:Lrikka/shizuku/Y8;
+
+    .line 11
+    .line 12
+    if-eqz v1, :cond_0
+
+    .line 13
+    .line 14
+    check-cast v1, Landroidx/appcompat/widget/ActionBarOverlayLayout;
+
+    .line 15
+    .line 16
+    invoke-virtual {v1}, Landroidx/appcompat/widget/ActionBarOverlayLayout;->k()V
+
+    .line 17
+    .line 18
+    .line 19
+    iget-object v1, v1, Landroidx/appcompat/widget/ActionBarOverlayLayout;->e:Lrikka/shizuku/kq;
+
+    .line 20
+    .line 21
+    iget-object v1, v1, Lrikka/shizuku/kq;->a:Landroidx/appcompat/widget/Toolbar;
+
+    .line 22
+    .line 23
+    iget-object v1, v1, Landroidx/appcompat/widget/Toolbar;->a:Landroidx/appcompat/widget/ActionMenuView;
+
+    .line 24
+    .line 25
+    if-eqz v1, :cond_0
+
+    .line 26
+    .line 27
+    iget-object v1, v1, Landroidx/appcompat/widget/ActionMenuView;->t:Lrikka/shizuku/C0;
+
+    .line 28
+    .line 29
+    if-eqz v1, :cond_0
+
+    .line 30
+    .line 31
+    invoke-virtual {v1}, Lrikka/shizuku/C0;->e()Z
+
+    .line 32
+    .line 33
+    .line 34
+    iget-object v1, v1, Lrikka/shizuku/C0;->r:Lrikka/shizuku/y0;
+
+    .line 35
+    .line 36
+    if-eqz v1, :cond_0
+
+    .line 37
+    .line 38
+    invoke-virtual {v1}, Lrikka/shizuku/oi;->b()Z
+
+    .line 39
+    .line 40
+    .line 41
+    move-result v2
+
+    .line 42
+    if-eqz v2, :cond_0
+
+    .line 43
+    .line 44
+    iget-object v1, v1, Lrikka/shizuku/oi;->i:Lrikka/shizuku/li;
+
+    .line 45
+    .line 46
+    invoke-interface {v1}, Lrikka/shizuku/Yn;->dismiss()V
+
+    .line 47
+    .line 48
+    .line 49
+    :cond_0
+    iget-object v1, v0, Lrikka/shizuku/I2;->w:Landroid/widget/PopupWindow;
+
+    .line 50
+    .line 51
+    if-eqz v1, :cond_2
+
+    .line 52
+    .line 53
+    iget-object v1, v0, Lrikka/shizuku/I2;->l:Landroid/view/Window;
+
+    .line 54
+    .line 55
+    invoke-virtual {v1}, Landroid/view/Window;->getDecorView()Landroid/view/View;
+
+    .line 56
+    .line 57
+    .line 58
+    move-result-object v1
+
+    .line 59
+    iget-object v2, v0, Lrikka/shizuku/I2;->x:Lrikka/shizuku/w2;
+
+    .line 60
+    .line 61
+    invoke-virtual {v1, v2}, Landroid/view/View;->removeCallbacks(Ljava/lang/Runnable;)Z
+
+    .line 62
+    .line 63
+    .line 64
+    iget-object v1, v0, Lrikka/shizuku/I2;->w:Landroid/widget/PopupWindow;
+
+    .line 65
+    .line 66
+    invoke-virtual {v1}, Landroid/widget/PopupWindow;->isShowing()Z
+
+    .line 67
+    .line 68
+    .line 69
+    move-result v1
+
+    .line 70
+    if-eqz v1, :cond_1
+
+    .line 71
+    .line 72
+    :try_start_0
+    iget-object v1, v0, Lrikka/shizuku/I2;->w:Landroid/widget/PopupWindow;
+
+    .line 73
+    .line 74
+    invoke-virtual {v1}, Landroid/widget/PopupWindow;->dismiss()V
+    :try_end_0
+    .catch Ljava/lang/IllegalArgumentException; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 75
+    .line 76
+    .line 77
+    :catch_0
+    :cond_1
+    const/4 v1, 0x0
+
+    .line 78
+    iput-object v1, v0, Lrikka/shizuku/I2;->w:Landroid/widget/PopupWindow;
+
+    .line 79
+    .line 80
+    :cond_2
+    iget-object v1, v0, Lrikka/shizuku/I2;->y:Lrikka/shizuku/ct;
+
+    .line 81
+    .line 82
+    if-eqz v1, :cond_3
+
+    .line 83
+    .line 84
+    invoke-virtual {v1}, Lrikka/shizuku/ct;->b()V
+
+    .line 85
+    .line 86
+    .line 87
+    :cond_3
+    const/4 v1, 0x0
+
+    .line 88
+    invoke-virtual {v0, v1}, Lrikka/shizuku/I2;->B(I)Lrikka/shizuku/H2;
+
+    .line 89
+    .line 90
+    .line 91
+    move-result-object v0
+
+    .line 92
+    iget-object v0, v0, Lrikka/shizuku/H2;->h:Lrikka/shizuku/di;
+
+    .line 93
+    .line 94
+    if-eqz v0, :cond_4
+
+    .line 95
+    .line 96
+    const/4 v1, 0x1
+
+    .line 97
+    invoke-virtual {v0, v1}, Lrikka/shizuku/di;->c(Z)V
+
+    .line 98
+    .line 99
+    .line 100
+    :cond_4
+    return-void
+.end method
+
+.method public final onMeasure(II)V
+    .locals 16
+
+    .line 1
+    move-object/from16 v0, p0
+
+    .line 2
+    .line 3
+    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    .line 4
+    .line 5
+    .line 6
+    move-result-object v1
+
+    .line 7
+    invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    .line 8
+    .line 9
+    .line 10
+    move-result-object v1
+
+    .line 11
+    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    .line 12
+    .line 13
+    .line 14
+    move-result-object v1
+
+    .line 15
+    iget v2, v1, Landroid/util/DisplayMetrics;->widthPixels:I
+
+    .line 16
+    .line 17
+    iget v3, v1, Landroid/util/DisplayMetrics;->heightPixels:I
+
+    .line 18
+    .line 19
+    const/4 v4, 0x1
+
+    .line 20
+    const/4 v5, 0x0
+
+    .line 21
+    if-ge v2, v3, :cond_0
+
+    .line 22
+    .line 23
+    move v2, v4
+
+    .line 24
+    goto :goto_0
+
+    .line 25
+    :cond_0
+    move v2, v5
+
+    .line 26
+    :goto_0
+    invoke-static/range {p1 .. p1}, Landroid/view/View$MeasureSpec;->getMode(I)I
+
+    .line 27
+    .line 28
+    .line 29
+    move-result v3
+
+    .line 30
+    invoke-static/range {p2 .. p2}, Landroid/view/View$MeasureSpec;->getMode(I)I
+
+    .line 31
+    .line 32
+    .line 33
+    move-result v6
+
+    .line 34
+    iget-object v7, v0, Landroidx/appcompat/widget/ContentFrameLayout;->g:Landroid/graphics/Rect;
+
+    .line 35
+    .line 36
+    const/4 v8, 0x6
+
+    .line 37
+    const/4 v9, 0x5
+
+    .line 38
+    const/high16 v10, -0x80000000
+
+    .line 39
+    .line 40
+    const/high16 v11, 0x40000000    # 2.0f
+
+    .line 41
+    .line 42
+    if-ne v3, v10, :cond_4
+
+    .line 43
+    .line 44
+    if-eqz v2, :cond_1
+
+    .line 45
+    .line 46
+    iget-object v12, v0, Landroidx/appcompat/widget/ContentFrameLayout;->d:Landroid/util/TypedValue;
+
+    .line 47
+    .line 48
+    goto :goto_1
+
+    .line 49
+    :cond_1
+    iget-object v12, v0, Landroidx/appcompat/widget/ContentFrameLayout;->c:Landroid/util/TypedValue;
+
+    .line 50
+    .line 51
+    :goto_1
+    if-eqz v12, :cond_4
+
+    .line 52
+    .line 53
+    iget v13, v12, Landroid/util/TypedValue;->type:I
+
+    .line 54
+    .line 55
+    if-eqz v13, :cond_4
+
+    .line 56
+    .line 57
+    if-ne v13, v9, :cond_2
+
+    .line 58
+    .line 59
+    invoke-virtual {v12, v1}, Landroid/util/TypedValue;->getDimension(Landroid/util/DisplayMetrics;)F
+
+    .line 60
+    .line 61
+    .line 62
+    move-result v12
+
+    .line 63
+    :goto_2
+    float-to-int v12, v12
+
+    .line 64
+    goto :goto_3
+
+    .line 65
+    :cond_2
+    if-ne v13, v8, :cond_3
+
+    .line 66
+    .line 67
+    iget v13, v1, Landroid/util/DisplayMetrics;->widthPixels:I
+
+    .line 68
+    .line 69
+    int-to-float v14, v13
+
+    .line 70
+    int-to-float v13, v13
+
+    .line 71
+    invoke-virtual {v12, v14, v13}, Landroid/util/TypedValue;->getFraction(FF)F
+
+    .line 72
+    .line 73
+    .line 74
+    move-result v12
+
+    .line 75
+    goto :goto_2
+
+    .line 76
+    :cond_3
+    move v12, v5
+
+    .line 77
+    :goto_3
+    if-lez v12, :cond_4
+
+    .line 78
+    .line 79
+    iget v13, v7, Landroid/graphics/Rect;->left:I
+
+    .line 80
+    .line 81
+    iget v14, v7, Landroid/graphics/Rect;->right:I
+
+    .line 82
+    .line 83
+    add-int/2addr v13, v14
+
+    .line 84
+    sub-int/2addr v12, v13
+
+    .line 85
+    invoke-static/range {p1 .. p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
+
+    .line 86
+    .line 87
+    .line 88
+    move-result v13
+
+    .line 89
+    invoke-static {v12, v13}, Ljava/lang/Math;->min(II)I
+
+    .line 90
+    .line 91
+    .line 92
+    move-result v12
+
+    .line 93
+    invoke-static {v12, v11}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
+
+    .line 94
+    .line 95
+    .line 96
+    move-result v12
+
+    .line 97
+    move v13, v4
+
+    .line 98
+    goto :goto_4
+
+    .line 99
+    :cond_4
+    move/from16 v12, p1
+
+    .line 100
+    .line 101
+    move v13, v5
+
+    .line 102
+    :goto_4
+    if-ne v6, v10, :cond_8
+
+    .line 103
+    .line 104
+    if-eqz v2, :cond_5
+
+    .line 105
+    .line 106
+    iget-object v6, v0, Landroidx/appcompat/widget/ContentFrameLayout;->e:Landroid/util/TypedValue;
+
+    .line 107
+    .line 108
+    goto :goto_5
+
+    .line 109
+    :cond_5
+    iget-object v6, v0, Landroidx/appcompat/widget/ContentFrameLayout;->f:Landroid/util/TypedValue;
+
+    .line 110
+    .line 111
+    :goto_5
+    if-eqz v6, :cond_8
+
+    .line 112
+    .line 113
+    iget v14, v6, Landroid/util/TypedValue;->type:I
+
+    .line 114
+    .line 115
+    if-eqz v14, :cond_8
+
+    .line 116
+    .line 117
+    if-ne v14, v9, :cond_6
+
+    .line 118
+    .line 119
+    invoke-virtual {v6, v1}, Landroid/util/TypedValue;->getDimension(Landroid/util/DisplayMetrics;)F
+
+    .line 120
+    .line 121
+    .line 122
+    move-result v6
+
+    .line 123
+    :goto_6
+    float-to-int v6, v6
+
+    .line 124
+    goto :goto_7
+
+    .line 125
+    :cond_6
+    if-ne v14, v8, :cond_7
+
+    .line 126
+    .line 127
+    iget v14, v1, Landroid/util/DisplayMetrics;->heightPixels:I
+
+    .line 128
+    .line 129
+    int-to-float v15, v14
+
+    .line 130
+    int-to-float v14, v14
+
+    .line 131
+    invoke-virtual {v6, v15, v14}, Landroid/util/TypedValue;->getFraction(FF)F
+
+    .line 132
+    .line 133
+    .line 134
+    move-result v6
+
+    .line 135
+    goto :goto_6
+
+    .line 136
+    :cond_7
+    move v6, v5
+
+    .line 137
+    :goto_7
+    if-lez v6, :cond_8
+
+    .line 138
+    .line 139
+    iget v14, v7, Landroid/graphics/Rect;->top:I
+
+    .line 140
+    .line 141
+    iget v15, v7, Landroid/graphics/Rect;->bottom:I
+
+    .line 142
+    .line 143
+    add-int/2addr v14, v15
+
+    .line 144
+    sub-int/2addr v6, v14
+
+    .line 145
+    invoke-static/range {p2 .. p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
+
+    .line 146
+    .line 147
+    .line 148
+    move-result v14
+
+    .line 149
+    invoke-static {v6, v14}, Ljava/lang/Math;->min(II)I
+
+    .line 150
+    .line 151
+    .line 152
+    move-result v6
+
+    .line 153
+    invoke-static {v6, v11}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
+
+    .line 154
+    .line 155
+    .line 156
+    move-result v6
+
+    .line 157
+    goto :goto_8
+
+    .line 158
+    :cond_8
+    move/from16 v6, p2
+
+    .line 159
+    .line 160
+    :goto_8
+    invoke-super {v0, v12, v6}, Landroid/widget/FrameLayout;->onMeasure(II)V
+
+    .line 161
+    .line 162
+    .line 163
+    invoke-virtual {v0}, Landroid/view/View;->getMeasuredWidth()I
+
+    .line 164
+    .line 165
+    .line 166
+    move-result v12
+
+    .line 167
+    invoke-static {v12, v11}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
+
+    .line 168
+    .line 169
+    .line 170
+    move-result v14
+
+    .line 171
+    if-nez v13, :cond_d
+
+    .line 172
+    .line 173
+    if-ne v3, v10, :cond_d
+
+    .line 174
+    .line 175
+    if-eqz v2, :cond_9
+
+    .line 176
+    .line 177
+    iget-object v2, v0, Landroidx/appcompat/widget/ContentFrameLayout;->b:Landroid/util/TypedValue;
+
+    .line 178
+    .line 179
+    goto :goto_9
+
+    .line 180
+    :cond_9
+    iget-object v2, v0, Landroidx/appcompat/widget/ContentFrameLayout;->a:Landroid/util/TypedValue;
+
+    .line 181
+    .line 182
+    :goto_9
+    if-eqz v2, :cond_d
+
+    .line 183
+    .line 184
+    iget v3, v2, Landroid/util/TypedValue;->type:I
+
+    .line 185
+    .line 186
+    if-eqz v3, :cond_d
+
+    .line 187
+    .line 188
+    if-ne v3, v9, :cond_a
+
+    .line 189
+    .line 190
+    invoke-virtual {v2, v1}, Landroid/util/TypedValue;->getDimension(Landroid/util/DisplayMetrics;)F
+
+    .line 191
+    .line 192
+    .line 193
+    move-result v1
+
+    .line 194
+    :goto_a
+    float-to-int v1, v1
+
+    .line 195
+    goto :goto_b
+
+    .line 196
+    :cond_a
+    if-ne v3, v8, :cond_b
+
+    .line 197
+    .line 198
+    iget v1, v1, Landroid/util/DisplayMetrics;->widthPixels:I
+
+    .line 199
+    .line 200
+    int-to-float v3, v1
+
+    .line 201
+    int-to-float v1, v1
+
+    .line 202
+    invoke-virtual {v2, v3, v1}, Landroid/util/TypedValue;->getFraction(FF)F
+
+    .line 203
+    .line 204
+    .line 205
+    move-result v1
+
+    .line 206
+    goto :goto_a
+
+    .line 207
+    :cond_b
+    move v1, v5
+
+    .line 208
+    :goto_b
+    if-lez v1, :cond_c
+
+    .line 209
+    .line 210
+    iget v2, v7, Landroid/graphics/Rect;->left:I
+
+    .line 211
+    .line 212
+    iget v3, v7, Landroid/graphics/Rect;->right:I
+
+    .line 213
+    .line 214
+    add-int/2addr v2, v3
+
+    .line 215
+    sub-int/2addr v1, v2
+
+    .line 216
+    :cond_c
+    if-ge v12, v1, :cond_d
+
+    .line 217
+    .line 218
+    invoke-static {v1, v11}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
+
+    .line 219
+    .line 220
+    .line 221
+    move-result v14
+
+    .line 222
+    goto :goto_c
+
+    .line 223
+    :cond_d
+    move v4, v5
+
+    .line 224
+    :goto_c
+    if-eqz v4, :cond_e
+
+    .line 225
+    .line 226
+    invoke-super {v0, v14, v6}, Landroid/widget/FrameLayout;->onMeasure(II)V
+
+    .line 227
+    .line 228
+    .line 229
+    :cond_e
     return-void
 .end method

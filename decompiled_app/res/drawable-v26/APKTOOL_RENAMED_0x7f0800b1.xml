@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@mipmap/APKTOOL_RENAMED_0x7f0f0002" />
+    <foreground android:drawable="@mipmap/APKTOOL_RENAMED_0x7f0f0003" />
+    <monochrome android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800b6" />
+</adaptive-icon>

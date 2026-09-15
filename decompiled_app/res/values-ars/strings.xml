@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="APKTOOL_RENAMED_0x7f11004f">\"عم نشيّك خاصية \"المعالجة اللاسلكية</string>
+    <string name="APKTOOL_RENAMED_0x7f110050">“ارجوك شغل ”المعالجة اللاسلكية</string>
+    <string name="APKTOOL_RENAMED_0x7f11006d">شوف الأمر</string>
+    <string name="APKTOOL_RENAMED_0x7f110071">نسخ</string>
+    <string name="APKTOOL_RENAMED_0x7f110086">"على إصدارات الأندرويد ١١ او اعلى، فيك تشغل \"المعالجة اللاسلكية\" وتشغل معها شيزوكو مباشرا من جهازك، من دون ما تتصل بالكمبيوتر 
+بحيات ربك، ارجوك شوف التعليمات"</string>
+    <string name="APKTOOL_RENAMED_0x7f110088">بلش بـالمعالجة اللاسلكية</string>
+</resources>

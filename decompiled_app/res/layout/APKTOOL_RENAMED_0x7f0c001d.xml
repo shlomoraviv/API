@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:clipChildren="false" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginTop="48.0dp" android:layout_marginBottom="48.0dp" android:overScrollMode="ifContentScrolls" android:paddingStart="?android:dialogPreferredPadding" android:paddingEnd="?android:dialogPreferredPadding"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dp" android:layout_marginBottom="8.0dp">
+        <TextView android:textAppearance="?APKTOOL_RENAMED_0x7f0404b2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/APKTOOL_RENAMED_0x7f110050" />
+        <TextView android:textAppearance="?APKTOOL_RENAMED_0x7f0404b2" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16.0sp" android:text="@string/APKTOOL_RENAMED_0x7f110051" />
+    </LinearLayout>
+</ScrollView>

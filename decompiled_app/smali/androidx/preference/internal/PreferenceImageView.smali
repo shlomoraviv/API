@@ -1,6 +1,6 @@
 .class public Landroidx/preference/internal/PreferenceImageView;
 .super Landroid/widget/ImageView;
-.source "PreferenceImageView.java"
+.source "SourceFile"
 
 
 # annotations
@@ -12,189 +12,264 @@
 
 
 # instance fields
-.field private f:I
+.field public a:I
 
-.field private g:I
+.field public b:I
 
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
-    .locals 1
-
-    const/4 v0, 0x0
-
-    .line 1
-    invoke-direct {p0, p1, p2, v0}, Landroidx/preference/internal/PreferenceImageView;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-
-    return-void
-.end method
-
-.method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
     .locals 3
 
-    .line 2
-    invoke-direct {p0, p1, p2, p3}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
+    .line 1
+    const/4 v0, 0x0
 
-    const v0, 0x7fffffff
+    .line 2
+    invoke-direct {p0, p1, p2, v0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
 
     .line 3
-    iput v0, p0, Landroidx/preference/internal/PreferenceImageView;->f:I
-
     .line 4
-    iput v0, p0, Landroidx/preference/internal/PreferenceImageView;->g:I
-
     .line 5
-    sget-object v1, Landroidx/preference/t;->m1:[I
-
-    const/4 v2, 0x0
-
-    invoke-virtual {p1, p2, v1, p3, v2}, Landroid/content/Context;->obtainStyledAttributes(Landroid/util/AttributeSet;[III)Landroid/content/res/TypedArray;
-
-    move-result-object p1
+    const v1, 0x7fffffff
 
     .line 6
-    sget p2, Landroidx/preference/t;->o1:I
+    .line 7
+    .line 8
+    iput v1, p0, Landroidx/preference/internal/PreferenceImageView;->a:I
 
-    invoke-virtual {p1, p2, v0}, Landroid/content/res/TypedArray;->getDimensionPixelSize(II)I
+    .line 9
+    .line 10
+    iput v1, p0, Landroidx/preference/internal/PreferenceImageView;->b:I
 
+    .line 11
+    .line 12
+    sget-object v2, Lrikka/shizuku/Jk;->j:[I
+
+    .line 13
+    .line 14
+    invoke-virtual {p1, p2, v2, v0, v0}, Landroid/content/Context;->obtainStyledAttributes(Landroid/util/AttributeSet;[III)Landroid/content/res/TypedArray;
+
+    .line 15
+    .line 16
+    .line 17
+    move-result-object p1
+
+    .line 18
+    const/4 p2, 0x3
+
+    .line 19
+    invoke-virtual {p1, p2, v1}, Landroid/content/res/TypedArray;->getDimensionPixelSize(II)I
+
+    .line 20
+    .line 21
+    .line 22
     move-result p2
 
+    .line 23
     invoke-virtual {p0, p2}, Landroidx/preference/internal/PreferenceImageView;->setMaxWidth(I)V
 
-    .line 7
-    sget p2, Landroidx/preference/t;->n1:I
+    .line 24
+    .line 25
+    .line 26
+    const/4 p2, 0x2
 
-    invoke-virtual {p1, p2, v0}, Landroid/content/res/TypedArray;->getDimensionPixelSize(II)I
+    .line 27
+    invoke-virtual {p1, p2, v1}, Landroid/content/res/TypedArray;->getDimensionPixelSize(II)I
 
+    .line 28
+    .line 29
+    .line 30
     move-result p2
 
+    .line 31
     invoke-virtual {p0, p2}, Landroidx/preference/internal/PreferenceImageView;->setMaxHeight(I)V
 
-    .line 8
+    .line 32
+    .line 33
+    .line 34
     invoke-virtual {p1}, Landroid/content/res/TypedArray;->recycle()V
 
+    .line 35
+    .line 36
+    .line 37
     return-void
 .end method
 
 
 # virtual methods
-.method public getMaxHeight()I
+.method public final getMaxHeight()I
     .locals 1
 
     .line 1
-    iget v0, p0, Landroidx/preference/internal/PreferenceImageView;->g:I
+    iget v0, p0, Landroidx/preference/internal/PreferenceImageView;->b:I
 
+    .line 2
+    .line 3
     return v0
 .end method
 
-.method public getMaxWidth()I
+.method public final getMaxWidth()I
     .locals 1
 
     .line 1
-    iget v0, p0, Landroidx/preference/internal/PreferenceImageView;->f:I
+    iget v0, p0, Landroidx/preference/internal/PreferenceImageView;->a:I
 
+    .line 2
+    .line 3
     return v0
 .end method
 
-.method protected onMeasure(II)V
+.method public final onMeasure(II)V
     .locals 5
 
     .line 1
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getMode(I)I
 
+    .line 2
+    .line 3
+    .line 4
     move-result v0
 
+    .line 5
     const v1, 0x7fffffff
 
+    .line 6
+    .line 7
+    .line 8
     const/high16 v2, -0x80000000
 
+    .line 9
+    .line 10
     if-eq v0, v2, :cond_0
 
+    .line 11
+    .line 12
     if-nez v0, :cond_2
 
-    .line 2
+    .line 13
+    .line 14
     :cond_0
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
+    .line 15
+    .line 16
+    .line 17
     move-result v3
 
-    .line 3
-    invoke-virtual {p0}, Landroidx/preference/internal/PreferenceImageView;->getMaxWidth()I
+    .line 18
+    iget v4, p0, Landroidx/preference/internal/PreferenceImageView;->a:I
 
-    move-result v4
-
+    .line 19
+    .line 20
     if-eq v4, v1, :cond_2
 
+    .line 21
+    .line 22
     if-lt v4, v3, :cond_1
 
+    .line 23
+    .line 24
     if-nez v0, :cond_2
 
-    .line 4
+    .line 25
+    .line 26
     :cond_1
     invoke-static {v4, v2}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
+    .line 27
+    .line 28
+    .line 29
     move-result p1
 
-    .line 5
+    .line 30
     :cond_2
     invoke-static {p2}, Landroid/view/View$MeasureSpec;->getMode(I)I
 
+    .line 31
+    .line 32
+    .line 33
     move-result v0
 
+    .line 34
     if-eq v0, v2, :cond_3
 
+    .line 35
+    .line 36
     if-nez v0, :cond_5
 
-    .line 6
+    .line 37
+    .line 38
     :cond_3
     invoke-static {p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
+    .line 39
+    .line 40
+    .line 41
     move-result v3
 
-    .line 7
-    invoke-virtual {p0}, Landroidx/preference/internal/PreferenceImageView;->getMaxHeight()I
+    .line 42
+    iget v4, p0, Landroidx/preference/internal/PreferenceImageView;->b:I
 
-    move-result v4
-
+    .line 43
+    .line 44
     if-eq v4, v1, :cond_5
 
+    .line 45
+    .line 46
     if-lt v4, v3, :cond_4
 
+    .line 47
+    .line 48
     if-nez v0, :cond_5
 
-    .line 8
+    .line 49
+    .line 50
     :cond_4
     invoke-static {v4, v2}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
+    .line 51
+    .line 52
+    .line 53
     move-result p2
 
-    .line 9
+    .line 54
     :cond_5
     invoke-super {p0, p1, p2}, Landroid/widget/ImageView;->onMeasure(II)V
 
+    .line 55
+    .line 56
+    .line 57
     return-void
 .end method
 
-.method public setMaxHeight(I)V
+.method public final setMaxHeight(I)V
     .locals 0
 
     .line 1
-    iput p1, p0, Landroidx/preference/internal/PreferenceImageView;->g:I
+    iput p1, p0, Landroidx/preference/internal/PreferenceImageView;->b:I
 
     .line 2
+    .line 3
     invoke-super {p0, p1}, Landroid/widget/ImageView;->setMaxHeight(I)V
 
+    .line 4
+    .line 5
+    .line 6
     return-void
 .end method
 
-.method public setMaxWidth(I)V
+.method public final setMaxWidth(I)V
     .locals 0
 
     .line 1
-    iput p1, p0, Landroidx/preference/internal/PreferenceImageView;->f:I
+    iput p1, p0, Landroidx/preference/internal/PreferenceImageView;->a:I
 
     .line 2
+    .line 3
     invoke-super {p0, p1}, Landroid/widget/ImageView;->setMaxWidth(I)V
 
+    .line 4
+    .line 5
+    .line 6
     return-void
 .end method

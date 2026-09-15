@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.Design.TabLayout" parent="@style/Base.Widget.Design.TabLayout">
-        <item name="tabGravity">center</item>
-        <item name="tabMode">fixed</item>
+    <style name="APKTOOL_RENAMED_0x7f12039a" parent="@style/APKTOOL_RENAMED_0x7f120110">
+        <item name="APKTOOL_RENAMED_0x7f04048f">APKTOOL_RENAMED_0x7f090063</item>
+        <item name="APKTOOL_RENAMED_0x7f04049c">APKTOOL_RENAMED_0x7f0900b8</item>
     </style>
-    <style name="Widget.MaterialComponents.MaterialCalendar.HeaderSelection" parent="@style/Widget.AppCompat.TextView">
-        <item name="android:textAppearance">?textAppearanceHeadline6</item>
-        <item name="android:textColor">?colorOnPrimary</item>
+    <style name="APKTOOL_RENAMED_0x7f120493" parent="@style/APKTOOL_RENAMED_0x7f12038b">
+        <item name="android:textAppearance">?APKTOOL_RENAMED_0x7f0404be</item>
+        <item name="android:textColor">?APKTOOL_RENAMED_0x7f0400ff</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">@integer/mtrl_calendar_selection_text_lines</item>
+        <item name="android:layout_gravity">start|top</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">@integer/APKTOOL_RENAMED_0x7f0a0033</item>
+    </style>
+    <style name="APKTOOL_RENAMED_0x7f120496" parent="@style/APKTOOL_RENAMED_0x7f120128">
+        <item name="android:layout_gravity">start|bottom</item>
     </style>
 </resources>

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip android:layout_width="@dimen/APKTOOL_RENAMED_0x7f070240" android:layout_height="@dimen/APKTOOL_RENAMED_0x7f07023e" style="?APKTOOL_RENAMED_0x7f0400d1"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

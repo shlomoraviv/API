@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rikka.preference.simplemenu.ForegroundCheckTextView android:textSize="16.0sp" android:textColor="?android:textColorPrimary" android:gravity="center_vertical" android:id="@android:id/text1" android:background="@drawable/APKTOOL_RENAMED_0x7f080129" android:paddingTop="8.0dp" android:paddingBottom="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:foreground="?android:selectableItemBackground" android:minHeight="48.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

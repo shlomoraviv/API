@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="APKTOOL_RENAMED_0x7f120019" parent="@style/APKTOOL_RENAMED_0x7f1200cc" />
+    <style name="APKTOOL_RENAMED_0x7f12001a" parent="@style/APKTOOL_RENAMED_0x7f1200cd" />
+    <style name="APKTOOL_RENAMED_0x7f1200cc" parent="@style/APKTOOL_RENAMED_0x7f1200ca">
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+    <style name="APKTOOL_RENAMED_0x7f1200cd" parent="@style/APKTOOL_RENAMED_0x7f1200cb">
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+</resources>

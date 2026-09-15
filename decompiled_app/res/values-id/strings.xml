@@ -1,14 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="cancel_netigen">Membatalkan</string>
-    <string name="change_language_netigen">Ganti BAHASA</string>
-    <string name="do_you_like_this_app_netigen">Apakah Anda suka aplikasi ini?</string>
-    <string name="later_netigen">Kemudian</string>
-    <string name="msg_browser_not_found_netigen">Browser tidak ditemukan !!!</string>
-    <string name="please_support_us_netigen">Tolong dukung kami dengan memberi peringkat aplikasi ini. Terima kasih!</string>
-    <string name="rate_us_netigen">Beri kami</string>
-    <string name="settings_normal_netigen">Pengaturan</string>
-    <string name="translation_information_content1_netigen">Aplikasi ini telah diterjemahkan oleh Google Translate. Bahasa Inggris adalah bahasa asli aplikasi ini. Harap diingat bahwa mungkin ada beberapa kesalahan dalam terjemahan.</string>
-    <string name="translation_information_content2_netigen">Jika Anda ingin mengubah bahasa aplikasi ke Bahasa Inggris, Anda dapat melakukannya di pengaturan.</string>
-    <string name="translation_information_title_netigen">Informasi terjemahan</string>
+    <string name="APKTOOL_RENAMED_0x7f11001b">Lihat kode sumbernya di %s</string>
+    <string name="APKTOOL_RENAMED_0x7f11001c">Tentang</string>
+    <string name="APKTOOL_RENAMED_0x7f11001d">Hentikan Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11001e">"Gagal membuat kunci untuk debug nirkabel. 
+Hal ini bisa terjadi karena mekanisme KeyStore pada perangkat ini mengalami kerusakan."</string>
+    <string name="APKTOOL_RENAMED_0x7f11001f">Harap lakukan penyambungan terlebih dahulu.</string>
+    <string name="APKTOOL_RENAMED_0x7f110020">Sambungkan</string>
+    <string name="APKTOOL_RENAMED_0x7f110021">Harap pindah ke mode layar pisah (split-screen) terlebih dahulu.</string>
+    <string name="APKTOOL_RENAMED_0x7f110022">Sistem mengharuskan dialog penyambungan untuk selalu terlihat, hal ini hanya bisa diakali dengan mode layar pisah (split-screen) untuk membuat Shizuku dan dialog sistem muncul secara bersamaan.</string>
+    <string name="APKTOOL_RENAMED_0x7f110023">Masukkan kode pada notifikasi untuk menyelesaikan penyambungan.</string>
+    <string name="APKTOOL_RENAMED_0x7f110024">Kembali ke Shizuku dan mulai Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f110025">Harap dicatat, bagian kiri dari opsi \"Debug nirkabel \" dapat diklik, mengetuknya akan membuka halaman baru. Hanya menyalakan sakelar di sebelah kanan yang salah.</string>
+    <string name="APKTOOL_RENAMED_0x7f110026">Pengguna MIUI mungkin perlu mengubah gaya pemberitahuan ke \"Android\" dari \"Pemberitahuan\" - \"Bayangan pemberitahuan\" di pengaturan sistem.</string>
+    <string name="APKTOOL_RENAMED_0x7f110027">Jika tidak, Anda mungkin tidak dapat memasukan kode penyandingan dari notifikasi.</string>
+    <string name="APKTOOL_RENAMED_0x7f110028">Shizuku membutuhkan akses ke jaringan lokal. Itu dikontrol oleh izin jaringan.</string>
+    <string name="APKTOOL_RENAMED_0x7f110029">Beberapa sistem (seperti MIUI) melarang aplikasi untuk mengakses jaringan ketika tidak terlihat, bahkan jika aplikasi berjalan dilatar depan. Tolong matikan fitur optimisasi baterai untuk Shizuku pada sistem tersebut.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002a">Notifikasi dari Shizuku akan membantu Anda untuk menyelesaikan pemasangan.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002b">Proses penyambungan membutuhkan Anda untuk berinteraksi dengan notifikasi dari Shizuku. Mohon izinkan Shizuku untuk mengirim pemberitahuan.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002c">Masuk \"Opsi developer\" - \"Debug nirkabel\". Sentuh \"Sambungkan perangkat dengan kode penghubung\", Anda akan melihat enam digit kode.</string>
+    <string name="APKTOOL_RENAMED_0x7f11002d">Pasangkan Shizuku dengan perangkat Anda</string>
+    <string name="APKTOOL_RENAMED_0x7f11002f">Kemungkinan besar merk perangkat Anda membatasi perizinan adb.&lt;p>Solusi untuk perangkat Anda mungkin ada pada &lt;b>&lt;a href=\"%1$s\">dokumentasi ini&lt;/a>&lt;/b>.</string>
+    <string name="APKTOOL_RENAMED_0x7f110030">Izin adb terbatas</string>
+    <string name="APKTOOL_RENAMED_0x7f110031">* Shizuku harus dijalankan dengan root</string>
+    <string name="APKTOOL_RENAMED_0x7f110041">Gagal menyambungkan ke layanan debug nirkabel.</string>
+    <string name="APKTOOL_RENAMED_0x7f11004e">Pilihan pengembang</string>
+    <string name="APKTOOL_RENAMED_0x7f11004f">Mencari layanan debug nirkabel</string>
+    <string name="APKTOOL_RENAMED_0x7f110050">"Harap aktifkan \"Debug Nirkabel (Wireless Debugging)\" pada \"Pilihan Pengembang (Developer Option)\". Opsi \"Debug Nirkabel\" akan nonaktif otomatis saat koneksi berubah. 
+ 
+Sebagai catatan, jangan nonaktifkan \"Pilihan Pengembang\" atau \"Debug USB\", karena Shizuku akan terhenti."</string>
+    <string name="APKTOOL_RENAMED_0x7f110051">Coba untuk matikan dan hidupkan kembali \"Debug nirkabel\" jika terus mencari.</string>
+    <string name="APKTOOL_RENAMED_0x7f110052">Port adalah integer antara 1 sampai 65535.</string>
+    <string name="APKTOOL_RENAMED_0x7f110053">Mencari layanan penyambung</string>
+    <string name="APKTOOL_RENAMED_0x7f110054">"Harap mulai penyambungan melalui langkah berikut: \"Pilihan Pengembang\" – \"Debug Nirkabel\" – \"Sambungkan perangkat dengan kode penghubung\". 
+ 
+Setelah penyambungan dimulai, Anda akan diminta untuk memasukkan kode penghubung."</string>
+    <string name="APKTOOL_RENAMED_0x7f110055">Kode penghubung</string>
+    <string name="APKTOOL_RENAMED_0x7f110056">Sambungkan dengan perangkat</string>
+    <string name="APKTOOL_RENAMED_0x7f110057">Port</string>
+    <string name="APKTOOL_RENAMED_0x7f110058">Tidak bisa membuka browser</string>
+    <string name="APKTOOL_RENAMED_0x7f110059">Shizuku Kuno sudah dihentikan sejak Maret 2019. Selain itu, Shizuku kuno tidak bisa bekerja pada sistem Android yang lebih baru.&lt;p>Coba minta kepada pengembang dari &lt;b>%1$s&lt;/b> untuk memperbarui aplikasinya.</string>
+    <string name="APKTOOL_RENAMED_0x7f11005a">%1$s tidak mendukung Shizuku modern</string>
+    <string name="APKTOOL_RENAMED_0x7f11005b">Buka Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11005c">&lt;b>%1$s&lt;/b> memiliki dukungan Shizuku modern, namun meminta akses Shizuku kuno. Hal ini bisa terjadi karena Shizuku tidak aktif, harap periksa di aplikasi Shizuku. &lt;p>Shizuku Kuno sudah dihentikan sejak Maret 2019.</string>
+    <string name="APKTOOL_RENAMED_0x7f11005d">%1$s meminta akses Shizuku kuno</string>
+    <string name="APKTOOL_RENAMED_0x7f11005e">Layanan Shizuku akan berhenti.</string>
+    <string name="APKTOOL_RENAMED_0x7f11005f">"Debug nirkabel belum diaktifkan. 
+Sebagai catatan, Anda harus terhubung ke komputer untuk mengaktifkan debug nirkabel pada perangkat sebelum Android 11."</string>
+    <string name="APKTOOL_RENAMED_0x7f11006a">Selalu izinkan</string>
+    <string name="APKTOOL_RENAMED_0x7f11006b">Tolak</string>
+    <string name="APKTOOL_RENAMED_0x7f11006d">Lihat perintah</string>
+    <string name="APKTOOL_RENAMED_0x7f11006e">Baca dokumentasi</string>
+    <string name="APKTOOL_RENAMED_0x7f11006f">Untuk perangkat tanpa akses root, Anda harus menggunakan adb untuk memulai Shizuku (perlu terhubung dengan komputer). Proses ini harus diulang setiap kali perangkat di-restart. Harap <b><a href="%1$s">baca dokumentasi</a></b> untuk info lebih lanjut.</string>
+    <string name="APKTOOL_RENAMED_0x7f110070">Kirim ke...</string>
+    <string name="APKTOOL_RENAMED_0x7f110071">Salin</string>
+    <string name="APKTOOL_RENAMED_0x7f110072">&lt;font face=monospace>%1$s&lt;/font>&lt;br>&lt;br>* Terdapat beberapa pertimbangan tambahan, harap pastikan bahwa Anda telah membaca dokumentasi.</string>
+    <string name="APKTOOL_RENAMED_0x7f110073">"Produsen perangkat Anda telah membatasi izin adb dan aplikasi yang menggunakan Shizuku tidak akan berfungsi dengan baik. 
+ 
+Biasanya, batasan ini dapat dihilangkan dengan menyesuaikan beberapa opsi di \"Opsi pengembang\". Silakan baca bantuan untuk detail tentang cara melakukan ini. 
+ 
+Anda mungkin perlu memulai ulang Shizuku agar operasi dapat diterapkan."</string>
+    <string name="APKTOOL_RENAMED_0x7f110074">Anda perlu mengambil langkah ekstra</string>
+    <string name="APKTOOL_RENAMED_0x7f110075">Mulai dengan menghubungkan ke komputer</string>
+    <string name="APKTOOL_RENAMED_0x7f110076">Aplikasi yang telah meminta atau mendeklarasikan Shizuku akan ditampilkan di sini.</string>
+    <string name="APKTOOL_RENAMED_0x7f110077">Manajemen Aplikasi</string>
+    <string name="APKTOOL_RENAMED_0x7f110078">Ketuk untuk mengatur aplikasi terdaftar</string>
+    <string name="APKTOOL_RENAMED_0x7f110079">Pelajari cara mengembangkan dengan Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11007a">Pelajari Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11007b">Mulai ulang</string>
+    <string name="APKTOOL_RENAMED_0x7f11007c">Mulai</string>
+    <string name="APKTOOL_RENAMED_0x7f11007d">Sebagai tambahan, Shizuku bisa dimulai secara otomatis saat perangkat dimulai. Kalau hal ini tak bisa dilakukan, harap cek apakah sistem Anda atau aplikasi pihak-ketiga telah membatasi Shizuku.&lt;br>Lebih lanjut, cek %s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11007e">Jika Anda menggunakan Magisk, Anda bisa coba %1$s. Untuk pengguna root, hal ini perlahan akan menggantikan Shizuku. Sebagai catatan, aplikasi yang sudah ada harus disesuaikan sedikit untuk menggunakan %2$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11007f">Mulai (untuk perangkat dengan root)</string>
+    <string name="APKTOOL_RENAMED_0x7f110080">%1$s aktif</string>
+    <string name="APKTOOL_RENAMED_0x7f110081">%1$s tidak berjalan</string>
+    <string name="APKTOOL_RENAMED_0x7f110082">Versi %2$s, %1$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110083">Versi %2$s, %1$s &lt;br> Mulai ulang untuk upgrade ke versi %3$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110084">Jalankan perintah melalui Shizuku pada aplikasi terminal yang Anda gunakan</string>
+    <string name="APKTOOL_RENAMED_0x7f110085">Gunakan Shizuku pada aplikasi terminal</string>
+    <string name="APKTOOL_RENAMED_0x7f110086">Pada Android 11 atau yang lebih baru, Anda dapat mengaktifkan debug Nirkabel dan memulai Shizuku langsung dari perangkat Anda, tanpa menyambungkan ke komputer.&lt;p>Silakan lihat panduan langkah demi langkah terlebih dahulu.</string>
+    <string name="APKTOOL_RENAMED_0x7f110087">Sebelum Android 11, koneksi ke komputer diperlukan untuk mengaktifkan debug Nirkabel.</string>
+    <string name="APKTOOL_RENAMED_0x7f110088">Mulai melalui Debug Nirkabel</string>
+    <string name="APKTOOL_RENAMED_0x7f110089">Panduan langkah demi langkah</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f2">Penyambungan gagal</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f3">Masukkan kode penyambungan</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f4">Ulangi</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f5">Mencari layanan penyambungan</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f6">Layanan penyambungan ditemukan</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f7">Berhenti mencari</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f8">Anda dapat memulai layanan Shizuku sekarang.</string>
+    <string name="APKTOOL_RENAMED_0x7f1100f9">Penyambungan berhasil</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fa">Penyambungan dalam proses</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fb">Pemasangan debug nirkabel</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fc">Status layanan</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fd">Layanan Shizuku gagal dimulai.</string>
+    <string name="APKTOOL_RENAMED_0x7f1100fe">Gagal mendapat izin root.</string>
+    <string name="APKTOOL_RENAMED_0x7f1100ff">Memulai layanan Shizuku…</string>
+    <string name="APKTOOL_RENAMED_0x7f110100">Pengaturan notifikasi</string>
+    <string name="APKTOOL_RENAMED_0x7f110101">Sedang bekerja…</string>
+    <string name="APKTOOL_RENAMED_0x7f110102">Kode penghubung tidak sesuai.</string>
+    <string name="APKTOOL_RENAMED_0x7f110108">Izinkan aplikasi menggunakan Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f11010b">mengakses Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11010c">Izinkan <b>%1$s</b> untuk %2$s?</string>
+    <string name="APKTOOL_RENAMED_0x7f11010e">Dengan %1$s, di aplikasi terminal mana pun, Anda dapat terhubung dan berinteraksi dengan shell yang dijalankan oleh Shizuku. &lt;p>Tentang detail penggunaan %1$s, ketuk untuk melihat dokumen.</string>
+    <string name="APKTOOL_RENAMED_0x7f110113">Tema hitam gelap</string>
+    <string name="APKTOOL_RENAMED_0x7f110114">Gunakan tema hitam gelap jika mode malam diaktifkan</string>
+    <string name="APKTOOL_RENAMED_0x7f110115">Bahasa</string>
+    <string name="APKTOOL_RENAMED_0x7f110116">Mulai saat boot (root)</string>
+    <string name="APKTOOL_RENAMED_0x7f110117">Untuk perangkat root, Shizuku bisa mulai otomatis saat boot</string>
+    <string name="APKTOOL_RENAMED_0x7f110118">Pemulaian</string>
+    <string name="APKTOOL_RENAMED_0x7f110119">Pengaturan</string>
+    <string name="APKTOOL_RENAMED_0x7f11011a">Ikut menerjemahkan</string>
+    <string name="APKTOOL_RENAMED_0x7f11011b">Kontributor penerjemah</string>
+    <string name="APKTOOL_RENAMED_0x7f11011c">Bantu kami menerjemahkan %s dengan bahasa Anda</string>
+    <string name="APKTOOL_RENAMED_0x7f11011d">Gunakan tema warna sistem</string>
+    <string name="APKTOOL_RENAMED_0x7f11011e">Penampilan</string>
+    <string name="APKTOOL_RENAMED_0x7f110121">Layanan tidak bisa dimulai karena aplikasi tidak mendapat izin root atau perangkat tidak memiliki akses root.</string>
+    <string name="APKTOOL_RENAMED_0x7f110122">Pemulaian</string>
+    <string name="APKTOOL_RENAMED_0x7f110126">Ekspor file</string>
+    <string name="APKTOOL_RENAMED_0x7f110127">Pertama, Ekspor file ke tempat mana pun yang Anda mau. Anda akan mendapatkan dua file, yaitu %1$s dan %2$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f110128">"Jika ada file bernama sama pada folder tersebut, maka file tersebut akan ditimpa. 
+ 
+Fungsi ekspor ini menggunakan SAF (Storage Access Framework). Beberapa orang melaporkan bahwa MIUI mengacaukan fungsi SAF. Jadi jika Anda memakai MIUI, mungkin Anda harus mengekstrak file ini dari apk Shizuku atau mengunduhnya dari GitHub."</string>
+    <string name="APKTOOL_RENAMED_0x7f110129">Lalu, gunakan penyunting teks apa pun untuk membuka dan mengubah %1$s.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012a">Sebagai contoh, jika Anda mau menggunakan Shizuku di %1$s, Anda harus menimpa %2$s dengan %3$s (%4$s adalah nama paket dari %1$s).</string>
+    <string name="APKTOOL_RENAMED_0x7f11012b">Terakhir, pindahkan file ke tempat yang bisa diakses oleh aplikasi terminal yang Anda gunakan, Anda akan bisa menggunakan %1$s untuk menjalan perintah melalui Shizuku.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012c">Tips tambahan: berikan izin eksekusi pada %1$s dan tambahkan pada %2$s, Anda akan bisa menggunakan %1$s secara langsung.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012d">"%s 
+telah disalin ke papan klip."</string>
+    <string name="APKTOOL_RENAMED_0x7f11012e"><b>%s</b> telah disalin ke papan klip.</string>
+    <string name="APKTOOL_RENAMED_0x7f11012f">laymoth</string>
 </resources>

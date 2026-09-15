@@ -1,78 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="30" android:compileSdkVersionCodename="11" package="pl.netigen.simpleguitartuner" platformBuildVersionCode="30" platformBuildVersionName="11">
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="com.android.vending.BILLING"/>
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW"/>
-            <category android:name="android.intent.category.BROWSABLE"/>
-            <data android:scheme="https"/>
-        </intent>
-        <intent>
-            <action android:name="android.support.customtabs.action.CustomTabsService"/>
-        </intent>
-    </queries>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" package="moe.shizuku.privileged.api" platformBuildVersionCode="36" platformBuildVersionName="16">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <application android:allowBackup="true" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:largeHeap="true" android:name="pl.netigen.simpleguitartuner.TunerApplication" android:resizeableActivity="false" android:supportsRtl="false" android:theme="@style/AppCustomBaseTheme">
-        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-4699516034931013~7422749792"/>
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCWUtUsXBI4vanwUErc6m3Hf7TUiK6BKOo"/>
-        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:label="@string/app_name" android:name="pl.netigen.simpleguitartuner.TunerActivity" android:screenOrientation="sensorPortrait" android:theme="@style/AppCustomBaseTheme">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-feature android:name="android.software.leanback" android:required="false"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <permission-group android:description="@string/APKTOOL_RENAMED_0x7f110109" android:icon="@drawable/APKTOOL_RENAMED_0x7f0800cc" android:label="@string/APKTOOL_RENAMED_0x7f11010a" android:name="moe.shizuku.manager.permission-group.API"/>
+    <permission android:name="moe.shizuku.manager.permission.MANAGER" android:protectionLevel="signature"/>
+    <uses-permission android:name="moe.shizuku.manager.permission.MANAGER"/>
+    <permission android:description="@string/APKTOOL_RENAMED_0x7f110108" android:icon="@drawable/APKTOOL_RENAMED_0x7f0800cc" android:label="@string/APKTOOL_RENAMED_0x7f11010b" android:name="moe.shizuku.manager.permission.API_V23" android:permissionGroup="moe.shizuku.manager.permission-group.API" android:protectionLevel="dangerous"/>
+    <application android:allowBackup="true" android:autoRevokePermissions="allowed" android:banner="@drawable/APKTOOL_RENAMED_0x7f0800b1" android:dataExtractionRules="@xml/APKTOOL_RENAMED_0x7f140001" android:directBootAware="true" android:enableOnBackInvokedCallback="true" android:extractNativeLibs="true" android:fullBackupContent="@xml/APKTOOL_RENAMED_0x7f140000" android:icon="@drawable/APKTOOL_RENAMED_0x7f0800b1" android:label="@string/APKTOOL_RENAMED_0x7f110032" android:localeConfig="@xml/APKTOOL_RENAMED_0x7f140003" android:name="moe.shizuku.manager.ShizukuApplication" android:supportsRtl="true" android:theme="@style/APKTOOL_RENAMED_0x7f12000e">
+        <activity android:banner="@mipmap/APKTOOL_RENAMED_0x7f0f0000" android:exported="true" android:name="moe.shizuku.manager.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:label="@string/app_name" android:name="pl.netigen.simpleguitartuner.SettingsActivity" android:screenOrientation="sensorPortrait" android:theme="@style/AppCustomBaseTheme"/>
-        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:exported="false" android:name="com.google.android.gms.ads.AdActivity" android:noHistory="true" android:theme="@android:style/Theme.Translucent"/>
-        <provider android:authorities="pl.netigen.simpleguitartuner.mobileadsinitprovider" android:exported="false" android:initOrder="100" android:name="com.google.android.gms.ads.MobileAdsInitProvider"/>
-        <service android:enabled="true" android:exported="false" android:name="com.google.android.gms.ads.AdService"/>
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
-        <provider android:authorities="pl.netigen.simpleguitartuner.workmanager-init" android:directBootAware="false" android:exported="false" android:multiprocess="true" android:name="androidx.work.impl.WorkManagerInitializer"/>
-        <service android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"/>
-        <service android:directBootAware="false" android:enabled="@bool/enable_system_job_service_default" android:exported="true" android:name="androidx.work.impl.background.systemjob.SystemJobService" android:permission="android.permission.BIND_JOB_SERVICE"/>
-        <receiver android:directBootAware="false" android:enabled="true" android:exported="false" android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"/>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy">
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f110077" android:name="moe.shizuku.manager.management.ApplicationManagementActivity"/>
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f110020" android:name="moe.shizuku.manager.adb.AdbPairingTutorialActivity"/>
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f110085" android:name="moe.shizuku.manager.shell.ShellTutorialActivity"/>
+        <activity android:exported="false" android:label="@string/APKTOOL_RENAMED_0x7f110119" android:name="moe.shizuku.manager.settings.SettingsActivity">
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
             </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy">
+        </activity>
+        <activity android:label="@string/APKTOOL_RENAMED_0x7f110122" android:name="moe.shizuku.manager.starter.StarterActivity"/>
+        <activity android:directBootAware="true" android:excludeFromRecents="true" android:exported="true" android:name="moe.shizuku.manager.authorization.RequestPermissionActivity" android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" android:theme="@style/APKTOOL_RENAMED_0x7f12013f">
             <intent-filter>
-                <action android:name="android.intent.action.BATTERY_OKAY"/>
-                <action android:name="android.intent.action.BATTERY_LOW"/>
+                <action android:name="moe.shizuku.privileged.api.intent.action.REQUEST_PERMISSION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy">
+        </activity>
+        <activity android:directBootAware="true" android:excludeFromRecents="true" android:exported="true" android:name="moe.shizuku.manager.legacy.ShellRequestHandlerActivity" android:theme="@style/APKTOOL_RENAMED_0x7f12013f">
             <intent-filter>
-                <action android:name="android.intent.action.DEVICE_STORAGE_LOW"/>
-                <action android:name="android.intent.action.DEVICE_STORAGE_OK"/>
+                <action android:name="rikka.shizuku.intent.action.REQUEST_BINDER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy">
+        </activity>
+        <activity android:excludeFromRecents="true" android:exported="true" android:name="moe.shizuku.manager.legacy.LegacyIsNotSupportedActivity" android:permission="moe.shizuku.manager.permission.API" android:theme="@style/APKTOOL_RENAMED_0x7f12013f">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <action android:name="moe.shizuku.privileged.api.intent.action.REQUEST_AUTHORIZATION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-        </receiver>
-        <receiver android:directBootAware="false" android:enabled="false" android:exported="false" android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver">
+        </activity>
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="shortService" android:name="moe.shizuku.manager.adb.AdbPairingService"/>
+        <receiver android:directBootAware="true" android:enabled="true" android:exported="true" android:name="moe.shizuku.manager.receiver.BootCompleteReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.TIME_SET"/>
-                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
             </intent-filter>
         </receiver>
-        <receiver android:directBootAware="false" android:enabled="@bool/enable_system_alarm_service_default" android:exported="false" android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver">
+        <receiver android:directBootAware="true" android:enabled="true" android:exported="true" android:name="moe.shizuku.manager.receiver.ShizukuReceiver">
             <intent-filter>
-                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies"/>
+                <action android:name="rikka.shizuku.intent.action.REQUEST_BINDER"/>
             </intent-filter>
         </receiver>
-        <service android:directBootAware="true" android:exported="false" android:name="androidx.room.MultiInstanceInvalidationService"/>
-        <provider android:authorities="pl.netigen.simpleguitartuner.lifecycle-process" android:exported="false" android:multiprocess="true" android:name="androidx.lifecycle.ProcessLifecycleOwnerInitializer"/>
-        <meta-data android:name="com.google.android.play.billingclient.version" android:value="3.0.3"/>
-        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize" android:exported="false" android:name="com.android.billingclient.api.ProxyBillingActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <provider android:authorities="moe.shizuku.privileged.api.shizuku" android:directBootAware="true" android:enabled="true" android:exported="true" android:multiprocess="false" android:name="moe.shizuku.manager.ShizukuManagerProvider" android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+        <provider android:authorities="moe.shizuku.privileged.api.androidx-startup" android:exported="false" android:name="androidx.startup.InitializationProvider">
+            <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer" android:value="androidx.startup"/>
+            <meta-data android:name="androidx.lifecycle.ProcessLifecycleInitializer" android:value="androidx.startup"/>
+        </provider>
+        <uses-library android:name="androidx.window.extensions" android:required="false"/>
+        <uses-library android:name="androidx.window.sidecar" android:required="false"/>
+        <meta-data android:name="moe.shizuku.client.V3_SUPPORT" android:value="true"/>
     </application>
 </manifest>

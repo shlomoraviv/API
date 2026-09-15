@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AlertDialogLayout android:gravity="start|top" android:orientation="vertical" android:id="@id/APKTOOL_RENAMED_0x7f09014f" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <include layout="@layout/APKTOOL_RENAMED_0x7f0c000a" />
+    <FrameLayout android:id="@id/APKTOOL_RENAMED_0x7f090077" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48.0dp">
+        <ImageView android:layout_gravity="top" android:id="@id/APKTOOL_RENAMED_0x7f090177" android:background="#1f000000" android:visibility="gone" android:layout_width="match_parent" android:layout_height="1.0dp" app:APKTOOL_RENAMED_0x7f040055="?android:colorForeground" />
+        <androidx.core.widget.NestedScrollView android:id="@id/APKTOOL_RENAMED_0x7f090178" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <android.widget.Space android:id="@id/APKTOOL_RENAMED_0x7f0901d1" android:visibility="gone" android:layout_width="match_parent" android:layout_height="@dimen/APKTOOL_RENAMED_0x7f070025" />
+                <TextView android:id="@android:id/message" android:paddingLeft="?APKTOOL_RENAMED_0x7f040182" android:paddingRight="?APKTOOL_RENAMED_0x7f040182" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/APKTOOL_RENAMED_0x7f1201f7" />
+                <android.widget.Space android:id="@id/APKTOOL_RENAMED_0x7f0901d0" android:visibility="gone" android:layout_width="match_parent" android:layout_height="@dimen/APKTOOL_RENAMED_0x7f070025" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+        <ImageView android:layout_gravity="bottom" android:id="@id/APKTOOL_RENAMED_0x7f090176" android:background="#1f000000" android:visibility="gone" android:layout_width="match_parent" android:layout_height="1.0dp" app:APKTOOL_RENAMED_0x7f040055="?android:colorForeground" />
+    </FrameLayout>
+    <FrameLayout android:id="@id/APKTOOL_RENAMED_0x7f09007e" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48.0dp">
+        <FrameLayout android:id="@id/APKTOOL_RENAMED_0x7f09007d" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </FrameLayout>
+    <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/APKTOOL_RENAMED_0x7f0c0008" />
+</androidx.appcompat.widget.AlertDialogLayout>

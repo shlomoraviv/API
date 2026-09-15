@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:background="?APKTOOL_RENAMED_0x7f0400f8" style="?APKTOOL_RENAMED_0x7f040237"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@android:id/icon" android:duplicateParentState="true" android:src="@drawable/APKTOOL_RENAMED_0x7f0800cf" android:tint="?APKTOOL_RENAMED_0x7f0400f8" android:importantForAccessibility="no" android:backgroundTint="?APKTOOL_RENAMED_0x7f0400fe" style="@style/APKTOOL_RENAMED_0x7f120138" />
+        <LinearLayout android:orientation="vertical" android:duplicateParentState="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="@dimen/APKTOOL_RENAMED_0x7f0700aa">
+            <TextView android:textColor="?APKTOOL_RENAMED_0x7f0400fe" android:id="@android:id/title" android:duplicateParentState="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/APKTOOL_RENAMED_0x7f110074" style="@style/APKTOOL_RENAMED_0x7f12013a" />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView android:textColor="?APKTOOL_RENAMED_0x7f0400fe" android:id="@android:id/text1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24.0dp" android:layout_marginBottom="24.0dp" android:text="@string/APKTOOL_RENAMED_0x7f110073" style="@style/APKTOOL_RENAMED_0x7f120137" />
+    <com.google.android.material.button.MaterialButton android:textColor="?APKTOOL_RENAMED_0x7f0400fd" android:id="@android:id/button1" android:text="@string/APKTOOL_RENAMED_0x7f11006e" app:APKTOOL_RENAMED_0x7f040055="?APKTOOL_RENAMED_0x7f0400f7" app:APKTOOL_RENAMED_0x7f040240="@drawable/APKTOOL_RENAMED_0x7f0800c2" app:APKTOOL_RENAMED_0x7f040247="?APKTOOL_RENAMED_0x7f0400fd" style="@style/APKTOOL_RENAMED_0x7f120136" />
+</LinearLayout>

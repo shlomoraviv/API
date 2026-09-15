@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="APKTOOL_RENAMED_0x7f120019" parent="@style/APKTOOL_RENAMED_0x7f1200c4" />
+    <style name="APKTOOL_RENAMED_0x7f12001a" parent="@style/APKTOOL_RENAMED_0x7f1200c5" />
+    <style name="APKTOOL_RENAMED_0x7f1200c4" parent="@style/APKTOOL_RENAMED_0x7f1200b9">
+        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="APKTOOL_RENAMED_0x7f1200c5" parent="@style/APKTOOL_RENAMED_0x7f1200ba">
+        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

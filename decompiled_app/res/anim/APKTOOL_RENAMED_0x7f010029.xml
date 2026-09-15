@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set android:interpolator="@interpolator/APKTOOL_RENAMED_0x7f0b0008" android:duration="@integer/APKTOOL_RENAMED_0x7f0a001f" android:shareInterpolator="true"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha android:fromAlpha="1.0" android:toAlpha="0.0" />
+</set>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_vertical" android:orientation="horizontal" style="?APKTOOL_RENAMED_0x7f040237"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView android:id="@android:id/icon" android:duplicateParentState="true" android:src="@drawable/APKTOOL_RENAMED_0x7f0800cd" android:importantForAccessibility="no" style="@style/APKTOOL_RENAMED_0x7f120138" />
+    <LinearLayout android:orientation="vertical" android:duplicateParentState="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="@dimen/APKTOOL_RENAMED_0x7f0700aa">
+        <TextView android:id="@android:id/text1" android:duplicateParentState="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/APKTOOL_RENAMED_0x7f110085" style="@style/APKTOOL_RENAMED_0x7f12013a" />
+        <TextView android:id="@android:id/text2" android:duplicateParentState="true" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/APKTOOL_RENAMED_0x7f120139" />
+    </LinearLayout>
+</LinearLayout>

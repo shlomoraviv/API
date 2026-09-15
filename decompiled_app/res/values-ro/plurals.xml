@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="mtrl_badge_content_description">
-        <item quantity="one">%d notificare nouă</item>
-        <item quantity="few">%d notificări noi</item>
-        <item quantity="other">%d de notificări noi</item>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="one">%d aplicație autorizată</item>
+        <item quantity="few">%d aplicații autorizate</item>
+        <item quantity="other">%d aplicații autorizate</item>
     </plurals>
 </resources>

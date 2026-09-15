@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/APKTOOL_RENAMED_0x7f09016c" android:fitsSystemWindows="false" android:layout_width="match_parent" android:layout_height="match_parent" app:APKTOOL_RENAMED_0x7f040136="APKTOOL_RENAMED_0x7f0901a7|APKTOOL_RENAMED_0x7f0900a6" app:APKTOOL_RENAMED_0x7f0401a5="true" app:APKTOOL_RENAMED_0x7f0401ed="APKTOOL_RENAMED_0x7f0901a7|APKTOOL_RENAMED_0x7f0900a6"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <include layout="@layout/APKTOOL_RENAMED_0x7f0c0022" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

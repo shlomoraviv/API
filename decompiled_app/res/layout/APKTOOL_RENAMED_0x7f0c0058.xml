@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView android:textSize="@dimen/APKTOOL_RENAMED_0x7f070246" android:textColor="?APKTOOL_RENAMED_0x7f040108" android:gravity="center" android:visibility="gone" android:layout_width="@dimen/APKTOOL_RENAMED_0x7f0702de" android:layout_height="@dimen/APKTOOL_RENAMED_0x7f0702de"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

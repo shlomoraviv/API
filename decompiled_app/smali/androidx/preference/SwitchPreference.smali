@@ -1,299 +1,479 @@
 .class public Landroidx/preference/SwitchPreference;
 .super Landroidx/preference/TwoStatePreference;
-.source "SwitchPreference.java"
-
-
-# annotations
-.annotation system Ldalvik/annotation/MemberClasses;
-    value = {
-        Landroidx/preference/SwitchPreference$a;
-    }
-.end annotation
+.source "SourceFile"
 
 
 # instance fields
-.field private final a0:Landroidx/preference/SwitchPreference$a;
+.field public final S:Lrikka/shizuku/Q5;
 
-.field private b0:Ljava/lang/CharSequence;
+.field public final T:Ljava/lang/String;
 
-.field private c0:Ljava/lang/CharSequence;
+.field public final U:Ljava/lang/String;
 
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
-    .locals 2
+    .locals 4
 
-    .line 11
-    sget v0, Landroidx/preference/m;->m:I
+    .line 1
+    const v0, 0x7f040488
 
+    .line 2
+    .line 3
+    .line 4
     const v1, 0x101036d
 
-    invoke-static {p1, v0, v1}, Lc/h/d/c/g;->a(Landroid/content/Context;II)I
-
-    move-result v0
-
-    invoke-direct {p0, p1, p2, v0}, Landroidx/preference/SwitchPreference;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-
-    return-void
-.end method
-
-.method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-    .locals 1
-
-    const/4 v0, 0x0
-
-    .line 10
-    invoke-direct {p0, p1, p2, p3, v0}, Landroidx/preference/SwitchPreference;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;II)V
-
-    return-void
-.end method
-
-.method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;II)V
-    .locals 1
-
-    .line 1
-    invoke-direct {p0, p1, p2, p3, p4}, Landroidx/preference/TwoStatePreference;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;II)V
-
-    .line 2
-    new-instance v0, Landroidx/preference/SwitchPreference$a;
-
-    invoke-direct {v0, p0}, Landroidx/preference/SwitchPreference$a;-><init>(Landroidx/preference/SwitchPreference;)V
-
-    iput-object v0, p0, Landroidx/preference/SwitchPreference;->a0:Landroidx/preference/SwitchPreference$a;
-
-    .line 3
-    sget-object v0, Landroidx/preference/t;->E1:[I
-
-    invoke-virtual {p1, p2, v0, p3, p4}, Landroid/content/Context;->obtainStyledAttributes(Landroid/util/AttributeSet;[III)Landroid/content/res/TypedArray;
-
-    move-result-object p1
-
-    .line 4
-    sget p2, Landroidx/preference/t;->M1:I
-
-    sget p3, Landroidx/preference/t;->F1:I
-
-    invoke-static {p1, p2, p3}, Lc/h/d/c/g;->o(Landroid/content/res/TypedArray;II)Ljava/lang/String;
-
-    move-result-object p2
-
-    invoke-virtual {p0, p2}, Landroidx/preference/TwoStatePreference;->N0(Ljava/lang/CharSequence;)V
-
     .line 5
-    sget p2, Landroidx/preference/t;->L1:I
-
-    sget p3, Landroidx/preference/t;->G1:I
-
-    invoke-static {p1, p2, p3}, Lc/h/d/c/g;->o(Landroid/content/res/TypedArray;II)Ljava/lang/String;
-
-    move-result-object p2
-
-    invoke-virtual {p0, p2}, Landroidx/preference/TwoStatePreference;->M0(Ljava/lang/CharSequence;)V
-
     .line 6
-    sget p2, Landroidx/preference/t;->O1:I
-
-    sget p3, Landroidx/preference/t;->I1:I
-
-    invoke-static {p1, p2, p3}, Lc/h/d/c/g;->o(Landroid/content/res/TypedArray;II)Ljava/lang/String;
-
-    move-result-object p2
-
-    invoke-virtual {p0, p2}, Landroidx/preference/SwitchPreference;->R0(Ljava/lang/CharSequence;)V
-
     .line 7
-    sget p2, Landroidx/preference/t;->N1:I
-
-    sget p3, Landroidx/preference/t;->J1:I
-
-    invoke-static {p1, p2, p3}, Lc/h/d/c/g;->o(Landroid/content/res/TypedArray;II)Ljava/lang/String;
-
-    move-result-object p2
-
-    invoke-virtual {p0, p2}, Landroidx/preference/SwitchPreference;->Q0(Ljava/lang/CharSequence;)V
+    invoke-static {p1, v0, v1}, Lrikka/shizuku/Hn;->c(Landroid/content/Context;II)I
 
     .line 8
-    sget p2, Landroidx/preference/t;->K1:I
+    .line 9
+    .line 10
+    move-result v0
 
-    sget p3, Landroidx/preference/t;->H1:I
+    .line 11
+    const/4 v1, 0x0
 
-    const/4 p4, 0x0
+    .line 12
+    invoke-direct {p0, p1, p2, v0, v1}, Landroidx/preference/Preference;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;II)V
 
-    invoke-static {p1, p2, p3, p4}, Lc/h/d/c/g;->b(Landroid/content/res/TypedArray;IIZ)Z
+    .line 13
+    .line 14
+    .line 15
+    new-instance v2, Lrikka/shizuku/Q5;
 
+    .line 16
+    .line 17
+    const/4 v3, 0x1
+
+    .line 18
+    invoke-direct {v2, p0, v3}, Lrikka/shizuku/Q5;-><init>(Landroidx/preference/TwoStatePreference;I)V
+
+    .line 19
+    .line 20
+    .line 21
+    iput-object v2, p0, Landroidx/preference/SwitchPreference;->S:Lrikka/shizuku/Q5;
+
+    .line 22
+    .line 23
+    sget-object v2, Lrikka/shizuku/Jk;->l:[I
+
+    .line 24
+    .line 25
+    invoke-virtual {p1, p2, v2, v0, v1}, Landroid/content/Context;->obtainStyledAttributes(Landroid/util/AttributeSet;[III)Landroid/content/res/TypedArray;
+
+    .line 26
+    .line 27
+    .line 28
+    move-result-object p1
+
+    .line 29
+    const/4 p2, 0x7
+
+    .line 30
+    invoke-static {p1, p2, v1}, Lrikka/shizuku/Hn;->e(Landroid/content/res/TypedArray;II)Ljava/lang/String;
+
+    .line 31
+    .line 32
+    .line 33
+    move-result-object p2
+
+    .line 34
+    iput-object p2, p0, Landroidx/preference/TwoStatePreference;->O:Ljava/lang/String;
+
+    .line 35
+    .line 36
+    iget-boolean p2, p0, Landroidx/preference/TwoStatePreference;->N:Z
+
+    .line 37
+    .line 38
+    if-eqz p2, :cond_0
+
+    .line 39
+    .line 40
+    invoke-virtual {p0}, Landroidx/preference/Preference;->i()V
+
+    .line 41
+    .line 42
+    .line 43
+    :cond_0
+    const/4 p2, 0x6
+
+    .line 44
+    invoke-virtual {p1, p2}, Landroid/content/res/TypedArray;->getString(I)Ljava/lang/String;
+
+    .line 45
+    .line 46
+    .line 47
+    move-result-object p2
+
+    .line 48
+    if-nez p2, :cond_1
+
+    .line 49
+    .line 50
+    const/4 p2, 0x1
+
+    .line 51
+    invoke-virtual {p1, p2}, Landroid/content/res/TypedArray;->getString(I)Ljava/lang/String;
+
+    .line 52
+    .line 53
+    .line 54
+    move-result-object p2
+
+    .line 55
+    :cond_1
+    iput-object p2, p0, Landroidx/preference/TwoStatePreference;->P:Ljava/lang/String;
+
+    .line 56
+    .line 57
+    iget-boolean p2, p0, Landroidx/preference/TwoStatePreference;->N:Z
+
+    .line 58
+    .line 59
+    if-nez p2, :cond_2
+
+    .line 60
+    .line 61
+    invoke-virtual {p0}, Landroidx/preference/Preference;->i()V
+
+    .line 62
+    .line 63
+    .line 64
+    :cond_2
+    const/16 p2, 0x9
+
+    .line 65
+    .line 66
+    invoke-virtual {p1, p2}, Landroid/content/res/TypedArray;->getString(I)Ljava/lang/String;
+
+    .line 67
+    .line 68
+    .line 69
+    move-result-object p2
+
+    .line 70
+    if-nez p2, :cond_3
+
+    .line 71
+    .line 72
+    const/4 p2, 0x3
+
+    .line 73
+    invoke-virtual {p1, p2}, Landroid/content/res/TypedArray;->getString(I)Ljava/lang/String;
+
+    .line 74
+    .line 75
+    .line 76
+    move-result-object p2
+
+    .line 77
+    :cond_3
+    iput-object p2, p0, Landroidx/preference/SwitchPreference;->T:Ljava/lang/String;
+
+    .line 78
+    .line 79
+    invoke-virtual {p0}, Landroidx/preference/Preference;->i()V
+
+    .line 80
+    .line 81
+    .line 82
+    const/16 p2, 0x8
+
+    .line 83
+    .line 84
+    invoke-virtual {p1, p2}, Landroid/content/res/TypedArray;->getString(I)Ljava/lang/String;
+
+    .line 85
+    .line 86
+    .line 87
+    move-result-object p2
+
+    .line 88
+    if-nez p2, :cond_4
+
+    .line 89
+    .line 90
+    const/4 p2, 0x4
+
+    .line 91
+    invoke-virtual {p1, p2}, Landroid/content/res/TypedArray;->getString(I)Ljava/lang/String;
+
+    .line 92
+    .line 93
+    .line 94
+    move-result-object p2
+
+    .line 95
+    :cond_4
+    iput-object p2, p0, Landroidx/preference/SwitchPreference;->U:Ljava/lang/String;
+
+    .line 96
+    .line 97
+    invoke-virtual {p0}, Landroidx/preference/Preference;->i()V
+
+    .line 98
+    .line 99
+    .line 100
+    const/4 p2, 0x2
+
+    .line 101
+    invoke-virtual {p1, p2, v1}, Landroid/content/res/TypedArray;->getBoolean(IZ)Z
+
+    .line 102
+    .line 103
+    .line 104
     move-result p2
 
-    invoke-virtual {p0, p2}, Landroidx/preference/TwoStatePreference;->L0(Z)V
+    .line 105
+    const/4 v0, 0x5
 
-    .line 9
+    .line 106
+    invoke-virtual {p1, v0, p2}, Landroid/content/res/TypedArray;->getBoolean(IZ)Z
+
+    .line 107
+    .line 108
+    .line 109
+    move-result p2
+
+    .line 110
+    iput-boolean p2, p0, Landroidx/preference/TwoStatePreference;->R:Z
+
+    .line 111
+    .line 112
     invoke-virtual {p1}, Landroid/content/res/TypedArray;->recycle()V
 
-    return-void
-.end method
-
-.method private S0(Landroid/view/View;)V
-    .locals 3
-
-    .line 1
-    instance-of v0, p1, Landroid/widget/Switch;
-
-    if-eqz v0, :cond_0
-
-    .line 2
-    move-object v1, p1
-
-    check-cast v1, Landroid/widget/Switch;
-
-    const/4 v2, 0x0
-
-    .line 3
-    invoke-virtual {v1, v2}, Landroid/widget/Switch;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
-
-    .line 4
-    :cond_0
-    instance-of v1, p1, Landroid/widget/Checkable;
-
-    if-eqz v1, :cond_1
-
-    .line 5
-    move-object v1, p1
-
-    check-cast v1, Landroid/widget/Checkable;
-
-    iget-boolean v2, p0, Landroidx/preference/TwoStatePreference;->V:Z
-
-    invoke-interface {v1, v2}, Landroid/widget/Checkable;->setChecked(Z)V
-
-    :cond_1
-    if-eqz v0, :cond_2
-
-    .line 6
-    check-cast p1, Landroid/widget/Switch;
-
-    .line 7
-    iget-object v0, p0, Landroidx/preference/SwitchPreference;->b0:Ljava/lang/CharSequence;
-
-    invoke-virtual {p1, v0}, Landroid/widget/Switch;->setTextOn(Ljava/lang/CharSequence;)V
-
-    .line 8
-    iget-object v0, p0, Landroidx/preference/SwitchPreference;->c0:Ljava/lang/CharSequence;
-
-    invoke-virtual {p1, v0}, Landroid/widget/Switch;->setTextOff(Ljava/lang/CharSequence;)V
-
-    .line 9
-    iget-object v0, p0, Landroidx/preference/SwitchPreference;->a0:Landroidx/preference/SwitchPreference$a;
-
-    invoke-virtual {p1, v0}, Landroid/widget/Switch;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
-
-    :cond_2
-    return-void
-.end method
-
-.method private T0(Landroid/view/View;)V
-    .locals 2
-
-    .line 1
-    invoke-virtual {p0}, Landroidx/preference/Preference;->o()Landroid/content/Context;
-
-    move-result-object v0
-
-    const-string v1, "accessibility"
-
-    invoke-virtual {v0, v1}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Landroid/view/accessibility/AccessibilityManager;
-
-    .line 2
-    invoke-virtual {v0}, Landroid/view/accessibility/AccessibilityManager;->isEnabled()Z
-
-    move-result v0
-
-    if-nez v0, :cond_0
-
-    return-void
-
-    :cond_0
-    const v0, 0x1020040
-
-    .line 3
-    invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
-
-    move-result-object v0
-
-    .line 4
-    invoke-direct {p0, v0}, Landroidx/preference/SwitchPreference;->S0(Landroid/view/View;)V
-
-    const v0, 0x1020010
-
-    .line 5
-    invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
-
-    move-result-object p1
-
-    .line 6
-    invoke-virtual {p0, p1}, Landroidx/preference/TwoStatePreference;->O0(Landroid/view/View;)V
-
+    .line 113
+    .line 114
+    .line 115
     return-void
 .end method
 
 
 # virtual methods
-.method public Q0(Ljava/lang/CharSequence;)V
-    .locals 0
+.method public final D(Landroid/view/View;)V
+    .locals 3
 
     .line 1
-    iput-object p1, p0, Landroidx/preference/SwitchPreference;->c0:Ljava/lang/CharSequence;
+    instance-of v0, p1, Landroid/widget/Switch;
 
     .line 2
-    invoke-virtual {p0}, Landroidx/preference/Preference;->Q()V
+    .line 3
+    if-eqz v0, :cond_0
 
+    .line 4
+    .line 5
+    move-object v1, p1
+
+    .line 6
+    check-cast v1, Landroid/widget/Switch;
+
+    .line 7
+    .line 8
+    const/4 v2, 0x0
+
+    .line 9
+    invoke-virtual {v1, v2}, Landroid/widget/CompoundButton;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
+
+    .line 10
+    .line 11
+    .line 12
+    :cond_0
+    instance-of v1, p1, Landroid/widget/Checkable;
+
+    .line 13
+    .line 14
+    if-eqz v1, :cond_1
+
+    .line 15
+    .line 16
+    move-object v1, p1
+
+    .line 17
+    check-cast v1, Landroid/widget/Checkable;
+
+    .line 18
+    .line 19
+    iget-boolean v2, p0, Landroidx/preference/TwoStatePreference;->N:Z
+
+    .line 20
+    .line 21
+    invoke-interface {v1, v2}, Landroid/widget/Checkable;->setChecked(Z)V
+
+    .line 22
+    .line 23
+    .line 24
+    :cond_1
+    if-eqz v0, :cond_2
+
+    .line 25
+    .line 26
+    check-cast p1, Landroid/widget/Switch;
+
+    .line 27
+    .line 28
+    iget-object v0, p0, Landroidx/preference/SwitchPreference;->T:Ljava/lang/String;
+
+    .line 29
+    .line 30
+    invoke-virtual {p1, v0}, Landroid/widget/Switch;->setTextOn(Ljava/lang/CharSequence;)V
+
+    .line 31
+    .line 32
+    .line 33
+    iget-object v0, p0, Landroidx/preference/SwitchPreference;->U:Ljava/lang/String;
+
+    .line 34
+    .line 35
+    invoke-virtual {p1, v0}, Landroid/widget/Switch;->setTextOff(Ljava/lang/CharSequence;)V
+
+    .line 36
+    .line 37
+    .line 38
+    iget-object v0, p0, Landroidx/preference/SwitchPreference;->S:Lrikka/shizuku/Q5;
+
+    .line 39
+    .line 40
+    invoke-virtual {p1, v0}, Landroid/widget/CompoundButton;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
+
+    .line 41
+    .line 42
+    .line 43
+    :cond_2
     return-void
 .end method
 
-.method public R0(Ljava/lang/CharSequence;)V
-    .locals 0
-
-    .line 1
-    iput-object p1, p0, Landroidx/preference/SwitchPreference;->b0:Ljava/lang/CharSequence;
-
-    .line 2
-    invoke-virtual {p0}, Landroidx/preference/Preference;->Q()V
-
-    return-void
-.end method
-
-.method public W(Landroidx/preference/l;)V
+.method public final m(Lrikka/shizuku/pk;)V
     .locals 1
 
     .line 1
-    invoke-super {p0, p1}, Landroidx/preference/Preference;->W(Landroidx/preference/l;)V
-
-    const v0, 0x1020040
+    invoke-super {p0, p1}, Landroidx/preference/Preference;->m(Lrikka/shizuku/pk;)V
 
     .line 2
-    invoke-virtual {p1, v0}, Landroidx/preference/l;->M(I)Landroid/view/View;
+    .line 3
+    .line 4
+    const v0, 0x1020040
 
+    .line 5
+    .line 6
+    .line 7
+    invoke-virtual {p1, v0}, Lrikka/shizuku/pk;->q(I)Landroid/view/View;
+
+    .line 8
+    .line 9
+    .line 10
     move-result-object v0
 
-    .line 3
-    invoke-direct {p0, v0}, Landroidx/preference/SwitchPreference;->S0(Landroid/view/View;)V
+    .line 11
+    invoke-virtual {p0, v0}, Landroidx/preference/SwitchPreference;->D(Landroid/view/View;)V
 
-    .line 4
-    invoke-virtual {p0, p1}, Landroidx/preference/TwoStatePreference;->P0(Landroidx/preference/l;)V
+    .line 12
+    .line 13
+    .line 14
+    const v0, 0x1020010
 
+    .line 15
+    .line 16
+    .line 17
+    invoke-virtual {p1, v0}, Lrikka/shizuku/pk;->q(I)Landroid/view/View;
+
+    .line 18
+    .line 19
+    .line 20
+    move-result-object p1
+
+    .line 21
+    invoke-virtual {p0, p1}, Landroidx/preference/TwoStatePreference;->C(Landroid/view/View;)V
+
+    .line 22
+    .line 23
+    .line 24
     return-void
 .end method
 
-.method protected i0(Landroid/view/View;)V
-    .locals 0
+.method public final u(Landroid/view/View;)V
+    .locals 2
 
     .line 1
-    invoke-super {p0, p1}, Landroidx/preference/Preference;->i0(Landroid/view/View;)V
+    invoke-super {p0, p1}, Landroidx/preference/Preference;->u(Landroid/view/View;)V
 
     .line 2
-    invoke-direct {p0, p1}, Landroidx/preference/SwitchPreference;->T0(Landroid/view/View;)V
+    .line 3
+    .line 4
+    const-string v0, "accessibility"
 
+    .line 5
+    .line 6
+    iget-object v1, p0, Landroidx/preference/Preference;->a:Landroid/content/Context;
+
+    .line 7
+    .line 8
+    invoke-virtual {v1, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+
+    .line 9
+    .line 10
+    .line 11
+    move-result-object v0
+
+    .line 12
+    check-cast v0, Landroid/view/accessibility/AccessibilityManager;
+
+    .line 13
+    .line 14
+    invoke-virtual {v0}, Landroid/view/accessibility/AccessibilityManager;->isEnabled()Z
+
+    .line 15
+    .line 16
+    .line 17
+    move-result v0
+
+    .line 18
+    if-nez v0, :cond_0
+
+    .line 19
+    .line 20
+    return-void
+
+    .line 21
+    :cond_0
+    const v0, 0x1020040
+
+    .line 22
+    .line 23
+    .line 24
+    invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+
+    .line 25
+    .line 26
+    .line 27
+    move-result-object v0
+
+    .line 28
+    invoke-virtual {p0, v0}, Landroidx/preference/SwitchPreference;->D(Landroid/view/View;)V
+
+    .line 29
+    .line 30
+    .line 31
+    const v0, 0x1020010
+
+    .line 32
+    .line 33
+    .line 34
+    invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+
+    .line 35
+    .line 36
+    .line 37
+    move-result-object p1
+
+    .line 38
+    invoke-virtual {p0, p1}, Landroidx/preference/TwoStatePreference;->C(Landroid/view/View;)V
+
+    .line 39
+    .line 40
+    .line 41
     return-void
 .end method

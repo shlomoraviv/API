@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="one">%d aplikasyon ang awtorisado</item>
+        <item quantity="other">%d na aplikasyon ang awtorisado</item>
+    </plurals>
+</resources>

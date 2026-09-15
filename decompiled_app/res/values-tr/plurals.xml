@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="mtrl_badge_content_description">
-        <item quantity="one">%d yeni bildirim</item>
-        <item quantity="other">%d yeni bildirim</item>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="one">Yetkilendirilmiş %d tane uygulama</item>
+        <item quantity="other">Yetkilendirilmiş %d tane uygulama</item>
     </plurals>
 </resources>

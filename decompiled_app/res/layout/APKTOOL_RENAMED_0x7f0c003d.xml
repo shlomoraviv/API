@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView android:focusable="true" android:clickable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:checkable="true" app:APKTOOL_RENAMED_0x7f0400a4="@color/APKTOOL_RENAMED_0x7f060068" app:APKTOOL_RENAMED_0x7f0400a5="28.0dp" app:APKTOOL_RENAMED_0x7f0400a6="0.0dp" style="?APKTOOL_RENAMED_0x7f040303"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" />

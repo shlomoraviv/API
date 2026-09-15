@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <array name="com_google_android_gms_fonts_certs" />
+    <string-array name="APKTOOL_RENAMED_0x7f030002">
+        <item>@string/APKTOOL_RENAMED_0x7f11004c</item>
+        <item>@string/APKTOOL_RENAMED_0x7f11004d</item>
+        <item>@string/APKTOOL_RENAMED_0x7f110069</item>
+    </string-array>
+    <integer-array name="APKTOOL_RENAMED_0x7f030003">
+        <item>1</item>
+        <item>2</item>
+        <item>-1</item>
+    </integer-array>
 </resources>

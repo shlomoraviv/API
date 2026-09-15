@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="mtrl_badge_content_description">
-        <item quantity="one">%d новое уведомление</item>
-        <item quantity="few">%d новых уведомления</item>
-        <item quantity="many">%d новых уведомлений</item>
-        <item quantity="other">%d нового уведомления</item>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="one">Доступно для %d приложения</item>
+        <item quantity="few">Доступно для %d приложений</item>
+        <item quantity="many">Доступно для %d приложений</item>
+        <item quantity="other">Доступно для %d приложений</item>
     </plurals>
 </resources>

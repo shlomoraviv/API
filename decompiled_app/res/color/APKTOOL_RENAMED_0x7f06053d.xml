@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:state_checked="true" android:color="?APKTOOL_RENAMED_0x7f040111" android:alpha="0.08" />
+    <item android:color="?APKTOOL_RENAMED_0x7f040108" android:alpha="0.08" app:APKTOOL_RENAMED_0x7f040460="true" />
+    <item android:state_checked="false" android:color="@android:color/transparent" app:APKTOOL_RENAMED_0x7f040460="false" />
+</selector>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" style="?APKTOOL_RENAMED_0x7f040237"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@android:id/icon" android:duplicateParentState="true" android:src="@drawable/APKTOOL_RENAMED_0x7f080099" android:importantForAccessibility="no" style="@style/APKTOOL_RENAMED_0x7f120138" />
+        <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/APKTOOL_RENAMED_0x7f110075" android:layout_weight="1.0" android:layout_marginStart="@dimen/APKTOOL_RENAMED_0x7f0700aa" style="@style/APKTOOL_RENAMED_0x7f12013a" />
+    </LinearLayout>
+    <TextView android:id="@android:id/text1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24.0dp" android:layout_marginBottom="24.0dp" android:layout_marginEnd="16.0dp" style="@style/APKTOOL_RENAMED_0x7f120137" />
+    <com.google.android.material.button.MaterialButton android:id="@android:id/button1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/APKTOOL_RENAMED_0x7f11006d" app:APKTOOL_RENAMED_0x7f040240="@drawable/APKTOOL_RENAMED_0x7f0800a6" style="@style/APKTOOL_RENAMED_0x7f120136" />
+</LinearLayout>

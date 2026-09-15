@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:gravity="center_vertical" android:background="?APKTOOL_RENAMED_0x7f04041d" android:paddingLeft="?android:listPreferredItemPaddingLeft" android:paddingRight="?android:listPreferredItemPaddingRight" android:focusable="true" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="?android:listPreferredItemHeightSmall" android:paddingStart="?android:listPreferredItemPaddingLeft" android:paddingEnd="?android:listPreferredItemPaddingRight"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:baselineAligned="false">
+        <include layout="@layout/APKTOOL_RENAMED_0x7f0c0045" />
+        <View android:layout_gravity="center_vertical" android:id="@android:id/empty" android:visibility="invisible" android:layout_width="0.0dp" android:layout_height="0.0dp" />
+        <RelativeLayout android:paddingTop="16.0dp" android:paddingBottom="16.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0">
+            <TextView android:textAppearance="?android:textAppearanceListItem" android:ellipsize="marquee" android:id="@android:id/title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" />
+            <TextView android:textColor="?android:textColorSecondary" android:id="@android:id/summary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="10" android:layout_below="@android:id/title" android:layout_alignLeft="@android:id/title" android:layout_alignStart="@android:id/title" style="@style/APKTOOL_RENAMED_0x7f12018a" />
+        </RelativeLayout>
+        <LinearLayout android:gravity="end|center" android:orientation="vertical" android:id="@android:id/widget_frame" android:paddingLeft="16.0dp" android:layout_width="wrap_content" android:layout_height="match_parent" android:paddingStart="16.0dp" />
+    </LinearLayout>
+</FrameLayout>

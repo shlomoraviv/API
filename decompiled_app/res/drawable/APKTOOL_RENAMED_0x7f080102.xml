@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="32.0dp" android:width="32.0dp" android:viewportWidth="32.0" android:viewportHeight="32.0"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <path android:fillColor="@android:color/black" android:pathData="@string/APKTOOL_RENAMED_0x7f1100bb" />
+    </group>
+    <group android:name="@string/APKTOOL_RENAMED_0x7f1100b9" android:pivotX="16.0" android:pivotY="16.0">
+        <path android:name="@string/APKTOOL_RENAMED_0x7f1100ba" android:fillColor="@android:color/black" android:pathData="@string/APKTOOL_RENAMED_0x7f1100b8" />
+    </group>
+</vector>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Base.Theme.AppCompat.DialogWhenLarge" parent="@style/Base.Theme.AppCompat.Dialog.FixedSize" />
-    <style name="Base.Theme.AppCompat.Light.DialogWhenLarge" parent="@style/Base.Theme.AppCompat.Light.Dialog.FixedSize" />
-    <style name="Base.Theme.MaterialComponents.DialogWhenLarge" parent="@style/Base.Theme.MaterialComponents.Dialog.FixedSize" />
-    <style name="Base.Theme.MaterialComponents.Light.DialogWhenLarge" parent="@style/Base.Theme.MaterialComponents.Light.Dialog.FixedSize" />
+    <style name="APKTOOL_RENAMED_0x7f120059" parent="@style/APKTOOL_RENAMED_0x7f120057" />
+    <style name="APKTOOL_RENAMED_0x7f120060" parent="@style/APKTOOL_RENAMED_0x7f12005e" />
+    <style name="APKTOOL_RENAMED_0x7f120075" parent="@style/APKTOOL_RENAMED_0x7f120073" />
+    <style name="APKTOOL_RENAMED_0x7f12007f" parent="@style/APKTOOL_RENAMED_0x7f12007d" />
 </resources>

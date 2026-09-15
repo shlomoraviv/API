@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector android:height="@dimen/APKTOOL_RENAMED_0x7f070315" android:width="@dimen/APKTOOL_RENAMED_0x7f070315"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:state_pressed="true" android:id="@id/APKTOOL_RENAMED_0x7f09015f" android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010d" />
+    <item android:state_checked="true" android:id="@id/APKTOOL_RENAMED_0x7f09006b" android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010a" />
+    <item android:id="@id/APKTOOL_RENAMED_0x7f090206" android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010a" app:APKTOOL_RENAMED_0x7f040466="true" />
+    <item android:id="@id/APKTOOL_RENAMED_0x7f0901f3" android:drawable="@drawable/APKTOOL_RENAMED_0x7f080110" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010e" android:toId="@id/APKTOOL_RENAMED_0x7f09006b" android:fromId="@id/APKTOOL_RENAMED_0x7f09015f" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010e" android:toId="@id/APKTOOL_RENAMED_0x7f090206" android:fromId="@id/APKTOOL_RENAMED_0x7f09015f" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010f" android:toId="@id/APKTOOL_RENAMED_0x7f0901f3" android:fromId="@id/APKTOOL_RENAMED_0x7f09015f" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010b" android:toId="@id/APKTOOL_RENAMED_0x7f09015f" android:fromId="@id/APKTOOL_RENAMED_0x7f09006b" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010c" android:toId="@id/APKTOOL_RENAMED_0x7f0901f3" android:fromId="@id/APKTOOL_RENAMED_0x7f09006b" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010b" android:toId="@id/APKTOOL_RENAMED_0x7f09015f" android:fromId="@id/APKTOOL_RENAMED_0x7f090206" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f080112" android:toId="@id/APKTOOL_RENAMED_0x7f09015f" android:fromId="@id/APKTOOL_RENAMED_0x7f0901f3" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f080111" android:toId="@id/APKTOOL_RENAMED_0x7f09006b" android:fromId="@id/APKTOOL_RENAMED_0x7f0901f3" />
+</animated-selector>

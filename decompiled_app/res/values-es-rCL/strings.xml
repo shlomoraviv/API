@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="APKTOOL_RENAMED_0x7f11001c">Acerca de</string>
+    <string name="APKTOOL_RENAMED_0x7f110021">Ingrese primero al modo de pantalla dividida (ventanas múltiples).</string>
+    <string name="APKTOOL_RENAMED_0x7f110022">El sistema requiere que el cuadro de diálogo de emparejamiento esté siempre visible, el uso del modo de pantalla dividida es la única forma de permitir que esta aplicación y el cuadro de diálogo del sistema estén visibles al mismo tiempo.</string>
+    <string name="APKTOOL_RENAMED_0x7f11004e">Opciones de desarrollador</string>
+    <string name="APKTOOL_RENAMED_0x7f11004f">Buscando servicio de depuración inalámbrica</string>
+    <string name="APKTOOL_RENAMED_0x7f110052">El puerto es un número entero comprendido entre 1 y 65535.</string>
+    <string name="APKTOOL_RENAMED_0x7f110057">Puerto</string>
+    <string name="APKTOOL_RENAMED_0x7f11005b">Abrir Shizuku</string>
+    <string name="APKTOOL_RENAMED_0x7f11006d">Ver comando</string>
+    <string name="APKTOOL_RENAMED_0x7f11006e">Ver ayuda</string>
+    <string name="APKTOOL_RENAMED_0x7f11006f">Para dispositivos sin root, usted necesita ADB para ejecutar Shizuku (requiere una conexión a un ordenador). Este proceso se debe repetir cada vez que el dispositivo sea reiniciando. &lt;b>&lt;a href=\"%1$s\">obtener más ayuda&lt;/a>&lt;/b>.</string>
+    <string name="APKTOOL_RENAMED_0x7f110070">Enviar</string>
+    <string name="APKTOOL_RENAMED_0x7f110071">Copiar</string>
+    <string name="APKTOOL_RENAMED_0x7f110072">&lt;font face=monospace>%1$s&lt;/font>&lt;br>&lt;br>* Esto tiene otras consideraciones, por favor confirme que ha leído la información de ayuda primero.</string>
+    <string name="APKTOOL_RENAMED_0x7f110075">Empiece por conectarse a su computador</string>
+    <string name="APKTOOL_RENAMED_0x7f110080">%1$s está activo</string>
+    <string name="APKTOOL_RENAMED_0x7f110081">%1$s no está activo</string>
+    <string name="APKTOOL_RENAMED_0x7f110082">Versión %2$s, %1$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110083">Versión %2$s, %1$s&lt;br>Reinicie para actualizar a la versión %3$s</string>
+    <string name="APKTOOL_RENAMED_0x7f110088">Iniciar desde depuración inalámbrica</string>
+    <string name="APKTOOL_RENAMED_0x7f11012f">—Peter Cuevas</string>
+</resources>

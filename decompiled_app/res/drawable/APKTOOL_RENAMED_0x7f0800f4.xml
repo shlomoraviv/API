@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:state_checked="true" android:id="@id/APKTOOL_RENAMED_0x7f09006b" android:drawable="@drawable/APKTOOL_RENAMED_0x7f080101" />
+    <item android:id="@id/APKTOOL_RENAMED_0x7f0900d3" android:drawable="@drawable/APKTOOL_RENAMED_0x7f080105" app:APKTOOL_RENAMED_0x7f040462="true" />
+    <item android:state_checked="false" android:id="@id/APKTOOL_RENAMED_0x7f0901f3" android:drawable="@android:color/transparent" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800f6" android:toId="@id/APKTOOL_RENAMED_0x7f0901f3" android:fromId="@id/APKTOOL_RENAMED_0x7f09006b" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800f9" android:toId="@id/APKTOOL_RENAMED_0x7f09006b" android:fromId="@id/APKTOOL_RENAMED_0x7f0901f3" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800f8" android:toId="@id/APKTOOL_RENAMED_0x7f0901f3" android:fromId="@id/APKTOOL_RENAMED_0x7f0900d3" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800fa" android:toId="@id/APKTOOL_RENAMED_0x7f0900d3" android:fromId="@id/APKTOOL_RENAMED_0x7f0901f3" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800f7" android:toId="@id/APKTOOL_RENAMED_0x7f09006b" android:fromId="@id/APKTOOL_RENAMED_0x7f0900d3" />
+    <transition android:drawable="@drawable/APKTOOL_RENAMED_0x7f0800f5" android:toId="@id/APKTOOL_RENAMED_0x7f0900d3" android:fromId="@id/APKTOOL_RENAMED_0x7f09006b" />
+</animated-selector>

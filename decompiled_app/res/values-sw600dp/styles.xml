@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.Design.TabLayout" parent="@style/Base.Widget.Design.TabLayout">
-        <item name="tabGravity">center</item>
-        <item name="tabMode">fixed</item>
+    <style name="APKTOOL_RENAMED_0x7f12039a" parent="@style/APKTOOL_RENAMED_0x7f120110">
+        <item name="APKTOOL_RENAMED_0x7f04048f">APKTOOL_RENAMED_0x7f090063</item>
+        <item name="APKTOOL_RENAMED_0x7f04049c">APKTOOL_RENAMED_0x7f0900b8</item>
     </style>
 </resources>

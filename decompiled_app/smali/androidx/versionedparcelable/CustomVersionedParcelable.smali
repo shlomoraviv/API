@@ -1,9 +1,9 @@
 .class public abstract Landroidx/versionedparcelable/CustomVersionedParcelable;
 .super Ljava/lang/Object;
-.source "CustomVersionedParcelable.java"
+.source "SourceFile"
 
 # interfaces
-.implements Landroidx/versionedparcelable/c;
+.implements Lrikka/shizuku/rs;
 
 
 # direct methods
@@ -13,5 +13,8 @@
     .line 1
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
+    .line 2
+    .line 3
+    .line 4
     return-void
 .end method

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <rikka.widget.borderview.BorderNestedScrollView android:scrollbarStyle="insideOverlay" android:id="@android:id/list" android:paddingTop="?APKTOOL_RENAMED_0x7f040003" android:scrollbars="vertical" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" app:APKTOOL_RENAMED_0x7f04007a="APKTOOL_RENAMED_0x7f09012e" app:APKTOOL_RENAMED_0x7f04007b="@null" app:APKTOOL_RENAMED_0x7f04007d="APKTOOL_RENAMED_0x7f090204" app:APKTOOL_RENAMED_0x7f0401ed="APKTOOL_RENAMED_0x7f0901e4|APKTOOL_RENAMED_0x7f09005a">
+        <TextView android:textSize="12.0sp" android:textColor="?android:textColorPrimary" android:id="@android:id/text1" android:paddingTop="16.0dp" android:paddingBottom="16.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textIsSelectable="true" android:fontFamily="monospace" android:paddingStart="@dimen/APKTOOL_RENAMED_0x7f0700b0" android:paddingEnd="@dimen/APKTOOL_RENAMED_0x7f0700b0" />
+    </rikka.widget.borderview.BorderNestedScrollView>
+</FrameLayout>

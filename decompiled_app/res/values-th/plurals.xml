@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="mtrl_badge_content_description">
-        <item quantity="one">การแจ้งเตือนใหม่ %d รายการ</item>
-        <item quantity="other">การแจ้งเตือนใหม่ %d รายการ</item>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="other">อนุญาตแล้ว %d แอปพลิเคชัน</item>
     </plurals>
 </resources>

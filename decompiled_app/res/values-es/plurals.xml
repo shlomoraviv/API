@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="mtrl_badge_content_description">
-        <item quantity="one">%d notificación nueva</item>
-        <item quantity="other">%d notificaciones nuevas</item>
+    <plurals name="APKTOOL_RENAMED_0x7f100000">
+        <item quantity="one">Autorizado el %d de la aplicacion</item>
+        <item quantity="many">Autorizadas %d aplicaciones</item>
+        <item quantity="other">Autorizadas %d aplicaciones</item>
     </plurals>
 </resources>

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Base.Theme.AppCompat" parent="@style/Base.V26.Theme.AppCompat" />
-    <style name="Base.Theme.AppCompat.Light" parent="@style/Base.V26.Theme.AppCompat.Light" />
-    <style name="Base.V26.Theme.AppCompat" parent="@style/Base.V23.Theme.AppCompat">
-        <item name="colorError">?android:colorError</item>
+    <style name="APKTOOL_RENAMED_0x7f120053" parent="@style/APKTOOL_RENAMED_0x7f1200c1" />
+    <style name="APKTOOL_RENAMED_0x7f12005a" parent="@style/APKTOOL_RENAMED_0x7f1200c2" />
+    <style name="APKTOOL_RENAMED_0x7f1200c1" parent="@style/APKTOOL_RENAMED_0x7f1200bb">
+        <item name="APKTOOL_RENAMED_0x7f0400f7">?android:colorError</item>
     </style>
-    <style name="Base.V26.Theme.AppCompat.Light" parent="@style/Base.V23.Theme.AppCompat.Light">
-        <item name="colorError">?android:colorError</item>
+    <style name="APKTOOL_RENAMED_0x7f1200c2" parent="@style/APKTOOL_RENAMED_0x7f1200bc">
+        <item name="APKTOOL_RENAMED_0x7f0400f7">?android:colorError</item>
     </style>
-    <style name="Base.V26.Widget.AppCompat.Toolbar" parent="@style/Base.V7.Widget.AppCompat.Toolbar">
+    <style name="APKTOOL_RENAMED_0x7f1200c3" parent="@style/APKTOOL_RENAMED_0x7f1200d5">
         <item name="android:touchscreenBlocksFocus">true</item>
         <item name="android:keyboardNavigationCluster">true</item>
     </style>
-    <style name="Base.Widget.AppCompat.Toolbar" parent="@style/Base.V26.Widget.AppCompat.Toolbar" />
-    <style name="Widget.Design.AppBarLayout" parent="@android:style/Widget">
-        <item name="android:background">?colorPrimary</item>
-        <item name="android:stateListAnimator">@animator/design_appbar_state_list_animator</item>
+    <style name="APKTOOL_RENAMED_0x7f12010e" parent="@style/APKTOOL_RENAMED_0x7f1200c3" />
+    <style name="APKTOOL_RENAMED_0x7f120392" parent="@android:style/Widget">
+        <item name="android:background">?APKTOOL_RENAMED_0x7f040111</item>
+        <item name="android:stateListAnimator">@animator/APKTOOL_RENAMED_0x7f020001</item>
         <item name="android:touchscreenBlocksFocus">true</item>
         <item name="android:keyboardNavigationCluster">true</item>
     </style>

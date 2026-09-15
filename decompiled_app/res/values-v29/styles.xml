@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppCustomBaseTheme" parent="@style/Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@color/granat</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowFullscreen">true</item>
+    <style name="APKTOOL_RENAMED_0x7f120019" parent="@style/APKTOOL_RENAMED_0x7f1200ca" />
+    <style name="APKTOOL_RENAMED_0x7f12001a" parent="@style/APKTOOL_RENAMED_0x7f1200cb" />
+    <style name="APKTOOL_RENAMED_0x7f1200ca" parent="@style/APKTOOL_RENAMED_0x7f1200c6">
         <item name="android:forceDarkAllowed">false</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="APKTOOL_RENAMED_0x7f1200cb" parent="@style/APKTOOL_RENAMED_0x7f1200c7">
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 </resources>

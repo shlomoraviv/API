@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" style="?APKTOOL_RENAMED_0x7f040237"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@android:id/icon" android:duplicateParentState="true" android:src="@drawable/APKTOOL_RENAMED_0x7f0800ce" android:importantForAccessibility="no" style="@style/APKTOOL_RENAMED_0x7f120138" />
+        <TextView android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="@string/APKTOOL_RENAMED_0x7f110088" android:layout_weight="1.0" android:layout_marginStart="@dimen/APKTOOL_RENAMED_0x7f0700aa" style="@style/APKTOOL_RENAMED_0x7f12013a" />
+    </LinearLayout>
+    <TextView android:id="@android:id/text1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24.0dp" android:layout_marginBottom="24.0dp" style="@style/APKTOOL_RENAMED_0x7f120137" />
+    <com.google.android.material.button.MaterialButton android:id="@android:id/button3" android:text="@string/APKTOOL_RENAMED_0x7f110089" app:APKTOOL_RENAMED_0x7f040240="@drawable/APKTOOL_RENAMED_0x7f0800c2" style="@style/APKTOOL_RENAMED_0x7f120136" />
+    <com.google.android.material.button.MaterialButton android:id="@android:id/button2" android:text="@string/APKTOOL_RENAMED_0x7f110020" app:APKTOOL_RENAMED_0x7f040240="@drawable/APKTOOL_RENAMED_0x7f08009c" style="@style/APKTOOL_RENAMED_0x7f120136" />
+    <com.google.android.material.button.MaterialButton android:id="@android:id/button1" android:text="@string/APKTOOL_RENAMED_0x7f11007c" app:APKTOOL_RENAMED_0x7f040240="@drawable/APKTOOL_RENAMED_0x7f0800ca" style="@style/APKTOOL_RENAMED_0x7f120136" />
+</LinearLayout>

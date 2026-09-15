@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector android:drawable="@drawable/APKTOOL_RENAMED_0x7f08010a"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
+    <set android:interpolator="@interpolator/APKTOOL_RENAMED_0x7f0b0007" android:shareInterpolator="true">
+        <target android:name="@string/APKTOOL_RENAMED_0x7f1100ea" android:animation="@drawable/APKTOOL_RENAMED_0x7f080023" />
+        <target android:name="@string/APKTOOL_RENAMED_0x7f1100ea" android:animation="@drawable/APKTOOL_RENAMED_0x7f080024" />
+    </set>
+</animated-vector>
