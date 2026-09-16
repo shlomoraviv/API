@@ -1893,6 +1893,26 @@ rebuild, even if that means dropping part of the requested change.`;
     }
     throw lastErr || new Error(`GitHub request failed on ${path}`);
   }
+  // When every attempt through the Apps Script relay has failed on a read-only
+  // call, retry once through the independent Cloudflare proxy — it never touches
+  // Google, so it rides out Apps Script outage waves (proven live: the git-ref
+  // GET that opens every pipeline died on the relay while this worker answered
+  // 200 immediately). Writes never fall back (a relayed write may have landed
+  // even when the response was lost), and a deterministic GitHub 4xx answer is
+  // returned as-is — retrying it elsewhere just masks the real problem.
+  async function ghRelayFallback(path, method, options, relayErr) {
+    const status = relayErr && relayErr.status;
+    const canFallback = method === "GET" && (!status || status === 429 || status >= 500);
+    if (!canFallback) return relayErr;
+    try {
+      logBackground(`שרת העזר של גוגל לא משיב — מנסה נתיב גיבוי עצמאי עבור ${path}…`, null);
+      return await ghViaProxy(path, options);
+    } catch (proxyErr) {
+      console.warn(`ghRelayFallback(${path}) proxy also failed:`, proxyErr);
+      return relayErr; // השגיאה המקורית מהשרת הראשי מייצגת יותר טוב
+    }
+  }
+
   async function gh(path, token, options = {}) {
     // Signed-in users go through the Apps Script backend relay (the shared
     // GitHub token never reaches the browser); anything else goes through the
@@ -1921,7 +1941,7 @@ rebuild, even if that means dropping part of the requested change.`;
               await sleep(GITHUB_RETRY_DELAY_MS * attempt);
               continue;
             }
-            throw lastEmptyErr;
+            throw await ghRelayFallback(path, method, options, lastEmptyErr);
           }
           return result.data;
         }
@@ -1932,11 +1952,11 @@ rebuild, even if that means dropping part of the requested change.`;
         // PATCH/POST could double an effect). Only a status-less failure means
         // the relay never got through, which is exactly what retries fix.
         const retryable = !result.status || result.status === 429 || result.status >= 500;
-        if (!retryable || attempt >= MAX_GITHUB_READ_ATTEMPTS) throw err;
+        if (!retryable || attempt >= MAX_GITHUB_READ_ATTEMPTS) throw await ghRelayFallback(path, method, options, err);
         logBackground(`תקלה זמנית בשרת (HTTP ${result.status} ב-${method} ${path}) — מנסה שוב (${attempt}/${MAX_GITHUB_READ_ATTEMPTS})…`, null);
         await sleep(GITHUB_RETRY_DELAY_MS * attempt);
       }
-      throw lastEmptyErr || new Error(`GitHub request failed on ${path}`);
+      throw await ghRelayFallback(path, method, options, lastEmptyErr || new Error(`GitHub request failed on ${path}`));
     }
     const res = await githubFetch(path, token, options);
     if (!res.ok) {
