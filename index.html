@@ -4446,11 +4446,218 @@ anything - answer or act right away.`;
   // Reads the attached files into Gemini-ready inline_data parts. Files that are
   // not readable as text at all (binary, huge) still get a name+size note so the
   // model knows they exist and can ask the user about them.
+  // ===== APK quick inspection (all in the browser, no server round-trip) =====
+  // A compiled APK keeps its manifest as binary AXML. These helpers parse enough
+  // of it (string pool + start-elements) to report the package, label,
+  // permissions, launcher activity and component lists — plus the zip structure
+  // and notable identifiers mined from classes.dex — so the chat layer can
+  // genuinely answer "what is this app / what is it built from" from the real
+  // file instead of guessing from the file name.
+  function parseAxmlStrings(bytes, chunkPos) {
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const stringCount = dv.getUint32(chunkPos + 8, true);
+    const flags = dv.getUint32(chunkPos + 16, true);
+    const stringsStart = dv.getUint32(chunkPos + 20, true);
+    const isUtf8 = (flags & 0x100) !== 0;
+    const strings = [];
+    for (let i = 0; i < stringCount; i++) {
+      const off = chunkPos + stringsStart + dv.getUint32(chunkPos + 28 + 4 * i, true);
+      try {
+        if (isUtf8) {
+          let p = off;
+          let v = bytes[p]; p += 1;
+          if (v & 0x80) { v = ((v & 0x7f) << 8) | bytes[p]; p += 1; }
+          let blen = bytes[p]; p += 1;
+          if (blen & 0x80) { blen = ((blen & 0x7f) << 8) | bytes[p]; p += 1; }
+          strings.push(new TextDecoder("utf-8").decode(bytes.subarray(p, p + blen)));
+        } else {
+          let p = off;
+          let v = dv.getUint16(p, true); p += 2;
+          if (v & 0x8000) { v = ((v & 0x7fff) << 16) | dv.getUint16(p, true); p += 2; }
+          strings.push(new TextDecoder("utf-16le").decode(bytes.subarray(p, p + v * 2)));
+        }
+      } catch (e) { strings.push(""); }
+    }
+    return strings;
+  }
+
+  function parseBinaryAndroidManifest(bytes) {
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    if (bytes.length < 8 || dv.getUint16(0, true) !== 0x0003) return null;
+    let strings = [];
+    const info = { pkg: "", versionName: "", versionCode: "", label: "", minSdk: "", targetSdk: "", permissions: [], launcher: "", activities: [], services: [], receivers: [], providers: [] };
+    const openStack = [];
+    const resolveValue = (rawValue, dataType, data) => {
+      if (rawValue !== 0xffffffff && strings[rawValue] != null) return strings[rawValue];
+      if (dataType === 3 && strings[data] != null) return strings[data];
+      if (dataType === 0x10) return String(data | 0);
+      if (dataType === 0x12) return data ? "true" : "false";
+      return "";
+    };
+    let pos = 8;
+    while (pos + 8 <= bytes.length) {
+      const type = dv.getUint16(pos, true);
+      const headerSize = dv.getUint16(pos + 2, true);
+      const size = dv.getUint32(pos + 4, true);
+      if (size <= 0 || pos + size > bytes.length) break;
+      if (type === 0x0001) {
+        strings = parseAxmlStrings(bytes, pos);
+      } else if (type === 0x0102) {
+        const nameIdx = dv.getUint32(pos + 20, true);
+        const attrStart = dv.getUint16(pos + 24, true);
+        const attrSize = dv.getUint16(pos + 26, true);
+        const attrCount = dv.getUint16(pos + 28, true);
+        const elName = strings[nameIdx] || "";
+        const attrs = {};
+        if (attrSize >= 20 && attrCount > 0 && attrCount < 256) {
+          for (let a = 0; a < attrCount; a++) {
+            const base = pos + headerSize + attrStart + a * attrSize;
+            if (base + 20 > bytes.length) break;
+            const aNameIdx = dv.getUint32(base + 4, true);
+            const rawValue = dv.getUint32(base + 8, true);
+            const dataType = bytes[base + 15];
+            const data = dv.getUint32(base + 16, true);
+            const aName = strings[aNameIdx];
+            if (aName) attrs[aName] = resolveValue(rawValue, dataType, data);
+          }
+        }
+        if (elName === "manifest") {
+          info.pkg = attrs.package || "";
+          info.versionName = attrs.versionName || "";
+          info.versionCode = attrs.versionCode || "";
+        } else if (elName === "uses-sdk") {
+          info.minSdk = attrs.minSdkVersion || "";
+          info.targetSdk = attrs.targetSdkVersion || "";
+        } else if (elName === "uses-permission") {
+          if (attrs.name) info.permissions.push(attrs.name);
+        } else if (elName === "application") {
+          info.label = attrs.label && !attrs.label.startsWith("@") ? attrs.label : info.label;
+        } else if (elName === "activity" || elName === "activity-alias") {
+          if (attrs.name) info.activities.push(attrs.name);
+        } else if (elName === "service") {
+          if (attrs.name) info.services.push(attrs.name);
+        } else if (elName === "receiver") {
+          if (attrs.name) info.receivers.push(attrs.name);
+        } else if (elName === "provider") {
+          if (attrs.name) info.providers.push(attrs.name);
+        } else if (elName === "action" && attrs.name === "android.intent.action.MAIN") {
+          for (let s = openStack.length - 1; s >= 0; s--) {
+            if (openStack[s].el === "activity" || openStack[s].el === "activity-alias") {
+              if (openStack[s].attrs.name) info.launcher = openStack[s].attrs.name;
+              break;
+            }
+          }
+        }
+        openStack.push({ el: elName, attrs });
+      } else if (type === 0x0103) {
+        openStack.pop();
+      }
+      pos += size;
+    }
+    return info;
+  }
+
+  // Mines printable identifier-like strings from a classes.dex blob (package
+  // paths, JNI class refs, http endpoints) — a cheap, dependency-free peek at
+  // what the code actually contains.
+  function extractDexNotableStrings(bytes, maxStrings, seen) {
+    const out = [];
+    let run = [];
+    const interesting = (s) => {
+      if (!/[a-zA-Z]{4,}/.test(s) || s.length > 120) return false;
+      if (/^L[\w$/]+;$/.test(s)) return true;
+      if (/^https?:\/\//.test(s)) return true;
+      if (/^(?:[a-zA-Z][\w]{1,}\.)+[A-Za-z_][\w$]{1,}$/.test(s)) {
+        const first = s.split(".")[0];
+        return first.length >= 2 && !/^(if|for|do|new|try|else|this|super|return|void|true|false|null)$/.test(first);
+      }
+      return false;
+    };
+    const flush = () => {
+      if (run.length >= 6) {
+        const s = run.join("");
+        if (interesting(s) && !seen.has(s)) {
+          seen.add(s);
+          out.push(s);
+          if (out.length >= maxStrings) { run = []; return true; }
+        }
+      }
+      run = [];
+      return false;
+    };
+    for (let i = 0; i < bytes.length; i++) {
+      const b = bytes[i];
+      if (b >= 0x20 && b <= 0x7e) {
+        run.push(String.fromCharCode(b));
+        if (run.length > 300) { if (flush() && out.length >= maxStrings) break; }
+      } else {
+        if (flush() && out.length >= maxStrings) break;
+      }
+    }
+    flush();
+    return out;
+  }
+
+  // Reads a real APK in the browser and returns a bounded text brief: decoded
+  // manifest, zip structure, and notable code identifiers — for grounded chat
+  // answers about what the app is and how it is built.
+  async function inspectApkForChat(file) {
+    if (typeof JSZip === "undefined") return null;
+    const zip = await JSZip.loadAsync(file);
+    const entries = Object.keys(zip.files).filter((n) => !zip.files[n].dir);
+    const dexEntries = entries.filter((n) => /^classes\d*\.dex$/i.test(n));
+    const libEntries = entries.filter((n) => /^lib\/[^/]+\/.+\.so$/i.test(n));
+    const abis = Array.from(new Set(libEntries.map((n) => n.split("/")[1])));
+    const assetEntries = entries.filter((n) => n.startsWith("assets/"));
+    const resEntries = entries.filter((n) => n.startsWith("res/"));
+    const lines = [];
+    const manifestEntry = entries.find((n) => n === "AndroidManifest.xml");
+    let manifest = null;
+    if (manifestEntry) {
+      try {
+        manifest = parseBinaryAndroidManifest(new Uint8Array(await zip.files[manifestEntry].async("arraybuffer")));
+      } catch (e) { console.error("manifest parse failed:", e); }
+    }
+    if (manifest && manifest.pkg) {
+      lines.push("Manifest:");
+      lines.push(`- Package: ${manifest.pkg}${manifest.versionName ? ` (version ${manifest.versionName}${manifest.versionCode ? `, code ${manifest.versionCode}` : ""})` : ""}`);
+      if (manifest.minSdk || manifest.targetSdk) lines.push(`- SDK: min ${manifest.minSdk || "?"}, target ${manifest.targetSdk || "?"}`);
+      if (manifest.label) lines.push(`- App label: ${manifest.label}`);
+      if (manifest.permissions.length) lines.push(`- Permissions (${manifest.permissions.length}): ${manifest.permissions.slice(0, 25).join(", ")}`);
+      if (manifest.launcher) lines.push(`- Launcher activity: ${manifest.launcher}`);
+      [["Activities", manifest.activities], ["Services", manifest.services], ["Receivers", manifest.receivers], ["Providers", manifest.providers]].forEach(([label, list]) => {
+        if (list.length) lines.push(`- ${label} (${list.length}): ${list.slice(0, 20).join(", ")}${list.length > 20 ? " …" : ""}`);
+      });
+    } else {
+      lines.push("Manifest: could not be decoded in the browser.");
+    }
+    lines.push(`Structure: ${dexEntries.length} dex file(s), ${resEntries.length} res entries, ${assetEntries.length} assets, ${libEntries.length} native libs${abis.length ? ` (${abis.join(", ")})` : ""}.`);
+    const seen = new Set();
+    const strings = [];
+    for (const dexName of dexEntries.slice(0, 3)) {
+      try {
+        const buf = new Uint8Array(await zip.files[dexName].async("arraybuffer"));
+        strings.push(...extractDexNotableStrings(buf, 140 - strings.length, seen));
+        if (strings.length >= 140) break;
+      } catch (e) { console.error("dex scan failed for", dexName, e); }
+    }
+    if (strings.length) lines.push(`Notable identifiers/endpoints from the code (${strings.length}): ${strings.join(", ")}`);
+    return lines.join("\n").slice(0, 60000);
+  }
+
   async function buildFilePartsForPrompt(files) {
     const parts = [];
     const readable = files.filter((f) => !f.name.toLowerCase().endsWith(".apk") && !f.name.toLowerCase().endsWith(".zip"));
     const apkFiles = files.filter((f) => f.name.toLowerCase().endsWith(".apk"));
     const zipFiles = files.filter((f) => f.name.toLowerCase().endsWith(".zip"));
+    for (const apkFile of apkFiles) {
+      let note = `[An Android APK file is attached: ${describeFileForPrompt(apkFile)}]`;
+      try {
+        const inspection = await inspectApkForChat(apkFile);
+        if (inspection) note += `\nIts real contents, read in the browser:\n${inspection}`;
+      } catch (err) { console.error("APK inspection failed for", apkFile.name, err); }
+      parts.push({ text: note });
+    }
     for (const zipFile of zipFiles) {
       try {
         if (typeof JSZip === "undefined") throw new Error("JSZip unavailable");
@@ -4483,7 +4690,7 @@ anything - answer or act right away.`;
       } catch (err) { console.error("blobToBase64 failed for", file.name, err); }
       if (!inlined) parts.push({ text: `[Attached file that could not be inlined: ${describeFileForPrompt(file)}]` });
     }
-    apkFiles.forEach((f) => parts.push({ text: `[An Android APK file is attached: ${describeFileForPrompt(f)}]` }));
+    apkFiles.forEach((f) => { if (!parts.some((p) => p.text && p.text.includes(describeFileForPrompt(f)))) parts.push({ text: `[An Android APK file is attached: ${describeFileForPrompt(f)}]` }); });
     return parts;
   }
 
@@ -4498,20 +4705,28 @@ anything - answer or act right away.`;
   const CLASSIFY_INSTRUCTIONS = `You are the friendly front-of-house chat layer for an Android
 app-building tool. The user just sent a message in an open chat where no build/edit/translate/censor
 mode has been picked yet. Output ONLY a raw JSON object - no markdown fences, no commentary - with
-exactly two fields: "intent" and "reply".
+exactly three fields: "intent", "reply", and "action".
 
-"intent": the string "build" if the message is a genuine request to build/create a NEW Android app -
-even a short, casual one like "build me a timer app" - or a genuine request to actually DO something
-with an attached or previously uploaded file (translate it, edit it, decompile and analyze it,
-censor it) - otherwise the string "chat". A message that merely attaches files to ask about them,
-inspect them, or discuss them is "chat".
+"intent": the string "act" if the message asks you to actually DO something now - translate the
+attached/uploaded app, edit or change it, decompile and unpack it, censor images in it, or build a
+NEW app from a description; also "act" when they attached an APK and asked anything like
+"analyze it", "what does it do", "explain how it works" or "inspect it deeply" (that starts a full
+decompile and analysis). Otherwise "chat" for questions, comments, greetings, or discussing the
+attachments without an action request. When intent is "act", also fill "action" (below).
+
+"action": ONLY when intent is "act" - one of: "translate" (with the target language extracted from
+the message into "reply" as just the language name), "edit" (change/patch the app), "translate"'s
+language goes in "reply", "analyze" (decompile and deeply inspect an attached APK - put a one-line
+acknowledgement in "reply"), "censor" (mark/censor images), or "build" (create a new app from the
+description). For "chat" set "action" to "".
 
 "reply": your own short, warm, natural reply in the same language and register the user wrote in, as
 a friendly assistant actually chatting (not a form, not a script). If intent is "chat": really answer
 what they said - greetings get a greeting back, questions get a real answer, small talk gets small
 talk - and if relevant, mention in passing that you can build a new app from a short description, or
-edit/translate/censor images in an existing APK once they upload one. If intent is "build": one brief
-warm line acknowledging you're starting the build now (shown right before the build begins).
+edit/translate/censor images in an existing APK once they upload one. If intent is "act": one brief
+warm line acknowledging you're starting the action now (shown right before it begins) - for
+"translate" put ONLY the target language in "reply".
 
 When a "Conversation so far" block is included, treat it as real memory: the current message often
 continues something already said or answers something already asked - combine them instead of
@@ -4611,7 +4826,9 @@ separate lines (no markdown bullets or asterisks).`;
     if (!raw) throw new Error(`Gemini returned no usable reply (finishReason: ${finishReason}).`);
     const parsed = parseJsonLoose(raw);
     if (!parsed || typeof parsed.reply !== "string") throw new Error("תשובת הצ'אט לא הייתה תקינה.");
-    return { intent: parsed.intent === "build" ? "build" : "chat", reply: parsed.reply };
+    const intent = parsed.intent === "act" ? "act" : parsed.intent === "build" ? "build" : "chat";
+    const action = typeof parsed.action === "string" ? parsed.action : "";
+    return { intent, action, reply: parsed.reply };
   }
 
   function appendTypingIndicator() {
@@ -4642,6 +4859,51 @@ separate lines (no markdown bullets or asterisks).`;
     try {
       const routed = await classifyIntent(geminiKeys, text, files);
       thinking.remove();
+      if (routed.intent === "act") {
+        const action = (routed.action || "").toLowerCase();
+        const apkFile = files && files.length ? files.find((f) => f.name.toLowerCase().endsWith(".apk")) : null;
+        const zipFile = files && files.length ? files.find((f) => f.name.toLowerCase().endsWith(".zip")) : null;
+        if ((action === "translate" || action === "edit" || action === "censor" || action === "analyze") && (apkFile || zipFile || currentApk)) {
+          // Stage the attached app first (extracting it from a zip when needed),
+          // then run the real pipeline immediately — no approval step.
+          activeConversationType = action === "analyze" ? "edit" : action;
+          let staged = apkFile || null;
+          if (!staged && zipFile) {
+            try { staged = await extractApkFromZip(zipFile); } catch (e) { console.error("zip extract failed:", e); }
+          }
+          if (staged && !currentApk) {
+            const base64 = await blobToBase64(staged.blob || staged);
+            currentApk = { base64, name: staged.name || staged.blob?.name || "app.apk" };
+            writeDecompileMarker(publicInfo.githubOwner || DEFAULT_GITHUB_OWNER, publicInfo.githubRepo || DEFAULT_GITHUB_REPO, publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH, null);
+            updateComposerForState();
+          }
+          if (action === "translate") {
+            const lang = (routed.reply || "").trim() || "אנגלית";
+            appendUserTurn(`תרגום ל${lang}`, "translate");
+            await runTranslateTurn(lang);
+          } else if (action === "censor") {
+            appendUserTurn("צנזורה — סימון תמונות", "censor");
+            chipCensor.click();
+          } else {
+            // edit + analyze: the edit pipeline decompiles and then reports on
+            // the app — exactly what an "analyze it" request wants.
+            await runEditTurn(text);
+          }
+          return;
+        }
+        if (action === "build" || (!currentApk && !apkFile && !zipFile)) {
+          activeConversationType = "build";
+          updateComposerForState();
+          const image = pendingDesignImage;
+          pendingDesignImage = null;
+          await runBuildTurn(files && files.length ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text, image);
+          return;
+        }
+        // act on an app in a conversation that already has one, without a new
+        // file: fall through to the live-app handler below via edit.
+        await runEditTurn(text);
+        return;
+      }
       if (routed.intent === "build") {
         activeConversationType = "build";
         updateComposerForState();
@@ -4673,6 +4935,8 @@ ONLY a raw JSON object - no markdown fences, no commentary - with exactly two fi
 extend the app in some way - even a small one, like a color or a single new button - or a request to
 actually decompile/unpack/analyze the app and report what it does or how it works. Otherwise the
 string "chat" for questions, comments, greetings, or anything not asking for an actual action.
+Never answer an action request with a plan or a question - when in doubt between "edit" and "chat"
+for a message that names a concrete change or action, choose "edit".
 
 "reply": ONLY meaningful when intent is "chat" - your own short, warm, natural reply in the same
 language and register the user used, genuinely answering what they asked or said. When intent is
