@@ -629,6 +629,10 @@
   @keyframes typing-bounce { 0%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-5px); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .typing-dot { animation: none; } }
 
+  /* ---- per-message answer timing: forecast before the reply, real elapsed after ---- */
+  .answer-timing-line { margin-top: 7px; font-size: 12px; color: var(--text-faint); line-height: 1.4; }
+  .answer-timing-line.answer-timing-slow { color: var(--warn); }
+
   .upload-drop {
     border: 1.5px dashed var(--border-strong); border-radius: var(--radius); padding: 22px; text-align: center;
     background: var(--surface); cursor: pointer; transition: border-color .15s ease, background .15s ease;
@@ -1529,6 +1533,12 @@ rebuild, even if that means dropping part of the requested change.`;
   const attachBtn = $("attachBtn"), composerFileInput = $("composerFileInput");
   const composerBox = composerInput.closest(".composer-box");
   let pendingFiles = []; // File[] waiting to ride along with the next composer send
+  // Files from the previous send that were successfully read for the model.
+  // Chat-layer models only see attachments on the message that carries them,
+  // so follow-up questions ("and what does it do?") used to hit a bot that had
+  // never seen the file. These are silently re-attached to every send until the
+  // user removes them, keeping the exploration context alive.
+  let carriedFiles = [];
 
   const settingsModal = $("settingsModal"), settingsCloseBtn = $("settingsCloseBtn"), settingsCloseBtn2 = $("settingsCloseBtn2");
   const themeChoiceRow = $("themeChoiceRow"), maxQuestionsInput = $("maxQuestionsInput"), maxQuestionsValueLabel = $("maxQuestionsValueLabel");
@@ -3188,13 +3198,90 @@ rebuild, even if that means dropping part of the requested change.`;
     threadWrap.scrollTop = threadWrap.scrollHeight;
   }
 
+  // ---- per-message answer timing helpers ----
+  // A small line under every sent message: before the reply lands it shows the
+  // forecast ("עד ~30 שניות"), and once the reply arrives it is replaced with
+  // the real elapsed time — so the user always knows what the app is doing and
+  // how long it actually took.
+  function formatSecondsHe(sec) {
+    const s = Math.max(1, Math.round(sec || 0));
+    if (s < 60) return `${s} שניות`;
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return r ? `דקה ו־${r} שניות` : "דקה";
+  }
+  function estimateAnswerTime(files, hasApp) {
+    // Baseline: one classifier round-trip to Gemini. Attachments add real
+    // reading time (~8s per 300KB, capped) since APK/zip exploration runs here
+    // in the browser before the request is even sent.
+    let sec = hasApp ? 25 : 20;
+    let bytes = 0;
+    (files || []).forEach((f) => { bytes += f && f.size ? f.size : 0; });
+    if (bytes > 0) sec += Math.min(60, Math.ceil(bytes / (300 * 1024)) * 8);
+    return sec;
+  }
+  function appendAnswerTimingLine(bubble, files, hasApp) {
+    const line = document.createElement("div");
+    line.className = "answer-timing-line";
+    line.dataset.t0 = String(Date.now());
+    const forecast = estimateAnswerTime(files, hasApp);
+    line.dataset.forecast = String(forecast);
+    line.textContent = `צפי תשובה: עד ~${formatSecondsHe(forecast)}`;
+    bubble.appendChild(line);
+    return line;
+  }
+  // Finalizes the MOST RECENT timing line in the thread with the real elapsed
+  // time. mode: "ok" (replied), "started" (action pipeline began — the line
+  // stays open so the real total lands when the pipeline finishes), "error".
+  function finalizeAnswerTimingLine(mode) {
+    try {
+      const lines = threadEl.querySelectorAll(".answer-timing-line");
+      const line = lines[lines.length - 1];
+      if (!line) return;
+      const elapsedSec = Math.max(1, Math.round((Date.now() - Number(line.dataset.t0 || Date.now())) / 1000));
+      const forecast = Number(line.dataset.forecast || 0);
+      if (mode === "error") {
+        if (line.dataset.done) return;
+        line.dataset.done = "1";
+        line.textContent = `צפי: עד ~${formatSecondsHe(forecast)} · נכשל אחרי ${formatSecondsHe(elapsedSec)}`;
+        line.classList.add("answer-timing-slow");
+      } else if (mode === "started") {
+        if (line.dataset.done) return;
+        line.textContent = `צפי: עד ~${formatSecondsHe(forecast)} · התחיל לפעול תוך ${formatSecondsHe(elapsedSec)} — ממשיך…`;
+      } else {
+        line.dataset.done = "1";
+        line.textContent = `צפי: עד ~${formatSecondsHe(forecast)} · נענה תוך ${formatSecondsHe(elapsedSec)}`;
+      }
+    } catch (err) { console.warn("answer timing finalize failed:", err);
+    }
+  }
+
+  // Files the model already saw on previous messages. Chat-layer calls only
+  // receive attachments on the message that carries them, so follow-up
+  // questions ("ומה הוא עושה?") used to hit a model that had never seen the
+  // file at all — and it answered "אין לי גישה לקובץ, תעלה אותו שוב". These are
+  // silently re-attached (deduped) to every classifier call until the
+  // conversation is switched or reset.
+  function mergeWithCarried(files) {
+    const seen = new Set();
+    const out = [];
+    [...(files || []), ...carriedFiles].forEach((f) => {
+      if (!f) return;
+      const key = `${f.name}:${f.size}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(f);
+    });
+    return out;
+  }
+
   function appendUserTurn(text, iconName) {
     return appendUserTurnWithFiles(text, iconName, null);
   }
 
   // Same as appendUserTurn, but with optional attached-file chips rendered above
   // the text — used when files ride along with a chat message.
-  function appendUserTurnWithFiles(text, iconName, files) {
+  function appendUserTurnWithFiles(text, iconName, files, withTiming) {
     const emptyPlaceholder = threadEl.querySelector(".thread-empty");
     if (emptyPlaceholder) emptyPlaceholder.remove();
     const turn = document.createElement("div");
@@ -3257,6 +3344,7 @@ rebuild, even if that means dropping part of the requested change.`;
       }
       bubble.appendChild(document.createTextNode(text));
     }
+    if (withTiming) appendAnswerTimingLine(bubble, files || [], !!currentApk);
     turn.appendChild(bubble);
     threadEl.appendChild(turn);
     scrollThreadToEnd();
@@ -3829,6 +3917,7 @@ rebuild, even if that means dropping part of the requested change.`;
       emulatorPanelState.busy = false;
       log("הפעלת האמולטור נכשלה: " + err.message, "error", logBox);
       if (turn) {
+        finalizeAnswerTimingLine("ok");
         turn.setStatus("מוכן — ה-APK זמין להורדה (הפעלת האמולטור נכשלה: " + err.message + ")", "success-text");
       }
       setEmulatorPanelStatus("הפעלת האמולטור נכשלה: " + err.message, true);
@@ -3934,6 +4023,7 @@ rebuild, even if that means dropping part of the requested change.`;
       const base64 = await blobToBase64(apkBlob);
       currentApk = { base64, name: preview.label };
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
+      finalizeAnswerTimingLine("ok");
       turn.setStatus("מוכן — האפליקציה שלך מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
       recordTurn("assistant", "build", "נבנה בהצלחה: " + preview.label, true);
       celebrateBuild();
@@ -3946,6 +4036,7 @@ rebuild, even if that means dropping part of the requested change.`;
       console.error(err);
       turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
+      finalizeAnswerTimingLine("error");
       recordTurn("assistant", "build", "הבנייה נכשלה: " + err.message, false);
     } finally {
       setComposerBusy(false);
@@ -4093,6 +4184,7 @@ no asterisks - describing what the app does / what the last change did, from the
       const base64 = await blobToBase64(apkBlob);
       currentApk = { base64, name: preview.label };
       turn.showDownload({ blob: apkBlob, filename: "app-release.apk", label: preview.label, iconSvgEl: preview.iconSvgEl });
+      finalizeAnswerTimingLine("ok");
       turn.setStatus("מוכן — האפליקציה מהקוד שהעלית מחכה להורדה. אפשר להמשיך בצ'אט כדי לבקש שינויים.", "success-text");
       recordTurn("assistant", "build", "נבנה בהצלחה מקוד מקור: " + preview.label, true);
       celebrateBuild();
@@ -4105,6 +4197,7 @@ no asterisks - describing what the app does / what the last change did, from the
       console.error(err);
       turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
+      finalizeAnswerTimingLine("error");
       recordTurn("assistant", "build", "הבנייה מקוד מקור נכשלה: " + err.message, false);
     } finally {
       setComposerBusy(false);
@@ -4205,6 +4298,7 @@ no asterisks - describing what the app does / what the last change did, from the
       // and the old marker now points at the previous APK's bytes).
       writeDecompileMarker(owner, repo, branch, null);
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
+      finalizeAnswerTimingLine("ok");
       turn.setStatus("מוכן — ה-APK הערוך מחכה להורדה. אפשר להמשיך לבקש עוד שינויים.", "success-text");
       recordTurn("assistant", "edit", "נערך בהצלחה", true);
       celebrateBuild();
@@ -4217,6 +4311,7 @@ no asterisks - describing what the app does / what the last change did, from the
       console.error(err);
       turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
+      finalizeAnswerTimingLine("error");
       recordTurn("assistant", "edit", "העריכה נכשלה: " + err.message, false);
     } finally {
       setComposerBusy(false);
@@ -4334,6 +4429,7 @@ no asterisks - describing what the app does / what the last change did, from the
       // The freshly rebuilt APK is NOT decompiled yet — see the note in runEditTurn.
       writeDecompileMarker(owner, repo, branch, null);
       turn.showDownload({ blob: apkBlob, filename: "app-translated-release.apk", label: currentApk.name });
+      finalizeAnswerTimingLine("ok");
       turn.setStatus("מוכן — ה-APK המתורגם מחכה להורדה.", "success-text");
       recordTurn("assistant", "translate", "תורגם בהצלחה (" + langCode + ")", true);
       attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
@@ -4342,6 +4438,7 @@ no asterisks - describing what the app does / what the last change did, from the
       console.error(err);
       turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
+      finalizeAnswerTimingLine("error");
       recordTurn("assistant", "translate", "התרגום נכשל: " + err.message, false);
     } finally {
       setComposerBusy(false);
@@ -4396,6 +4493,7 @@ no asterisks - describing what the app does / what the last change did, from the
       // The re-signed APK was modified outside apktool — its decompiled tree is stale.
       writeDecompileMarker(owner, repo, branch, null);
       turn.showDownload({ blob: apkBlob, filename: "app-edited-release.apk", label: currentApk.name });
+      finalizeAnswerTimingLine("ok");
       turn.setStatus("מוכן — ה-APK המצונזר מחכה להורדה.", "success-text");
       recordTurn("assistant", "censor", "נוצר APK מצונזר בהצלחה", true);
       attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: base64, turn });
@@ -4405,6 +4503,7 @@ no asterisks - describing what the app does / what the last change did, from the
       console.error(err);
       turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
       markCurrentStageError(rail);
+      finalizeAnswerTimingLine("error");
       recordTurn("assistant", "censor", "הצנזור נכשל: " + err.message, false);
     } finally {
       setComposerBusy(false);
@@ -4645,13 +4744,14 @@ anything - answer or act right away.`;
     return lines.join("\n").slice(0, 60000);
   }
 
-  async function buildFilePartsForPrompt(files) {
+  async function buildFilePartsForPrompt(files, opts) {
+    const carried = opts && opts.carried ? " (carried from your previous message so the conversation keeps its context)" : "";
     const parts = [];
     const readable = files.filter((f) => !f.name.toLowerCase().endsWith(".apk") && !f.name.toLowerCase().endsWith(".zip"));
     const apkFiles = files.filter((f) => f.name.toLowerCase().endsWith(".apk"));
     const zipFiles = files.filter((f) => f.name.toLowerCase().endsWith(".zip"));
     for (const apkFile of apkFiles) {
-      let note = `[An Android APK file is attached: ${describeFileForPrompt(apkFile)}]`;
+      let note = `[An Android APK file is attached${carried}: ${describeFileForPrompt(apkFile)}]`;
       try {
         const inspection = await inspectApkForChat(apkFile);
         if (inspection) note += `\nIts real contents, read in the browser:\n${inspection}`;
@@ -4663,7 +4763,7 @@ anything - answer or act right away.`;
         if (typeof JSZip === "undefined") throw new Error("JSZip unavailable");
         const zip = await JSZip.loadAsync(zipFile);
         const entryNames = Object.keys(zip.files).filter((n) => !zip.files[n].dir);
-        parts.push({ text: `[Zip archive attached: ${describeFileForPrompt(zipFile)} - ${entryNames.length} files inside. Structure (first 200):\n${entryNames.slice(0, 200).join("\n") || "(empty)"}]` });
+        parts.push({ text: `[Zip archive attached${carried}: ${describeFileForPrompt(zipFile)} - ${entryNames.length} files inside. Structure (first 200):\n${entryNames.slice(0, 200).join("\n") || "(empty)"}]` });
         let zipBudget = 800000;
         for (const entryName of entryNames) {
           if (zipBudget <= 0) break;
@@ -4676,7 +4776,9 @@ anything - answer or act right away.`;
         }
       } catch (err) {
         console.error("zip exploration failed for", zipFile.name, err);
-        parts.push({ text: `[Zip archive attached: ${describeFileForPrompt(zipFile)} - could not be opened for inspection]` });
+        // The archive could not be opened here — say so explicitly, otherwise
+        // the model answers as if it had read it and invents its contents.
+        parts.push({ text: `[Zip archive attached${carried}: ${describeFileForPrompt(zipFile)} - could not be opened for inspection in the browser. Do NOT pretend to know its contents; if details matter, ask the user to attach the extracted files.]` });
       }
     }
     for (const file of readable) {
@@ -4690,7 +4792,7 @@ anything - answer or act right away.`;
       } catch (err) { console.error("blobToBase64 failed for", file.name, err); }
       if (!inlined) parts.push({ text: `[Attached file that could not be inlined: ${describeFileForPrompt(file)}]` });
     }
-    apkFiles.forEach((f) => { if (!parts.some((p) => p.text && p.text.includes(describeFileForPrompt(f)))) parts.push({ text: `[An Android APK file is attached: ${describeFileForPrompt(f)}]` }); });
+    apkFiles.forEach((f) => { if (!parts.some((p) => p.text && p.text.includes(describeFileForPrompt(f)))) parts.push({ text: `[An Android APK file is attached${carried}: ${describeFileForPrompt(f)}]` }); });
     return parts;
   }
 
@@ -4815,11 +4917,12 @@ separate lines (no markdown bullets or asterisks).`;
   }
 
   async function classifyIntent(geminiKeys, text, files) {
-    const fileNote = files && files.length ? `\n\nAttached files: ${files.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
+    const carried = mergeWithCarried(files);
+    const fileNote = carried && carried.length ? `\n\nAttached files: ${carried.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
     const memoryNote = buildConversationMemory(text);
     const dummyLog = document.createElement("div"); // detached on purpose - callGemini's retry logging has nowhere user-visible to go for this quick call
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(carried, { carried: (files || []).length === 0 })] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }, dummyLog);
     const { raw, finishReason } = extractGeminiText(data);
@@ -4859,10 +4962,14 @@ separate lines (no markdown bullets or asterisks).`;
     try {
       const routed = await classifyIntent(geminiKeys, text, files);
       thinking.remove();
+      finalizeAnswerTimingLine(routed.intent === "chat" ? "ok" : "started");
       if (routed.intent === "act") {
         const action = (routed.action || "").toLowerCase();
-        const apkFile = files && files.length ? files.find((f) => f.name.toLowerCase().endsWith(".apk")) : null;
-        const zipFile = files && files.length ? files.find((f) => f.name.toLowerCase().endsWith(".zip")) : null;
+        // The action may reference a file from an earlier message ("תרגם אותו")
+        // — search the carried list too, not just this message's attachments.
+        const searchable = mergeWithCarried(files);
+        const apkFile = searchable.length ? searchable.find((f) => f.name.toLowerCase().endsWith(".apk")) : null;
+        const zipFile = searchable.length ? searchable.find((f) => f.name.toLowerCase().endsWith(".zip")) : null;
         if ((action === "translate" || action === "edit" || action === "censor" || action === "analyze") && (apkFile || zipFile || currentApk)) {
           // Stage the attached app first (extracting it from a zip when needed),
           // then run the real pipeline immediately — no approval step.
@@ -4920,6 +5027,7 @@ separate lines (no markdown bullets or asterisks).`;
       }
     } catch (err) {
       thinking.remove();
+      finalizeAnswerTimingLine("error");
       console.error(err);
       const turn = appendAssistantTurn("עוזר");
       turn.setStatus(err.message, "error-text");
@@ -4953,11 +5061,12 @@ user to upload a file they already attached. Format the reply as plain short sen
 lines (no markdown bullets or asterisks).`;
 
   async function classifyEditIntent(geminiKeys, text, files) {
-    const fileNote = files && files.length ? `\n\nAttached files: ${files.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
+    const carried = mergeWithCarried(files);
+    const fileNote = carried && carried.length ? `\n\nAttached files: ${carried.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
     const memoryNote = buildConversationMemory(text);
     const dummyLog = document.createElement("div");
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(carried, { carried: (files || []).length === 0 })] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }, dummyLog);
     const { raw, finishReason } = extractGeminiText(data);
@@ -4987,6 +5096,7 @@ lines (no markdown bullets or asterisks).`;
       const routed = await classifyEditIntent(geminiKeys, text, files);
       thinking.remove();
       if (routed.intent === "chat") {
+        finalizeAnswerTimingLine("ok");
         recordTurn("user", "chat", text + (files && files.length ? ` (+${files.length} קבצים)` : ""));
         const turn = appendAssistantTurn("עוזר");
         if (files && files.length) {
@@ -4995,10 +5105,14 @@ lines (no markdown bullets or asterisks).`;
         turn.setRichReply(sentencesToLines(routed.reply || ""));
         recordTurn("assistant", "chat", routed.reply || "");
       } else {
+        finalizeAnswerTimingLine("started");
         await runEditTurn(files ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text);
       }
     } catch (err) {
       thinking.remove();
+      // The classifier itself failed but we fall into the edit pipeline below —
+      // from the user's perspective the request IS being acted on.
+      finalizeAnswerTimingLine("started");
       console.error("classifyEditIntent failed, treating as an edit request:", err);
       // Fails safe toward the more common case in an ongoing build conversation
       // rather than silently dropping the message.
@@ -5390,7 +5504,8 @@ image clearly and unambiguously depicts it.`;
     // message and the files reach the model.
     pendingFiles = [];
     renderPendingFiles();
-    appendUserTurnWithFiles(text, null, files);
+    appendUserTurnWithFiles(text, null, files, true);
+    carriedFiles = mergeWithCarried(files); // follow-up messages keep seeing these files
     if (!activeConversationType && !currentApk) {
       await runChatOrBuild(text, files);
     } else if (activeConversationType === "build" && !currentApk) {
@@ -5400,6 +5515,7 @@ image clearly and unambiguously depicts it.`;
     } else if (currentApk) {
       await runEditOrChat(text, files);
     } else {
+      finalizeAnswerTimingLine("error");
       const turn = appendAssistantTurn("עוזר");
       turn.setStatus("קודם צריך להעלות קובץ APK כדי להמשיך.", "error-text");
       updateComposerForState();
@@ -5661,6 +5777,7 @@ image clearly and unambiguously depicts it.`;
     if (id === activeConversationId && conversationIsLive) { closeSidebarMobile(); return; }
     activeConversationId = id;
     currentApk = null;
+    carriedFiles = []; // the previous conversation's attachments don't follow the user here
     pendingFirstUploadFile = null;
     closeCensorPanel();
     translatePanel.classList.add("hidden");
@@ -5713,6 +5830,7 @@ image clearly and unambiguously depicts it.`;
 
   function renderThreadEmptyPlaceholder() {
     threadEl.innerHTML = "";
+    carriedFiles = []; // a fresh thread starts with a clean attachment memory
     const wrap = document.createElement("div");
     wrap.className = "thread-empty";
     const iconWrap = document.createElement("div");
