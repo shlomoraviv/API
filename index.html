@@ -2270,6 +2270,27 @@ rebuild, even if that means dropping part of the requested change.`;
     throw lastErr;
   }
 
+  // Small JSON-mode calls (the chat intent classifiers, the build summary and
+  // the image filter) used to surface "Gemini returned no usable reply" on the
+  // FIRST empty response — an intermittent backend hiccup on large prompts that
+  // almost always succeeds on an identical retry. They now share the same short
+  // retry loop the big pipelines already had, with a friendly Hebrew message if
+  // every attempt comes back empty.
+  async function callGeminiJsonWithRetry(geminiKeys, buildBody, logTarget) {
+    try {
+      return await callGeminiWithRetry(geminiKeys, buildBody, (data) => {
+        const { raw, finishReason } = extractGeminiText(data);
+        if (!raw) throw new Error(`Gemini returned no usable reply (finishReason: ${finishReason}).`);
+        return raw;
+      }, logTarget);
+    } catch (err) {
+      if (/no usable reply/i.test(err.message || "")) {
+        throw new Error("גמיני החזיר תשובה ריקה גם אחרי 3 ניסיונות — תקלה זמנית בשרתי גוגל, נסו לשלוח שוב בעוד רגע.");
+      }
+      throw err;
+    }
+  }
+
   function extractGeminiText(data) {
     const candidate = data?.candidates?.[0];
     const finishReason = candidate?.finishReason || "unknown";
@@ -4062,12 +4083,10 @@ no asterisks - describing what the app does / what the last change did, from the
       `${BUILD_SUMMARY_INSTRUCTIONS}\n\nWhat the user originally asked for:\n${boundFileForPrompt(idea, GEMINI_IDEA_MAX_CHARS)}` +
       (patchedText ? `\n\nThe code that was written/changed:\n${patchedText}` : "");
     const dummyLog = document.createElement("div");
-    const data = await callGemini(geminiKeys, {
+    const raw = await callGeminiJsonWithRetry(geminiKeys, () => ({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
-    }, dummyLog);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable summary (finishReason: ${finishReason}).`);
+    }), dummyLog);
     const parsed = parseJsonLoose(raw);
     if (!parsed || !Array.isArray(parsed.bullets) || parsed.bullets.length === 0) throw new Error("תקציר הבנייה לא היה תקין.");
     const bullets = parsed.bullets.filter((b) => typeof b === "string" && b.trim()).slice(0, 5);
@@ -4921,12 +4940,11 @@ separate lines (no markdown bullets or asterisks).`;
     const fileNote = carried && carried.length ? `\n\nAttached files: ${carried.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
     const memoryNote = buildConversationMemory(text);
     const dummyLog = document.createElement("div"); // detached on purpose - callGemini's retry logging has nowhere user-visible to go for this quick call
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(carried, { carried: (files || []).length === 0 })] }],
+    const fileParts = await buildFilePartsForPrompt(carried, { carried: (files || []).length === 0 });
+    const raw = await callGeminiJsonWithRetry(geminiKeys, () => ({
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...fileParts] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
-    }, dummyLog);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable reply (finishReason: ${finishReason}).`);
+    }), dummyLog);
     const parsed = parseJsonLoose(raw);
     if (!parsed || typeof parsed.reply !== "string") throw new Error("תשובת הצ'אט לא הייתה תקינה.");
     const intent = parsed.intent === "act" ? "act" : parsed.intent === "build" ? "build" : "chat";
@@ -5065,12 +5083,11 @@ lines (no markdown bullets or asterisks).`;
     const fileNote = carried && carried.length ? `\n\nAttached files: ${carried.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
     const memoryNote = buildConversationMemory(text);
     const dummyLog = document.createElement("div");
-    const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(carried, { carried: (files || []).length === 0 })] }],
+    const fileParts = await buildFilePartsForPrompt(carried, { carried: (files || []).length === 0 });
+    const raw = await callGeminiJsonWithRetry(geminiKeys, () => ({
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...fileParts] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
-    }, dummyLog);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable reply (finishReason: ${finishReason}).`);
+    }), dummyLog);
     const parsed = parseJsonLoose(raw);
     if (!parsed) throw new Error("תשובת הצ'אט לא הייתה תקינה.");
     return { intent: parsed.intent === "chat" ? "chat" : "edit", reply: typeof parsed.reply === "string" ? parsed.reply : "" };
@@ -5248,12 +5265,10 @@ image clearly and unambiguously depicts it.`;
     const parts = [{ text: `${IMAGE_FILTER_INSTRUCTIONS}\n\nDescription to match: ${query}\n\n${batch.length} images follow, in order (index 0 to ${batch.length - 1}).` }];
     batch.forEach((item) => parts.push({ inline_data: { mime_type: item.mime, data: item.base64 } }));
     const dummyLog = document.createElement("div");
-    const data = await callGemini(geminiKeys, {
+    const raw = await callGeminiJsonWithRetry(geminiKeys, () => ({
       contents: [{ role: "user", parts }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.1, maxOutputTokens: 512, thinkingConfig: { thinkingBudget: 0 } },
-    }, dummyLog);
-    const { raw, finishReason } = extractGeminiText(data);
-    if (!raw) throw new Error(`Gemini returned no usable result (finishReason: ${finishReason}).`);
+    }), dummyLog);
     const parsed = parseJsonLoose(raw);
     if (!parsed || !Array.isArray(parsed.matches)) throw new Error("תוצאת הסינון לא הייתה תקינה.");
     return parsed.matches;
