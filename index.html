@@ -1191,6 +1191,27 @@
   // plug in their OWN keys for direct calls — but by default nobody can
   // extract any credential from the site's source.
   const API_PROXY_URL = "https://master-bot-proxy.master-bot.workers.dev";
+
+  // Self-update check: browser caches can keep serving an old copy of this page
+  // for a long time, leaving the user on stale code without any of the latest
+  // fixes (the classic "I still see the old error" report). The page compares
+  // its own build tag against a freshly-fetched (cache-bypassed) copy of itself
+  // and reloads ONCE per session when they differ. When they match, the guard
+  // is cleared so a future update triggers again.
+  const APP_BUILD = "2026-09-18.2105";
+  (function checkForStalePage() {
+    try {
+      if (sessionStorage.getItem("appBuildReloadedFor") === APP_BUILD) return;
+      fetch("index.html", { cache: "no-store" }).then((r) => (r.ok ? r.text() : "")).then((t) => {
+        const m = t && t.match(/APP_BUILD = "([^"]+)"/);
+        if (!m) return;
+        if (m[1] === APP_BUILD) { sessionStorage.removeItem("appBuildReloadedFor"); return; }
+        sessionStorage.setItem("appBuildReloadedFor", APP_BUILD);
+        console.warn("עותק מיושן (" + APP_BUILD + ") — הגרסה המפורסמת " + m[1] + ". טוען מחדש…");
+        location.reload();
+      }).catch(() => {});
+    } catch (e) { /* private-mode/storage errors — skip silently */ }
+  })();
   const DEFAULT_TOKEN_B64 = "";   // removed — token lives in the proxy
   const DEFAULT_GEMINI_KEYS_B64 = []; // removed — keys live in the proxy
   // All credentials live server-side (Cloudflare Worker proxy + the Apps
