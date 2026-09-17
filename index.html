@@ -901,7 +901,7 @@
       <i class="icon" data-icon="paperclip"></i>
       <span>זו שיחה ישנה — כדי להמשיך לערוך את האפליקציה הזו צריך להעלות שוב את קובץ ה-APK.</span>
       <button type="button" class="btn secondary small" id="resumeUploadBtn" style="margin-inline-start:auto;">העלאת APK</button>
-      <input type="file" id="resumeFileInput" accept=".apk" hidden>
+      <input type="file" id="resumeFileInput" accept=".apk,.zip" hidden>
     </div>
 
     <!-- ---- chat thread ---- -->
@@ -915,9 +915,9 @@
 
         <!-- first turn of a brand-new "edit" conversation: upload before chatting -->
         <div class="upload-drop hidden" id="firstUploadDrop">
-          <input type="file" id="firstUploadInput" accept=".apk">
+          <input type="file" id="firstUploadInput" accept=".apk,.zip">
           <div class="upload-drop-icon"><i class="icon" data-icon="package" style="font-size:26px;"></i></div>
-          <div class="upload-drop-title">גררו לכאן קובץ APK, או לחצו לבחירה</div>
+          <div class="upload-drop-title">גררו לכאן קובץ APK או ZIP, או לחצו לבחירה</div>
           <div class="upload-drop-sub">משם אפשר לתאר בצ'אט מה לשנות</div>
         </div>
 
@@ -4429,10 +4429,15 @@ no asterisks - describing what the app does / what the last change did, from the
   const FILE_EXPLORE_INSTRUCTIONS = `The user attached files to this message. Study them carefully and
 base your entire answer on what is actually inside them. If an Android APK file is attached, walk the
 user through it: what its manifest declares (package, activities, permissions), what its code and
-resources reveal about how the app works, its structure, and anything notable or suspicious - and
-offer to decompile it fully in this conversation for deeper edits or inspection. If the attachments
+resources reveal about how the app works, its structure, and anything notable or suspicious - and if
+the user asked for an action on it (decompile it, translate it, edit it, censor it, inspect it
+deeply), treat that as a direct request to act, never as something to offer or ask permission for.
+If a zip archive is attached, its extracted file entries are included below the message - use them
+to explain the archive's structure and contents. If the attachments
 are source code or text, explain how they work, review their structure, and suggest concrete
-improvements. Answer in the same language the user wrote in, and keep the answer readable.`;
+improvements. Answer in the same language the user wrote in, and keep the answer readable. Never
+reply with a plan or a checklist of next steps, and never ask the user to confirm or approve
+anything - answer or act right away.`;
 
   function describeFileForPrompt(file) {
     return `${file.name} (${file.type || "unknown type"}, ${formatBytes(file.size)})`;
@@ -4443,8 +4448,30 @@ improvements. Answer in the same language the user wrote in, and keep the answer
   // model knows they exist and can ask the user about them.
   async function buildFilePartsForPrompt(files) {
     const parts = [];
-    const readable = files.filter((f) => !f.name.toLowerCase().endsWith(".apk"));
+    const readable = files.filter((f) => !f.name.toLowerCase().endsWith(".apk") && !f.name.toLowerCase().endsWith(".zip"));
     const apkFiles = files.filter((f) => f.name.toLowerCase().endsWith(".apk"));
+    const zipFiles = files.filter((f) => f.name.toLowerCase().endsWith(".zip"));
+    for (const zipFile of zipFiles) {
+      try {
+        if (typeof JSZip === "undefined") throw new Error("JSZip unavailable");
+        const zip = await JSZip.loadAsync(zipFile);
+        const entryNames = Object.keys(zip.files).filter((n) => !zip.files[n].dir);
+        parts.push({ text: `[Zip archive attached: ${describeFileForPrompt(zipFile)} - ${entryNames.length} files inside. Structure (first 200):\n${entryNames.slice(0, 200).join("\n") || "(empty)"}]` });
+        let zipBudget = 800000;
+        for (const entryName of entryNames) {
+          if (zipBudget <= 0) break;
+          if (/\.(png|jpe?g|gif|webp|ico|so|dex|bin|dat|mp3|mp4|ogg|wav|ttf|otf|woff2?|zip|jar|apk|arsc|pdf|exe|dll)$/i.test(entryName)) continue;
+          let entryText = await zip.files[entryName].async("string");
+          if (entryText.includes("\u0000")) continue; // binary content that merely decoded
+          if (entryText.length > 150000) entryText = `${entryText.slice(0, 150000)}\n...[truncated]`;
+          zipBudget -= entryText.length;
+          parts.push({ text: `[Zip entry "${entryName}" of ${zipFile.name}]:\n${entryText}` });
+        }
+      } catch (err) {
+        console.error("zip exploration failed for", zipFile.name, err);
+        parts.push({ text: `[Zip archive attached: ${describeFileForPrompt(zipFile)} - could not be opened for inspection]` });
+      }
+    }
     for (const file of readable) {
       let inlined = false;
       try {
@@ -4474,9 +4501,10 @@ mode has been picked yet. Output ONLY a raw JSON object - no markdown fences, no
 exactly two fields: "intent" and "reply".
 
 "intent": the string "build" if the message is a genuine request to build/create a NEW Android app -
-even a short, casual one like "build me a timer app" - otherwise the string "chat". A message that
-merely attaches files to ask about them, inspect them, or discuss them is "chat" - only a real request
-to generate a new app is "build".
+even a short, casual one like "build me a timer app" - or a genuine request to actually DO something
+with an attached or previously uploaded file (translate it, edit it, decompile and analyze it,
+censor it) - otherwise the string "chat". A message that merely attaches files to ask about them,
+inspect them, or discuss them is "chat".
 
 "reply": your own short, warm, natural reply in the same language and register the user wrote in, as
 a friendly assistant actually chatting (not a form, not a script). If intent is "chat": really answer
@@ -4485,11 +4513,16 @@ talk - and if relevant, mention in passing that you can build a new app from a s
 edit/translate/censor images in an existing APK once they upload one. If intent is "build": one brief
 warm line acknowledging you're starting the build now (shown right before the build begins).
 
+When a "Conversation so far" block is included, treat it as real memory: the current message often
+continues something already said or answers something already asked - combine them instead of
+starting over, and never re-ask what is already known. Never ask the user to confirm or approve an
+action, never present a numbered plan or a list of steps to choose from, and never tell the user to
+upload a file they already attached - when they asked for something, it starts right away.
+
 When the user attached files to this message, study them and answer from what is actually inside
 them. An attached Android APK: describe what it is, its manifest (package, activities, permissions),
-its structure, how the app seems to work, and anything notable - then offer to decompile it fully in
-this conversation for deeper inspection or edits. Attached code/text: explain how it works, review
-its structure, and suggest concrete improvements. Format the reply as plain short sentences on
+its structure, how the app seems to work, and anything notable. Attached code/text or zip entries:
+explain how they work, review their structure, and suggest concrete improvements. Format the reply as plain short sentences on
 separate lines (no markdown bullets or asterisks).`;
 
   // Splits a plain-text assistant reply into visual lines for setRichReply():
@@ -4506,11 +4539,72 @@ separate lines (no markdown bullets or asterisks).`;
     return out;
   }
 
+  // Compact transcript of the conversation already rendered in the thread, used
+  // as memory for the intent classifiers (which otherwise only see the current
+  // message and "forget" everything said and done before it). The message being
+  // sent right now is always the last user turn in the DOM — it is skipped here
+  // because it arrives separately as `currentText`.
+  function buildConversationMemory(currentText) {
+    try {
+      const turns = Array.from(threadEl.querySelectorAll(".turn"));
+      if (turns.length <= 1) return "";
+      const lastTurn = turns[turns.length - 1];
+      const lastUserTurn = lastTurn && lastTurn.classList.contains("role-user") ? lastTurn : null;
+      const lines = [];
+      turns.forEach((turn) => {
+        let txt = "";
+        if (turn.classList.contains("role-user")) {
+          if (turn === lastUserTurn) return; // the message being classified now
+          const bubble = turn.querySelector(".user-bubble");
+          if (!bubble) return;
+          const clone = bubble.cloneNode(true);
+          clone.querySelectorAll(".upload-file-chip").forEach((chip) => {
+            const chipTxt = (chip.textContent || "").replace(/\s+/g, " ").trim();
+            chip.remove();
+            if (chipTxt) txt += (txt ? " " : "") + `[קובץ: ${chipTxt}]`;
+          });
+          const body = (clone.textContent || "").replace(/\s+/g, " ").trim();
+          if (body) txt += (txt ? " " : "") + body;
+        } else {
+          const card = turn.querySelector(".assistant-card");
+          if (!card) return;
+          const cardParts = [];
+          const status = card.querySelector(".assistant-text");
+          if (status) cardParts.push((status.textContent || "").replace(/\s+/g, " ").trim());
+          card.querySelectorAll(".assistant-rich .rich-txt, .build-summary .rich-txt").forEach((lineEl) => {
+            const t = (lineEl.textContent || "").replace(/\s+/g, " ").trim();
+            if (t) cardParts.push(t);
+          });
+          txt = cardParts.join(" | ");
+        }
+        txt = txt.slice(0, 240);
+        if (txt) lines.push(`${turn.classList.contains("role-user") ? "User" : "Bot"}: ${txt}`);
+      });
+      if (lines.length === 0) return "";
+      return `\n\nConversation so far (oldest first, for memory):\n${lines.slice(-14).join("\n")}`;
+    } catch (err) {
+      console.warn("conversation memory build failed:", err);
+      return "";
+    }
+  }
+
+  // Extracts the first APK entry from an uploaded zip file, so a zip containing
+  // the app can be staged anywhere an APK is expected (first upload, resume).
+  async function extractApkFromZip(zipFile) {
+    if (typeof JSZip === "undefined") throw new Error("ספריית ה-zip עדיין לא נטענה — נסו שוב בעוד רגע.");
+    const zip = await JSZip.loadAsync(zipFile);
+    const apkPath = Object.keys(zip.files).find((n) => !zip.files[n].dir && /\.apk$/i.test(n));
+    if (!apkPath) return null;
+    const blob = await zip.files[apkPath].async("blob");
+    return { name: apkPath.split("/").pop() || "app.apk", blob };
+  }
+
   async function classifyIntent(geminiKeys, text, files) {
     const fileNote = files && files.length ? `\n\nAttached files: ${files.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
+    const memoryNote = buildConversationMemory(text);
     const dummyLog = document.createElement("div"); // detached on purpose - callGemini's retry logging has nowhere user-visible to go for this quick call
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }, dummyLog);
     const { raw, finishReason } = extractGeminiText(data);
@@ -4576,8 +4670,9 @@ ONLY a raw JSON object - no markdown fences, no commentary - with exactly two fi
 "reply".
 
 "intent": the string "edit" if the message is a genuine request to change/modify/improve/translate/
-extend the app in some way - even a small one, like a color or a single new button - otherwise the
-string "chat" for questions, comments, greetings, or anything not asking for an actual change.
+extend the app in some way - even a small one, like a color or a single new button - or a request to
+actually decompile/unpack/analyze the app and report what it does or how it works. Otherwise the
+string "chat" for questions, comments, greetings, or anything not asking for an actual action.
 
 "reply": ONLY meaningful when intent is "chat" - your own short, warm, natural reply in the same
 language and register the user used, genuinely answering what they asked or said. When intent is
@@ -4586,16 +4681,19 @@ a separate acknowledgement line first.
 
 When the user attached files to this message, base your answer on what is actually inside them. An
 attached Android APK: walk through its manifest (package, activities, permissions), its structure,
-how the app seems to work, and anything notable - then offer to decompile it fully in this
-conversation for deeper inspection or edits. Attached code/text: explain how it works, review its
-structure, and suggest concrete improvements. Format the reply as plain short sentences on separate
+how the app seems to work, and anything notable. Attached code/text or zip entries: explain how they
+work, review their structure, and suggest concrete improvements. When a "Conversation so far" block
+is included, treat it as real memory - combine it with the current message instead of starting over,
+never re-ask what is already known, never present a plan or ask for approval, and never tell the
+user to upload a file they already attached. Format the reply as plain short sentences on separate
 lines (no markdown bullets or asterisks).`;
 
   async function classifyEditIntent(geminiKeys, text, files) {
     const fileNote = files && files.length ? `\n\nAttached files: ${files.map(describeFileForPrompt).join("; ")}\n\n${FILE_EXPLORE_INSTRUCTIONS}` : "";
+    const memoryNote = buildConversationMemory(text);
     const dummyLog = document.createElement("div");
     const data = await callGemini(geminiKeys, {
-      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
+      contents: [{ role: "user", parts: [{ text: `${CLASSIFY_EDIT_INSTRUCTIONS}${memoryNote}${fileNote}\n\nUser message:\n${text}` }, ...await buildFilePartsForPrompt(files || [])] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
     }, dummyLog);
     const { raw, finishReason } = extractGeminiText(data);
@@ -5061,13 +5159,36 @@ image clearly and unambiguously depicts it.`;
 
   async function stageFirstUpload(file) {
     if (requireOwner("העלאת קובץ APK")) return;
-    pendingFirstUploadFile = file;
-    pendingFileName.textContent = file.name;
-    const base64 = await blobToBase64(file);
-    currentApk = { base64, name: file.name };
+    let stagedName = file.name;
+    let stagedSize = file.size;
+    let stagedData = file;
+    let stagedFromZip = null;
+    if (/\.zip$/i.test(file.name)) {
+      try {
+        const apk = await extractApkFromZip(file);
+        if (!apk) {
+          const turn = appendAssistantTurn("עוזר");
+          turn.setStatus("בתוך קובץ ה-zip לא נמצא קובץ ‎.apk — העלו את קובץ ה-APK עצמו או zip שמכיל אותו.", "error-text");
+          return;
+        }
+        stagedFromZip = file.name;
+        stagedData = apk.blob;
+        stagedName = apk.name;
+        stagedSize = apk.blob.size;
+      } catch (err) {
+        console.error("zip extraction failed:", err);
+        const turn = appendAssistantTurn("עוזר");
+        turn.setStatus("פתיחת קובץ ה-zip נכשלה: " + err.message, "error-text");
+        return;
+      }
+    }
+    pendingFirstUploadFile = { name: stagedName, size: stagedSize };
+    pendingFileName.textContent = stagedName;
+    const base64 = await blobToBase64(stagedData);
+    currentApk = { base64, name: stagedName };
     writeDecompileMarker(publicInfo.githubOwner || DEFAULT_GITHUB_OWNER, publicInfo.githubRepo || DEFAULT_GITHUB_REPO, publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH, null);
-    appendUserTurn(`הועלה קובץ: ${file.name} (${formatBytes(file.size)})`, "paperclip");
-    recordTurn("user", activeConversationType || "edit", `הועלה קובץ: ${file.name}`);
+    appendUserTurn(`הועלה קובץ: ${stagedName} (${formatBytes(stagedSize)})${stagedFromZip ? ` — חולץ מתוך ${stagedFromZip}` : ""}`, "paperclip");
+    recordTurn("user", activeConversationType || "edit", `הועלה קובץ: ${stagedName}${stagedFromZip ? ` (חולץ מתוך ${stagedFromZip})` : ""}`);
     updateComposerForState();
     // translate/censor act on the file directly — jump straight into their panel
     // instead of waiting for a typed instruction that wouldn't make sense here.
@@ -5084,14 +5205,34 @@ image clearly and unambiguously depicts it.`;
   // ---- resume an old (non-live) conversation by re-uploading its APK ----
   resumeUploadBtn.addEventListener("click", () => resumeFileInput.click());
   resumeFileInput.addEventListener("change", async () => {
-    const file = resumeFileInput.files[0];
+    let file = resumeFileInput.files[0];
     if (!file) return;
+    let apkName = file.name;
+    let fromZip = null;
+    if (/\.zip$/i.test(file.name)) {
+      try {
+        const apk = await extractApkFromZip(file);
+        if (!apk) {
+          const turn = appendAssistantTurn("עוזר");
+          turn.setStatus("בתוך קובץ ה-zip לא נמצא קובץ ‎.apk — העלו את קובץ ה-APK עצמו או zip שמכיל אותו.", "error-text");
+          return;
+        }
+        fromZip = file.name;
+        file = apk.blob;
+        apkName = apk.name;
+      } catch (err) {
+        console.error("zip extraction failed:", err);
+        const turn = appendAssistantTurn("עוזר");
+        turn.setStatus("פתיחת קובץ ה-zip נכשלה: " + err.message, "error-text");
+        return;
+      }
+    }
     const base64 = await blobToBase64(file);
-    currentApk = { base64, name: file.name };
+    currentApk = { base64, name: apkName };
     writeDecompileMarker(publicInfo.githubOwner || DEFAULT_GITHUB_OWNER, publicInfo.githubRepo || DEFAULT_GITHUB_REPO, publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH, null);
     conversationIsLive = true;
-    appendUserTurn(`הועלה קובץ מחדש כדי להמשיך: ${file.name}`, "paperclip");
-    recordTurn("user", "edit", `הועלה קובץ מחדש: ${file.name}`);
+    appendUserTurn(`הועלה קובץ מחדש כדי להמשיך: ${apkName}${fromZip ? ` — חולץ מתוך ${fromZip}` : ""}`, "paperclip");
+    recordTurn("user", "edit", `הועלה קובץ מחדש: ${apkName}${fromZip ? ` (חולץ מתוך ${fromZip})` : ""}`);
     showThreadView(mainTopbarTitle.textContent);
   });
 
