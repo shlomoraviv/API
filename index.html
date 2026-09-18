@@ -1157,7 +1157,7 @@
   const WORKFLOW_FILE = "build-apk.yml";
   const RESIGN_WORKFLOW_FILE = "resign-apk.yml";
   const POLL_INTERVAL_MS = 5000;
-  const POLL_TIMEOUT_MS = 10 * 60 * 1000;
+  const POLL_TIMEOUT_MS = 20 * 60 * 1000; // Gradle builds on cold runners can take 10+ minutes
   const MAX_AUTO_FIX_ATTEMPTS = 3;
   const MAX_LOG_CHARS = 6000;
   const MAX_GITHUB_READ_ATTEMPTS = 3;
@@ -1198,7 +1198,7 @@
   // its own build tag against a freshly-fetched (cache-bypassed) copy of itself
   // and reloads ONCE per session when they differ. When they match, the guard
   // is cleared so a future update triggers again.
-  const APP_BUILD = "2026-09-18.2105";
+  const APP_BUILD = "2026-09-18.2350";
   (function checkForStalePage() {
     try {
       if (sessionStorage.getItem("appBuildReloadedFor") === APP_BUILD) return;
@@ -1294,6 +1294,7 @@
     enhance: "שיפור", gemini: "יצירה", commit: "שמירה", actions: "בנייה", apk: "מוכן",
     decompile: "פירוק", locate: "איתור", patch: "עריכה", rebuild: "בנייה מחדש",
     strings: "מחרוזות", translate: "תרגום",
+    prepare: "הכנת מקור", build: "הידור",
   };
   // Rough expected-duration weights per stage (seconds) — used only to compute a
   // live percentage + estimated finish time; the GitHub Actions build stage
@@ -1303,6 +1304,7 @@
     enhance: 8, gemini: 16, commit: 3, actions: 90, apk: 10,
     decompile: 40, locate: 8, patch: 16, rebuild: 75,
     strings: 4, translate: 14,
+    prepare: 20, build: 240,
   };
 
   const IMAGE_EXT_RE = /\.(png|jpg|jpeg|gif|webp|bmp)$/i;
@@ -2586,6 +2588,225 @@ rebuild, even if that means dropping part of the requested change.`;
     const pkg = doc.documentElement.getAttribute("package");
     if (!pkg) throw new Error("Decompiled AndroidManifest.xml has no package attribute.");
     return pkg;
+  }
+
+  // ==== chat-side compile: full source → APK via GitHub Actions, straight from the chat ====
+  const COMPILE_WORKFLOW_FILE = "compile-app.yml";
+  const COMPILE_ARTIFACT_NAME = "app-compiled.apk";
+  const COMPILE_MAX_FILES = 1200;
+  const COMPILE_MAX_TEXT_CHARS = 4000000; // ~4MB total source text per compile
+  const COMPILE_STAGE_ORDER = ["prepare", "commit", "build", "apk"];
+  const COMPILE_MAX_BINARY_BYTES = 300000; // per-file cap for binary assets
+  // Text/binary source files worth committing for a Gradle build — everything else
+  // (build outputs, IDE folders, keystores) is noise that only slows the upload.
+  const COMPILE_TEXT_RE = /\.(java|kt|kts|java|xml|gradle|properties|pro|json|txt|md|yaml|yml|aidl|c|h|cpp|hpp|mm|sh|toml|csv|html|js|ts|css)$/i;
+  const COMPILE_BINARY_RE = /\.(png|jpg|jpeg|webp|gif|so|jar|ttf|otf)$/i;
+  function bytesToBase64(bytes) {
+    let binary = "";
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+  // Collects buildable source entries from an uploaded zip, honoring the size caps.
+  async function collectCompileEntriesFromZip(zip) {
+    const entries = [];
+    const skipped = [];
+    const names = Object.keys(zip.files).filter((n) => !zip.files[n].dir && !/(^|\/)(build|\.gradle|\.idea|\.git)\//.test(n));
+    for (const name of names) {
+      if (entries.length >= COMPILE_MAX_FILES) { skipped.push(name); continue; }
+      const entry = zip.files[name];
+      if (COMPILE_TEXT_RE.test(name)) {
+        entries.push({ path: name, contentText: await entry.async("text") });
+      } else if (COMPILE_BINARY_RE.test(name)) {
+        const bytes = await entry.async("uint8array");
+        if (bytes.length > COMPILE_MAX_BINARY_BYTES) { skipped.push(name); continue; }
+        entries.push({ path: name, bytes });
+      } else {
+        skipped.push(name);
+      }
+    }
+    return { entries, skipped };
+  }
+  // Detects whether a decompiled tree (or an uploaded source zip) actually contains
+  // a buildable Gradle project, and which variant to build (full source vs extracted repo).
+  function detectSourceLayout(entries) {
+    const names = entries.map((e) => e.path);
+    const has = (p) => names.some((n) => n === p || n.startsWith(p + "/"));
+    const gradleRoot = (root) =>
+      (has(`${root}settings.gradle`) || has(`${root}settings.gradle.kts`)) &&
+      (has(`${root}app/build.gradle`) || has(`${root}app/build.gradle.kts`));
+    if (gradleRoot("")) return { mode: "repo", root: "" };
+    if (gradleRoot("decompiled_app/")) return { mode: "repo", root: "decompiled_app/" };
+    // zips exported from file explorers often wrap the whole project in one folder —
+    // detect a single top-level directory that itself is a Gradle project root.
+    const topDirs = [...new Set(names.map((n) => n.split("/")[0] + "/"))].filter((d) => d !== "decompiled_app/");
+    if (topDirs.length === 1 && gradleRoot(topDirs[0])) return { mode: "repo", root: topDirs[0] };
+    const sources = entries.filter((e) => /^decompiled_app\/sources\/.+\.java$/.test(e.path));
+    if (sources.length) {
+      const pkg = sources.map((e) => e.path.replace(/^decompiled_app\/sources\//, "").replace(/\/[^/]+\.java$/, "")).sort()[0].replace(/\//g, ".");
+      return { mode: "scaffold", root: "", basePackage: pkg };
+    }
+    return null;
+  }
+  // Wraps a whole extracted source tree into a buildable Gradle project. Used when the
+  // artifact only holds decompiled Java (sources/) — apktool output has no Gradle files.
+  // The manifest is sanitized: package attr stripped (AGP8 forbids it) and @-references
+  // replaced with literals so aapt2 never fails on missing decompiled resources.
+  function scaffoldFromDecompiled(entries, basePackage) {
+    const files = entries
+      .filter((e) => e.path.startsWith("decompiled_app/sources/") && COMPILE_TEXT_RE.test(e.path))
+      .map((e) => ({ path: `app/src/main/java/${e.path.replace(/^decompiled_app\/sources\//, "")}`, content: e.contentText || "" }));
+    const manifestSrc = entries.find((e) => e.path === "decompiled_app/AndroidManifest.xml");
+    const manifest = (manifestSrc && manifestSrc.contentText ? manifestSrc.contentText : `<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="${basePackage}">\n  <application android:label="App">\n    <activity android:name=".MainActivity" android:exported="true">\n      <intent-filter>\n        <action android:name="android.intent.action.MAIN" />\n        <category android:name="android.intent.category.LAUNCHER" />\n      </intent-filter>\n    </activity>\n  </application>\n</manifest>`)
+      .replace(/\s+package="[^"]*"/, "")
+      .replace(/android:label="@\S+?"/g, 'android:label="App"')
+      .replace(/\s+android:icon="@\S+?"/g, "")
+      .replace(/\s+android:theme="@\S+?"/g, "");
+    files.push(
+      { path: "settings.gradle", content: `pluginManagement {\n    repositories {\n        google()\n        mavenCentral()\n        gradlePluginPortal()\n    }\n}\ndependencyResolutionManagement {\n    repositories {\n        google()\n        mavenCentral()\n    }\n}\nrootProject.name = "CompiledApp"\ninclude(":app")` },
+      { path: "build.gradle", content: `plugins {\n    id("com.android.application") version "8.5.2" apply false\n}` },
+      { path: "app/build.gradle", content: `plugins {\n    id("com.android.application")\n}\nandroid {\n    namespace = "${basePackage}"\n    compileSdk = 34\n    defaultConfig {\n        applicationId = "${basePackage}"\n        minSdk = 24\n        targetSdk = 34\n        versionCode = 1\n        versionName = "1.0"\n    }\n    buildTypes {\n        release {\n            isMinifyEnabled = false\n        }\n    }\n    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }\n}` },
+      { path: "gradle/wrapper/gradle-wrapper.properties", content: `distributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists` },
+      { path: "app/src/main/AndroidManifest.xml", content: manifest }
+    );
+    return files;
+  }
+  // Runs the whole chat-side compile: uploads source, dispatches compile-app.yml,
+  // polls the run (up to 20 minutes — real Gradle builds take 5–10), downloads the
+  // artifact, extracts the APK and hands it to the UI like any pipeline result.
+  async function compileSourceToApkInChat({ kind, entries, basePackage, logTarget, onApk, onCommitStarted, onBuildStarted }) {
+    // The shared GitHub token lives behind the backend relay (see gh()) — the
+    // browser only needs the repo coordinates; auth happens server-side.
+    const conn = readConnections();
+    const { owner, repo, branch, token } = conn;
+    if (!owner || !repo || !branch) throw new Error("אין חיבור לגיטהאב — התחברו דרך כפתור הכניסה ואז נסו שוב.");
+    // Normalize entries into commitRepoFiles' expected shapes (text → "content",
+    // binary → "contentBase64"), stripping the detected root prefix, and enforce
+    // the size caps so a huge zip can never flood the tree API.
+    let files;
+    if (kind === "scaffold") {
+      files = scaffoldFromDecompiled(entries, basePackage).slice(0, COMPILE_MAX_FILES);
+    } else {
+      files = [];
+      let textTotal = 0;
+      for (const e of entries) {
+        if (files.length >= COMPILE_MAX_FILES) break;
+        const path = e.path.startsWith(e.rootPrefix || "") ? e.path.slice((e.rootPrefix || "").length) : e.path;
+        if (e.contentText != null) {
+          textTotal += e.contentText.length;
+          if (textTotal > COMPILE_MAX_TEXT_CHARS) break;
+          files.push({ path, content: e.contentText });
+        } else if (e.contentBase64 != null) {
+          files.push({ path, contentBase64: e.contentBase64 });
+        } else if (e.bytes) {
+          files.push({ path, contentBase64: bytesToBase64(e.bytes) });
+        }
+      }
+    }
+    log(`מעלה ${files.length} קבצי מקור לגיטהאב…`, null, logTarget);
+    const commitSha = await commitRepoFiles({ owner, repo, branch, token, files, message: "Master Bot: compile source from chat" });
+    if (onCommitStarted) onCommitStarted();
+    log(`Commit נוצר: ${commitSha.slice(0, 7)}, מפעיל הידור (Gradle)…`, "ok", logTarget);
+    if (onBuildStarted) onBuildStarted();
+    const run = await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha, workflowFile: COMPILE_WORKFLOW_FILE, logTarget });
+    log("ההידור הושלם, מוריד את ה-APK…", "ok", logTarget);
+    const apkBlob = await downloadApk({ owner, repo, token, runId: run.id, artifactName: COMPILE_ARTIFACT_NAME, logTarget });
+    const apkBase64 = await blobToBase64(apkBlob);
+    log(`ה-APK מוכן (${formatBytes(apkBlob.size)})`, "ok", logTarget);
+    if (onApk) onApk(apkBlob, apkBase64);
+    return { apkBlob, apkBase64, runUrl: run.html_url };
+  }
+
+  // Full chat-side compile turn: figures out what the source actually is (Gradle
+  // repo zip, decompiled-APK tree, or raw decompiled Java), builds it through
+  // GitHub Actions and hands the fresh APK to the chat like any pipeline result.
+  async function runCompileTurn(zipFile, text) {
+    const { token, owner, repo, branch } = readConnections();
+    const turn = appendAssistantTurn("מהדר מקור ל-APK");
+    if (!owner || !repo || (!zipFile && !currentApk)) {
+      finalizeAnswerTimingLine("error");
+      turn.setStatus("צריך לצרף קובץ zip של קוד המקור כדי לקמפל.", "error-text");
+      return;
+    }
+    recordTurn("user", "build", text || "הידור מקור ל-APK");
+    const rail = turn.createRail(COMPILE_STAGE_ORDER);
+    const logBox = turn.createLog();
+    setComposerBusy(true);
+    try {
+      setStage("prepare", "active", rail, COMPILE_STAGE_ORDER);
+      let kind, entries, basePackage;
+      if (zipFile) {
+        log(`פותח את ${zipFile.name}…`, null, logBox);
+        const zip = await JSZip.loadAsync(zipFile);
+        const collected = await collectCompileEntriesFromZip(zip);
+        entries = collected.entries;
+        if (collected.skipped.length) log(`דילגו על ${collected.skipped.length} קבצים שאינם נדרשים לבנייה (פלטים, ספריות IDE וכדומה)`, null, logBox);
+        const layout = detectSourceLayout(entries);
+        if (!layout) throw new Error("לא זוהה פרויקט בנייה בתוך ה-zip — נדרשת תיקיית פרויקט Gradle (settings.gradle + app/build.gradle) או עץ מקור מפורק (sources/). אפשר גם לצרף APK ולבקש ניתוח כדי לפרוק אותו קודם.");
+        kind = layout.mode === "scaffold" ? "scaffold" : "repo";
+        basePackage = layout.basePackage || null;
+        if (layout.mode === "repo" && layout.root) {
+          const rootPrefix = layout.root;
+          entries = entries.filter((e) => e.path.startsWith(rootPrefix)).map((e) => ({ ...e, path: e.path.slice(rootPrefix.length) }));
+        }
+      } else {
+        // No zip attached — the decompiled tree in the repo is apktool (smali +
+        // resources), not Gradle source: rebuild it with the proven rebuild flow
+        // instead of Gradle.
+        log("אין zip מצורף — בונה מחדש את ה-APK מעץ המקור המפורק במאגר…", null, logBox);
+        setStage("prepare", "done", rail, COMPILE_STAGE_ORDER);
+        setStage("commit", "active", rail, COMPILE_STAGE_ORDER);
+        const { latestSha } = await getBranchHead({ owner, repo, branch, token });
+        setStage("commit", "done", rail, COMPILE_STAGE_ORDER);
+        setStage("build", "active", rail, COMPILE_STAGE_ORDER);
+        const run = await dispatchAndWaitForWorkflow({ owner, repo, branch, token, commitSha: latestSha, workflowFile: REBUILD_WORKFLOW_FILE, logTarget: logBox });
+        setStage("build", "done", rail, COMPILE_STAGE_ORDER);
+        setStage("apk", "active", rail, COMPILE_STAGE_ORDER);
+        const apkBlob = await downloadApk({ owner, repo, token, runId: run.id, artifactName: "app-recompiled-release.apk", logTarget: logBox });
+        const apkBase64 = await blobToBase64(apkBlob);
+        currentApk = { base64: apkBase64, name: currentApk ? currentApk.name : "app-recompiled-release.apk" };
+        turn.showDownload({ blob: apkBlob, filename: currentApk.name, label: currentApk.name });
+        attachEmulatorInBackground({ owner, repo, branch, token, apkBase64, turn });
+        setStage("apk", "done", rail, COMPILE_STAGE_ORDER);
+        finalizeAnswerTimingLine("ok");
+        turn.setStatus("מוכן — ה-APK שנבנה מחדש מחכה להורדה.", "success-text");
+        recordTurn("assistant", "build", "נבנה APK מעץ המקור המפורק בהצלחה", true);
+        updateComposerForState();
+        return;
+      }
+      if (!entries.length) throw new Error("לא נמצאו קבצי מקור להידור בתוך הארכיון.");
+      log(`זוהה פרויקט עם ${entries.length} קבצים${kind === "scaffold" ? ` — נעטף בפרויקט בנייה חדש (חבילה: ${basePackage})` : ""}`, "ok", logBox);
+      setStage("prepare", "done", rail, COMPILE_STAGE_ORDER);
+
+      setStage("commit", "active", rail, COMPILE_STAGE_ORDER);
+      const result = await compileSourceToApkInChat({
+        kind, entries, basePackage, logTarget: logBox,
+        onCommitStarted: () => setStage("commit", "done", rail, COMPILE_STAGE_ORDER),
+        onBuildStarted: () => setStage("build", "active", rail, COMPILE_STAGE_ORDER),
+      });
+      setStage("build", "done", rail, COMPILE_STAGE_ORDER);
+
+      setStage("apk", "active", rail, COMPILE_STAGE_ORDER);
+      currentApk = { base64: result.apkBase64, name: (zipFile ? zipFile.name.replace(/\.zip$/i, "") : "app") + "-compiled.apk" };
+      writeDecompileMarker(owner, repo, branch, null);
+      turn.showDownload({ blob: result.apkBlob, filename: currentApk.name, label: currentApk.name });
+      attachEmulatorInBackground({ owner, repo, branch, token, apkBase64: result.apkBase64, turn });
+      setStage("apk", "done", rail, COMPILE_STAGE_ORDER);
+      finalizeAnswerTimingLine("ok");
+      turn.setStatus("מוכן — ה-APK המהודר מחכה להורדה.", "success-text");
+      recordTurn("assistant", "build", "הודר APK מקוד המקור בהצלחה", true);
+      updateComposerForState();
+    } catch (err) {
+      console.error(err);
+      finalizeAnswerTimingLine("error");
+      turn.setStatus(err.message + (err.runUrl ? `  (${err.runUrl})` : ""), "error-text");
+      markCurrentStageError(rail);
+      recordTurn("assistant", "build", "ההידור נכשל: " + err.message, false);
+    } finally {
+      setComposerBusy(false);
+    }
   }
 
   // Commits the raw uploaded APK to DECOMPILE_SOURCE_PATH, explicitly starts
@@ -4850,7 +5071,8 @@ mode has been picked yet. Output ONLY a raw JSON object - no markdown fences, no
 exactly three fields: "intent", "reply", and "action".
 
 "intent": the string "act" if the message asks you to actually DO something now - translate the
-attached/uploaded app, edit or change it, decompile and unpack it, censor images in it, or build a
+attached/uploaded app, edit or change it, decompile and unpack it, censor images in it, compile an
+attached source zip into an APK, or build a
 NEW app from a description; also "act" when they attached an APK and asked anything like
 "analyze it", "what does it do", "explain how it works" or "inspect it deeply" (that starts a full
 decompile and analysis). Otherwise "chat" for questions, comments, greetings, or discussing the
@@ -4859,8 +5081,9 @@ attachments without an action request. When intent is "act", also fill "action" 
 "action": ONLY when intent is "act" - one of: "translate" (with the target language extracted from
 the message into "reply" as just the language name), "edit" (change/patch the app), "translate"'s
 language goes in "reply", "analyze" (decompile and deeply inspect an attached APK - put a one-line
-acknowledgement in "reply"), "censor" (mark/censor images), or "build" (create a new app from the
-description). For "chat" set "action" to "".
+acknowledgement in "reply"), "censor" (mark/censor images), "build" (create a new app from the
+description), or "compile" (the user attached a zip of app source code - or an APK whose source is
+already decompiled - and wants it compiled into an installable APK). For "chat" set "action" to "".
 
 "reply": your own short, warm, natural reply in the same language and register the user wrote in, as
 a friendly assistant actually chatting (not a form, not a script). If intent is "chat": really answer
@@ -5009,6 +5232,13 @@ separate lines (no markdown bullets or asterisks).`;
         const searchable = mergeWithCarried(files);
         const apkFile = searchable.length ? searchable.find((f) => f.name.toLowerCase().endsWith(".apk")) : null;
         const zipFile = searchable.length ? searchable.find((f) => f.name.toLowerCase().endsWith(".zip")) : null;
+        if (action === "compile" && (zipFile || apkFile || currentApk)) {
+          activeConversationType = "edit";
+          updateComposerForState();
+          appendUserTurn("הידור מקור ל-APK", "build");
+          await runCompileTurn(zipFile || apkFile, text);
+          return;
+        }
         if ((action === "translate" || action === "edit" || action === "censor" || action === "analyze") && (apkFile || zipFile || currentApk)) {
           // Stage the attached app first (extracting it from a zip when needed),
           // then run the real pipeline immediately — no approval step.
@@ -5080,7 +5310,9 @@ ONLY a raw JSON object - no markdown fences, no commentary - with exactly two fi
 
 "intent": the string "edit" if the message is a genuine request to change/modify/improve/translate/
 extend the app in some way - even a small one, like a color or a single new button - or a request to
-actually decompile/unpack/analyze the app and report what it does or how it works. Otherwise the
+actually decompile/unpack/analyze the app and report what it does or how it works, or the string
+"compile" when the user attached a zip of app source code and wants it built/compiled into an APK.
+Otherwise the
 string "chat" for questions, comments, greetings, or anything not asking for an actual action.
 Never answer an action request with a plan or a question - when in doubt between "edit" and "chat"
 for a message that names a concrete change or action, choose "edit".
@@ -5142,6 +5374,12 @@ lines (no markdown bullets or asterisks).`;
         }
         turn.setRichReply(sentencesToLines(routed.reply || ""));
         recordTurn("assistant", "chat", routed.reply || "");
+      } else if (routed.intent === "compile") {
+        finalizeAnswerTimingLine("started");
+        const carried = mergeWithCarried(files);
+        const zip = carried.find((f) => f.name.toLowerCase().endsWith(".zip"));
+        appendUserTurn("הידור מקור ל-APK", "build");
+        await runCompileTurn(zip, text);
       } else {
         finalizeAnswerTimingLine("started");
         await runEditTurn(files ? `${text}\n\n[קבצים שצורפו לבקשה: ${files.map(describeFileForPrompt).join("; ")}]` : text);
