@@ -2756,6 +2756,9 @@ rebuild, even if that means dropping part of the requested change.`;
         // resources), not Gradle source: rebuild it with the proven rebuild flow
         // instead of Gradle.
         log("אין zip מצורף — בונה מחדש את ה-APK מעץ המקור המפורק במאגר…", null, logBox);
+        // Guarantee the branch's decompiled tree actually matches the active APK
+        // (a no-op when the decompile marker already agrees — the common case).
+        await ensureDecompiled({ owner, repo, branch, token, apkBase64: currentApk.base64, logTarget: logBox });
         setStage("prepare", "done", rail, COMPILE_STAGE_ORDER);
         setStage("commit", "active", rail, COMPILE_STAGE_ORDER);
         const { latestSha } = await getBranchHead({ owner, repo, branch, token });
@@ -5235,8 +5238,16 @@ separate lines (no markdown bullets or asterisks).`;
         if (action === "compile" && (zipFile || apkFile || currentApk)) {
           activeConversationType = "edit";
           updateComposerForState();
+          // A freshly attached APK (no zip) becomes the active app first, so the
+          // rebuild below runs against ITS decompiled tree — not a stale one.
+          if (!zipFile && apkFile && !currentApk) {
+            const base64 = await blobToBase64(apkFile.blob || apkFile);
+            currentApk = { base64, name: apkFile.name || "app.apk" };
+            writeDecompileMarker(publicInfo.githubOwner || DEFAULT_GITHUB_OWNER, publicInfo.githubRepo || DEFAULT_GITHUB_REPO, publicInfo.githubBranch || DEFAULT_GITHUB_BRANCH, null);
+            updateComposerForState();
+          }
           appendUserTurn("הידור מקור ל-APK", "build");
-          await runCompileTurn(zipFile || apkFile, text);
+          await runCompileTurn(zipFile, text);
           return;
         }
         if ((action === "translate" || action === "edit" || action === "censor" || action === "analyze") && (apkFile || zipFile || currentApk)) {
