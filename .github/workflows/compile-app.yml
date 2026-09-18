@@ -1,0 +1,81 @@
+# Compiles a full Gradle source project (committed to the repo root by
+# index.html's chat-side "compile source -> APK" flow) into a signed,
+# installable APK.
+#
+# Unlike rebuild-apk.yml (which re-packages an apktool-decompiled tree), this
+# workflow runs a real Gradle build: it works both for complete project zips
+# the user attached (settings.gradle + app/build.gradle at the repo root) and
+# for scaffolded projects index.html generated around decompiled Java sources.
+#
+# Setup: save as .github/workflows/compile-app.yml — no new secrets required.
+
+name: Compile App
+
+"on":
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.7"
+
+      - name: Build (Gradle)
+        run: |
+          set -e
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleRelease --no-daemon --stacktrace || ./gradlew assembleDebug --no-daemon --stacktrace
+          else
+            gradle assembleRelease --no-daemon --stacktrace || gradle assembleDebug --no-daemon --stacktrace
+          fi
+
+      - name: Locate built APK
+        run: |
+          set -e
+          APK_PATH=$(find app/build/outputs -name "*.apk" -type f | head -n1)
+          [ -n "$APK_PATH" ] || { echo "::error::No APK produced under app/build/outputs"; exit 1; }
+          echo "APK_PATH=$APK_PATH" >> "$GITHUB_ENV"
+
+      - name: Zipalign + sign (persistent release key when configured, else a fresh throwaway one)
+        env:
+          RELEASE_KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
+        run: |
+          set -e
+          ZIPALIGN_BIN=$(find "$ANDROID_HOME/build-tools" -name "zipalign" -type f | sort -r | head -n1)
+          APKSIGNER_BIN=$(find "$ANDROID_HOME/build-tools" -name "apksigner" -type f | sort -r | head -n1)
+          [ -n "$ZIPALIGN_BIN" ] && [ -e "$ZIPALIGN_BIN" ] || { echo "::error::zipalign not found under \$ANDROID_HOME/build-tools"; exit 1; }
+          [ -n "$APKSIGNER_BIN" ] && [ -e "$APKSIGNER_BIN" ] || { echo "::error::apksigner not found under \$ANDROID_HOME/build-tools"; exit 1; }
+
+          "$ZIPALIGN_BIN" -f -p 4 "$APK_PATH" app-aligned.apk
+
+          if [ -n "${RELEASE_KEYSTORE_B64:-}" ]; then
+            echo "$RELEASE_KEYSTORE_B64" | base64 -d > debug.keystore
+          else
+            keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android \
+              -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug"
+          fi
+
+          "$APKSIGNER_BIN" sign \
+            --ks debug.keystore --ks-pass pass:android \
+            --ks-key-alias androiddebugkey --key-pass pass:android \
+            --out app-compiled.apk app-aligned.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-compiled.apk
+          path: app-compiled.apk
+          retention-days: 7
